@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<beanio xmlns="http://www.beanio.org/2012/03" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+  
+  <!-- List of type handlers used by this configuration to parse file -->
+  <typeHandler name="recipientIdHandler" class="com.s1.frameworks.payments.imports.handlers.RecipientIdTypeHandler" />
+  <typeHandler name="moneyHandler" class="com.s1.frameworks.payments.imports.handlers.MoneyDataTypeHandler">
+  	<property name="currencyAlpha3Code" value="USD"/>
+  </typeHandler>
+  <typeHandler name="s1dateHandler" class="com.s1.frameworks.payments.imports.handlers.S1DateTypeHandler">
+  	<property name="dateFormat" value="mmddyy"/>
+  </typeHandler>
+  <typeHandler name="bankIdHandler" class="com.s1.frameworks.payments.imports.handlers.DestinationBankIdTypeHandler" />
+  <typeHandler name="statusHandler" class="com.s1.frameworks.payments.imports.handlers.AccountVerificationStatusHandler" />
+  
+  <!-- Input file configurations -->
+  <stream name="instructionStream" format="csv" >
+  	<group name="instructionValue" class="com.s1.payments.instruction.InstructionValue" minOccurs="1" maxOccurs="unbounded">
+  		<record name="instructionRecord" order="1" minOccurs="1">
+  			<field name="recordId" rid="true" literal="P" ignore="true"/>
+  			<field name="subType"/>
+  			<field name="scheduledExecutionDate" typeHandler="s1dateHandler"/>
+  			<field name="equivalentAmount" typeHandler="moneyHandler"/>
+  		</record>
+  		<record name="lineItems" class="com.s1.payments.instruction.LineItemValue" order="2" collection="list" minOccurs="1" maxOccurs="unbounded">
+  			<field name="recordId" rid="true" literal="R" ignore="true"/>
+  			<segment name="target" class="com.s1.payments.target.ThirdPartyValue" nillable="false">
+  				<field name="name"/>
+  				<field name="recipientIdType"/>
+  				<field name="recipientId"/>
+  				<field name="accountNumber"/>
+  				<field name="accountType"/>
+  				<field name="destinationBank" typeHandler="bankIdHandler"/>  				
+  				<field name="accountVerificationStatus" typeHandler="statusHandler"/>
+  			</segment>
+  			<field name="amount" typeHandler="moneyHandler"/>
+  		</record>
+  	</group>
+  </stream>
+ </beanio>

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.mobileBanking.approvals.provider.stopPay.MobileApprovalStopPayMapper">
+
+    <resultMap id="BaseResultMap" type="com.s1.app.mobileBanking.approvals.provider.stopPay.MobileApprovalStopPayData">
+		<result column="acctID" property="accountId" jdbcType="VARCHAR" />
+		<result column="Nickname" property="accountNickName" jdbcType="VARCHAR" />
+		<result column="ISOCURRENCYCDKY" property="isoCurrencyCdOid" javaType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VFMAcctKy" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VFMStopPaymentKy" property="stopPaymentOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="fromCheckNum" property="fromCheckNum" jdbcType="VARCHAR" />
+		<result column="toCheckNum" property="toCheckNum" jdbcType="VARCHAR" />
+		<result column="checkDttm" property="checkTimestamp" jdbcType="TIMESTAMP" />
+		<result column="amount" property="amount" jdbcType="DECIMAL" />
+		<result column="payee" property="payee" jdbcType="VARCHAR" />
+		<result column="reason" property="reason" jdbcType="VARCHAR" />
+		<result column="memo" property="memo" jdbcType="VARCHAR" />
+		<result column="isProcessed" property="processed" jdbcType="BOOLEAN" />
+		<result column="confNum" property="confNum" jdbcType="VARCHAR" />
+		<result column="updateDttm" property="lastUpdateTimestamp" jdbcType="TIMESTAMP" />
+		<result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+		<result column="versionStamp" property="lockValue" jdbcType="SMALLINT" />
+		<result column="VFMCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="responseStatusCode" property="responseStatusCode" jdbcType="INTEGER" />
+		<result column="stopPaymentType" property="stopPaymentType" jdbcType="INTEGER" />
+		<result column="originalStopPmtKy" property="originalStopPaymentOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="originalReqDttm" property="originalReqTimestamp" jdbcType="TIMESTAMP" />
+		<result column="STOPPAYMENTEXPRNDTTM" property="stopPaymentExprnTimestamp" jdbcType="TIMESTAMP" />
+		<result column="requestUniqueId" property="requestUniqueId" jdbcType="VARCHAR" />	
+		<result column="row_number" property="rowno" jdbcType="SMALLINT" />
+		<result column="cnt" property="count" jdbcType="SMALLINT" />
+	</resultMap>
+	
+	<select id="getStopPaymentEntitledAccountList_UserGroupsDisabled" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+		SELECT DISTINCT b.BNKAcctKy
+		  FROM bnkcustacct b,
+			   BNKCustAcctOprtn j,
+			   BNKCustAcctOprtn k
+		 WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+		   AND b.BNKCUSTACCTKY = j.BNKCUSTACCTKY
+		   AND b.BNKCUSTACCTKY = k.BNKCUSTACCTKY
+		   AND j.oprtnName = '/dataop/check/stop_payment'
+		   AND j.isSelected = '1'
+		   AND k.oprtnName IN ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+							   '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary' )
+		   AND k.isSelected = '1'
+		   AND exists (select 1 from arcgrant, arctarget, arcoperation, arcTargetType, arcgrant cpdaygrant, arcoperation cpdayoprtn
+						where arcgrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arcgrant.ispositive = '1'
+						  AND arctarget.arctargetky = arcgrant.arctargetky
+						  AND arctarget.arcTargetTypeKy = arcTargetType.arcTargetTypeKy
+						  AND arcTargetType.name = 'Account'
+						  AND integer(arctarget.name) = b.BNKAcctKy
+						  AND arcgrant.arcoperationky = arcoperation.arcoperationky
+						  AND arcoperation.name IN ('/dataop/user/account/full','/dataop/check/stop_payment')
+						  AND cpdaygrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arctarget.arctargetky = cpdaygrant.arctargetky
+						  AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+						  AND cpdayoprtn.name IN ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+												  '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+												  '/dataop/information_reporting/previous_day/summary')
+						  AND cpdaygrant.ispositive = '1')
+	</select>    	
+
+	<select id="getStopPaymentEntitledAccountList_UserGroupsEnabled" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+			SELECT distinct b.bnkacctky
+			  FROM bnkcustacct b,
+				   BNKCustUserGrp g,
+				   BNKCustUserGrp g1,
+				   ARCPrincipalGrp h,
+				   ARCPrincipalGrp h1,
+				   arcgrant,
+				   arctarget,
+				   arcoperation
+			WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+			  AND exists (select 1 from BNKCustAcctOprtn j
+						   WHERE j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND j.oprtnName = '/dataop/check/stop_payment'
+							 AND j.isSelected = '1')
+			  AND exists (select 1 from BNKCustAcctOprtn k
+						   where k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND k.oprtnName in ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+												 '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary')
+							 AND k.isSelected = '1')
+			  AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+			  AND g1.BNKCustUserGrpKy = h1.ARCPrinciPalKyGrp  
+			  AND g.bnkcustomerky = #{customerOid}
+			  AND g1.bnkcustomerky = #{customerOid}
+			  AND g.isDeleted = '0'           
+			  AND g1.isDeleted = '0'          
+			  AND h.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND h1.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND arcgrant.arcprincipalky in ( h.ARCPrinciPalKyGrp)
+			  AND arctarget.arctargetky = arcgrant.arctargetky
+			  AND arcgrant.arcoperationky = arcoperation.ARCOperationKy                       
+			  AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/stop_payment' )
+			  AND arcgrant.ispositive = '1'
+			  AND integer(arctarget.name) = b.bnkacctky
+			  and exists (select 1 from arcgrant cpdaygrant, arcoperation cpdayoprtn
+						   where cpdaygrant.arcprincipalky in ( h1.ARCPrinciPalKyGrp)
+							 and cpdaygrant.arctargetky = arctarget.arctargetky
+							 AND cpdaygrant.arcoperationky = cpdayoprtn.ARCOperationKy
+							 and cpdayoprtn.name in ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+													 '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+													 '/dataop/information_reporting/previous_day/summary')                        
+							 AND cpdaygrant.ispositive = '1')
+	</select>  
+	
+	<select id="getStopPaymentAccountList_FullUser" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+		SELECT distinct b.bnkacctky
+				 FROM bnkcustacct b,
+					  BNKCustAcctOprtn j
+				WHERE b.CORCUSTOMERKY= #{customerOid}
+				  AND b.BNKCUSTACCTKY = j.BNKCUSTACCTKY
+				  AND j.oprtnName='/dataop/check/stop_payment'
+				  AND j.isSelected = '1'
+				<if test="accountIds != null"> 
+					AND  b.BnkAcctky in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if>
+				  AND exists (select 1 from BNKCustAcctOprtn k
+							   where k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+								 AND k.oprtnName in ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary',
+													 '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary')
+								 AND k.isSelected = '1')
+	</select>
+
+	<sql id="Base_Column_List" >
+		SELECT row_number() OVER( ORDER BY a.originalReqDttm ASC) as row_number,
+			b.acctID, c.nickname, b.ISOCurrencyCdKy, a.VFMAcctKy, a.VFMStopPaymentKy, a.fromCheckNum, a.toCheckNum,
+			a.checkDttm, a.amount, a.payee, a.reason, a.memo, a.isProcessed, a.confNum, a.updateDttm,
+			a.updateUser, a.versionStamp, a.VFMCustomerKy, a.responseStatusCode, a.stopPaymentType, 
+			a.originalStopPmtKy, a.originalReqDttm, a.STOPPAYMENTEXPRNDTTM, a.requestUniqueId
+	</sql>
+	
+	<select id="getStopPayForMobileApproval" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" >
+		WITH a1 (row_number, acctID, nickname, ISOCurrencyCdKy, VFMAcctKy, VFMStopPaymentKy, fromCheckNum, toCheckNum, checkDttm, amount, payee, reason, memo, 
+			isProcessed, confNum, updateDttm, updateUser, versionStamp, VFMCustomerKy, responseStatusCode, stopPaymentType, originalStopPmtKy, 
+			originalReqDttm, STOPPAYMENTEXPRNDTTM, requestUniqueId)
+		AS (
+				<include refid="Base_Column_List" />
+			FROM  VFMStopPayment a, BNKAcct b, BNKCustAcct c
+			WHERE 
+				<if test="accountIds != null"> 
+					a.VFMAcctky in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if>			
+				AND a.VFMCustomerKy  = #{customerOid} 
+				AND (date(a.updateDttm)  BETWEEN #{startDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}) 
+				AND (a.updateuser <![CDATA[ <> ]]> #{loginId})
+				AND (a.stopPaymentType = 0 OR a.stopPaymentType = 1)  
+				AND a.VFMAcctKy = b.BNKAcctKy 
+				AND c.CORCustomerKy = #{customerOid}
+				AND b.BnkAcctKy = c.BnkAcctKy
+		) SELECT b.cnt, a.* FROM a1 AS a, (SELECT COUNT(*) AS cnt FROM a1) as b
+		<if test="noOfRows > 0">
+			WHERE a.row_number BETWEEN 1 AND #{noOfRows} 
+		</if>
+	</select>
+	
+	<select id="getStopPaymentEntitledAccountList_UserGroupsDisabled-Oracle" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+		SELECT DISTINCT b.BNKAcctKy
+		  FROM bnkcustacct b,
+			   BNKCustAcctOprtn j,
+			   BNKCustAcctOprtn k
+		 WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+		   AND b.BNKCUSTACCTKY = j.BNKCUSTACCTKY
+		   AND b.BNKCUSTACCTKY = k.BNKCUSTACCTKY
+		   AND j.oprtnName = '/dataop/check/stop_payment'
+		   AND j.isSelected = '1'
+		   AND k.oprtnName IN ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+							   '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary' )
+		   AND k.isSelected = '1'
+		   AND exists (select 1 from arcgrant, arctarget, arcoperation, arcTargetType, arcgrant cpdaygrant, arcoperation cpdayoprtn
+						where arcgrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arcgrant.ispositive = '1'
+						  AND arctarget.arctargetky = arcgrant.arctargetky
+						  AND arctarget.arcTargetTypeKy = arcTargetType.arcTargetTypeKy
+						  AND arcTargetType.name = 'Account'
+						  AND arctarget.name=to_char(b.bnkacctky)
+						  AND arcgrant.arcoperationky = arcoperation.arcoperationky
+						  AND arcoperation.name IN ('/dataop/user/account/full','/dataop/check/stop_payment')
+						  AND cpdaygrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arctarget.arctargetky = cpdaygrant.arctargetky
+						  AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+						  AND cpdayoprtn.name IN ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+												  '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+												  '/dataop/information_reporting/previous_day/summary')
+						  AND cpdaygrant.ispositive = '1')
+	</select>    	
+
+	<select id="getStopPaymentEntitledAccountList_UserGroupsEnabled-Oracle" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+			SELECT distinct b.bnkacctky
+			  FROM bnkcustacct b,
+				   BNKCustUserGrp g,
+				   BNKCustUserGrp g1,
+				   ARCPrincipalGrp h,
+				   ARCPrincipalGrp h1,
+				   arcgrant,
+				   arctarget,
+				   arcoperation
+			WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+			  AND exists (select 1 from BNKCustAcctOprtn j
+						   WHERE j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND j.oprtnName = '/dataop/check/stop_payment'
+							 AND j.isSelected = '1')
+			  AND exists (select 1 from BNKCustAcctOprtn k
+						   where k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND k.oprtnName in ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+												 '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary')
+							 AND k.isSelected = '1')
+			  AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+			  AND g1.BNKCustUserGrpKy = h1.ARCPrinciPalKyGrp  
+			  AND g.bnkcustomerky = #{customerOid}
+			  AND g1.bnkcustomerky = #{customerOid}
+			  AND g.isDeleted = '0'           
+			  AND g1.isDeleted = '0'          
+			  AND h.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND h1.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND arcgrant.arcprincipalky in ( h.ARCPrinciPalKyGrp)
+			  AND arctarget.arctargetky = arcgrant.arctargetky
+			  AND arcgrant.arcoperationky = arcoperation.ARCOperationKy                       
+			  AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/stop_payment' )
+			  AND arcgrant.ispositive = '1'
+			  AND arctarget.name=to_char(b.bnkacctky)
+			  and exists (select 1 from arcgrant cpdaygrant, arcoperation cpdayoprtn
+						   where cpdaygrant.arcprincipalky in ( h1.ARCPrinciPalKyGrp)
+							 and cpdaygrant.arctargetky = arctarget.arctargetky
+							 AND cpdaygrant.arcoperationky = cpdayoprtn.ARCOperationKy
+							 and cpdayoprtn.name in ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+													 '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+													 '/dataop/information_reporting/previous_day/summary')                        
+							 AND cpdaygrant.ispositive = '1')
+	</select>  	
+
+	<select id="getStopPayForMobileApproval-Oracle" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" >
+		WITH a1 (row_number, acctID, nickname, ISOCurrencyCdKy, VFMAcctKy, VFMStopPaymentKy, fromCheckNum, toCheckNum, checkDttm, amount, payee, reason, memo, 
+			isProcessed, confNum, updateDttm, updateUser, versionStamp, VFMCustomerKy, responseStatusCode, stopPaymentType, originalStopPmtKy, 
+			originalReqDttm, STOPPAYMENTEXPRNDTTM, requestUniqueId)
+		AS (
+				<include refid="Base_Column_List" />
+			FROM  VFMStopPayment a, BNKAcct b, BNKCustAcct c
+			WHERE 
+				<if test="accountIds != null"> 
+					a.VFMAcctky in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if>			
+				AND a.VFMCustomerKy  = #{customerOid} 
+				<if test="startDate != null and startDate != ''"> 
+					and to_date(trunc(a.updateDttm)) <![CDATA[ >= ]]> #{startDate,jdbcType=DATE}
+				</if>
+				<if test="endDate != null and endDate != ''"> 
+					and to_date(trunc(a.updateDttm)) <![CDATA[ <= ]]> #{endDate,jdbcType=DATE} 
+				</if>
+				AND (a.updateuser <![CDATA[ <> ]]> #{loginId})
+				AND (a.stopPaymentType = 0 OR a.stopPaymentType = 1)  
+				AND a.VFMAcctKy = b.BNKAcctKy 
+				AND c.CORCustomerKy = #{customerOid}
+				AND b.BnkAcctKy = c.BnkAcctKy
+		) SELECT b.cnt, a.* FROM a1 a, (SELECT COUNT(*) AS cnt FROM a1) b
+		<if test="noOfRows > 0">
+			WHERE a.row_number BETWEEN 1 AND #{noOfRows} 
+		</if>
+	</select>	
+	
+</mapper>

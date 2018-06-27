@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCMapper" >
+  	
+  <select id="selectReturnNOCRegistryByCriteria" parameterType="java.util.Map"  resultType="java.lang.String">
+		SELECT CASE WHEN COUNT (BNKACHRetNOCRegistryKy) &gt;= 1 THEN 1 ELSE 0 END
+		FROM BNKACHRetNOCRegistry
+		WHERE IMMEDIATEORIGIN=#{immediateOrigin} and 
+		FILECREATIONDTTM=#{fileCreationDttm,jdbcType=TIMESTAMP}
+	</select>
+
+  <select id="selectMaxKeyFromTrn" resultType="java.lang.Long">
+		SELECT coalesce(max(BNKACHRetNocTrnKy), 0) + 1 from BNKACHRetNocTrn
+	</select>
+	
+	<insert id="insert" parameterType="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsAndNOCsHoldingObject">
+		INSERT INTO BNKACHRetNocHldg
+			(BNKACHRETNOCHLDGKY,
+			 BATCHKEY,
+			 BATAUDITKY,
+			 ACHCOMPANYID,
+			 ACHCOMPANYNAME,
+			 EFFECTIVEDATE,
+			 BATCHDESCRIPTION,
+			 STANDARDENTRYCLASSCODE,
+	         TRANSACTIONCODE,
+	         ISRETURN,
+	         UPDATEDATETIME,
+	         UPDATEUSER,
+	         VERSIONSTAMP
+	         )
+		VALUES (
+		    #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+		    #{batchKey,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+		    #{batAuditKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{achCompanyId},
+			#{achCompanyName,jdbcType=VARCHAR},
+			#{effectiveDate,jdbcType=TIMESTAMP},
+			#{batchDescription,jdbcType=VARCHAR},
+			#{standardEntryClassCode},
+		    #{transactionCode},
+			#{isReturn,jdbcType=CHAR,handler=com.s1.arch.ibatis.ZeroOneBooleanTypeHandler},
+			#{updateDateTime,jdbcType=TIMESTAMP},
+			#{updateUser,jdbcType=VARCHAR},
+			#{versionStamp,jdbcType=SMALLINT}
+			)
+	</insert>
+	
+	<update id="callAchRetNocProcessor" statementType="CALLABLE" parameterType="map">
+        { call BNKACHRetNocProcSp(#{V_BATCHKEY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{V_BATAUDITKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{V_ERROR_OUT}, #{V_EXCP_CNT}) }
+    </update>
+    
+	<update id="callAchRetNocFinal" statementType="CALLABLE" parameterType="map">
+        { call BNKACHRetNocFnlProcSp(#{V_BATAUDITKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{V_ERROR_OUT}) }
+    </update>
+    
+	<update id="callAchRetNocClean" statementType="CALLABLE" parameterType="map">
+        { call BNKAchRetNOCCleanSp(#{V_BATAUDITKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}) }
+    </update>
+    
+    <select id="selectExceptionCount" resultType="java.lang.Integer">
+    	select count(*) from BNKACHRetNocExcpVw
+    </select>
+    
+	<select id="selectExceptionDetails" resultType="java.lang.String">
+		SELECT achCompanyID FROM BNKACHRetNocExcpVw
+	</select>  
+	
+	<select id="callUnloadAchRetNoc" parameterType="com.s1.app.disbursements.corpach.batch.achRetNoc.UnloadACHRetNocInfo" statementType="CALLABLE">
+    { CALL BNKAchRetNocUnloadSp(#{batAuditKey, mode=IN, jdbcType=INTEGER},#{deleteCount, mode=OUT, jdbcType=INTEGER})}
+	</select>
+      
+</mapper>

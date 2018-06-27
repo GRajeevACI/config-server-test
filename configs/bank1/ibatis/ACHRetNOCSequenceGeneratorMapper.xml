@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.arch.batch.lightweight.persistence.sequence.dao.SequenceGeneratorMapper" >
+
+	<select id="selectNextBlockInfo" parameterType="string" resultType="java.util.HashMap">
+        select varchar(nextSeqNum) as NEXTSEQNUM, varchar(seqNumRange) as SEQNUMRANGE 
+			from old table (
+				update UTLSeqNumGnrtr
+					set nextSeqNum = (
+						select sum(nextSeqNum + seqNumRange)
+							from UTLSeqNumGnrtr
+							where lower(seqName) = lower(#{seqName}))
+					where lower(seqName) = lower(#{seqName}))
+	</select>
+	
+	<parameterMap id="getSeqParameters" type="java.util.HashMap" >
+        <parameter property="pSeqName" jdbcType="VARCHAR" javaType="java.lang.String"  mode="IN"/>
+        <parameter property="pBlockSize" jdbcType="INTEGER" javaType="java.lang.Integer" mode="IN"/>
+        <parameter property="pNextSeqNum" jdbcType="INTEGER" javaType="java.lang.Long" mode="OUT"/>
+ 	</parameterMap>
+ 	
+    <select id="selectNextBlockInfo-oracle" parameterType="string" resultType="java.util.HashMap">
+         select cast(NEXTSEQNUM + 1  AS VARCHAR2(20)) as NEXTSEQNUM ,cast(seqNumRange AS VARCHAR2(20)) as seqNumRange 
+         from UTLSEQNUMGNRTR where seqname = #{seqName}     
+	</select>
+
+    <select id="selectNextBlockInfo-hsql" parameterType="string" resultType="java.util.HashMap">
+         select cast(NEXTSEQNUM AS VARCHAR(20)) as NEXTSEQNUM ,cast(seqNumRange AS VARCHAR(20)) as seqNumRange 
+         from UTLSEQNUMGNRTR where seqname = #{seqName}     
+	</select>
+
+	<!-- By default this statement does nothing -->
+	<update id="updateNextBlockInfo" parameterType="string">
+		update UTLSeqNumGnrtr set nextSeqNum = (
+	    	select sum(nextSeqNum + seqNumRange) from UTLSeqNumGnrtr 
+	    	where lower(seqName) = lower(#{seqName})) 
+	    where lower(seqName) = lower(#{seqName})
+	</update>
+
+	<update id="updateNextBlockInfo-oracle" parameterMap="getSeqParameters" statementType="CALLABLE">
+         call getNextSeqNum(?, ?, ?)
+	</update>
+	
+	<update id="updateNextBlockInfo-hsql" parameterType="string">
+	    update UTLSeqNumGnrtr set nextSeqNum = (
+	    	select sum(nextSeqNum + seqNumRange) from UTLSeqNumGnrtr 
+	    	where seqName= #{seqName}) 
+	    where seqName = #{seqName} 
+	</update>
+	
+	<select id="selectAllSequenceNames" resultType="string">
+		select seqName from UTLSeqNumGnrtr
+	</select>
+
+</mapper>

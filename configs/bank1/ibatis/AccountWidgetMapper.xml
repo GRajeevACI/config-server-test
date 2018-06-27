@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.dashboard.dao.AccountWidgetMapper" >
+
+	<resultMap id="accountProductView" type="com.s1.dashboard.widget.accounts.AccountProductView">
+		<result column="VFMPRODSUBTYPEKY" property="productSubTypeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="PRODSUBNAME" property="productSubTypeName" />
+		<result column="LISTORDER" property="productSubTypeListOrder" />
+		<result column="PRODLISTORDER" property="productTypeListOrder" />
+	</resultMap>
+
+	<select id="getAccountProductView" resultMap="accountProductView" parameterType="long">
+		SELECT a.VFMPRODSUBTYPEKY, a.PRODSUBNAME, a.LISTORDER, b.LISTORDER AS PRODLISTORDER
+		FROM VFMPRODSUBTYPE a
+		INNER JOIN VFMPRODTYPE b ON a.VFMPRODTYPEKY = b.VFMPRODTYPEKY
+		WHERE a.VFMPRODSUBTYPEKY = #{value}
+	</select>
+	
+	<select id="countCustomerAccounts" resultType="int" parameterType="long">
+		SELECT COUNT(*)
+		FROM BNKCustAcct a
+		INNER JOIN BNKAcct b ON a.BNKAcctKy = b.BNKAcctKy
+		WHERE a.CORCustomerKy = #{value}
+			AND (a.IsActive IS NULL OR a.IsActive = 1) AND (a.IsVisible IS NULL OR a.IsVisible = 1) AND a.IsAccountClosed = 0
+	</select>	
+
+</mapper>

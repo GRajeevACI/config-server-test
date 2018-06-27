@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.s1.arch.codestable.CodesTableItemValue
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.CodesTableItemValueType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>description</fieldA>
+				<fieldB>description</fieldB>
+			</field>
+			<field>
+				<fieldA>codeValue</fieldA>
+				<fieldB>codeValue</fieldB>
+			</field>	
+			<field>
+				<fieldA>externalReferenceCode</fieldA>
+				<fieldB>externalReferenceCode</fieldB>
+			</field>
+			<field>
+				<fieldA>codeName</fieldA>
+				<fieldB>codeName</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateUser</fieldA>
+				<fieldB>updateUser</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateDttm</fieldA>
+				<fieldB>updateDttm</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>versionStamp</fieldA>
+				<fieldB>versionStamp</fieldB>
+			</field>
+			<field>
+				<fieldA>persistenceState</fieldA>
+				<fieldB>persistenceState</fieldB>
+			</field>
+			
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.banking.common.upload.profile.UploadProfileValue
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.UploadProfileValueType
+		</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>BNKUploadPflUuid</fieldA>
+				<fieldB>profileUuid</fieldB>
+			</field>
+			<field>
+				<fieldA>format</fieldA>
+				<fieldB>format</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>profileName</fieldA>
+				<fieldB>profileName</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.banking.common.upload.profile.UploadProfileValue
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.UploadProfileInfoValueType
+		</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>BNKUploadPflUuid</fieldA>
+				<fieldB>profileUuid</fieldB>
+			</field>
+			<field>
+				<fieldA>type</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field>
+				<fieldA>format</fieldA>
+				<fieldB>format</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>profileName</fieldA>
+				<fieldB>profileName</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>delimiter</fieldA>
+				<fieldB>delimiter</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>duplicateFileCheckEnabled</fieldA>
+				<fieldB>duplicateFileCheck</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>profilePrivateEnabled</fieldA>
+				<fieldB>profilePrivateEnabled</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>dateFormat</fieldA>
+				<fieldB>dateFormat</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>issueAdd</fieldA>
+				<fieldB>issueAdd</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>issueDelete</fieldA>
+				<fieldB>issueDelete</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>voidAdd</fieldA>
+				<fieldB>voidAdd</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>voidDelete</fieldA>
+				<fieldB>voidDelete</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>defaultTranTypeEnum</fieldA>
+				<fieldB>defaultTranType</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>defaultBankIdfr</fieldA>
+				<fieldB>defaultBankIdfr</fieldB>
+			</field>
+				
+			<field>
+				<fieldA>defaultAcctNum</fieldA>
+				<fieldB>defaultAcctNum</fieldB>
+			</field>
+			
+			<field customConverter="com.aciworldwide.common.convertor.DfltIssueDtConvertor">
+				<fieldA>defaultIssueDt</fieldA>
+				<fieldB>defaultIssueDt</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateDttm</fieldA>
+				<fieldB>updateDttm</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateUser</fieldA>
+				<fieldB>lastModifiedBy</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>access</fieldA>
+				<fieldB>accessType</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>headerRows</fieldA>
+				<fieldB>noOfHeaderRows</fieldB>
+			</field>
+			
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.banking.common.upload.UploadBatchViewCriteria
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.FileUploadsCriteriaType
+		</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fromDate</fieldA>
+				<fieldB>fromDate</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>toDate</fieldA>
+				<fieldB>toDate</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.banking.common.upload.UploadBatchView
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.UploadBatchViewType
+		</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>BNKUploadBatchUuid</fieldA>
+				<fieldB>BNKUploadBatchUuid</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>typeEnum</fieldA>
+				<fieldB>typeEnum</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>editable</fieldA>
+				<fieldB>editable</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>approvalCount</fieldA>
+				<fieldB>approvalCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>numberOfApprovals</fieldA>
+				<fieldB>numberOfApprovals</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>statusEnum.statusCode</fieldA>
+				<fieldB>statusCode</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>loginId</fieldA>
+				<fieldB>loginId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>lastActionTimestamp</fieldA>
+				<fieldB>lastActionTimestamp</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>amountOnBatch</fieldA>
+				<fieldB>amountOnBatch</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchAmount</fieldA>
+				<fieldB>batchAmount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>numberOfItems</fieldA>
+				<fieldB>numberOfItems</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>numberOfBatches</fieldA>
+				<fieldB>numberOfBatches</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fileDebitCount</fieldA>
+				<fieldB>fileDebitCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fileCreditCount</fieldA>
+				<fieldB>fileCreditCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fileDebitAmount</fieldA>
+				<fieldB>fileDebitAmount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fileCreditAmount</fieldA>
+				<fieldB>fileCreditAmount</fieldB>
+			</field>
+			
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.banking.common.upload.UploadBatchDetail
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.UploadBatchDetailViewType
+		</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>batchId</fieldA>
+				<fieldB>batchId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>companyId</fieldA>
+				<fieldB>companyId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>standardEntryClassCd</fieldA>
+				<fieldB>standardEntryClassCd</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>companyName</fieldA>
+				<fieldB>companyName</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>companyEntryDesc</fieldA>
+				<fieldB>companyEntryDesc</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateUser</fieldA>
+				<fieldB>updateUser</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>recordCount</fieldA>
+				<fieldB>recordCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchDebitCount</fieldA>
+				<fieldB>batchDebitCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchCreditCount</fieldA>
+				<fieldB>batchCreditCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>creditAmount</fieldA>
+				<fieldB>creditAmount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>debitAmount</fieldA>
+				<fieldB>debitAmount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>effectiveDate</fieldA>
+				<fieldB>effectiveDate</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateDateTime</fieldA>
+				<fieldB>updateDateTime</fieldB>
+			</field>
+		
+			<field>
+				<fieldA>lockValue</fieldA>
+				<fieldB>lockValue</fieldB>
+			</field>
+			
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.banking.common.upload.UploadBatchRecipientDetail
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.components.UploadBatchRcpntsDetailViewType
+		</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>traceNumber</fieldA>
+				<fieldB>traceNumber</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>companyEntryDesc</fieldA>
+				<fieldB>companyEntryDesc</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchDebitCount</fieldA>
+				<fieldB>batchDebitCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchCreditCount</fieldA>
+				<fieldB>batchCreditCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fileDebitCount</fieldA>
+				<fieldB>fileDebitCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>fileCreditCount</fieldA>
+				<fieldB>fileCreditCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>standardEntryClassCd</fieldA>
+				<fieldB>standardEntryClassCd</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>companyId</fieldA>
+				<fieldB>companyId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchCount</fieldA>
+				<fieldB>batchCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>rcptAcctNumber</fieldA>
+				<fieldB>rcptAcctNumber</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>rcptId</fieldA>
+				<fieldB>rcptId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>rcptName</fieldA>
+				<fieldB>rcptName</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>addendaDetail</fieldA>
+				<fieldB>addendaDetail</fieldB>
+			</field>
+		
+			<field>
+				<fieldA>bankId</fieldA>
+				<fieldB>bankId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>crdrIndicator</fieldA>
+				<fieldB>crdrIndicator</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>status</fieldA>
+				<fieldB>status</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>updateUser</fieldA>
+				<fieldB>updateUser</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>batchId</fieldA>
+				<fieldB>batchId</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>recordCount</fieldA>
+				<fieldB>recordCount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>lockValue</fieldA>
+				<fieldB>lockValue</fieldB>
+			</field>
+		
+			<field>
+				<fieldA>fileDebitAmount</fieldA>
+				<fieldB>fileDebitAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>fileCreditAmount</fieldA>
+				<fieldB>fileCreditAmount</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>rcptAmount</fieldA>
+				<fieldB>rcptAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>updateDateTime</fieldA>
+				<fieldB>updateDateTime</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>statusDesc</fieldA>
+				<fieldB>statusDesc</fieldB>
+			</field>
+			<field>
+				<fieldA>crDrIndicatorDesc</fieldA>
+				<fieldB>crDrIndicatorDesc</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.service.rest.ext.AttachmentsInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.fileservices.services.FileUploadStandardRqType</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.InputStreamToByteArrayConverter">
+				<fieldA>attachments[0].data</fieldA>
+				<fieldB>file</fieldB>
+			</field>
+			<field>
+				<fieldA>attachments[0].contentType</fieldA>
+				<fieldB>contentType</fieldB>
+			</field>
+			<field>
+				<fieldA>attachments[0].resourceName</fieldA>
+				<fieldB>fileName</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+</mappings>

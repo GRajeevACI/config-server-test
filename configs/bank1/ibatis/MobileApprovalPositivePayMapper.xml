@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.mobileBanking.approvals.provider.positivePay.MobileApprovalPositivePayMapper">
+
+    <resultMap id="BaseResultMap" type="com.s1.app.mobileBanking.approvals.provider.positivePay.MobileApprovalPositivePayData">
+		<result column="acctID" property="accountId" jdbcType="VARCHAR" />
+		<result column="Nickname" property="accountNickName" jdbcType="VARCHAR" />
+		<result column="ISOCURRENCYCDKY" property="isoCurrencyCdOid" javaType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKAcctKy" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKFraudSuspectKy" property="positivePaymentOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="referenceNbr" property="referenceNbr" jdbcType="VARCHAR" />
+		<result column="checkSerialNbr" property="checkSerialNbr" jdbcType="VARCHAR" />
+		<result column="presentmentAmt" property="presentmentAmt" jdbcType="DECIMAL" />		
+		<result column="issueAmt" property="issueAmt" jdbcType="DECIMAL" />
+		<result column="issueDt" property="issueDt" jdbcType="DATE" />
+		<result column="statusCd" property="statusCd" jdbcType="SMALLINT" />
+		<result column="decisionCd" property="decisionCd" jdbcType="SMALLINT" />
+		<result column="approvedDecisionCd" property="approvedDecisionCd" jdbcType="SMALLINT" />		
+		<result column="reasonCd1" property="reasonCd1" jdbcType="SMALLINT" />
+		<result column="reasonCd2" property="reasonCd2" jdbcType="SMALLINT" />
+		<result column="imageLink" property="imageLink" jdbcType="VARCHAR" />
+		<result column="presentedPayee" property="presentedPayee" jdbcType="VARCHAR" />
+		<result column="issuePayee" property="issuePayee" jdbcType="VARCHAR" />
+		<result column="presentedDt" property="presentedDt" jdbcType="DATE" />
+		<result column="posPayTypeCd" property="posPayTypeCd" jdbcType="SMALLINT" />
+		<result column="updateDttm" property="updatedDttm" jdbcType="TIMESTAMP" />		
+		<result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+		<result column="versionStamp" property="lockValue" jdbcType="SMALLINT" />
+		<result column="finalDecisionCd" property="finalDecisionCd" jdbcType="SMALLINT" />				
+		<result column="batAuditKy" property="batAuditOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="isDebit" property="isDebit" jdbcType="CHAR" />
+		<result column="achAddenda" property="achAddenda" jdbcType="VARCHAR" />
+		<result column="achPaymentType" property="achPaymentType" jdbcType="CHAR" />
+		<result column="origAchCompanyId" property="origAchCompanyId" jdbcType="VARCHAR" />
+		<result column="origAchCompanyName" property="origAchCompanyName" jdbcType="VARCHAR" />
+		<result column="approver" property="approver" jdbcType="VARCHAR" />		
+		<result column="approvalDttm" property="approvalDttm" jdbcType="TIMESTAMP" />		
+		<result column="decisioner" property="decisioner" jdbcType="VARCHAR" />
+		<result column="decisionDttm" property="decisionDttm" jdbcType="TIMESTAMP" />
+		<result column="row_number" property="rowno" jdbcType="SMALLINT" />
+		<result column="cnt" property="count" jdbcType="SMALLINT" />
+	</resultMap>
+	
+	<select id="getPositivePaymentEntitledAccountList_UserGroupsDisabled" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+		SELECT DISTINCT b.BNKAcctKy
+		  FROM bnkcustacct b,
+			   BNKCustAcctOprtn j,
+			   BNKCustAcctOprtn k
+		 WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+		   AND b.BNKCUSTACCTKY = j.BNKCUSTACCTKY
+		   AND b.BNKCUSTACCTKY = k.BNKCUSTACCTKY
+		   AND j.oprtnName IN ('/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+		   AND j.isSelected = '1'
+		   AND k.oprtnName IN ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+							   '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary' )
+		   AND k.isSelected = '1'
+		   AND exists (select 1 from arcgrant, arctarget, arcoperation, arcTargetType, arcgrant cpdaygrant, arcoperation cpdayoprtn
+						where arcgrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arcgrant.ispositive = '1'
+						  AND arctarget.arctargetky = arcgrant.arctargetky
+						  AND arctarget.arcTargetTypeKy = arcTargetType.arcTargetTypeKy
+						  AND arcTargetType.name = 'Account'
+						  AND integer(arctarget.name) = b.BNKAcctKy
+						  AND arcgrant.arcoperationky = arcoperation.arcoperationky
+						  AND arcoperation.name IN ('/dataop/user/account/full','/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+						  AND cpdaygrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arctarget.arctargetky = cpdaygrant.arctargetky
+						  AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+						  AND cpdayoprtn.name IN ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+												  '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+												  '/dataop/information_reporting/previous_day/summary')
+						  AND cpdaygrant.ispositive = '1')
+	</select>    	
+
+	<select id="getPositivePaymentEntitledAccountList_UserGroupsEnabled" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+			SELECT distinct b.bnkacctky
+			  FROM bnkcustacct b,
+				   BNKCustUserGrp g,
+				   BNKCustUserGrp g1,
+				   ARCPrincipalGrp h,
+				   ARCPrincipalGrp h1,
+				   arcgrant,
+				   arctarget,
+				   arcoperation
+			WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+			  AND exists (select 1 from BNKCustAcctOprtn j
+						   WHERE j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND j.oprtnName IN ('/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+							 AND j.isSelected = '1')
+			  AND exists (select 1 from BNKCustAcctOprtn k
+						   where k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND k.oprtnName in ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+												 '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary')
+							 AND k.isSelected = '1')
+			  AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+			  AND g1.BNKCustUserGrpKy = h1.ARCPrinciPalKyGrp  
+			  AND g.bnkcustomerky = #{customerOid}
+			  AND g1.bnkcustomerky = #{customerOid}
+			  AND g.isDeleted = '0'           
+			  AND g1.isDeleted = '0'          
+			  AND h.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND h1.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND arcgrant.arcprincipalky in ( h.ARCPrinciPalKyGrp)
+			  AND arctarget.arctargetky = arcgrant.arctargetky
+			  AND arcgrant.arcoperationky = arcoperation.ARCOperationKy                       
+			  AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay' )
+			  AND arcgrant.ispositive = '1'
+			  AND integer(arctarget.name) = b.bnkacctky
+			  and exists (select 1 from arcgrant cpdaygrant, arcoperation cpdayoprtn
+						   where cpdaygrant.arcprincipalky in ( h1.ARCPrinciPalKyGrp)
+							 and cpdaygrant.arctargetky = arctarget.arctargetky
+							 AND cpdaygrant.arcoperationky = cpdayoprtn.ARCOperationKy
+							 and cpdayoprtn.name in ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+													 '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+													 '/dataop/information_reporting/previous_day/summary')                        
+							 AND cpdaygrant.ispositive = '1')
+	</select>  
+	
+	<select id="getPositivePaymentAccountList_FullUser" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+		SELECT distinct b.bnkacctky
+				 FROM bnkcustacct b,
+					  BNKCustAcctOprtn j
+				WHERE b.CORCUSTOMERKY= #{customerOid}
+				  AND b.BNKCUSTACCTKY = j.BNKCUSTACCTKY
+				  AND j.oprtnName IN ('/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+				  AND j.isSelected = '1'
+				<if test="accountIds != null"> 
+					AND  b.BnkAcctky in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if>
+				  AND exists (select 1 from BNKCustAcctOprtn k
+							   where k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+								 AND k.oprtnName in ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary',
+													 '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary')
+								 AND k.isSelected = '1')
+	</select>
+
+	<sql id="Base_Column_List" >
+        SELECT row_number() OVER( ORDER BY a.creationDttm ASC) as row_number,
+	        ba.acctID, ca.nickname, ba.ISOCurrencyCdKy, a.BNKAcctKy, a.BNKFraudSuspectKy, a.referenceNbr, a.checkSerialNbr,
+    	    a.presentmentAmt, a.issueAmt, a.issueDt, a.statusCd, a.decisionCd, a.approvedDecisionCd, a.reasonCd1, a.reasonCd2,
+        	a.imageLink, a.presentedPayee, a.issuePayee, a.presentedDt, a.posPayTypeCd, 
+	        a.updateDttm, a.versionStamp, a.finalDecisionCd,
+    	    a.isDebit, a.achAddenda, a.achPaymentType, a.origAchCompanyId, 
+        	a.origAchCompanyName, a.approver, a.approvalDttm, a.decisioner,
+	        a.decisionDttm, a.creationDttm			
+	</sql>
+	
+	<select id="getPositivePayForMobileApproval" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" >
+		WITH a1 (row_number, acctID, nickname, ISOCurrencyCdKy, BNKAcctKy, BNKFraudSuspectKy, referenceNbr, checkSerialNbr,
+        	presentmentAmt, issueAmt, issueDt, statusCd, decisionCd, approvedDecisionCd, reasonCd1, reasonCd2,
+	        imageLink, presentedPayee, issuePayee, presentedDt, posPayTypeCd, updateDttm, versionStamp, finalDecisionCd,
+    	    isDebit, achAddenda, achPaymentType, origAchCompanyId, origAchCompanyName, approver, approvalDttm, decisioner,
+        	decisionDttm, creationDttm)
+		AS (
+				<include refid="Base_Column_List" />
+			FROM BNKFraudSuspect a, BNKCustAcct ca, BNKAcct ba, bnkuser b, arcidentity i
+			WHERE 
+				<if test="accountIds != null"> 
+					a.BNKAcctKy in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if>
+		        AND ca.BNKAcctKy = a.BNKAcctKy
+    		    AND ca.BNKAcctKy = ba.BNKAcctKy         
+				AND a.BNKFraudSuspectKy >= 0  	
+				AND a.posPayTypeCd IN ( 0 , 1, 2)
+				AND a.statusCd IN ( 1 , 2, 6, 9)
+                AND (( a.statusCd IN ( 1 , 2, 9) AND a.posPayTypeCd IN ( 0 , 2)) OR
+                     ( a.statusCd IN ( 1 , 2, 6) AND a.posPayTypeCd = 1))				
+				AND ca.CORCustomerKy = #{customerOid}
+				AND (a.creationDttm BETWEEN #{startDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}) 				
+		        AND b.bnkcustomerky = ca.CORCustomerKy
+				AND b.ARCPrincipalKy = #{arcPrincipalKy} 
+				AND i.ARCPrincipalKy = b.ARCPrincipalKy
+				AND (a.updateuser <![CDATA[ <> ]]> #{loginId})				 		        								
+		        AND exists ( select 1 from BNKCustAcctOprtn cao
+		           WHERE ( (a.pospaytypecd = 0 AND cao.oprtnName='/dataop/check/positive_pay' ) 
+		              or ( a.pospaytypecd = 2 AND cao.oprtnName='/dataop/fraud/ach_pos_pay' ) 
+		              or ( a.pospaytypecd = 1 AND cao.oprtnName='/dataop/check/reverse_positive_pay' ) ) 
+		           AND cao.isSelected = '1' and ca.bnkcustacctky=cao.bnkcustacctky and ca.corcustomerky = b.bnkcustomerky )
+		                				
+		) SELECT b.cnt, a.* FROM a1 AS a, (SELECT COUNT(*) AS cnt FROM a1) as b
+		<if test="noOfRows > 0">
+			WHERE a.row_number BETWEEN 1 AND #{noOfRows} 
+		</if>
+	</select>
+	
+	<select id="getPositivePaymentEntitledAccountList_UserGroupsDisabled-Oracle" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+		SELECT DISTINCT b.BNKAcctKy
+		  FROM bnkcustacct b,
+			   BNKCustAcctOprtn j,
+			   BNKCustAcctOprtn k
+		 WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+		   AND b.BNKCUSTACCTKY = j.BNKCUSTACCTKY
+		   AND b.BNKCUSTACCTKY = k.BNKCUSTACCTKY
+		   AND j.oprtnName IN ('/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+		   AND j.isSelected = '1'
+		   AND k.oprtnName IN ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+							   '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary' )
+		   AND k.isSelected = '1'
+		   AND exists (select 1 from arcgrant, arctarget, arcoperation, arcTargetType, arcgrant cpdaygrant, arcoperation cpdayoprtn
+						where arcgrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arcgrant.ispositive = '1'
+						  AND arctarget.arctargetky = arcgrant.arctargetky
+						  AND arctarget.arcTargetTypeKy = arcTargetType.arcTargetTypeKy
+						  AND arcTargetType.name = 'Account'
+						  AND arctarget.name=to_char(b.bnkacctky)						  
+						  AND arcgrant.arcoperationky = arcoperation.arcoperationky
+						  AND arcoperation.name IN ('/dataop/user/account/full','/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+						  AND cpdaygrant.arcprincipalky = #{arcPrincipalKy}
+						  AND arctarget.arctargetky = cpdaygrant.arctargetky
+						  AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+						  AND cpdayoprtn.name IN ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+												  '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+												  '/dataop/information_reporting/previous_day/summary')
+						  AND cpdaygrant.ispositive = '1')
+	</select>    	
+
+	<select id="getPositivePaymentEntitledAccountList_UserGroupsEnabled-Oracle" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" resultType="java.lang.Integer" useCache="false">
+			SELECT distinct b.bnkacctky
+			  FROM bnkcustacct b,
+				   BNKCustUserGrp g,
+				   BNKCustUserGrp g1,
+				   ARCPrincipalGrp h,
+				   ARCPrincipalGrp h1,
+				   arcgrant,
+				   arctarget,
+				   arcoperation
+			WHERE b.CORCUSTOMERKY = #{customerOid}
+			<if test="accountIds != null"> 
+				AND b.bnkacctky IN 
+				<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+					#{acctId}
+				</foreach>
+			</if>
+			  AND exists (select 1 from BNKCustAcctOprtn j
+						   WHERE j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND j.oprtnName IN ('/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay')
+							 AND j.isSelected = '1')
+			  AND exists (select 1 from BNKCustAcctOprtn k
+						   where k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+							 AND k.oprtnName in ('/dataop/information_reporting/current_day/detail', '/dataop/information_reporting/current_day/summary', 
+												 '/dataop/information_reporting/previous_day/detail', '/dataop/information_reporting/previous_day/summary')
+							 AND k.isSelected = '1')
+			  AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+			  AND g1.BNKCustUserGrpKy = h1.ARCPrinciPalKyGrp  
+			  AND g.bnkcustomerky = #{customerOid}
+			  AND g1.bnkcustomerky = #{customerOid}
+			  AND g.isDeleted = '0'           
+			  AND g1.isDeleted = '0'          
+			  AND h.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND h1.ARCPrincipalKy = #{arcPrincipalKy}
+			  AND arcgrant.arcprincipalky in ( h.ARCPrinciPalKyGrp)
+			  AND arctarget.arctargetky = arcgrant.arctargetky
+			  AND arcgrant.arcoperationky = arcoperation.ARCOperationKy                       
+			  AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/positive_pay', '/dataop/check/reverse_positive_pay', '/dataop/fraud/ach_pos_pay' )
+			  AND arcgrant.ispositive = '1'
+			  AND arctarget.name=to_char(b.bnkacctky)			  
+			  and exists (select 1 from arcgrant cpdaygrant, arcoperation cpdayoprtn
+						   where cpdaygrant.arcprincipalky in ( h1.ARCPrinciPalKyGrp)
+							 and cpdaygrant.arctargetky = arctarget.arctargetky
+							 AND cpdaygrant.arcoperationky = cpdayoprtn.ARCOperationKy
+							 and cpdayoprtn.name in ('/dataop/user/account/full', '/dataop/information_reporting/current_day/detail', 
+													 '/dataop/information_reporting/current_day/summary', '/dataop/information_reporting/previous_day/detail', 
+													 '/dataop/information_reporting/previous_day/summary')                        
+							 AND cpdaygrant.ispositive = '1')
+	</select>  
+
+	<select id="getPositivePayForMobileApproval-Oracle" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" >
+		WITH a1 (row_number, acctID, nickname, ISOCurrencyCdKy, BNKAcctKy, BNKFraudSuspectKy, referenceNbr, checkSerialNbr,
+        	presentmentAmt, issueAmt, issueDt, statusCd, decisionCd, approvedDecisionCd, reasonCd1, reasonCd2,
+	        imageLink, presentedPayee, issuePayee, presentedDt, posPayTypeCd, updateDttm, versionStamp, finalDecisionCd,
+    	    isDebit, achAddenda, achPaymentType, origAchCompanyId, origAchCompanyName, approver, approvalDttm, decisioner,
+        	decisionDttm, creationDttm)
+		AS (
+				<include refid="Base_Column_List" />
+			FROM BNKFraudSuspect a, BNKCustAcct ca, BNKAcct ba, bnkuser b, arcidentity i
+			WHERE 
+				<if test="accountIds != null"> 
+					a.BNKAcctKy in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if>
+		        AND ca.BNKAcctKy = a.BNKAcctKy
+    		    AND ca.BNKAcctKy = ba.BNKAcctKy         
+				AND a.BNKFraudSuspectKy >= 0
+				AND a.statusCd IN ( 1 , 2, 6, 9)
+				AND a.posPayTypeCd IN ( 0 , 1, 2)
+                AND (( a.statusCd IN ( 1 , 2, 9) AND a.posPayTypeCd IN ( 0 , 2)) OR
+                     ( a.statusCd IN ( 1 , 2, 6) AND a.posPayTypeCd = 1))				
+				AND ca.CORCustomerKy = #{customerOid}
+				<if test="startDate != null and startDate != ''"> 
+					and to_date(trunc(a.creationDttm)) <![CDATA[ >= ]]> #{startDate,jdbcType=DATE}
+				</if>
+				<if test="endDate != null and endDate != ''"> 
+					and to_date(trunc(a.creationDttm)) <![CDATA[ <= ]]> #{endDate,jdbcType=DATE} 
+				</if>				 				
+		        AND b.bnkcustomerky = ca.CORCustomerKy
+				AND b.ARCPrincipalKy = #{arcPrincipalKy} 
+				AND i.ARCPrincipalKy = b.ARCPrincipalKy
+				AND (a.updateuser <![CDATA[ <> ]]> #{loginId})				 		        								
+		        AND exists ( select 1 from BNKCustAcctOprtn cao
+		           WHERE ( (a.pospaytypecd = 0 AND cao.oprtnName='/dataop/check/positive_pay' ) 
+		              or ( a.pospaytypecd = 2 AND cao.oprtnName='/dataop/fraud/ach_pos_pay' ) 
+		              or ( a.pospaytypecd = 1 AND cao.oprtnName='/dataop/check/reverse_positive_pay' ) ) 
+		           AND cao.isSelected = '1' and ca.bnkcustacctky=cao.bnkcustacctky and ca.corcustomerky = b.bnkcustomerky )
+		                				
+		) SELECT b.cnt, a.* FROM a1 a, (SELECT COUNT(*) AS cnt FROM a1) b
+		<if test="noOfRows > 0">
+			WHERE a.row_number BETWEEN 1 AND #{noOfRows} 
+		</if>
+	</select>
+	
+</mapper>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+						http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean id="propertyConfigurerAsync"
+		class="com.aci.async.message.common.AsyncPlaceholderPropertyConfiguration"
+		depends-on="springGrndsBootstrap" lazy-init="false">
+		<property name="placeholderPrefix" value="$(" />
+		<property name="placeholderSuffix" value=")" />	
+	 </bean>
+
+	<bean id="asyncMsgHndlingExpClssfr" class="com.aci.async.exception.classifiers.AsyncMessageExceptionClassifier"/>
+
+	<bean id="wireAsyncRetryPolicy" class="com.aci.async.handler.retry.AsyncRetryPolicy">
+		<property name="maxAttempts" value="$(wireStatusUpdtHandler.retryCount)" />
+		<property name="retryableExceptionClassifiers" ref="asyncMsgHndlingExpClssfr"/>
+	</bean>
+
+	<bean id="wireStatusFixedBackOff" class="org.springframework.retry.backoff.FixedBackOffPolicy">
+		<property name="backOffPeriod" value="$(wireStatusUpdtHandler.retryWaitInterval)"></property>
+	</bean>
+
+	<bean id="wireStatusUpdateRetryTemplate" class="org.springframework.retry.support.RetryTemplate">
+		<property name="retryPolicy" ref="wireAsyncRetryPolicy"/>
+		<property name="backOffPolicy" ref="wireStatusFixedBackOff"/>
+	</bean>
+	
+	<bean id="wireDataConfAsyncRetryPolicy" class="com.aci.async.handler.retry.AsyncRetryPolicy">
+		<property name="maxAttempts" value="$(wireDataConfHandler.retryCount)" />
+		<property name="retryableExceptionClassifiers" ref="asyncMsgHndlingExpClssfr"/>
+	</bean>
+
+	<bean id="wireDataConfFixedBackOff" class="org.springframework.retry.backoff.FixedBackOffPolicy">
+		<property name="backOffPeriod" value="$(wireDataConfHandler.retryWaitInterval)"></property>
+	</bean>
+	
+	<bean id="wireDataConfRetryTemplate" class="org.springframework.retry.support.RetryTemplate">
+		<property name="retryPolicy" ref="wireDataConfAsyncRetryPolicy"/>
+		<property name="backOffPolicy" ref="wireDataConfFixedBackOff"/>
+	</bean>
+		
+	<bean id="wireDataConfirmationHandler" class="com.aci.async.handler.wire.inbound.WireAsyncDataConfirmationHandler">		
+			<property name="retryTemplate" ref="wireDataConfRetryTemplate" />
+	</bean>
+
+	<bean id="wireStatusUpdateHandler" class="com.aci.async.handler.wire.inbound.WireAsyncStatusUpdateHandler">		
+		<property name="retryTemplate" ref="wireStatusUpdateRetryTemplate" />
+		<property name="nextHandler" ref="wireDataConfirmationHandler" />
+	</bean>
+
+	<bean id="bsiJibxUmarshaller" class="com.aci.async.message.BsiJibxUnmarshaller" />
+
+	<bean id="wireAsyncMsgProcessor" class="com.aci.async.message.MessageProcessor">	
+		<constructor-arg value="com.aciworldwide.pim.messages.transaction.services.PaymentUpdateRq_Type" />	
+		<property name="messageHandler" ref="wireStatusUpdateHandler" />
+		<property name="unmarshaller" ref="bsiJibxUmarshaller"></property>
+		<property name="errorHandler" ref="mqErrorHandler"/>
+	</bean>
+	
+	<bean id="asyncQueueConnectionFactory" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+		<property name="hostName" value="$(mqHostname)"/>		
+		<property name="port" value="$(mqPort)"/>
+		<property name="queueManager" value="$(mqManager)"/>			
+		<property name="channel" value="$(mqChannel)"/>			
+		<property name="transportType" value="$(mqTransportType)"/>			
+	</bean>		
+	
+		<!-- Configuration properties -->
+	<bean id="configPropertiesAsync" class="org.springframework.beans.factory.config.PropertiesFactoryBean">		
+		<property name="locations" value="classpath:cloakinfo.properties"/>
+	</bean>
+	
+	<bean id="cloakPropertiesPlaceholderAsync" class="com.s1.spring.CloakPropertyPlaceholderConfigurer">
+		<property name="placeholderPrefix" value="$[" />
+		<property name="placeholderSuffix" value="]" />
+		<property name="config" ref="configPropertiesAsync" />
+	</bean>
+
+
+	<bean id="wireAsyncMessageListenerContainer" class="com.aci.async.message.AsyncMessageListener"
+		init-method="initializeMQEnvironment">
+		<property name="connectionFactory" ref="asyncQueueConnectionFactory" />
+		<property name="destinationName" value="$(wireAsyncQueueName)" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="3" />
+		<property name="messageListener" ref="wireAsyncMsgProcessor" />
+		<property name="mqHostUserId" value="$[mqUser]"/>
+		<property name="mqHostPassword" value="$[mqPassword]"/>
+		<property name="wmqMsgWaitInterval" value="$(wmqMsgWaitInterval)"/>
+	</bean>
+	
+	<bean id="mqErrorHandler" class="com.aci.async.message.MQErrorHandler">
+		<property name="errorQName" value="$(errorMQName)"/>
+		<property name="mqHostName" value="$(errorMQHostname)"/>
+		<property name="mqHostPort" value="$(errorMQPort)"/>
+		<property name="queueManagerName" value="$(errorMQManager)"/>			
+		<property name="mqHostChannel" value="$(errorMQChannel)"/>					
+		<property name="mqTransportType" value="$(errorMQTransportType)"/>
+		<property name="mqHostUserId" value="$[mqUser]"/>
+		<property name="mqHostPassword" value="$[mqPassword]"/>						
+	</bean>
+	
+</beans>

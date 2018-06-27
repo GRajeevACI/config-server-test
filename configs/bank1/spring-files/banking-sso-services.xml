@@ -1,0 +1,277 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<context:annotation-config/>
+	<bean id="DynamicOperationMessages" class="com.aci.gsso.entitlements.DynamicOperationMessages">
+		<property name="grndsDomain" value="deployer" />
+		<property name="grndsSubDomain" value="{}" />
+	</bean>
+	
+	<bean id="gssoProviderAffiliateService" class="com.aci.gsso.service.DefaultGssoProviderAffiliateService">
+		<property name="affiliateService" ref="affiliateFIService" />
+		<property name="gssoProviderAffiliateMapper" ref="gssoProviderAffiliateMapper" />
+		<property name="gssoProviderConfigMapper" ref="gssoProviderConfigMapper" />
+		<property name="gssoCustomFieldDefMapper" ref="gssoCustomFieldDefMapper" />
+		<property name="gssoCustomFieldValueMapper" ref="gssoCustomFieldValueMapper" />
+		<property name="gssoUrlMapper" ref="gssoUrlMapper" />
+		<property name="gssoProviderViewMapper" ref="gssoProviderViewMapper" />
+		<property name="usersGroupsMapper" ref="userEntitlementsUsersGroupsMapper" />
+	</bean>
+	
+	<bean id="guidService" class="com.aci.gsso.admin.service.DefaultGuidService" >
+		<property name="guidGenerator"               ref="guidGenerator" />
+		<property name="gssoCustomerService"         ref="gssoCustomerService" />
+		<property name="gssoCustomerMapper"          ref="gssoCustomerMapper" />
+		<property name="gssoUserService"             ref="gssoUserService" />
+		<property name="gssoUserMapper"              ref="gssoUserMapper" />
+		<property name="gssoProviderConfigMapper"    ref="gssoProviderConfigMapper" />
+		<property name="gssoProviderAffiliateMapper" ref="gssoProviderAffiliateMapper" />
+        <property name="gssoLockService"             ref="gssoLockService" />
+		<property name="maxAttempts"                 value="100" />
+	</bean>
+	
+	<bean id="guidGenerator" class="com.aci.gsso.admin.service.DefaultGuidGenerator" />
+	
+	<bean id="gssoCustomerService" class="com.aci.gsso.service.DefaultGssoCustomerService" >
+		<property name="gssoCustomerMapper"           ref="gssoCustomerMapper" />
+		<property name="gssoProviderAffiliateService" ref="gssoProviderAffiliateService" />
+        <property name="gssoLockService"              ref="gssoLockService" />
+		<property name="gssoInitiatorPersister"      ref="gssoInitiatorPersister" />
+	</bean>
+	
+	<bean id="gssoCustomFieldService" class="com.aci.gsso.service.DefaultGssoCustomFieldService" >
+		<property name="valueMapper" ref="gssoCustomFieldValueMapper" />
+	</bean>
+	
+	<bean id="gssoUserService" class="com.aci.gsso.service.DefaultGssoUserService" >
+		<property name="userInfoMapper"               ref="gssoUserInfoMapper" />
+		<property name="gssoUserMapper"               ref="gssoUserMapper" />
+		<property name="customFieldService"           ref="gssoCustomFieldService" />
+		<property name="gssoProviderAffiliateService" ref="gssoProviderAffiliateService" />
+        <property name="gssoLockService"              ref="gssoLockService" />
+		<property name="gssoInitiatorPersister"       ref="gssoInitiatorPersister" />
+	</bean>
+
+    <bean id="gssoAccountService" class="com.aci.gsso.service.DefaultGssoAccountService" >
+        <property name="entitlementsMapper" ref="userEntitlementsUsersGroupsMapper" />
+        <property name="userInfoMapper" ref="gssoUserInfoMapper" />
+    </bean>
+    
+    <bean id="gssoCheckFreeCustomerService" class="com.aci.gsso.service.DefaultGssoCheckFreeCustomerService" >
+        <property name="gssoCheckFreeCustomerMapper" ref="gssoCheckFreeCustomerMapper" />
+    </bean>
+    
+    <bean id="gssoCheckFreeAccountService" class="com.aci.gsso.service.DefaultGssoCheckFreeAccountService" >
+        <property name="gssoCheckFreeAccountMapper" ref="gssoCheckFreeAccountMapper" />
+    </bean>
+    
+    <bean id="gssoCheckFreeUserService" class="com.aci.gsso.service.DefaultGssoCheckFreeUserService" >
+        <property name="gssoCheckFreeUserMapper" ref="gssoCheckFreeUserMapper" />
+    </bean>
+	<!-- GSSO Initiator persistence-related servicer -->
+	<bean id="gssoInitiatorPersister" class="com.aci.gsso.framework.persistencelayer.GSSOInitiatorPersister">
+        <property name="gssoAccountService"          ref="gssoAccountService" />
+		<property name="gssoProviderConfigMapper"    ref="gssoProviderConfigMapper" />
+		<property name="gssoProviderAffiliateMapper" ref="gssoProviderAffiliateMapper" />
+		<property name="gssoCustomFieldMDMapper"     ref="gssoCustomFieldDefMapper" />
+        <property name="gssoCustomFieldValueMapper"  ref="gssoCustomFieldValueMapper" />
+		<property name="gssoUrlMapper"               ref="gssoUrlMapper" />
+        <property name="gssoCustomerMapper"          ref="gssoCustomerMapper" />
+        <property name="gssoUserMapper"              ref="gssoUserMapper" />
+        <property name="userInfoMapper"              ref="gssoUserInfoMapper" />
+	</bean>
+
+	<!-- GSSO Initiator Cfg manager -->
+	<bean id="gssoInitiatorCfg" class="com.aci.gsso.configuration.GSSOInitiatorCfg">
+		<property name="gssoInitiatorPersister"    ref="gssoInitiatorPersister" />
+	</bean>
+   
+	<!-- GSSO Initiator Core -->
+	<bean id="gssoInitiator" class="com.aci.gsso.framework.corelayer.GSSOInitiator">
+         <property name="gssoWSClient" ref="gssoWSClient" />
+	</bean>
+	
+    <!-- GSSO Initiator Service API -->
+    <bean id="gssoInitiatorServiceAPI" class="com.aci.gsso.framework.businesslayer.GSSOInitiatorServiceAPI">
+        <property name="gssoInitiatorCfg"          ref="gssoInitiatorCfg" />
+        <property name="gssoInitiatorPersister"    ref="gssoInitiatorPersister" />
+        <property name="gssoInitiator"             ref="gssoInitiator" />
+        <property name="gssoLockService"           ref="gssoLockService" />
+        <property name="gssoInitiatorServiceHelper"           ref="gssoInitiatorServiceHelper" />
+	</bean>	
+
+	<!-- Check Free GSSO Initiator -->
+	<bean id="CBPgssoInitiator" class="com.aci.gsso.framework.corelayer.CBPSSOInitiator">
+         <property name="gssoWSClient" ref="gssoWSClient" />
+	</bean>
+	
+	<!-- Check Free GSSO Initiator Service API -->
+    <bean id="CBPgssoInitiatorServiceAPI" class="com.aci.gsso.framework.businesslayer.CBPSSOInitiatorServiceAPI">
+        <property name="gssoInitiatorCfg"          ref="gssoInitiatorCfg" />
+        <property name="gssoInitiatorPersister"    ref="gssoInitiatorPersister" />
+        <property name="gssoInitiator"             ref="CBPgssoInitiator" />
+        <property name="gssoLockService"           ref="gssoLockService" />
+        <property name="gssoUtil"           	   ref="gssoCheckFreeUtil" />        
+	</bean>
+	
+	<!-- This bean puts specific SSO initiator Service API and Initiator in a map -->
+	<bean id="gssoInitiatorServiceHelper" class= "com.aci.gsso.framework.corelayer.GSSOInitiatorServiceHelper" >
+		<property name = "initiatorServiceAPIProvidersMap">
+			<map>
+				<entry key="CBP" value-ref="CBPgssoInitiatorServiceAPI" />
+			</map>
+		</property>
+		<property name = "providerInitiatorMap">
+			<map>
+				<entry key="CBP" value-ref="CBPgssoInitiator" />
+			</map>
+		</property>
+	</bean>
+	<!-- GSSO Utility  -->
+	<bean id="gssoCommonUtil" class="com.aci.gsso.framework.businesslayer.GSSOUtility" />
+	
+	<!-- Check Free Utility  -->
+	<bean id="gssoCheckFreeUtil" class="com.aci.gsso.framework.businesslayer.GSSOCheckFreeUtility">
+		<property name = "gssoCheckFreeCustomerService" ref="gssoCheckFreeCustomerService"/>
+		<property name = "gssoCheckFreeUserMapper" ref="gssoCheckFreeUserMapper" />
+	</bean>
+    <bean id="enrollRequest_O_25" class="com.aci.gsso.messageobject.GSSOEnrollRequestMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>
+	
+	<bean id="enrollUserRequest_O_25" class="com.aci.gsso.messageobject.GSSOEnrollUserRequestMsgMO" parent="enrollRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>	
+	<bean id="cancelUserRequest_O_25" class="com.aci.gsso.messageobject.GSSOCancelUserRequestMsgMO" parent="updateRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>
+	<bean id="modifyUserRequest_O_25" class="com.aci.gsso.messageobject.GSSOModifyUserRequestMsgMO" parent="updateRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>
+	
+	<bean id="enrollCustomerRequest_O_25" class="com.aci.gsso.messageobject.GSSOEnrollCustomerRequestMsgMO" parent="enrollRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>	
+	<bean id="enrollAccountRequest_O_25" class="com.aci.gsso.messageobject.GSSOEnrollAccountRequestMsgMO" parent="enrollRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>	
+
+	
+	<bean id="modifyCustomerRequest_O_25" class="com.aci.gsso.messageobject.GSSOModifyCustomerRequestMsgMO" parent="updateRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>	
+	<bean id="inactivateCustomerRequest_O_25" class="com.aci.gsso.messageobject.GSSOInactivateCustomerRequestMsgMO" parent="updateRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>	
+	<bean id="modifyAccountRequest_O_25" class="com.aci.gsso.messageobject.GSSOModifyAccountRequestMsgMO" parent="updateRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>
+	<bean id="unEnrollAccountRequest_O_25" class="com.aci.gsso.messageobject.GSSOUnenrollAccountRequestMsgMO" parent="updateRequest_O_25" lazy-init="true" scope="prototype"></bean>	
+	<bean id="addAccountRestrictionRequest_O_25" class="com.aci.gsso.messageobject.GSSOAddAccountRestrictionMsgMO" parent="pimBaseRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>
+	<bean id="manageAccountRestrictionRequest_O_25" class="com.aci.gsso.messageobject.GSSOManageAccountRestrictionMsgMO" parent="pimBaseRequest_O_25" lazy-init="true" scope="prototype">
+	</bean>
+	<bean id="reactivateUserRequest_O_25" class="com.aci.gsso.messageobject.GSSOReactivateUserRequestMsgMO" parent="enrollRequest_O_25" lazy-init="true" scope="prototype"></bean>
+	<bean id="reactivateCustomerRequest_O_25" class="com.aci.gsso.messageobject.GSSOReactivateCustomerRequestMsgMO" parent="enrollRequest_O_25" lazy-init="true" scope="prototype"></bean>
+	
+    <bean id="loginRequest_O_25" class="com.aci.gsso.messageobject.GSSOLoginRequestMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>	
+	
+    <bean id="logoutRequest_O_25" class="com.aci.gsso.messageobject.GSSOLogoutRequestMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>
+	
+    <bean id="updateRequest_O_25" class="com.aci.gsso.messageobject.GSSOUpdateRequestMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>
+	
+    <bean id="deleteRequest_O_25" class="com.aci.gsso.messageobject.GSSODeleteRequestMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>	
+		
+	<bean id="pimBaseRequest_O_25" class="com.aci.gsso.messageobject.GSSOPIMBaseMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>
+		
+    <bean id="loginResponse_O_25" class="com.aci.gsso.messageobject.GSSOLoginResponseMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" value=""></constructor-arg>
+    	<constructor-arg index="1" value=""></constructor-arg>
+    	<constructor-arg index="2" ref="gssoInitiatorCfg"></constructor-arg>
+	</bean>
+	
+    <bean id="enrollResponse_O_25" class="com.aci.gsso.messageobject.GSSOResponseBaseMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" type="com.aci.gsso.messageobject.GSSOBaseMsgMO.GSSOCfgInfo" value=""></constructor-arg>
+	</bean>
+		
+    <bean id="logoutResponse_O_25" class="com.aci.gsso.messageobject.GSSOResponseBaseMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" type="com.aci.gsso.messageobject.GSSOBaseMsgMO.GSSOCfgInfo" value=""></constructor-arg>
+	</bean>
+	
+    <bean id="updateResponse_O_25" class="com.aci.gsso.messageobject.GSSOResponseBaseMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" type="com.aci.gsso.messageobject.GSSOBaseMsgMO.GSSOCfgInfo" value=""></constructor-arg>
+	</bean>
+
+    <bean id="deleteResponse_O_25" class="com.aci.gsso.messageobject.GSSOResponseBaseMsgMO" lazy-init="true" scope="prototype">
+    	<constructor-arg index="0" type="com.aci.gsso.messageobject.GSSOBaseMsgMO.GSSOCfgInfo" value=""></constructor-arg>
+	</bean>
+				
+    <!-- DB level sync lock thingy: -->
+    <bean id="gssoLockService" class="com.aci.gsso.framework.persistencelayer.DefaultGssoDBLevelSyncLockService" >
+        <property name="gssoDBLevelSyncMapper"       ref="gssoDBLevelSyncMapper" />
+        <property name="sequenceService"             ref="sequenceService" /> <!-- not pretty to have it here, yet most efficient -->
+    </bean>
+     
+	<!-- <import resource="gsso-outbound-webservices.xml"/> -->
+	
+    <!-- GSSO Initiator Web-Service API -->
+	<bean id="gssoWSClient" class="com.aci.gsso.ws.ConcreteGSSOWSClientService" />
+	
+	<bean id="sessionDataAdapter" class="com.s1.arch.security.sso.integration.cookie.SessionDataDistributionAdapter">
+	</bean>
+	
+    <bean id="exceptionLoggerFilter" class="com.aci.bnk.gsso.web.ExceptionLoggerFilter" >
+    </bean>
+    <bean id="defaultResponseCodes" class="com.aci.gsso.messageobject.DefaultResponseCodes">
+		<constructor-arg name="successResponseCodes">
+			<util:map>
+				<entry key="00" value=""/>
+				<entry key="01" value=""/>
+			</util:map>
+		</constructor-arg>
+		<constructor-arg name="failureResponseCodes">
+			<util:map>
+				<entry key="98" value="Error, User not found."/>
+				<entry key="99" value="Error."/>
+			</util:map>
+		</constructor-arg>
+	</bean>
+	<bean id="CBPResponseCodes" class="com.aci.gsso.messageobject.CBPResponseCodes">
+		<constructor-arg name="successResponseCodes">
+			<util:map>
+				<entry key="0" value=""/>
+				<entry key="1" value=""/>
+				<entry key="2" value=""/>
+				<entry key="3" value=""/>
+				<entry key="4" value=""/>												
+				<entry key="00" value=""/>
+			</util:map>
+		</constructor-arg>
+		<constructor-arg name="failureResponseCodes">
+			<util:map>
+				<entry key="98" value="Error, User not found."/>
+				<entry key="99" value="Error."/>
+			</util:map>
+		</constructor-arg>
+	</bean>
+</beans>

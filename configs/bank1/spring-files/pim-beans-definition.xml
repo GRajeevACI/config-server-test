@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"  >
+
+	<!-- purposely setting lazy-init to false since we want all BSI services to be intialized during server startup itself-->							
+<!-- 	<bean id="bsiServiceStore" class="com.aciworldwide.uob.bsi.BSIAdapterStore" init-method="init" destroy-method="destroy" lazy-init="false"/> -->
+	
+	<bean id="pimAdapterUtils" class="com.s1.pim.common.PIMAdapterUtils" />
+	<bean id="pimTransferMapper" class="com.s1.pim.app.disbursements.transfers.utility.PIMTransferMapper" parent="pimAdapterUtils" />
+	<bean id="pimAccountMapperBean" class="com.s1.pim.bank.accounts.realtime.PIMRealtimeAccountMapper" parent="pimAdapterUtils" />
+	<bean id="pimStopPaymentMapper" class="com.s1.pim.bank.stoppayment.PIMStopPaymentMapperImpl" parent="pimAdapterUtils" />
+	<bean id="pimRemoteDocumentImageMapper" class="com.s1.pim.app.bank.documentimage.utility.PIMRemoteDocumentImageMapper" parent="pimAdapterUtils" />
+	<bean id="pimAccountTransactionInquiryMapper" class="com.s1.pim.app.bank.accounts.realtime.utility.AccountTransactionInquiryPimMapper" parent="pimAdapterUtils" />
+	<bean id="pimForeignExchangeMapperBean" class="com.s1.pim.app.disbursements.wire.mappers.PIMRealtimeForeignExchangeMapper" parent="pimAdapterUtils" />
+	
+	<bean id="pimStopPaymentService" class="com.s1.pim.bank.stoppayment.PIMStopPaymentService" >
+		<property name="pimStopPaymentMapper" ref="pimStopPaymentMapper" />
+	</bean>
+	
+	<bean id="pimImageSearchMapper" class="com.s1.common.image.interfaces.PIM.PIMImageSearchMapperImpl" />
+	
+	<bean id="pimImageSearchService" class="com.s1.common.image.interfaces.PIM.PIMImageSearchService" >
+		<property name="pimImageSearchMapper" ref="pimImageSearchMapper" />
+	</bean>
+	
+	<bean id="pimCheckInquiryMapper" class="com.aciworldwide.pim.transact.checkInquiry.PIMCheckInquiryMapper" />
+	
+	<bean id="pimCheckInquiryRemote" class="com.aciworldwide.pim.transact.checkInquiry.PIMCheckInquiryRemote" >
+		<property name="pimCheckInquiryMapper" ref="pimCheckInquiryMapper" />
+	</bean>
+	
+	<bean id="pimTransactionImageMapper" class="com.s1.pim.bank.documentimage.PIMTransactionImageMapperImpl" />
+	
+	<bean id="pimAccountStatementImage" class="com.s1.pim.app.bank.documentimage.PIMAccountStatementImage" >
+		<property name="documentImageMapper" ref="pimRemoteDocumentImageMapper"/>
+	</bean>
+	
+	<bean id="pimRemoteDocumentImageService" class="com.s1.pim.bank.documentimage.PIMRemoteDocumentImageService" >
+		<property name="pimTransactionImageMapper" ref="pimTransactionImageMapper" />
+		<property name="pimAccountStatementImage" ref="pimAccountStatementImage" />
+	</bean>	
+	
+  	<bean id="pimAccountsAdapterImpl" class="com.s1.pim.bank.accounts.realtime.PIMAccountAdapterProxyImpl" >
+  		<property name="pimAccountMapper" ref="pimAccountMapperBean"></property>
+   	</bean>
+   	
+   	<bean id="tokenAuthenticationImpl" class="com.aciworldwide.pim.bank.accounts.realtime.TokenAuthenticationImpl" >
+   	</bean>
+
+   	<bean id="tokenActivationImpl" class="com.aciworldwide.pim.bank.accounts.realtime.TokenActivationImpl" >
+  	
+   	</bean>
+
+   	
+   	<bean id="adaptiveAuthenticationImpl" class="com.aciworldwide.pim.bank.accounts.realtime.AdaptiveAuthenticationImpl" >
+   	</bean>
+   	
+	<bean id="realTimePIMTransactionService" class="com.s1.pim.app.bank.accounts.realtime.RealTimePIMTransactionServiceImpl" >
+		<property name="mapper" ref="pimAccountTransactionInquiryMapper"></property>
+	</bean>
+
+	<bean id="baseWirePaymentMapper" class="com.s1.pim.app.disbursements.wire.mappers.BaseWirePaymentMapper" init-method="initialize" scope="prototype">
+	   	<property name="idTypeCodes">
+	        <map>
+	            <entry key="0" value="" />
+	            <entry key="1" value="ARNU" />
+	            <entry key="2" value="CCPT" />
+	            <entry key="3" value="" />
+	            <entry key="4" value="DRLC" />
+	            <entry key="5" value="TXID" />
+	            <entry key="6" value="" />
+	            <entry key="7" value="" />
+	            <entry key="8" value="" />
+	            <entry key="9" value="" />
+	            <entry key="10" value="CUST" />
+	            <entry key="11" value="EMPL" />
+	            <entry key="12" value="NIDN" />
+	        </map>
+	    </property>
+ 	    <property name="personIdTypes" value="${uob.orderingCustomer.person.idTypes}"/>
+ 	    <property name="organizationIdTYpes" value="${uob.orderingCustomer.organization.idTypes}"/>
+ 	    <property name="csvHostSupportedAccountTypeCodes" value="${adapter.HostProductCodes.list}"/>
+ 	    
+   	</bean>
+    <bean id="WIRE_PAY_77" class="com.s1.pim.app.disbursements.wire.mappers.FedWirePaymentMapper" parent="baseWirePaymentMapper" scope="prototype"/>
+    <bean id="WIRE_PAY_78" class="com.s1.pim.app.disbursements.wire.mappers.SwiftWirePaymentMapper" parent="baseWirePaymentMapper" scope="prototype"/>
+    <bean id="WIRE_PAY_81" class="com.s1.pim.app.disbursements.wire.mappers.DrawdownWirePaymentMapper" parent="baseWirePaymentMapper" scope="prototype"/>
+    <bean id="WIRE_PAY_82" class="com.s1.pim.app.disbursements.wire.mappers.MultibankWirePaymentMapper" parent="baseWirePaymentMapper" scope="prototype"/>    
+    <bean id="WIRE_PAY_83" class="com.s1.pim.app.disbursements.wire.mappers.FedTaxWirePaymentMapper" parent="baseWirePaymentMapper" scope="prototype"/>  
+    <bean id="WIRE_PAY_85" class="com.s1.pim.app.disbursements.wire.mappers.BookWirePaymentMapper" parent="baseWirePaymentMapper" scope="prototype"/>
+    
+    
+     <bean id="wirepayhandler" class="com.s1.pim.app.disbursements.wire.mappers.WirePaymentHandler">   
+		<property name="wirepaymentconfig">
+			<map>
+				<entry key="WIRE_PAYMENT_TYPE_77" value="WIRE_PAY_77"/>
+				<entry key="WIRE_PAYMENT_TYPE_78" value="WIRE_PAY_78"/>
+				<entry key="WIRE_PAYMENT_TYPE_81" value="WIRE_PAY_81"/>
+				<entry key="WIRE_PAYMENT_TYPE_82" value="WIRE_PAY_82"/>				
+				<entry key="WIRE_PAYMENT_TYPE_83" value="WIRE_PAY_83"/>
+				<entry key="WIRE_PAYMENT_TYPE_85" value="WIRE_PAY_85"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="paymentUpdateUtility" class="com.s1.pim.app.disbursements.wire.util.PaymentUpdateUtility">
+		<property name="idTypes">
+	        <map>
+	            <entry key="ARNU" value="1" />
+	            <entry key="CCPT" value="2" />
+	            <entry key="DRLC" value="4" />
+	            <entry key="TXID" value="5" />
+	            <entry key="CUST" value="10" />
+	            <entry key="EMPL" value="11" />
+	            <entry key="NIDN" value="12" />
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="pimForeignExchangeAdapterImpl" class="com.s1.pim.app.disbursements.wire.PIMForeignExchangeAdapterProxyImpl" >
+  		<property name="pimForeignExchangeMapper" ref="pimForeignExchangeMapperBean"></property>
+   	</bean>
+	<!-- BillPaymentManagement -->
+	<bean id="pimBillPaymentMapper" class="com.aciworldwide.billpayment.pim.PIMBillPaymentMapperImpl" />
+	
+	<bean id="PIMBillPaymentService" class="com.aciworldwide.billpayment.pim.PIMBillPaymentService" >
+		<property name="pimBillPaymentMapper" ref="pimBillPaymentMapper"/>
+	</bean>
+
+	<!-- RemoteDepositCheck -->
+	<bean id="pimRemoteDepositCheckMapper" class="com.aciworldwide.remotedepositcheck.impl.PIMRemoteDepositCheckMapperImpl" />
+	
+	<!-- Remote Deposit Check Service -->
+	<bean id="pimRDCService" class="com.aciworldwide.remotedepositcheck.impl.PIMRemoteDepositCheckImpl">
+		<property name="pimMapper" ref="pimRemoteDepositCheckMapper"/>
+	</bean>
+
+	
+	<import resource="pim-model-definitions.xml"/>
+</beans>

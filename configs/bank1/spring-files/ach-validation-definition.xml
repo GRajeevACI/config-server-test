@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       					   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+<!-- ACH Payment/Template Bean Definition -->
+
+	<bean id="commonPaymentFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>			
+				<entry key="ACHPaymentInfo" value="ACHPaymentInfo" />
+				<entry key="ACHPaymentInfo.paymentIdent" value="ACHPaymentInfo.paymentIdent" />				
+				<entry key="ACHPaymentInfo.paymentReference" value="ACHPaymentInfo.paymentReference" />
+				<entry key="ACHPaymentInfo.companyEntryDescription" value="ACHPaymentInfo.companyEntryDescription" />
+				<entry key="ACHPaymentInfo.ACHCompanyID" value="ACHPaymentInfo.ACHCompanyID" />
+				<entry key="ACHPaymentInfo.offsetCreationLevelType" value="ACHPaymentInfo.offsetCreationLevelType" />
+				<entry key="ACHPaymentInfo.companyDiscretionaryData" value="ACHPaymentInfo.companyDiscretionaryData" />
+				<entry key="ACHPaymentInfo.paymentValueDate" value="ACHPaymentInfo.paymentValueDate" />
+				<entry key="ACHPaymentInfo.recipients" value="ACHPaymentInfo.recipients" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo" value="ACHPaymentInfo.paymentAccountInfo" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0]" value="ACHPaymentInfo.paymentAccountInfo[0]" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].financialInstitution" value="ACHPaymentInfo.paymentAccountInfo[0].financialInstitution" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].financialInstitution.ident" value="ACHPaymentInfo.paymentAccountInfo[0].financialInstitution.ident" />				
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].financialInstitution.identType" value="ACHPaymentInfo.paymentAccountInfo[0].financialInstitution.identType" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].accountIdent" value="ACHPaymentInfo.paymentAccountInfo[0].accountIdent" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].accountIdent.primaryIdent" value="ACHPaymentInfo.paymentAccountInfo[0].accountIdent.primaryIdent" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].currency" value="ACHPaymentInfo.paymentAccountInfo[0].currency" />
+				<entry key="ACHPaymentInfo.paymentAccountInfo[0].accountIdent.accountUid" value="ACHPaymentInfo.paymentAccountInfo[0].accountIdent.accountUid" />
+				<entry key="ACHPaymentInfo.paymentType" value="ACHPaymentInfo.paymentType" />
+				<entry key="ACHPaymentInfo.recurringInfo" value="ACHPaymentInfo.recurringInfo" />
+				<entry key="ACHPaymentInfo.recurringInfo.recurringScheduleType" value="ACHPaymentInfo.recurringInfo.recurringScheduleType" />
+				<entry key="ACHPaymentInfo.recurringInfo.numberOfPaymentsOption" value="ACHPaymentInfo.recurringInfo.numberOfPaymentsOption" />
+				<entry key="ACHPaymentInfo.recurringInfo.numberOfPayments" value="ACHPaymentInfo.recurringInfo.numberOfPayments" />
+				<entry key="ACHPaymentInfo.recurringInfo.endDate" value="ACHPaymentInfo.recurringInfo.endDate" />
+				<entry key="ACHPaymentInfo.recurringInfo.adjustedValueDateRule" value="ACHPaymentInfo.recurringInfo.adjustedValueDateRule" />
+				<entry key="ACHPaymentInfo.recurringInfo.isLastRecurrence" value="ACHPaymentInfo.recurringInfo.isLastRecurrence" />
+			</map>
+		</property>
+	</bean>
+	
+	
+	<bean id="commonRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="ident" value="ident" />
+				<entry key="ident.ident" value="ident.ident" />
+				<entry key="ident.name" value="ident.name" />
+				<entry key="ident.identType" value="ident.identType" />
+				<entry key="accountInfo" value="accountInfo" />
+				<entry key="accountInfo.accountIdent" value="accountInfo.accountIdent" />
+				<entry key="accountInfo.accountIdent.primaryIdent" value="accountInfo.accountIdent.primaryIdent" />
+				<entry key="accountInfo.accountType" value="accountInfo.accountType" />
+				<entry key="accountInfo.financialInstitution" value="accountInfo.financialInstitution" />
+				<entry key="accountInfo.financialInstitution.ident" value="accountInfo.financialInstitution.ident" />
+				<entry key="accountInfo.financialInstitution.identType" value="accountInfo.financialInstitution.identType" />
+				<entry key="accountInfo.financialInstitution.name" value="accountInfo.financialInstitution.name" />
+				<entry key="amount" value="amount" />
+				<entry key="amount.amount" value="amount.amount" />
+				<entry key="amount.currency" value="amount.currency" />
+				<entry key="statusType" value="statusType" />
+				<entry key="discretionaryData" value="discretionaryData" />
+				<entry key="contactInfo" value="contactInfo" />
+				<entry key="contactInfo.phoneNumber" value="contactInfo.phoneNumber" />
+				<entry key="contactInfo.email" value="contactInfo.email" />
+				<entry key="contactInfo.city" value="contactInfo.city" />
+				<entry key="contactInfo.postalCode" value="contactInfo.postalCode" />
+				<entry key="contactInfo.countryCode" value="contactInfo.countryCode" />
+				<entry key="contactInfo.addressLine" value="contactInfo.addressLine" />
+				<entry key="creditDebitType" value="creditDebitType" />
+				<entry key="paymentAddendaInfo" value="paymentAddendaInfo" />
+				<entry key="paymentType" value="paymentType" />
+				<entry key="saveToMasterList" value="saveToMasterList" />
+				<entry key="masterRecipient" value="masterRecipient" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="commonTemplateFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>			
+				<entry key="ACHTemplateInfo" value="ACHTemplateInfo" />
+				<entry key="ACHTemplateInfo.paymentIdent" value="ACHTemplateInfo.paymentIdent" />				
+				<entry key="ACHTemplateInfo.paymentReference" value="ACHTemplateInfo.paymentReference" />
+				<entry key="ACHTemplateInfo.companyEntryDescription" value="ACHTemplateInfo.companyEntryDescription" />
+				<entry key="ACHTemplateInfo.ACHCompanyID" value="ACHTemplateInfo.ACHCompanyID" />
+				<entry key="ACHTemplateInfo.offsetCreationLevelType" value="ACHTemplateInfo.offsetCreationLevelType" />
+				<entry key="ACHTemplateInfo.companyDiscretionaryData" value="ACHTemplateInfo.companyDiscretionaryData" />
+				<entry key="ACHTemplateInfo.paymentValueDate" value="ACHTemplateInfo.paymentValueDate" />
+				<entry key="ACHTemplateInfo.recipients" value="ACHTemplateInfo.recipients" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo" value="ACHTemplateInfo.paymentAccountInfo" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0]" value="ACHTemplateInfo.paymentAccountInfo[0]" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].financialInstitution" value="ACHTemplateInfo.paymentAccountInfo[0].financialInstitution" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].financialInstitution.ident" value="ACHTemplateInfo.paymentAccountInfo[0].financialInstitution.ident" />				
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].financialInstitution.identType" value="ACHTemplateInfo.paymentAccountInfo[0].financialInstitution.identType" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].accountIdent" value="ACHTemplateInfo.paymentAccountInfo[0].accountIdent" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].accountIdent.primaryIdent" value="ACHTemplateInfo.paymentAccountInfo[0].accountIdent.primaryIdent" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].currency" value="ACHTemplateInfo.paymentAccountInfo[0].currency" />
+				<entry key="ACHTemplateInfo.paymentAccountInfo[0].accountIdent.accountUid" value="ACHTemplateInfo.paymentAccountInfo[0].accountIdent.accountUid" />
+				<entry key="ACHTemplateInfo.paymentType" value="ACHTemplateInfo.paymentType" />
+				<entry key="ACHTemplateInfo.templateActivationDate" value="ACHTemplateInfo.templateActivationDate" />
+				<entry key="ACHTemplateInfo.templateName" value="ACHTemplateInfo.templateName" />
+				<entry key="ACHTemplateInfo.templateLimit" value="ACHTemplateInfo.templateLimit" />
+				<entry key="ACHTemplateInfo.templateLimit.amount" value="ACHTemplateInfo.templateLimit.amount" />
+				<entry key="ACHTemplateInfo.templateLimit.currency" value="ACHTemplateInfo.templateLimit.currency" />
+				<entry key="ACHTemplateInfo.recurringInfo.adjustedValueDateRule" value="ACHTemplateInfo.recurringInfo.adjustedValueDateRule" />
+			</map>
+		</property>
+	</bean>
+
+
+	<bean id="achFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+	</bean>
+    
+    <bean id="achTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+	</bean>
+    
+<!-- Child Support Payment/Template Bean Definition -->    	
+    
+    <bean id="childRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="traceNumber" value="traceNumber" />
+				<entry key="authCode" value="authCode" />
+			</map>
+		</property>
+	</bean>
+    
+    <bean id="childFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="childRecipientFields"/>
+	</bean>
+    
+     <bean id="childTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="childRecipientFields"/>
+	</bean>   
+	
+	
+	<!-- Basic Child Support Payment/Template Bean Definition -->    	
+    
+    <bean id="paychildFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="childRecipientFields"/>
+	</bean>
+    
+     <bean id="paychildTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="childRecipientFields"/>
+	</bean> 
+    
+<!-- CTX Payment/Template Bean Definition -->    	
+    
+    <bean id="ctxRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="traceNumber" value="traceNumber" />
+				<entry key="vendorBillingNumber" value="vendorBillingNumber" />
+				<entry key="secondaryAccountInfo" value="secondaryAccountInfo" />
+				<entry key="secondaryAccountPaymentAllocation" value="secondaryAccountPaymentAllocation" />
+			</map>
+		</property>
+	</bean>
+    
+    <bean id="ctxFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="ctxRecipientFields"/>
+	</bean>
+    
+     <bean id="ctxTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="ctxRecipientFields"/>
+	</bean>
+
+	<!-- IAT Domestic Payment/Template Bean Definition -->
+    
+   	<bean id="domIatPaymentFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="ACHPaymentInfo.IATOriginatorCompanyName" value="ACHPaymentInfo.IATOriginatorCompanyName" />
+				<entry key="ACHPaymentInfo.IATOriginatorCompanyTaxID" value="ACHPaymentInfo.IATOriginatorCompanyTaxID" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress" value="ACHPaymentInfo.IATOriginatorAddress" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.addressLine" value="ACHPaymentInfo.IATOriginatorAddress.addressLine" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.city" value="ACHPaymentInfo.IATOriginatorAddress.city" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.postalCode" value="ACHPaymentInfo.IATOriginatorAddress.postalCode" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.stateProvince" value="ACHPaymentInfo.IATOriginatorAddress.stateProvince" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.stateProvince.code" value="ACHPaymentInfo.IATOriginatorAddress.stateProvince.code" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.stateProvince.name" value="ACHPaymentInfo.IATOriginatorAddress.stateProvince.name" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.countryCode" value="ACHPaymentInfo.IATOriginatorAddress.countryCode" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank" value="ACHPaymentInfo.IATFundingForeignBank" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.ident" value="ACHPaymentInfo.IATFundingForeignBank.ident" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.identType" value="ACHPaymentInfo.IATFundingForeignBank.identType" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.name" value="ACHPaymentInfo.IATFundingForeignBank.name" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.address" value="ACHPaymentInfo.IATFundingForeignBank.address" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.address.countryCode" value="ACHPaymentInfo.IATFundingForeignBank.address.countryCode" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="domIatRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="secondaryAccountInfo" value="secondaryAccountInfo" />
+				<entry key="secondaryAccountPaymentAllocation" value="secondaryAccountPaymentAllocation" />
+				<entry key="contactInfo.addressLine[0]" value="contactInfo.addressLine[0]" />
+				<entry key="contactInfo.stateProvince" value="contactInfo.stateProvince" />
+				<entry key="contactInfo.stateProvince.code" value="contactInfo.stateProvince.code" />
+				<entry key="contactInfo.stateProvince.name" value="contactInfo.stateProvince.name" />
+				<entry key="transactionTypeCode" value="transactionTypeCode" />
+			</map>
+		</property>
+	</bean>
+	
+	<!-- IAT International Payment/Template Bean Definition -->
+	
+	<bean id="iatPaymentFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="ACHPaymentInfo.IATOriginatorCompanyName" value="ACHPaymentInfo.IATOriginatorCompanyName" />
+				<entry key="ACHPaymentInfo.IATOriginatorCompanyTaxID" value="ACHPaymentInfo.IATOriginatorCompanyTaxID" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress" value="ACHPaymentInfo.IATOriginatorAddress" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.addressLine" value="ACHPaymentInfo.IATOriginatorAddress.addressLine" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.city" value="ACHPaymentInfo.IATOriginatorAddress.city" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.postalCode" value="ACHPaymentInfo.IATOriginatorAddress.postalCode" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.stateProvince" value="ACHPaymentInfo.IATOriginatorAddress.stateProvince" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.stateProvince.code" value="ACHPaymentInfo.IATOriginatorAddress.stateProvince.code" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.stateProvince.name" value="ACHPaymentInfo.IATOriginatorAddress.stateProvince.name" />
+				<entry key="ACHPaymentInfo.IATOriginatorAddress.countryCode" value="ACHPaymentInfo.IATOriginatorAddress.countryCode" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank" value="ACHPaymentInfo.IATFundingForeignBank" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.ident" value="ACHPaymentInfo.IATFundingForeignBank.ident" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.identType" value="ACHPaymentInfo.IATFundingForeignBank.identType" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.name" value="ACHPaymentInfo.IATFundingForeignBank.name" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.address" value="ACHPaymentInfo.IATFundingForeignBank.address" />
+				<entry key="ACHPaymentInfo.IATFundingForeignBank.address.countryCode" value="ACHPaymentInfo.IATFundingForeignBank.address.countryCode" />
+				<entry key="ACHPaymentInfo.destinationCountry" value="ACHPaymentInfo.destinationCountry" />
+				<entry key="ACHPaymentInfo.destinationCurrency" value="ACHPaymentInfo.destinationCurrency" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="iatRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="contactInfo.addressLine[0]" value="contactInfo.addressLine[0]" />
+				<entry key="contactInfo.stateProvince" value="contactInfo.stateProvince" />
+				<entry key="contactInfo.stateProvince.code" value="contactInfo.stateProvince.code" />
+				<entry key="contactInfo.stateProvince.name" value="contactInfo.stateProvince.name" />
+				<entry key="accountInfo.financialInstitution.address.countryCode" value="accountInfo.financialInstitution.address.countryCode" />
+				<entry key="transactionTypeCode" value="transactionTypeCode" />
+				<entry key="destinationCountry" value="destinationCountry" />
+				<entry key="destinationCurrency" value="destinationCurrency" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="domIatTemplateFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="ACHTemplateInfo.IATOriginatorCompanyName" value="ACHTemplateInfo.IATOriginatorCompanyName" />
+				<entry key="ACHTemplateInfo.IATOriginatorCompanyTaxID" value="ACHTemplateInfo.IATOriginatorCompanyTaxID" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress" value="ACHTemplateInfo.IATOriginatorAddress" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.addressLine" value="ACHTemplateInfo.IATOriginatorAddress.addressLine" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.city" value="ACHTemplateInfo.IATOriginatorAddress.city" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.postalCode" value="ACHTemplateInfo.IATOriginatorAddress.postalCode" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.stateProvince" value="ACHTemplateInfo.IATOriginatorAddress.stateProvince" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.stateProvince.code" value="ACHTemplateInfo.IATOriginatorAddress.stateProvince.code" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.stateProvince.name" value="ACHTemplateInfo.IATOriginatorAddress.stateProvince.name" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.countryCode" value="ACHTemplateInfo.IATOriginatorAddress.countryCode" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank" value="ACHTemplateInfo.IATFundingForeignBank" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.ident" value="ACHTemplateInfo.IATFundingForeignBank.ident" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.identType" value="ACHTemplateInfo.IATFundingForeignBank.identType" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.name" value="ACHTemplateInfo.IATFundingForeignBank.name" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.address" value="ACHTemplateInfo.IATFundingForeignBank.address" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.address.countryCode" value="ACHTemplateInfo.IATFundingForeignBank.address.countryCode" />
+			</map>
+		</property>
+	</bean>
+    
+    <bean id="iatTemplateFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="ACHTemplateInfo.IATOriginatorCompanyName" value="ACHTemplateInfo.IATOriginatorCompanyName" />
+				<entry key="ACHTemplateInfo.IATOriginatorCompanyTaxID" value="ACHTemplateInfo.IATOriginatorCompanyTaxID" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress" value="ACHTemplateInfo.IATOriginatorAddress" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.addressLine" value="ACHTemplateInfo.IATOriginatorAddress.addressLine" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.city" value="ACHTemplateInfo.IATOriginatorAddress.city" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.postalCode" value="ACHTemplateInfo.IATOriginatorAddress.postalCode" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.stateProvince" value="ACHTemplateInfo.IATOriginatorAddress.stateProvince" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.stateProvince.code" value="ACHTemplateInfo.IATOriginatorAddress.stateProvince.code" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.stateProvince.name" value="ACHTemplateInfo.IATOriginatorAddress.stateProvince.name" />
+				<entry key="ACHTemplateInfo.IATOriginatorAddress.countryCode" value="ACHTemplateInfo.IATOriginatorAddress.countryCode" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank" value="ACHTemplateInfo.IATFundingForeignBank" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.ident" value="ACHTemplateInfo.IATFundingForeignBank.ident" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.identType" value="ACHTemplateInfo.IATFundingForeignBank.identType" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.name" value="ACHTemplateInfo.IATFundingForeignBank.name" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.address" value="ACHTemplateInfo.IATFundingForeignBank.address" />
+				<entry key="ACHTemplateInfo.IATFundingForeignBank.address.countryCode" value="ACHTemplateInfo.IATFundingForeignBank.address.countryCode" />
+				<entry key="ACHTemplateInfo.destinationCountry" value="ACHTemplateInfo.destinationCountry" />
+				<entry key="ACHTemplateInfo.destinationCurrency" value="ACHTemplateInfo.destinationCurrency" />
+			</map>
+		</property>
+	</bean>
+    
+    <bean id="domiatFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalPaymentFields" ref="domIatPaymentFields"/>
+		<property name="additionalRecipientFields" ref="domIatRecipientFields"/>
+	</bean>
+    
+	<bean id="domiatTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalPaymentFields" ref="domIatTemplateFields"/>
+		<property name="additionalRecipientFields" ref="domIatRecipientFields"/>
+	</bean>
+	
+	<bean id="iatFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalPaymentFields" ref="iatPaymentFields"/>
+		<property name="additionalRecipientFields" ref="iatRecipientFields"/>
+	</bean>
+	
+	<bean id="iatTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalPaymentFields" ref="iatTemplateFields"/>
+		<property name="additionalRecipientFields" ref="iatRecipientFields"/>
+	</bean>
+
+<!-- PPD Payment/Template Bean Definition -->
+
+	<bean id="ppdRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="secondaryAccountInfo" value="secondaryAccountInfo" />
+				<entry key="secondaryAccountPaymentAllocation" value="secondaryAccountPaymentAllocation" />
+				<entry key="secondaryAccountInfo.accountIdent" value="secondaryAccountInfo.accountIdent" />
+				<entry key="secondaryAccountInfo.accountIdent.primaryIdent" value="secondaryAccountInfo.accountIdent.primaryIdent" />
+				<entry key="secondaryAccountInfo.accountType" value="secondaryAccountInfo.accountType" />
+				<entry key="secondaryAccountInfo.currency" value="secondaryAccountInfo.currency" />
+				<entry key="secondaryAccountInfo.financialInstitution" value="secondaryAccountInfo.financialInstitution" />
+				<entry key="secondaryAccountInfo.financialInstitution.ident" value="secondaryAccountInfo.financialInstitution.ident" />
+				<entry key="secondaryAccountInfo.financialInstitution.identType" value="secondaryAccountInfo.financialInstitution.identType" />
+			</map>
+		</property>
+	</bean>
+	
+	
+     <bean id="ppdFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="ppdRecipientFields"/>
+	</bean>
+    
+     <bean id="ppdTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="ppdRecipientFields"/>
+	</bean>
+
+<!-- TAX Payment/Template Bean Definition -->
+
+	<bean id="taxRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="authCode" value="authCode" />
+			</map>
+		</property>
+	</bean>
+
+     <bean id="taxFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="taxRecipientFields"/>
+	</bean>
+    
+     <bean id="taxTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="taxRecipientFields"/>
+	</bean>
+	
+	<!-- Basic TAX Payment/Template Bean Definition -->
+
+     <bean id="paytaxFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="taxRecipientFields"/>
+	</bean>
+    
+     <bean id="paytaxTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="taxRecipientFields"/>
+	</bean>
+
+<!-- TEL Payment/Template Bean Definition -->
+
+	<bean id="telWebRckRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean" lazy-init="true">
+		<property name="sourceMap">
+			<map>
+				<entry key="secondaryAccountInfo" value="secondaryAccountInfo" />
+				<entry key="secondaryAccountPaymentAllocation" value="secondaryAccountPaymentAllocation" />
+				<entry key="additionalFee" value="additionalFee" />
+				<entry key="additionalFee.amount" value="additionalFee.amount" />
+				<entry key="additionalFee.currency" value="additionalFee.currency" />
+				<entry key="checkNumber" value="checkNumber" />
+			</map>
+		</property>
+	</bean>
+
+
+     <bean id="telFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+    
+     <bean id="telTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+
+<!-- WEB Payment/Template Bean Definition -->
+
+	<bean id="webFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+    
+     <bean id="webTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+
+<!-- RCK Payment/Template Bean Definition -->
+
+     <bean id="rckFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+    
+     <bean id="rckTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+		
+	<!-- Basic Tel - Collect on a Returned Check Payment/Template Bean Definition -->
+
+	<bean id="collindtelFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+    
+    <bean id="collindtelTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+	
+	<!-- Basic RCK - Collect from Individual - Telephonic Payment/Template Bean Definition -->
+
+	<bean id="collretchFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+    
+    <bean id="collretchTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+	
+	<!-- Basic WEB - Collect from Individual – Internet/mobile device Payment/Template Bean Definition -->
+
+	<bean id="collindwebFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+    
+    <bean id="collindwebTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="telWebRckRecipientFields"/>
+	</bean>
+	
+	<!-- Direct Deposit Payment/Template Bean Definition -->
+	
+	<bean id="dirdepFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonPaymentFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="ppdRecipientFields"/>
+	</bean>
+    
+     <bean id="dirdepTmplFieldsHolder" class="com.s1.common.validation.pojo.InstructionValidationFieldsHolder" lazy-init="true">
+		<constructor-arg name="commonPaymentFields" ref="commonTemplateFields" />
+		<constructor-arg name="commonRecipientFields" ref="commonRecipientFields" />
+		<property name="additionalRecipientFields" ref="ppdRecipientFields"/>
+	</bean>
+	
+	<bean id="achSecondaryAccountAmountValidator"
+		class="com.s1.common.validation.pluggable.SecondaryAccountAmountValidator"
+		scope="prototype" />
+		
+		<bean id="iatSwiftValidator"
+		class="com.s1.common.validation.pluggable.IatSwiftValidator"
+		scope="prototype" />
+	
+</beans>

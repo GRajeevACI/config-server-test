@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+		
+	<bean id="concatenatedValueBuilder" class="com.aciworldwide.arch.service.audit.ConcatenatedValueBuilder"/>
+	<bean id="auditConfigResolver" class="com.aciworldwide.arch.service.audit.AuditConfigurationResolver"/>
+	<bean id="accountCommitmentValueBuilder" class="com.aciworldwide.arch.service.audit.AccountCommitmentValueBuilder"/>
+	<bean id="activeInactiveValueBuilder" class="com.aciworldwide.arch.service.audit.ActiveInactiveValueBuilder"/>
+	<bean id="fullCustomValueBuilder" class="com.aciworldwide.arch.service.audit.FullCustomValueBuilder"/>
+	<bean id="userLimitValueBuilder" class="com.aciworldwide.arch.service.audit.UserLimitValueBuilder"/>
+	<bean id="rateTypeValueFormatter" class="com.aciworldwide.payments.builders.ContractRateDataFormatter"/>
+	
+	<bean id="accountPrivelegeValueBuilder" class="com.aciworldwide.arch.service.audit.AccountPrivelegeValueBuilder"/>
+	
+	<bean id="customAuditDataBuilder" class="com.aciworldwide.arch.service.audit.CustomAuditDataBuilder"/>	
+	<bean id="commonAuditDataBuilder" class="com.aciworldwide.arch.service.audit.CommonAuditDataBuilder"/>
+	<bean id="reflectionAuditDataBuilder" class="com.aciworldwide.arch.service.audit.ReflectionAuditDataBuilder"/>
+	
+	<bean id="customerEnrollmentAuditDataBuilder" class="com.aciworldwide.arch.service.audit.CustomerEnrollmentAuditDataBuilder"/>
+	
+	<bean id="accountManagementAuditDataBuilder" class="com.aciworldwide.arch.service.audit.AccountManagementAuditDataBuilder"/>
+	
+	<bean id="userManagementAuditDataBuilder" class="com.aciworldwide.arch.service.audit.UserManagementAuditDataBuilder"/>
+
+	<bean id="auditRecordProvider" class="com.aciworldwide.arch.service.audit.AuditRecordProviderImpl">
+	  <property name="auditDataBuilders">
+	    <list>
+	      <ref bean="commonAuditDataBuilder"/>
+	      <ref bean="reflectionAuditDataBuilder"/>
+	      <ref bean="customAuditDataBuilder"/>
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean id="soaAuditService" class="com.aciworldwide.arch.service.audit.SOAAuditServiceImpl">
+	  <property name="auditService" ref="auditService"/>
+	  <property name="auditRecordProvider" ref="auditRecordProvider"/>
+	</bean>
+	
+	<bean id="objectToSubdomainFragmentReader" class="com.aciworldwide.arch.service.audit.ObjectToSubdomainFragmentReader"/>
+		
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+		   <list>
+		     <value>config/soa/messages/soa-messages</value>
+		     <value>config/soa/messages/soa_error_mapping</value>
+		     <value>config/soa/messages/ach-payment-messages</value>
+		     <value>config/soa/messages/ach-template-messages</value>
+		     <value>config/soa/messages/recipient-messages</value>
+		     <value>config/soa/messages/addenda-messages</value>
+		     <value>config/soa/messages/audit-messages</value>
+		     <value>config/soa/messages/account-messages</value>
+		     <value>config/soa/messages/user-messages</value>
+		     <value>config/soa/messages/securemessage_error_mapping</value>
+		     <value>config/soa/messages/online_transfer_error_messages</value>
+		     <value>config/soa/messages/account_transactions-messages</value>	
+		     <value>config/soa/messages/import-messages</value>
+		     <value>config/soa/messages/account_info_error_messages</value> 
+		     <value>config/soa/messages/contact_info_error_messages</value>
+		     <value>config/soa/messages/bank_management-messages</value> 
+		     <value>config/soa/messages/account_statements-messages</value>	
+		     <value>config/soa/messages/currency_conversion_error_messages</value>	    
+		     <value>config/soa/messages/external_account_error_messages</value>	    
+		     <value>config/soa/messages/wire-payment-messages</value>	    
+		     <value>config/soa/messages/wire-template-messages</value>    
+		   </list>
+		</property>
+	</bean>	
+	<bean id="messageResolver" class="com.aciworldwide.arch.service.config.MessageResolver">
+	  <property name="messageSource" ref="messageSource"/>
+	</bean>
+		
+	<bean id="statusConfig" class="com.aciworldwide.arch.service.config.StatusSupportConfig" />
+	
+	
+	<!-- AuthZ service  -->
+	<bean name="configuredOprtnProvider" class="com.aciworldwide.online.authz.ConfiguredOprtnProvider"/>
+	
+    <bean name="functionalAuthCheckExecutor" class="com.aciworldwide.online.authz.FunctionalAuthCheckExecutor" >
+    	<property name="executorContextName" value="func" />
+    	<property name="defaultAuthInfoProvider" ref="configuredOprtnProvider" />
+    </bean>
+    
+    
+    <bean name="accountAuthCheckExecutor" class="com.aciworldwide.online.authz.AccountAuthCheckExecutor">
+    	<property name="executorContextName" value="acct" />
+    	<property name="defaultAuthInfoProvider" ref="configuredOprtnProvider" />
+    </bean>
+    <bean id="targetNameReadHelper" class="com.aciworldwide.online.authz.TargetNameReadHelper" />
+    <bean name="fepConfiguredProvider" class="com.aciworldwide.online.authz.ConfiguredFEPAuthInfoProvider"/>
+    
+     <bean name="fepAuthCheckExecutor" class="com.aciworldwide.online.authz.FEPSettingAuthCheckExecutor" >
+    	<property name="executorContextName" value="fep" />
+    	<property name="defaultAuthInfoProvider" ref="fepConfiguredProvider" />
+    </bean>
+
+   <bean name="configuredCOSProvider" class="com.aciworldwide.online.authz.ConfiguredCOSAuthInfoProvider"/>
+  
+    <bean name="cosAuthCheckExecutor" class="com.aciworldwide.online.authz.COSAuthCheckExecutor">
+    	<property name="executorContextName" value="cos" />
+    	<property name="defaultAuthInfoProvider" ref="configuredCOSProvider" />
+    </bean>
+    
+    		
+    <bean name="authZInterceptor" class="com.aciworldwide.online.authz.AuthorizationCheckInterceptor">
+    <property name="authCheckExecutors">
+    		<list>
+    			<ref bean="fepAuthCheckExecutor"/>
+    			<ref bean="cosAuthCheckExecutor"/>
+    			<ref bean="functionalAuthCheckExecutor"/>
+    			<ref bean="accountAuthCheckExecutor" />
+    		</list>
+    	</property>    
+    </bean>
+    
+     <bean name="privilegedActivitiesForResourcesRetrieveRqType" class="com.aciworldwide.pim.entitlements.apsf.authorization.PrivilegedActivitiesForResourcesRetrieveRq_Type" scope="prototype">
+      	<property name="applicationId"  value="UOB" />
+    	<property name="resource" value="NONE" />
+    	<property name="resourceType"  value="NONE" /> 
+    </bean>
+    
+    <bean name="privilegedActivitiesForResourceVerifyRqType" class="com.aciworldwide.pim.entitlements.apsf.authorization.PrivilegedActivitiesForResourceVerifyRq_Type" scope="prototype">
+    	<property name="applicationId"  value="UOB" />
+    	<property name="resources" value="NONE" />
+    	<property name="resourceType"  value="NONE" /> 
+    </bean>
+	
+	<bean name="defaultExceptionHandler" class="com.aciworldwide.arch.service.exception.DefaultExceptionHandler"/>
+	 
+	
+	<bean name="successhandler" class="com.aciworldwide.arch.service.DefaultSuccessHandler"/>
+	
+	<bean name="paymentValidatorInterceptor" class="com.aciworldwide.arch.service.interceptors.PaymentValidatorInterceptor">
+	   <property name="validatorService" ref="validationFrameworkService"/>
+	</bean>
+	<bean name="validatorInterceptor" class="com.aciworldwide.arch.service.interceptors.ValidatorInterceptor">
+	  <property name="validatorService" ref="validationFrameworkService"/>
+	</bean>
+	
+	<bean name="threadContextInterceptor" class="com.aciworldwide.arch.service.interceptors.DefaultServiceContextInterceptors"/>
+	
+	<bean name="adminThreadContextInterceptor" class="com.aciworldwide.arch.service.interceptors.AdminServiceContextInterceptors"/>
+	
+	<bean name="authZInterceptorChain" class="com.aciworldwide.arch.service.interceptors.InterceptorChain">
+	  <property name="interceptors">
+	    <list>
+	      <ref bean="authZInterceptor"/>	
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean name="paymentInterceptorChain" class="com.aciworldwide.arch.service.interceptors.InterceptorChain">
+	  <property name="interceptors">
+	    <list>
+	      <ref bean="threadContextInterceptor"/>
+	      <ref bean="paymentValidatorInterceptor"/>
+	      <ref bean="authZInterceptor"/>	
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean name="soaServiceInterceptorChain" class="com.aciworldwide.arch.service.interceptors.InterceptorChain">
+	  <property name="interceptors">
+	    <list>	            
+	      <ref bean="threadContextInterceptor"/>
+	      <ref bean="validatorInterceptor"/>	
+	      <ref bean="authZInterceptor"/>	      
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean name="soaAdminServiceInterceptorChain" class="com.aciworldwide.arch.service.interceptors.InterceptorChain">
+	  <property name="interceptors">
+	    <list>
+	      <ref bean="adminThreadContextInterceptor"/>
+	      <ref bean="validatorInterceptor"/>	
+	      <ref bean="authZInterceptor"/>		
+	    </list>
+	  </property>
+	</bean>
+	
+	<bean name="auditAdvice" class="com.aciworldwide.arch.service.audit.AuditAdvice">
+	  <property name="auditService" ref="soaAuditService"/>
+	</bean>
+	
+	<bean name="serviceInterceptorAdvice" class="com.aciworldwide.arch.service.interceptors.advice.ServiceInterceptorAdvice"/>
+	<bean name="validateOnlyAdvice" class="com.aciworldwide.arch.service.interceptors.advice.ValidateOnlyAdvice"/>
+	
+	<bean name="exceptionHandlerAdvice" class="com.aciworldwide.arch.service.exception.ExceptionHandlerAdvice">
+	  <property name="defaultExceptionHandler" ref="defaultExceptionHandler"/>
+	  <property name="successhandler" ref="successhandler"/>
+	</bean>
+	
+	<bean id="requestMonitorService" class="com.aciworldwide.arch.service.RequestMonitorServiceImpl"/>
+    
+    <tx:advice id="soaTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Throwable" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice id="soaTransactionNotSupportedAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="NOT_SUPPORTED" />
+		</tx:attributes>
+	</tx:advice>
+	
+    <aop:config>
+      <aop:advisor advice-ref="soaTransactionAdvice" pointcut="execution(public * com.aciworldwide.arch.service.transaction.TransactionSupport+.*(..))" />
+      <aop:advisor advice-ref="soaTransactionNotSupportedAdvice" pointcut="execution(public * com.aciworldwide.pim.messages.service.accountinfo.AccountInfoFacadeService+.accountSync*(..))"/>
+      <aop:advisor advice-ref="soaTransactionNotSupportedAdvice" pointcut="execution(public * com.aciworldwide.pim.messages.service.transaction.AccountTransactionsFacadeService+.syncTransactions*(..))"/>
+      <aop:advisor advice-ref="auditAdvice" pointcut="execution(public * com.aciworldwide.arch.service.audit.Auditable+.*(..))"/> 
+   	  <aop:advisor advice-ref="exceptionHandlerAdvice" pointcut="execution(public * com.aciworldwide.arch.service.exception.ExceptionHandlerAdaptable+.*(..))"/>    	  
+      <aop:advisor advice-ref="serviceInterceptorAdvice" pointcut="execution(public * com.aciworldwide.arch.service.interceptors.Interceptable+.*(..))"/>       
+      <aop:advisor advice-ref="validateOnlyAdvice" pointcut="execution(public * com.aciworldwide.arch.service.interceptors.Interceptable+.*(..))"/>       
+    </aop:config>
+</beans>

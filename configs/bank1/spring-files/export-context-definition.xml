@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+      					   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+      					   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+      					   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+      					   
+	
+		<bean id="exportRequest" class="com.s1.frameworks.payments.exports.ExportRequestData" scope="execution"/>
+		
+		<bean id="abstractExportProcessor" class="com.s1.frameworks.payments.exports.delegate.AbstractExportJobDelegate" abstract="true">
+		<property name="jobBuilders" ref="jobBuilderFactory"/>
+		<property name="stepBuilders" ref="stepBuilderFactory"/>
+	</bean>
+		
+	<bean id="userDefinedExportJobProcessor" class="com.s1.frameworks.payments.exports.delegate.UserDefinedExportJobDelegate" parent="abstractExportProcessor"/>
+		
+	<bean id="standardExportJobProcessor" class="com.s1.frameworks.payments.exports.delegate.StandardExportJobDelegate" parent="abstractExportProcessor"/>
+	
+	<bean id="instructionLineAggregator" class="com.s1.frameworks.payments.exports.aggregators.InstructionLineAggregator" scope="execution">
+		<property name="aggregators">
+			<util:map>
+				<entry key="instruction" value-ref="instructionAggregator"/>
+				<entry key="lineItem" value-ref="lineItemAggregator"/>
+			</util:map>
+		</property>
+	</bean>	
+	<!-- Configuration for instruction aggregators start -->
+	<bean id="instructionAggregator" class="org.springframework.batch.item.file.transform.DelimitedLineAggregator" scope="execution">
+		<property name="delimiter" value="#{parameters['delimiter']}" />
+		<property name="fieldExtractor" ref="instructionFieldExtractor"/>
+	</bean>
+	
+	<bean id="lineItemAggregator" class="org.springframework.batch.item.file.transform.DelimitedLineAggregator" scope="execution">
+		<property name="delimiter" value="#{parameters['delimiter']}" />
+		<property name="fieldExtractor" ref="lineItemFieldExtractor"/>
+	</bean>
+	
+	<bean id="instructionFieldExtractor" class="com.s1.frameworks.payments.exports.extractors.DefaultFieldExtractor" scope="execution">
+		<property name="names" value="#{parameters['payment.fields']}" />
+		<property name="fieldsHolderFactory" ref="instructionFieldsFactory"/>
+		<property name="lineIdentifier" value="#{parameters['payment.line.identifier']}"/>
+	</bean>
+	
+	<bean id="lineItemFieldExtractor" class="com.s1.frameworks.payments.exports.extractors.DefaultFieldExtractor" scope="execution">
+		<property name="names" value="#{parameters['recipient.fields']}" />
+		<property name="fieldsHolderFactory" ref="lineItemFieldsFactory"/>
+		<property name="lineIdentifier" value="#{parameters['recipient.line.identifier']}"/>
+	</bean>
+	
+	<bean id="instructionFieldsFactory" class="com.s1.frameworks.payments.exports.holders.DefaultFieldsHolderFactory" scope="execution">
+		<property name="beanName" value="#{parameters['instructionHolderBean']}"/>
+	</bean>
+	
+	<bean id="lineItemFieldsFactory" class="com.s1.frameworks.payments.exports.holders.DefaultFieldsHolderFactory" scope="execution">
+		<property name="beanName" value="#{parameters['lineItemHolderBean']}"/>
+	</bean>
+	
+	<bean id="instructionHolder" class="com.s1.frameworks.payments.exports.holders.InstructionFieldsHolder" scope="prototype"/>
+	<bean id="lineItemHolder" class="com.s1.frameworks.payments.exports.holders.RecipientFieldsHolder" scope="prototype"/>
+	
+	<!-- Configuration for Default Header and Trailer -->
+	
+	<bean id="defaultHeader" class="com.s1.frameworks.payments.exports.holders.DefaultFlatFileHeaderFieldsHolder" scope="prototype"/>
+	<bean id="defaultTrailer" class="com.s1.frameworks.payments.exports.holders.DefaultFlatFileFooterFieldsHolder" scope="prototype"/>
+	
+	<!-- Configuration for instruction aggregators end -->
+	
+	<!-- Writer Builders -->
+	<bean id="pmtWriterBuilder" class="com.s1.frameworks.payments.exports.builders.FlatFileMultiTypeItemWriterBuilder" scope="execution"/>
+	<bean id="writerBuilder" class="com.s1.frameworks.payments.exports.builders.FlatFileItemWriterBuilder" scope="execution"/>
+	<!-- Writer Builders end -->
+
+	<!-- Beanio itemwriter starts -->
+	<bean id="itemWriter-instruction" class="org.beanio.spring.BeanIOFlatFileItemWriter">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/payment-config.xml" />
+	    <property name="streamName" value="instructionStream" />
+	    <property name="resource" value="file:data/out1.txt" />
+	    <property name="encoding" value="UTF-8" />
+ 	</bean>
+ 	<bean id="itemWriter-lineItem" class="org.beanio.spring.BeanIOFlatFileItemWriter">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/Recipient-import-config.xml" />
+	    <property name="streamName" value="lineItemStream" />
+	    <property name="resource" value="file:data/out2.txt" />
+	    <property name="encoding" value="UTF-8" />
+ 	</bean>
+ 	
+ 		<!-- Sepa Standard Export - Start-->
+	<bean id="spdd-itemWriter-instruction" class="com.s1.frameworks.payments.exports.writers.CommonFlatFileItemWriter" scope="prototype">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardExportConfig/Spdd-payment-config.xml" />
+	    <property name="streamName" value="Document" />
+	    <property name="encoding" value="UTF-8" />
+	    <property name="typeCode" value="410"/>
+	</bean>
+	<bean id="spddStandardExportJobProcessor" class="com.s1.frameworks.payments.exports.delegate.SPDDStandardExportJobDelegate" parent="standardExportJobProcessor"/>
+	
+	<bean id="spcr-itemWriter-instruction" class="com.s1.frameworks.payments.exports.writers.CommonFlatFileItemWriter" scope="prototype">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardExportConfig/Spcr-payment-config.xml" />
+	    <property name="streamName" value="Document" />
+	    <property name="encoding" value="UTF-8" />
+	    <property name="typeCode" value="315"/>
+	</bean>
+		
+ 	<bean id="exportItemReader" class="com.s1.frameworks.payments.exports.readers.SynchronizedListItemReader" scope="execution" >
+		<constructor-arg value="#{parameters['input.list']}" />
+	</bean>
+	
+	<bean id="passThroughHandler" class="com.s1.frameworks.payments.exports.handlers.PassThroughDependenthandler" scope="execution"/>
+	
+	<bean id="exportDefaultListener"
+		class="com.s1.frameworks.payments.imports.listeners.DefaultItemListenerSupport" scope="execution">
+		<property name="handler" ref="exceptionHandler" />
+		<property name="dependentHandler" ref="#{parameters['export.dependent.handler']}"/>
+	</bean>
+	
+ 	<!-- Beanio item writer ends -->
+ 	<!-- Colombia Giro Payment Configuration - Start -->
+ 	<bean id="colGiroExportInstructionHolder" class="com.s1.intl.export.colgiro.ColGiroInstructionFieldsHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="colGiroExportLineItemHolder" class="com.s1.intl.export.colgiro.ColGiroRecipientFieldsHolder" scope="prototype" parent="lineItemHolder"/>
+ 	<!-- Colombia Giro Payment Configuration - End -->
+ 	<!-- ILV Payment Configuration - Start -->
+ 	<bean id="ilvInstructionHolder" class="com.s1.intl.export.intilv.IlvInstructionFieldsHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="ilvLineItemHolder" class="com.s1.intl.export.intilv.IlvRecipientFieldsHolder" scope="prototype" parent="lineItemHolder"/>
+ 	 <!--ILV Payment Configuration - End -->
+	<!-- Saudi Intrabank Payment Configuration - Start -->
+ 	<bean id="sainbInstructionHolder" class="com.s1.intl.export.sainb.SainbInstructionFieldsHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="sainbLineItemHolder" class="com.s1.intl.export.sainb.SainbRecipientFieldsHolder" scope="prototype" parent="lineItemHolder"/>
+ 	 <!--Saudi Intrabank Payment Configuration - End -->
+ 	<!-- SEPA Credit Transfer Payment Configuration - Start -->
+ 	<bean id="sepacrExportInstructionHolder" class="com.s1.intl.export.sepacr.SEPACRInstructionFieldsHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="sepacrExportLineItemHolder" class="com.s1.intl.export.sepacr.SEPACRRecipientFieldsHolder" scope="prototype" parent="lineItemHolder"/>
+ 	<!-- SEPA Credit Transfer Payment Configuration - End -->
+
+ 	<!-- Canada Payment Configuration - Start -->
+ 	<bean id="caaftExportInstructionHolder" class="com.s1.intl.export.caaft.CanadaAFTInstructionFieldHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="caaftExportLineItemHolder" class="com.s1.intl.export.caaft.CanadaAFTRecipientFieldHolder" scope="prototype" parent="lineItemHolder"/>
+ 	<!-- Canada Payment Configuration - End -->
+ 	
+ 	<!-- Singapore Giro Payment Configuration - Start -->
+ 	<bean id="sgbgiroExportInstructionHolder" class="com.s1.intl.export.sgbgiro.SGBGiroInstructionFieldHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="sgbgiroExportLineItemHolder" class="com.s1.intl.export.sgbgiro.SGBGiroRecipientFieldHolder" scope="prototype" parent="lineItemHolder"/>
+ 	<!-- Singapore Giro Payment Configuration - End -->
+	
+	<!-- SEPA Credit Transfer Payment Configuration - Start -->
+ 	<bean id="spddExportInstructionHolder" class="com.s1.intl.export.spdd.SPDDInstructionFieldsHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="spddExportLineItemHolder" class="com.s1.intl.export.spdd.SPDDRecipientFieldsHolder" scope="prototype" parent="lineItemHolder"/>
+ 	<!-- SEPA Credit Transfer Payment Configuration - End -->
+
+ 	<!-- Saudi Domestic Payment Configuration - Start -->
+ 	<bean id="sadomExportInstructionHolder" class="com.s1.intl.export.sadom.SaudiDomesticInstructionFieldsHolder" scope="prototype" parent="instructionHolder"/>
+	<bean id="sadomExportLineItemHolder" class="com.s1.intl.export.sadom.SaudiDomesticRecipientFieldsHolder" scope="prototype" parent="lineItemHolder"/>
+ 	<!-- Saudi Domestic Payment Configuration - End -->
+ 	
+
+ 	<!-- Singapore Giro Credit payment -->
+ 	<bean id="sgBGiroCreditInstructionWriter" class="com.s1.frameworks.payments.exports.writers.CommonFlatFileItemWriter" scope="prototype">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardExportConfig/sgbgiro-credit-payment-config.xml" />
+	    <property name="streamName" value="Document" />
+	    <property name="encoding" value="UTF-8" />
+	    <property name="typeCode" value="276"/>
+	</bean>
+	
+	 	<!-- Singapore Giro Debit payment -->
+ 	<bean id="sgBGiroDebitInstructionWriter" class="com.s1.frameworks.payments.exports.writers.CommonFlatFileItemWriter" scope="prototype">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardExportConfig/sgbgiro-debit-payment-config.xml" />
+	    <property name="streamName" value="Document" />
+	    <property name="encoding" value="UTF-8" />
+	    <property name="typeCode" value="276"/>
+	</bean>
+ 	
+
+</beans>

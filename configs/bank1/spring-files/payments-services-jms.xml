@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  			    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+	<!--  ========== Message definitions ========== -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="config/locale/async-process-log-messages"/>
+	</bean>
+	
+	<bean id="messages" class="com.s1.payments.process.async.logging.MessageSource">
+	</bean>
+	
+	<bean id="messagesPostProcessor" class="com.s1.payments.process.async.logging.MessageSourceBeanPostProcessor" depends-on="messages">
+	</bean>
+	
+	<!--  ========== Queue definitions ========== -->
+	
+   	<jee:jndi-lookup id="asyncProcessQueueConnectionFactory"
+		jndi-name="jms/AsyncProcessQueueConnectionFactory" />
+ 
+  	<jee:jndi-lookup id="asyncProcessReplyQueueConnectionFactory"
+		jndi-name="jms/AsyncProcessReplyQueueConnectionFactory" />
+ 
+	<jee:jndi-lookup id="asyncProcessQueue"
+		jndi-name="jms/AsyncProcessQueue" />
+		
+	<jee:jndi-lookup id="asyncProcessReplyQueue"
+		jndi-name="jms/AsyncProcessReplyQueue" />
+
+	<!--  ========== Async Process Queue Listener ========== -->
+	
+	<bean id="asyncProcessQueueProcessor" class="com.s1.payments.process.async.DelegateMethodTaskProcessor">
+		<property name="processService" ref="asyncProcessService"/>
+		<property name="processQueue" ref="asyncProcessQueue"/>
+		<property name="replyQueue" ref="asyncProcessReplyQueue"/>
+	</bean>	
+		
+	<bean id="asyncProcessMessageListener"
+		class="com.s1.payments.process.async.queue.JMSProcessQueueListener">
+		<constructor-arg ref="asyncProcessQueueProcessor" index="0"/>
+		<property name="maxRetries" value="${async.process.listener.maxRetries}"/>
+		<property name="retryScheduleDelay" value="${async.process.listener.retryScheduleDelay}"/>
+		<property name="retryTemplate" ref="asyncProcessTemplate"/>
+	</bean>
+
+	<bean id="asyncProcessTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="asyncProcessMessageListenerContainer"
+		class="com.s1.payments.process.async.schedule.ScheduleDefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="asyncProcessQueueConnectionFactory" />
+		<property name="destination" ref="asyncProcessQueue" />
+		<property name="messageListener"
+			ref="asyncProcessMessageListener" />
+		<property name="taskExecutor" ref="asyncProcessTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<!-- property name ="concurrency" value="1-2"/> -->
+		<property name ="idleTaskExecutionLimit" value="1"/>
+		<property name ="recoveryInterval" value="${async.process.listener.recoveryInterval}"/>
+		<property name ="schedulingEnabled" value="${async.process.listener.schedulingEnabled}"/>
+		<property name ="receiveTimeout" value="${async.process.listener.receiveTimeout}"/>
+	</bean>
+	
+	<!--  ========== Async Process Message Sender ========== -->
+	
+ 	<bean id="asyncProcessTemplate" class="com.s1.payments.process.async.schedule.ScheduleJMSTemplate">
+		<property name="connectionFactory" ref="asyncProcessQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncProcessQueue"/>
+	</bean>
+
+	<bean id="asyncProcessQueueSender" class="com.s1.payments.process.async.queue.JMSProcessQueueImpl">
+ 		<constructor-arg type="java.lang.String" value="asyncProcessType"/>
+		<property name="template" ref="asyncProcessTemplate"/>
+	</bean>
+
+	<!--  ========== Async Process Reply Queue Listener ========== -->
+	
+	<bean id="asyncProcessReplyQueueProcessor" class="com.s1.payments.process.async.DelegateMethodTaskProcessor">
+		<property name="processService" ref="asyncProcessReplyService"/>
+		<property name="processQueue" ref="asyncProcessReplyQueue"/>
+	</bean>	
+		
+	<bean id="asyncProcessReplyMessageListener"
+		class="com.s1.payments.process.async.queue.JMSProcessQueueListener">
+		<constructor-arg ref="asyncProcessReplyQueueProcessor" index="0"/>
+		<property name="maxRetries" value="3"/>
+		<property name="retryScheduleDelay" value="30000"/>
+		<property name="retryTemplate" ref="asyncProcessReplyTemplate"/>
+	</bean>
+
+	<bean id="asyncProcessReplyTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="asyncProcessReplyMessageListenerContainer"
+		class="com.s1.payments.process.async.schedule.ScheduleDefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="asyncProcessReplyQueueConnectionFactory" />
+		<property name="destination" ref="asyncProcessReplyQueue" />
+		<property name="messageListener"
+			ref="asyncProcessReplyMessageListener" />
+		<property name="taskExecutor" ref="asyncProcessReplyTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<!-- property name ="concurrency" value="1-2"/>  -->
+		<property name ="idleTaskExecutionLimit" value="1"/>
+		<property name ="recoveryInterval" value="${async.process.listener.recoveryInterval}"/>
+		<property name ="schedulingEnabled" value="${async.process.listener.schedulingEnabled}"/>
+		<property name ="receiveTimeout" value="${async.process.listener.receiveTimeout}"/>
+	</bean>
+	
+	<!--  ========== Async Process Reply Message Sender ========== -->
+	 
+	<bean id="asyncProcessReplyTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncProcessReplyQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncProcessReplyQueue"/>
+	</bean>
+
+	<bean id="asyncProcessReplyQueueSender" class="com.s1.payments.process.async.queue.JMSProcessQueueImpl">
+ 		<constructor-arg type="java.lang.String" value="asyncProcessReplyType"/>
+		<property name="template" ref="asyncProcessReplyTemplate"/>
+	</bean>
+</beans>

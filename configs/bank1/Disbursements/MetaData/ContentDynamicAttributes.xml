@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paymentType xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PaymentType.xsd" identifier="InternationalPaymentMetaData" version="1.0.0">
+	<dynamicAttributeType identifier="paymenttype" attributeType="Payment">
+		<fields widgetType="ContentBox" identifier="tiContent">
+			<fieldLabel defaultText="labelTransactionInformation" defaultToolTipText="labelTransactionInformation"/>
+			<fields widgetType="JspWidget" identifier="fromAcctWidget" widgetPath="/common/transact/user/includes/complexWidgets/fromAccountWidgetWrapper.jsp"/>
+			<fields widgetType="JspWidget" identifier="currencyConverterWidget" widgetPath="/common/transact/user/includes/complexWidgets/currencyConverterWidgetWrapper.jsp"/>
+			<!-- <fields widgetType="SelectInput" identifier="categoryPurpose" name="categoryPurpose" tilesLabel="labelCategoryPurpose" isVisible="true" isRequired="false" placeholder="selectCategoryPurpose" value="-1">
+				<fieldLabel defaultText="labelCategoryPurpose"/>
+				<allowedValues identifier="catPurpValues" beanName="com.aci.payments.metadata.ui.PopulateCategoryPurpose"/>
+			</fields> -->
+			<fields widgetType="JspWidget" identifier="jspcategoryPurpose" widgetPath="/common/transact/user/includes/complexWidgets/categoryPurposeWrapper.jsp"/>
+			<fields widgetType="TextInput" identifier="customerReference" name="customerReference" isRequired="false" showError="true" isVisible="true" customClass="" size="40">
+				<fieldLabel defaultText="labelCustomerReference"/>
+			</fields>		
+		</fields>
+		<fields widgetType="ContentBox" identifier="psContent">
+			<fieldLabel defaultText="labelPaymentSchedule"/>
+			<fields widgetType="JspWidget" identifier="recurranceWidget" widgetPath="/common/transact/user/includes/complexWidgets/payScheduleContentWrapper.jsp"/>
+		</fields>
+		<fields widgetType="ContentBox" identifier="optContent">
+			<fieldLabel defaultText="optional"/>
+			<fields widgetType="JspWidget" identifier="optionalContent" widgetPath="/common/transact/user/includes/complexWidgets/optionalContentWrapper.jsp"/>
+		</fields>
+		<fields widgetType="ContentBox" identifier="extraContent">
+			<fieldLabel defaultText="Try Content"/>
+			<fields widgetType="ContainerInput" identifier="firstcontainer" detached="true">
+				<fieldLabel defaultText="Ordering Customer"/>
+				<fields widgetType="CheckInput" identifier="orderingCustomer" name="orderingCustomer" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel defaultText="Add information" defaultToolTipText="Add information"/>
+					<events identifier="orderingCustomerEvent" beanName="com.aci.payments.metadata.events.ToggleEvent" eventType="onClick" instigatorId="orderingCustomer" receiverID="orderingCustomerContainer"/>
+				</fields>
+			</fields>
+			<fields widgetType="ContainerInput" identifier="orderingCustomerContainer" detached="true" customClass="indented">
+				<fields widgetType="TextInput" identifier="ultimateDebtor" name="ultimateDebtor" isRequired="true" isVisible="true" size="40">
+					<fieldLabel defaultText="Debtor"/>
+				</fields>
+				<fields widgetType="TextInput" identifier="ultimateCreditor" name="ultimateCreditor" isRequired="true" isVisible="true" size="40">
+					<fieldLabel defaultText="Creditor"/>
+				</fields>
+			</fields>
+		</fields>
+		<fields widgetType="ContentBox" identifier="beneContent">
+			<fieldLabel defaultText="labelPayeesList"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContent" widgetPath="/common/transact/user/includes/complexWidgets/bulkRecipientListWrapper.jsp"/>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="tiContentView" isView="true">
+			<fields widgetType="ContentBox" identifier="beneContent">
+				<fieldLabel defaultText="labelPayeesList"/>
+				<fields widgetType="JspWidget" identifier="bulkRecpContent1" widgetPath="/common/transact/user/includes/complexWidgets/bulkRecipientListViewWrapper.jsp"/>
+			</fields>
+		</fields>
+	</dynamicAttributeType>
+	<dynamicAttributeType identifier="anyid" attributeType="Template">
+		<!--  <fields widgetType="TextInput" identifier="templateName" showError="true" size="40">
+				<fieldLabel defaultText="labelTemplateName"/>
+				<availabilityRules identifier="firstRule" beanName="com.aci.payments.dynamicattributes.parameters.TemplateNameAvailabilityRule"/>
+			</fields>-->
+		<fields widgetType="ContentBox" identifier="tiContent">
+			<fieldLabel defaultText="labelTransactionInformation" defaultToolTipText="labelTransactionInformation"/>
+			<fields widgetType="ContainerInput" identifier="fromAccountContainer" detached="true" custom_class="child_label_super">
+				<fieldLabel defaultText="fromAccountContainer"/>
+				<fields widgetType="SelectInput" identifier="fromParty" tilesLabel="labelPayFrom" isRequired="true" placeholder="selectAnAccount" value="-1">
+					<fieldLabel defaultText="labelPayFrom"/>
+					<allowedValues identifier="acctValues" beanName="com.aci.payments.dynamicattributes.DefaultContentHandler" methodName="getFromAccounts"/>
+				</fields>
+			</fields>
+			<fields widgetType="JspWidget" identifier="currencyConverterWidget" widgetPath="/common/transact/user/includes/complexWidgets/currencyConverterWidgetWrapper.jsp"/>
+			<fields widgetType="SelectInput" identifier="categoryPurpose" name="categoryPurpose" tilesLabel="labelCategoryPurpose" isRequired="false" placeholder="selectCategoryPurpose" value="-1">
+				<fieldLabel defaultText="labelCategoryPurpose"/>
+				<allowedValues identifier="catPurpValues" beanName="com.aci.payments.dynamicattributes.DefaultContentHandler" methodName="getCategoryPurposes"/>
+			</fields>
+			<fields widgetType="TextInput" identifier="customerReference" isRequired="true" showError="true" isVisible="true" customClass="" size="40">
+				<fieldLabel defaultText="labelCustomerReference"/>
+			</fields>	
+		</fields>
+		<fields widgetType="ContentBox" identifier="optContent">
+			<fieldLabel defaultText="optional"/>
+			<fields widgetType="JspWidget" identifier="optionalContent" widgetPath="/common/transact/user/includes/complexWidgets/optionalContentWrapper.jsp"/>
+		</fields>
+		<fields widgetType="ContentBox" identifier="beneContent">
+			<fieldLabel defaultText="labelPayeesList"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContent" widgetPath="/common/transact/user/includes/complexWidgets/bulkRecipientListWrapper.jsp"/>
+		</fields>
+	</dynamicAttributeType>
+	<dynamicAttributeType identifier="recipienttype" attributeType="Recipient">
+		<fields widgetType="ContentBox" identifier="recpNameContentbox" collapsible="true">
+			<fields widgetType="TextInput" identifier="name" isRequired="true" showError="true" customClass="" size="24" maxlength="70" detached="true">
+				<fieldLabel defaultText="labelRecipientName"/>
+			</fields>
+		</fields>
+	</dynamicAttributeType>
+	
+	<dynamicAttributeType identifier="oldpayment" attributeType="OldPayment">
+			<fields widgetType="ContentBox" identifier="mainContentBox" collapsible="true">
+			<fieldLabel defaultText="Test Content Box" defaultToolTipText="Test Content Box"/>
+			<fields widgetType="TextInput" identifier="ultimateDebtor" isRequired="false" isVisible="false" customClass="" size="20">
+				<fieldLabel defaultText="labelUltimateDebtor" defaultToolTipText="labelUltimateDebtorToolTip"/>
+			</fields>
+			<fields widgetType="ContainerInput" identifier="outerContainer" columns="1" detached="true">
+				<fieldLabel defaultText="Top Most Container"/>
+				<fields widgetType="CheckInput" identifier="customerRefEditable" isRequired="false" isVisible="true" detached="false" labelSpacer="false">
+					<fieldLabel defaultText="Select Payment Type"/>
+					<events identifier="myevent" beanName="com.aci.payments.metadata.events.ToggleEvent" eventType="onClick" instigatorID="customerRefEditable" receiverID="outerContainer2"/>
+				</fields>
+				<fields widgetType="ContainerInput" identifier="outerContainer2" custom_class="indented" columns="1"  detached="false" labelSpacer="false">
+					<fields widgetType="RadioInput" identifier="subType" name="subType" isRequired="false" direction="vertical" value="credit" detached="true"  labelSpacer="false">
+						<allowedValues identifier="subTypeValues" beanName="com.aci.payments.dynamicattributes.DefaultContentHandler" methodName="getSubTypes"/>
+						<events identifier="subTypeEvent1" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onChange" triggerValue="debit" instigatorID="subType" receiverID="innerContainer"/>
+						<events identifier="subTypeEvent2" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onChange" triggerValue="credit" instigatorID="subType" receiverID="innerContainer"/>
+					</fields>
+					<fields widgetType="ContainerInput" identifier="innerContainer" custom_class="indented"  labelSpacer="false" detached="false">
+						<fields widgetType="TextInput" identifier="ultimateCreditor" isRequired="false" isVisible="true" customClass="" size="40">
+							<fieldLabel defaultText="labelUltimateCreditor" defaultToolTipText="labelUltimateCreditorToolTip"/>
+						</fields>	
+					</fields>
+				</fields>
+			</fields>
+		</fields>
+		
+		<!-- <fields widgetType="ContentBox" identifier="firstContentBox">
+			<fieldLabel defaultText="Second Content Box" defaultToolTipText="Second Content Box"/>
+			<fields widgetType="ContainerInput" identifier="fromAccountContainer" detached="true" custom_class="child_label_super">
+				<fieldLabel defaultText="fromAccountContainer"/>
+				<fields widgetType="SelectInput" identifier="fromParty" tilesLabel="labelPayFrom" isRequired="true" placeholder="selectAnAccount" value="-1">
+					<fieldLabel defaultText="labelPayFrom"/>
+					<allowedValues identifier="acctValues" beanName="com.aci.payments.dynamicattributes.DefaultContentHandler" methodName="getFromAccounts"/>
+				</fields>
+			</fields>
+		</fields> -->
+	</dynamicAttributeType>
+</paymentType>

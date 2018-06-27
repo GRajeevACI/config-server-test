@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aciworldwide.arch.service.DynamicQueryMapper">
+
+
+	<select id="dynamicQuery" parameterType="com.aciworldwide.arch.service.DynamicQueryMetaData"
+		resultType="map">
+		select
+		${coulmnsClause}
+		from
+		${tableClause}
+		<if test="whereClause != null">
+			where
+			${whereClause}
+		</if>
+	</select>
+
+</mapper>

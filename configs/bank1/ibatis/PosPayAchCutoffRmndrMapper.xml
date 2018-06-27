@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.smallbiz.positivepay.dao.PosPayAchCutoffRmndrMapper">
+<resultMap id="BaseResultMap" type="com.s1.alerts.model.PositivePayACHReminderValue" >
+	<id column="BNKALRTRMNDRKY" property="rmndrOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	<result column="BNKACCTKY" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	<result column="BNKALRTSBSCRPTNKY" property="subscrptnOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	<result column="ACHCUTOFFTIME" property="achCutOffTimeProd" jdbcType="TIMESTAMP" />
+	<result column="CUTOFFTIMEDTTM" property="achCutOffTimeCorp" jdbcType="TIMESTAMP" />
+</resultMap>
+<resultMap id="BaseResultMapParam" type="com.s1.alerts.model.PositivePayACHReminderValue" >
+	<id column="BNKACCTKY" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	<result column="ACCTID" property="accountId" jdbcType="VARCHAR"/>
+	<result column="NICKNAME" property="accountNickName" jdbcType="VARCHAR"/>
+	<result column="ACHCUTOFFTIME" property="achCutOffTimeProd" jdbcType="TIMESTAMP" />
+	<result column="CUTOFFTIMEDTTM" property="achCutOffTimeCorp" jdbcType="TIMESTAMP" />
+</resultMap>
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="BaseResultMap">
+			select BNKALRTRMNDR.BNKALRTRMNDRKY, BNKALRTSBSCRPTN.BNKALRTSBSCRPTNKY, BNKACCT.BNKACCTKY,
+				BNKPRODUCT.ACHCUTOFFTIME, BNKCorpCutOffTime.CUTOFFTIMEDTTM
+			FROM BNKALRTSBSCRPTN
+				INNER JOIN BNKALRTRMNDR ON (BNKALRTRMNDR.BNKALRTSBSCRPTNKY = BNKALRTSBSCRPTN.BNKALRTSBSCRPTNKY)
+				INNER JOIN BNKALRTPARMVALUE ON (BNKALRTPARMVALUE.BNKALRTSBSCRPTNKY = BNKALRTSBSCRPTN.BNKALRTSBSCRPTNKY 
+					and BNKALRTPARMVALUE.INTEGERVALUE = #{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+				INNER JOIN BNKALRTTYPE ON (BNKALRTTYPE.BNKALRTTYPEKY = BNKALRTPARMVALUE.BNKALRTTYPEKY AND BNKALRTTYPE.ALERTNAME = 'rmndrPPayAlrt')
+				INNER JOIN BNKACCT ON (BNKACCT.BNKACCTKY = BNKALRTPARMVALUE.INTEGERVALUE)
+				INNER JOIN BNKproduct on (BNKproduct.BNKproductKY = BNKACCT.BNKproductKY)
+				INNER JOIN BNKUSER ON (BNKUSER.BNKUSERKY = BNKALRTSBSCRPTN.BNKUSERKY)
+				LEFT OUTER JOIN BNKCorpCutOffTime ON (BNKCorpCutOffTime.BNKCUSTOMERKY = BNKUSER.BNKCUSTOMERKY 
+				<if test="procSchdKys != null and procSchdKys.size() &gt; 0">
+					AND BNKCorpCutOffTime.BNKProcSchdKy in 
+	    			<foreach collection="procSchdKys" item="schdKey" open="(" close=")" separator=",">
+	 	        	 #{schdKey}
+	 	    		</foreach>
+	 	    	</if>
+				)
+	</select>
+	<update id="updatePosPayACHRmndrCutoff" parameterType="map">
+		update BNKALRTRMNDR 
+			set NEXTOCCURRENCEDTTM = #{nextOccurenceDateTime,jdbcType=TIMESTAMP}
+				where BNKALRTRMNDRKY = #{rmndrOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</update>
+	<select id="getPosPayACHRmndrCutoffAlrtParams" parameterType="map" resultMap="BaseResultMapParam">
+		select BNKACCT.BNKACCTKY, BNKPRODUCT.ACHCUTOFFTIME, BNKCorpCutOffTime.CUTOFFTIMEDTTM, BNKACCT.ACCTID, BNKCUSTACCT.NICKNAME 
+			from BNKACCT, BNKproduct, BNKCUSTACCT, BNKUSER
+				LEFT OUTER JOIN BNKCorpCutOffTime ON (BNKCorpCutOffTime.BNKCUSTOMERKY = BNKUSER.BNKCUSTOMERKY
+				<if test="procSchdKys != null and procSchdKys.size() &gt; 0">
+					AND BNKCorpCutOffTime.BNKProcSchdKy in
+					<foreach collection="procSchdKys" item="schdKey" open="(" close=")" separator=",">
+					#{schdKey}
+					</foreach>
+				</if>
+				)
+				where 
+					BNKproduct.BNKproductKy = BNKACCT.BNKproductky AND
+					BNKCUSTACCT.BNKACCTKY = BNKACCT.BNKACCTKY AND
+					BNKUSER.BNKCUSTOMERKY = BNKCUSTACCT.CORCUSTOMERKY AND
+					BNKUSER.BNKUSERKY = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND
+					BNKACCT.BNKACCTKY=#{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+	<select id="getProcSchdKysForPosPay" parameterType="map" resultType="int">
+		select bnkProcSchdKy from bnkProcSchd where 
+				corOrgKyFi=#{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		 		and serviceTypeCd=#{serviceTypeCode}
+	</select>
+	
+	<select id="getProcSchdKysForAchPosPayFromAccountsAffiliate" parameterType="map" resultType="int">
+	     select bnkprocschdky from bnkprocschd, bnkproduct, bnkacct 
+	     where BNKACCTKY = #{accountOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+	     and bnkproduct.bnkproductky=bnkacct.bnkproductky and servicetypecd=#{serviceTypeCode} and bnkprocschd.cororgkyfi=bnkproduct.cororgkyfi
+	</select>
+	
+	
+</mapper>

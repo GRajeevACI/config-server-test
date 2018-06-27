@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aciworldwide.accounts.transaction.download.qbook.dao.AcctExportQBOOKMapper">
+  <resultMap id="BaseResultMap" type="com.aciworldwide.accounts.transaction.download.qbook.dao.AcctExportQBOOKDataValue">
+    <result column="STMTKY" jdbcType="INTEGER" property="pdyStmtOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKAPPFLDDEFKY" jdbcType="INTEGER" property="appFldDefOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKACCTKY" jdbcType="INTEGER" property="acctOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="APPFLDDEFVALUE" jdbcType="VARCHAR" property="baiValue" />
+    <result column="ITEMCOUNT" jdbcType="INTEGER" property="itemCount" />
+    <result column="EFFECTIVEDTTM" jdbcType="TIMESTAMP" property="effectiveDttm" />
+    <result column="EXTERNALSYSCD" jdbcType="VARCHAR" property="baiCode" />
+    <result column="LOADDTTM" jdbcType="TIMESTAMP" property="loadDttm" />
+    <result column="UPDATEDTTM" jdbcType="TIMESTAMP" property="updateDttm" />
+	<result column="FIELDNAME" jdbcType="VARCHAR" property="fieldName" />
+  </resultMap>
+
+<select id="retrievePDData" parameterType="java.util.Map" resultMap="BaseResultMap">
+  SELECT    PDYDET.BNKPDYSTMTKY STMTKY,
+           PDYDET.BNKAPPFLDDEFKY,
+           PDYDET.BNKACCTKY,
+           PDYDET.APPFLDDEFVALUE,
+           PDYDET.ITEMCOUNT,
+           PDYDET.EFFECTIVEDTTM,
+           PDYDET.LOADDTTM,
+           PDYDET.UPDATEDTTM,
+           MAP.EXTERNALSYSCD,
+           FLDDEF.FIELDNAME
+FROM       BNKPDYSTMTDETAIL PDYDET
+INNER JOIN BNKPDYSTMT STMT ON STMT.BNKPDYSTMTKY = PDYDET.BNKPDYSTMTKY
+INNER JOIN BNKFLDDEFCDMAP MAP ON MAP.BNKAPPFLDDEFKY = PDYDET.BNKAPPFLDDEFKY AND MAP.EXTERNALSYSTYPECD = 1
+INNER JOIN BNKAPPFLDDEF FLDDEF ON FLDDEF.BNKAPPFLDDEFKY = MAP.BNKAPPFLDDEFKY
+WHERE      PDYDET.BNKACCTKY = #{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+AND  PDYDET.EFFECTIVEDTTM = (SELECT  MAX(STMTDTL.EFFECTIVEDTTM) FROM BNKPDYSTMTDETAIL STMTDTL 
+							WHERE  STMTDTL.BNKACCTKY = PDYDET.BNKACCTKY
+							AND STMTDTL.BNKAPPFLDDEFKY = PDYDET.BNKAPPFLDDEFKY )							
+AND FLDDEF.FIELDNAME IN
+ 	<foreach item="balanceField" index="idx1" collection="balanceFields"
+					open="(" separator="," close=")">
+				#{balanceField}
+			</foreach>
+AND PDYDET.EFFECTIVEDTTM between  #{startDate,jdbcType=TIMESTAMP} and  #{endDate,jdbcType=TIMESTAMP}			
+
+ORDER BY   PDYDET.EFFECTIVEDTTM DESC,MAP.EXTERNALSYSCD
+</select>
+
+<select id="retrieveCDData" parameterType="java.util.Map" resultMap="BaseResultMap">
+SELECT    CDYDET.BNKCDYSTMTKY STMTKY,
+           CDYDET.BNKAPPFLDDEFKY,
+           STMT.BNKACCTKY,
+           CDYDET.APPFLDDEFVALUE,
+           CDYDET.ITEMCOUNT,
+           CDYDET.EFFECTIVEDTTM,
+           CDYDET.LOADDTTM,
+           CDYDET.UPDATEDTTM,
+           MAP.EXTERNALSYSCD,
+           FLDDEF.FIELDNAME
+FROM       BNKCDYSTMTDETAIL CDYDET
+INNER JOIN BNKCDYSTMT STMT ON STMT.BNKCDYSTMTKY = CDYDET.BNKCDYSTMTKY
+INNER JOIN BNKFLDDEFCDMAP MAP ON MAP.BNKAPPFLDDEFKY = CDYDET.BNKAPPFLDDEFKY AND MAP.EXTERNALSYSTYPECD = 1
+INNER JOIN BNKAPPFLDDEF FLDDEF ON FLDDEF.BNKAPPFLDDEFKY = MAP.BNKAPPFLDDEFKY
+WHERE      STMT.BNKACCTKY = #{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+AND  CDYDET.EFFECTIVEDTTM =
+ (SELECT  MAX(STMTDTL.EFFECTIVEDTTM) FROM  BNKCDYSTMT CDSTMT , BNKCDYSTMTDETAIL STMTDTL 
+					WHERE  CDSTMT.BNKCDYSTMTKY = STMTDTL.BNKCDYSTMTKY
+         			AND  CDSTMT.BNKACCTKY =  STMT.BNKACCTKY
+					AND STMTDTL.BNKAPPFLDDEFKY = CDYDET.BNKAPPFLDDEFKY )	
+AND FLDDEF.FIELDNAME IN
+ 	<foreach item="balanceField" index="idx1" collection="balanceFields"
+					open="(" separator="," close=")">
+				#{balanceField}
+			</foreach>
+AND CDYDET.EFFECTIVEDTTM between  #{startDate,jdbcType=TIMESTAMP} and  #{endDate,jdbcType=TIMESTAMP}						
+ORDER BY   CDYDET.EFFECTIVEDTTM DESC,MAP.EXTERNALSYSCD
+  </select>
+</mapper>

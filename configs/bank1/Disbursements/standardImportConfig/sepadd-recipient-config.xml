@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio
+	xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.beanio.org/2012/03">
+
+	<!-- List of type handlers used by this configuration to parse file -->
+
+	<typeHandler name="objectIdHandler"
+		class="com.s1.frameworks.payments.imports.handlers.ObjectIdTypeHandler" />
+
+
+	<typeHandler name="s1dateHandler"
+		class="com.s1.frameworks.payments.imports.handlers.S1DateTypeHandler">
+		<property name="dateFormat" value="yyyy-MM-dd" />
+	</typeHandler>
+
+	<typeHandler name="currencyValueHandler"
+		class="com.s1.frameworks.payments.imports.handlers.CurrencyValueHandler" />
+
+
+	<stream name="sepadd-recipient-stream" xmlName="Document" format="xml"
+		resourceBundle="com.s1.banking.common.imprt.user.Import-Resources"
+		strict="true" occurs="0-1">
+
+
+		<group name="CstmrDrctDbtInitn" occurs="1">
+
+			<!-- Header Record Mapping -->
+			<record name="GrpHdr"
+				class="com.s1.intl.imprt.sepadd.SepaDdImportHeaderValue" occurs="1">
+				<field name="grpDDHdrMsgId" xmlName="MsgId" getter="getMsgId" setter="setMsgId" maxOccurs="1" maxLength="35" required="true"/>
+				<field name="grpDDHdrCreDtTm" xmlName="CreDtTm" getter="getCreationDateTime" setter="setCreationDateTime" maxOccurs="1" required="true"/>
+				<field name="grpDDHdrNbOfTxs" xmlName="NbOfTxs" getter="getNumOfTxns" setter="setNumOfTxns" type="int" maxLength="15" required="true"/>
+				<field name="grpDDHdrCtrlSum" xmlName="CtrlSum" getter="getControlSum" setter="setControlSum" type="bigdecimal" occurs="1" maxLength="18"/>
+				<segment name="InitgPty" occurs="1">
+					<field name="grpDDHdrInitgPtyNm" xmlName="Nm" getter="getBankName" setter="setBankName" maxLength="70" required="true"  minOccurs="1"/>
+					<segment name="Id" occurs="1">
+						<segment name="OrgId" occurs="1">
+							<segment name="Othr" occurs="1">
+								<field name="grpDDHDHdrInitgPtyId" xmlName="Id" getter="getBankIdFr" minOccurs="1" maxLength="70" setter="setBankIdFr" required="true"/>
+							</segment>
+						</segment>
+					</segment>
+				</segment>
+			</record>
+
+			<!-- Instruction Value Mapping -->
+			<record name="SPDDReciPmtInf" xmlName="PmtInf" class="com.s1.intl.imprt.sepadd.lineitem.SpddStdLineItemHolderWrapper" minOccurs="1" maxOccurs="unbounded"  >
+				
+
+				<!-- LineItemValue mapping -->
+
+				<segment name="DrctDbtTxInf" minOccurs="1" maxOccurs="unbounded" getter="getLineItems" setter="setLineItems" collection="list"
+					class="com.s1.intl.imprt.sepadd.lineitem.SpddStdLineItemHolder">
+					
+					<segment name="PmtId" occurs="1">
+						<field name="ddTrfTxInfEndToEndId" xmlName="EndToEndId"  setter="setEndtoEndId" getter="getEndtoEndId" />
+					</segment>
+
+					<!-- Amount Mapping -->
+
+						<segment name="InstdAmt" occurs="1">
+							<field name="ddTrfTxInfInstdAmtCcy" xmlName="Ccy" setter="setAmountCurrency" getter="getAmountCurrency" xmlType="attribute"/>
+							<field name="ddTrfTxInfInstdAmt" xmlName="value" setter="setAmount" getter="getAmount" xmlType="text"/>
+						</segment>
+					
+					<!-- Direct Debit Transaction information -->
+					
+					<segment name="DrctDbtTx" occurs="0-1">
+					
+						<!-- Mandate Related Information  -->
+						
+						<segment name="MndtRltdInf" occurs="0-1">
+						
+							<field name="mandateId" xmlName="MndtId" setter="setMandateId" getter="getMandateId" occurs="0-1"/>
+							<field name="signatureDate" xmlName="DtOfSgntr" setter="setSignatureDate" getter="getSignatureDate" occurs="0-1"/>
+							<field name="amendmentIndicator" xmlName="AmdmntInd" setter="setAmendmentIndicator" getter="getAmendmentIndicator" occurs="0-1"/>
+							
+								<!-- Amendment Information Details  -->
+								<segment name="AmdmntInfDtls" occurs="0-1">
+								
+										<field name="originalMandateIdentification" xmlName="OrgnlMndtId" setter="setMandateId" getter="getMandateId" occurs="0-1"/>
+										<field name="orignalCrSchemaId" xmlName="OrgnlCdtrSchmeId" occurs="0-1" ignore="true"/>
+									
+										<segment name="OrgnlDbtr" occurs="0-1">
+											<field name="originalRecipientName" xmlName="Nm" setter="setOriginalRecipientName" getter="getOriginalRecipientName" occurs="0-1"/>
+										</segment>
+										
+										<segment name="OrgnlDbtrAcct" occurs="0-1">
+											<field name="originalRecipientIBAN" xmlName="Id" setter="setOriginalRecipientIBAN" getter="getOriginalRecipientIBAN" occurs="0-1"/>
+										</segment>
+										
+<!-- 										<segment name="OrgnlDbtrAgt" minOccurs="0" maxOccurs="1" >
+											<segment name="FinInstnId" minOccurs="1" maxOccurs="1">
+												<field name="originalRecipientBankId" xmlName="BIC" setter="setOriginalRecipientBankId" getter="getOriginalRecipientBankId" occurs="0-1"/>
+											</segment>
+										</segment> -->
+										
+										<field name="originalFinalCollDate" xmlName="OrgnlFnlColltnDt" setter="setOriginalFinalCollDate" getter="getOriginalFinalCollDate" occurs="0-1"/>
+										<field name="originalFrequency" xmlName="OrgnlFrqcy" setter="setOriginalFrequency" getter="getOriginalFrequency" occurs="0-1"/>
+										<field name="electronicSignature" xmlName="ElctrncSgntr" setter="setElectronicSignature" getter="getElectronicSignature" occurs="0-1"/>
+										<field name="finalCollectionDate" xmlName="FnlColltnDt" setter="setFinalCollectionDate" getter="getFinalCollectionDate" occurs="0-1"/>
+										<field name="mandateFrequency" xmlName="Frqcy" setter="setMandateFrequency" getter="getMandateFrequency" occurs="0-1"/>
+										
+								</segment>
+								
+						</segment>
+						
+					</segment>		
+										
+					<!-- Debtor Agent -->
+					
+					<segment name="DbtrAgt" occurs="0-1">
+						<segment name="FinInstnId" occurs="1">
+							<field name="ddAgtBIC" xmlName="BIC" setter="setBankIdentifier" getter="getBankIdentifier" occurs="0-1"/>
+						</segment>
+					</segment>
+					
+					<segment name="Dbtr">
+                    	<field name="ddrecipientName" xmlName="Nm" setter="setRecipientName" getter="getRecipientName" occurs="1"/>
+                           <segment name="PstlAdr" occurs="0-1">
+                                  <field name="ddCtry" xmlName="Ctry" setter="setRecipientCountry" getter="getRecipientCountry" occurs="0-1" />
+                                  <field name="ddAdrLine" xmlName="AdrLine" setter="setRecipientStreetAddress" getter="getRecipientStreetAddress" occurs="0-2" collection="List"/>
+                           </segment>
+                           <segment name="Id" occurs="0-1">
+                                  <segment name="OrgId" occurs="0-1">
+                                         <field name="ddAnyBIC" xmlName="AnyBIC" setter="setRecipientBICOrgId" getter="getRecipientBICOrgId" occurs="0-1"/>
+                                         <field name="recipientCustomerIdType" xmlType="text" default="BNKCBIC" trim="true"/>
+                                         <segment name="Othr" occurs="0-1">
+                                                <field name="ddBNKCOTHId" xmlName="Id" setter="setRecipientOrgId" getter="getRecipientOrgId" />
+                                                <field name="recipientCustomerIdType" xmlType="text" default="BNKCOTH" trim="true"/>
+                                         </segment>
+                                  </segment>
+                                  <segment name="PrvtId" occurs="0-1">
+                                         <segment name="Othr" occurs="0-1">
+                                                <field name="ddBNKINDOTHId" xmlName="Id" setter="setRecipientPrivateId" getter="getRecipientPrivateId" required="false" occurs="0-1" />
+                                                <field name="recipientCustomerIdType" xmlType="text" default="BNKINDOTH" trim="true"/>
+                                         </segment>
+                                         <segment name="DtAndPlcOfBirth" occurs="0-1">
+                                                <field name="ddBirthDt" xmlName="BirthDt" setter="setRecipientDateOfBirth" getter="getRecipientDateOfBirth" />
+                                                <field name="ddPrvcOfBirth" xmlName="PrvcOfBirth" setter="setRecipientProvinceOfBirth" getter="getRecipientProvinceOfBirth" occurs="0-1" />
+                                                <field name="ddCityOfBirth" xmlName="CityOfBirth" setter="setRecipientCityOfBirth" getter="getRecipientCityOfBirth" occurs="1" />
+                                                <field name="ddCtryOfBirth" xmlName="CtryOfBirth" setter="setRecipientNationalityStatus" getter="getRecipientNationalityStatus" />
+												<field name="recipientCustomerIdType" xmlType="text"  default="BNKINDPB" trim="true"/>                      
+                                         </segment>
+                                  </segment>
+                           </segment>
+                    </segment>
+				
+					<!-- Debtor Account  -->
+					
+					<segment name="DbtrAcct" occurs="0-1">
+						<segment name="Id"  occurs="1">
+							<field name="dddbtrAcctIBAN" xmlName="IBAN" setter="setAccountNumber" getter="getAccountNumber" occurs="1"/>
+						</segment>
+					</segment>
+					
+					<!-- Purpose -->
+						
+					<segment name="Purp" occurs="0-1">
+						<field name="ddfTxInfPurpCd" xmlName="Cd" setter="setPurposeCode" getter="getPurposeCode" occurs="1"/>
+					</segment>	
+										
+					<!-- Remittance Information -->
+					
+					<segment name="RmtInf" occurs="0-1">
+						<field name="ddfTxInfRmtInfUstrd" xmlName="Ustrd" setter="setContent" getter="getContent" occurs="0-1"/>
+						<field name="remittanceType" xmlType="text" default="U" trim="true"/>
+						<segment name="Strd" occurs="0-1">
+						    <field name="remittanceType" xmlType="text" default="S" trim="true"/>
+							<segment name="CdtrRefInf" occurs="0-1">
+								<segment name="CdOrPrtry" occurs="1">						
+									<field name="ddfTxInfRmtInfStrdCd" xmlName="Cd" occurs="0-1" literal="SCOR" ignore="true"/>
+								</segment>
+								<field name="ddfTxInfRmtInfStrdIssr" xmlName="Issr" setter="setIssuer" getter="getIssuer" occurs="0-1"/>
+							</segment>
+							<field name="ddfTxInfRmtInfStrdRef" xmlName="Ref" setter="setReference" getter="getReference" occurs="0-1"/>
+						</segment>
+					</segment>
+					
+				</segment>
+			</record>
+		</group>
+	</stream>
+</beanio>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!-- This bean is the parent ApplicationContext for the WebApplicationContexts defined in the WARs. 
+		The context files listed here should contain beans that are used by all WARs, 
+		for example Services and DAO's. -->
+	<bean id="ear.context" class="org.springframework.context.support.ClassPathXmlApplicationContext">
+		<constructor-arg index="0">
+			<list>
+				<value>config/spring-files/offline/core-services-definition.xml</value>
+				<value>config/spring-files/offline/deployer/core-services-definition.xml</value>
+				<value>config/spring-files/core-services-transactions.xml</value>
+				<value>config/spring-files/offline/data-source-definition.xml</value>
+				<value>config/spring-files/offline/banking-services-definition.xml</value>
+				<value>config/spring-files/banking-services-transactions.xml</value>
+				<value>config/spring-files/banking-accounts-daos.xml</value>
+				<value>config/spring-files/offline/authorization-services-definition.xml</value>
+				<value>config/spring-files/banking-sso-definition.xml</value>
+				<value>config/spring-files/offline/deployer/gssoDeployer-services.xml</value>
+				<value>config/spring-files/override-config.xml</value>
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.RecipientChangeEvaluatorMapper">
+
+
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		
+		SELECT bas.*
+		FROM  BnkAlrtSbscrptn bas,  BnkAlrtType bat ,  BNKUser  
+		WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		AND bat.AlertName = #{alertName}
+		and  bas.bnkuserky = BNKUser.bnkuserky
+		and BNKUser.bnkcustomerky = #{customerOid}
+		and EXISTS (SELECT bapVal.BnkAlrtSbscrptnKy
+					FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapVal
+					WHERE bas.BnkAlrtSbscrptnKy = bapVal.BnkAlrtSbscrptnKy
+					AND bapVal.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+					AND batp.ParmName = 'method'
+					AND bapVal.IntegerValue = #{recpMethod} 
+					)
+		and  EXISTS (SELECT bapVal.BnkAlrtSbscrptnKy
+				FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapVal
+				WHERE bas.BnkAlrtSbscrptnKy = bapVal.BnkAlrtSbscrptnKy
+				AND bapVal.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+				AND batp.ParmName = 'status'
+				AND bapVal.IntegerValue = #{statusId}
+		)
+	
+	</select>
+	
+</mapper>

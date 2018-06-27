@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
+
+	<jee:jndi-lookup id="defaultWorkManager"
+		jndi-name="wm/default" />
+
+	<!-- Event queue definitions -->
+	<jee:jndi-lookup id="alertsEventQueueConnectionFactory"
+		jndi-name="jms/AlertsEventQueueConnectionFactory" />
+	<jee:jndi-lookup id="alertsEventQueue"
+		jndi-name="jms/AlertsEventQueue" />
+
+	<!-- Bulk Event queue definitions -->
+	<jee:jndi-lookup id="alertsBulkEventQueueConnectionFactory"
+		jndi-name="jms/AlertsBulkEventQueueConnectionFactory" />
+	<jee:jndi-lookup id="alertsBulkEventQueue"
+		jndi-name="jms/AlertsBulkEventQueue" />
+								
+	<!-- Generator queue definitions -->
+	<jee:jndi-lookup id="alertsGeneratorQueueConnectionFactory"
+		jndi-name="jms/AlertsGeneratorQueueConnectionFactory" />
+	<jee:jndi-lookup id="alertsGeneratorQueue"
+		jndi-name="jms/AlertsGeneratorQueue" />
+						
+	<!-- Delivery queue definitions -->
+	<jee:jndi-lookup id="alertsDeliveryQueueConnectionFactory"
+		jndi-name="jms/AlertsDeliveryQueueConnectionFactory" />
+	<jee:jndi-lookup id="alertsDeliveryQueue"
+		jndi-name="jms/AlertsDeliveryQueue" />
+						
+</beans>

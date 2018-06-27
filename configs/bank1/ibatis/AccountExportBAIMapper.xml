@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aciworldwide.accounts.transaction.download.bai2.dao.AcctExportBAIMapper">
+  <resultMap id="BaseResultMap" type="com.aciworldwide.accounts.transaction.download.bai2.dao.AcctExportBAIDataValue">
+    <result column="STMTKY" jdbcType="INTEGER" property="pdyStmtOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKAPPFLDDEFKY" jdbcType="INTEGER" property="appFldDefOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKACCTKY" jdbcType="INTEGER" property="acctOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="APPFLDDEFVALUE" jdbcType="VARCHAR" property="baiValue" />
+    <result column="ITEMCOUNT" jdbcType="INTEGER" property="itemCount" />
+    <result column="EFFECTIVEDTTM" jdbcType="TIMESTAMP" property="effectiveDttm" />
+    <result column="EXTERNALSYSCD" jdbcType="VARCHAR" property="baiCode" />
+    <result column="LOADDTTM" jdbcType="TIMESTAMP" property="loadDttm" />
+    <result column="UPDATEDTTM" jdbcType="TIMESTAMP" property="updateDttm" />
+  </resultMap>
+
+  <select id="retrievePDData" parameterType="java.util.Map" resultMap="BaseResultMap">
+	 SELECT    pdydet.bnkpdystmtky stmtky,
+	           pdydet.bnkappflddefky,
+	           pdydet.bnkacctky,
+	           pdydet.appflddefvalue,
+	           pdydet.itemcount,
+	           pdydet.effectivedttm,
+	           pdydet.loaddttm,
+	           pdydet.updatedttm,
+	           map.externalsyscd
+	FROM       bnkpdystmtdetail pdydet
+	INNER JOIN bnkpdystmt stmt ON stmt.bnkpdystmtky = pdydet.bnkpdystmtky
+	INNER JOIN bnkflddefcdmap map ON map.bnkappflddefky = pdydet.bnkappflddefky AND map.externalsystypecd = 1
+	WHERE      pdydet.bnkacctky = #{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	AND pdydet.effectivedttm between  #{fromDate,jdbcType=TIMESTAMP} and  #{toDate,jdbcType=TIMESTAMP}
+	order by   pdydet.effectivedttm DESC, map.externalsyscd 
+  </select>
+
+  <select id="retrieveCDData" parameterType="java.util.Map" resultMap="BaseResultMap">
+	 SELECT    cdydet.bnkcdystmtky stmtky,
+	           cdydet.bnkappflddefky,
+	           stmt.bnkacctky,
+	           cdydet.appflddefvalue,
+	           cdydet.itemcount,
+	           cdydet.effectivedttm,
+	           cdydet.loaddttm,
+	           cdydet.updatedttm,
+	           map.externalsyscd
+	FROM       bnkcdystmtdetail cdydet
+	INNER JOIN bnkcdystmt stmt ON stmt.bnkcdystmtky = cdydet.bnkcdystmtky
+	INNER JOIN bnkflddefcdmap map ON map.bnkappflddefky = cdydet.bnkappflddefky AND map.externalsystypecd = 1
+	WHERE      stmt.bnkacctky = #{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	AND cdydet.effectivedttm between  #{fromDate,jdbcType=TIMESTAMP} and  #{toDate,jdbcType=TIMESTAMP}	
+	order by   cdydet.effectivedttm DESC,map.externalsyscd 
+  </select>
+</mapper>

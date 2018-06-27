@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean name="customerCacheAdvice" class="com.s1.common.company.CompanyCacheUpdateAdvice">
+		<property name="customerCache" ref="customerCache" />
+	</bean>
+	<bean name="userCacheAdvice" class="com.s1.common.user.UserCacheUpdateAdvice">
+		<property name="userCache" ref="userCache" />
+	</bean>
+
+	<bean name="accountCacheUpdateAdvice"
+		class="com.s1.common.accounts.CustomerAccountsCacheUpdateAdvice">
+		<property name="custAcctCache" ref="custVisibleAccountCache" />
+	</bean>
+
+	<bean name="accountCacheReturnAdvice" class="com.s1.common.accounts.CachedCustomerAccountsAdvice">
+		<property name="custAcctCache" ref="custVisibleAccountCache" />
+	</bean>
+
+
+
+	<aop:config>
+
+		<aop:advisor advice-ref="customerCacheAdvice"
+			pointcut="execution(public * com.s1.common.company.CompanyService.modify(..)) or execution(public * com.s1.common.company.CompanyService.modifyWithEntitlementsCheck(..)) or execution(public * com.s1.common.classofservice.ClassOfServiceService.modify(..))"
+			order="1" />
+
+		<aop:advisor advice-ref="userCacheAdvice"
+			pointcut="execution(public * com.s1.common.user.UserService.updateUser(..)) or execution(public * com.s1.common.company.CompanyService.modifyCompanyEmpUser(..)) or execution(public * com.s1.common.customer.extension.CustomerIfc.modifyCompanyEmpUser(..)) or execution(public * com.s1.common.company.CompanyService.modify(..)) or execution(public * com.s1.common.company.CompanyService.deleteCompanyEmployee(..))"
+			order="1" />
+
+
+<!-- 		<aop:advisor advice-ref="accountCacheUpdateAdvice"
+			pointcut="execution(public * com.s1.common.accounts.AccountService.create*(..)) or execution(public * com.s1.common.accounts.AccountService.modify*(..)) or execution(public * com.s1.common.accounts.AccountService.delete*(..)) or execution(public * com.s1.app.sam.samfacade.SamFacade.createAccount(..)) or execution(public * com.s1.app.sam.samfacade.SamFacade.modifyAccount(..)) or execution(public * com.s1.common.accounts.AccountService.approvePendingAccount(..)) or execution(public * com.s1.common.product.ProductService.modify*(..)) or execution(public * com.s1.app.bank.accounts.realtime.RealTimeAccountService.*(..))"
+			order="1" />
+			
+			
+
+		<aop:advisor advice-ref="accountCacheReturnAdvice"
+			pointcut="execution(public * com.s1.common.accounts.AccountService.getHoldingByCriteria(com.s1.common.accounts.AccountCriteria,..))"
+			order="1" />
+ -->
+	</aop:config>
+
+
+</beans>

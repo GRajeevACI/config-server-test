@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+	 
+	 <mapping>
+		<typeA>com.s1.common.accounts.AccountData</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.common.component.CustomerAccountType</typeB>
+		<fields>
+			<field>
+				<fieldA>accountName</fieldA>
+				<fieldB>accountName</fieldB>
+			</field>
+			<field>
+				<fieldA>productCode</fieldA>
+				<fieldB>hostProductCode</fieldB>
+			</field>
+			<field reverse="true" oneWay="true" customConverter="com.aciworldwide.pim.messages.service.mapper.HostProductCodeToProductOidConverter">
+				<fieldA>productOid</fieldA>
+				<fieldB>hostProductCode</fieldB>
+			</field>
+			<field reverse="true" oneWay="true" customConverter="com.aciworldwide.pim.messages.service.mapper.HostProductCodeToProductValueConverter">
+				<fieldA>productData</fieldA>
+				<fieldB>hostProductCode</fieldB>
+			</field>
+			<field>
+				<fieldA>isoCurrency</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field>
+				<fieldA>fiId</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field reverse="true" oneWay="true">
+				<fieldA>dsplycdirfiid</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field reverse="true" oneWay="true">
+				<fieldA>dsplypdirfiid</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field>
+				<fieldA>fiIdType</fieldA>
+				<fieldB>financialInstitution.identType</fieldB>
+			</field>
+			<field reverse="true" oneWay="true" customConverter="com.aciworldwide.pim.messages.service.mapper.BankIdTypeToEnumValueConverter">
+				<fieldA>fiidTypeEnum</fieldA>
+				<fieldB>financialInstitution.identType</fieldB>
+			</field>
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>accountIdent.primaryIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>acctActNumHistDays</fieldA>
+				<fieldB>retentionPeriod</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>soaInstrId</fieldA>
+				<fieldB>accountIdent.accountUid</fieldB>
+			</field>						
+		</fields>
+	</mapping>
+	
+	<mapping>
+		<typeA>com.s1.app.bank.accounts.AccountSummaryView</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.common.component.CustomerAccountSummaryType</typeB>
+		<fields>
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>accountIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>isoCurrency</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field>
+				<fieldA>fiId</fieldA>
+				<fieldB>FIIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>product</fieldB>
+			</field>
+			<field>
+				<fieldA>description</fieldA>
+				<fieldB>productType</fieldB>
+			</field>
+			<field>
+				<fieldA>lastModifier</fieldA>
+				<fieldB>lastModifier</fieldB>
+			</field>						
+		</fields>
+	</mapping>
+	
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.online.common.component.ACHCompanyType</typeA>
+		<typeB>com.s1.common.company.AcctAchCompanyValue</typeB>
+		<fields>
+			<field>
+				<fieldA>ident</fieldA>
+				<fieldB>achCompanyId</fieldB>
+			</field>	
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>companyName</fieldB>
+			</field>
+			<field>
+				<fieldA>isBalanced</fieldA>
+				<fieldB>achBatchOffset</fieldB>
+			</field>
+			<field>
+				<fieldA>isSameDaySettlement</fieldA>
+				<fieldB>sameDaySettlement</fieldB>
+			</field>		
+		</fields>
+	</mapping>
+	
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.online.common.component.FIAlternateIdentifierType</typeA>
+		<typeB>com.s1.common.accounts.alternateFIIDs.AlternateFIIDValue</typeB>
+		<fields>
+			<field>
+				<fieldA>ident</fieldA>
+				<fieldB>fiid</fieldB>
+			</field>	
+			<field>
+				<fieldA>currentDayEnabled</fieldA>
+				<fieldB>cdIndicator</fieldB>
+			</field>
+			<field>
+				<fieldA>priorDayEnabled</fieldA>
+				<fieldB>pdIndicator</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.pim.messages.service.mapper.BankIdTypeToEnumValueConverter">
+				<fieldA>identType</fieldA>
+				<fieldB>fiidTypeEnum</fieldB>
+			</field>		
+		</fields>
+	</mapping>
+	
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.online.common.component.NoteType</typeA>
+		<typeB>com.s1.common.accounts.loan.dao.AccountNotes</typeB>
+		<fields>
+			<field>
+				<fieldA>note</fieldA>
+				<fieldB>note</fieldB>
+			</field>		
+		</fields>
+	</mapping>
+	
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.online.common.component.CommitmentType</typeA>
+		<typeB>com.s1.common.accounts.loan.dao.AccountCommitment</typeB>
+		<fields>
+			<field>
+				<fieldA>ident</fieldA>
+				<fieldB>SOAUIID</fieldB>
+			</field>
+			<field>
+				<fieldA>commitment</fieldA>
+				<fieldB>commitment</fieldB>
+			</field>
+			<field>
+				<fieldA>subCommitments</fieldA>
+				<fieldB>subCommitmentList</fieldB>
+			</field>
+			<field>
+				<fieldA>notes</fieldA>
+				<fieldB>commitmentNoteList</fieldB>
+			</field>		
+		</fields>
+	</mapping>
+	
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.online.common.component.SubCommitmentType</typeA>
+		<typeB>com.s1.common.accounts.loan.dao.AccountSubCommitment</typeB>
+		<fields>
+			<field>
+				<fieldA>ident</fieldA>
+				<fieldB>soaUIID</fieldB>
+			</field>
+			<field>
+				<fieldA>subCommitment</fieldA>
+				<fieldB>subCommitment</fieldB>
+			</field>	
+			<field>
+				<fieldA>notes</fieldA>
+				<fieldB>subCommitmentNoteList</fieldB>
+			</field>	
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.management.account.services.LoanCommitmentImportRqType</typeA>
+	 	<typeB>com.aciworldwide.pim.messages.management.account.services.LoanCommitmentImportRqType</typeB>
+	    	<fields>
+	        	<field customConverter="com.aciworldwide.arch.service.transformation.converter.InputStreamToByteArrayConverter">
+					<fieldA>file</fieldA>
+					<fieldB>file</fieldB>
+				</field>
+				<field>
+					<fieldA>account</fieldA>
+					<fieldB>account</fieldB>
+				</field>							
+			</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.common.account.service.ACHPaymentAccount</typeA>
+	 	<typeB>com.aciworldwide.pim.messages.payments.component.PaymentAccountType</typeB>
+	    	<fields>
+	    		<!-- <field oneWay="true">
+					<fieldA>account.accountOid</fieldA>
+					<fieldB>id</fieldB>
+				</field> -->
+				<field oneWay="true">
+					<fieldA>account.soaInstrId</fieldA>
+					<fieldB>id</fieldB>
+				</field>
+	        	<field oneWay="true">
+					<fieldA>account.description</fieldA>
+					<fieldB>nickname</fieldB>
+				</field>
+				<field oneWay="true">
+					<fieldA>account.accountIdMask</fieldA>
+					<fieldB>number</fieldB>
+				</field>
+				<field oneWay="true">
+					<fieldA>account.currency.alpha3Code</fieldA>
+					<fieldB>currency</fieldB>
+				</field>		
+				<field oneWay="true">
+					<fieldA>account.paymentBalance.value</fieldA>
+					<fieldB>balanceAmount</fieldB>
+				</field>
+				<field oneWay="true">
+					<fieldA>achCompanyIds</fieldA>
+					<fieldB>achCompanyIds</fieldB>
+				</field>					
+			</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.common.AccountInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.uob.account.AccountSummaryInfoType</typeB>
+		<fields>
+			<field oneWay="true">
+				<fieldA>soaInstrId</fieldA>
+				<fieldB>id</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>description</fieldA>
+				<fieldB>nickname</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>accountIdMask</fieldA>
+				<fieldB>number</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>currency.alpha3Code</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>paymentBalance.value</fieldA>
+				<fieldB>balanceAmount</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>holder.accountValue.fiId</fieldA>
+				<fieldB>fiId</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.common.company.AcctAchCompanyValue</typeA>
+	 	<typeB>com.aciworldwide.pim.messages.online.common.component.ACHCompanyIdentType</typeB>
+	    	<fields>
+	    		<field>
+					<fieldA>achCompanyId</fieldA>
+					<fieldB>ident</fieldB>
+				</field>
+	        	<field>
+					<fieldA>companyName</fieldA>
+					<fieldB>name</fieldB>
+				</field>								
+			</fields>
+	</mapping>
+	 
+</mappings>	

@@ -1,0 +1,108 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">	
+	<!-- use this data source for standalone data source operations	-->
+
+	<bean id="epDataSource"
+		class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+		<constructor-arg ref="dataSource" />
+	</bean>
+
+	<bean id="sslEnabled" class="java.lang.String">
+		<constructor-arg value="$[actuate.database.SSL.]" />
+	</bean>
+	<bean id="db2ConnProp" class="java.lang.String">
+		<constructor-arg value="sslConnection=true;" />
+	</bean>
+	<bean id="EmptyProp" class="java.lang.String">
+		<constructor-arg value="" />
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+ 		<property name="driverClassName" value="${param.driver}" />
+ 		<property name="maxActive" value="${dataSource.maxActive}"/>
+ 		<property name="maxIdle" value="${dataSource.maxIdle}"/>
+ 		<property name="minIdle" value="${dataSource.minIdle}"/>
+ 		<property name="maxWait" value="${dataSource.maxWait}"/>
+		<property name="url" value="${param.url}" />
+		<property name="poolPreparedStatements" value="${dataSource.poolPreparedStatements}"/>
+		<property name="maxOpenPreparedStatements" value="${dataSource.maxOpenPreparedStatements}"/>
+		<property name="timeBetweenEvictionRunsMillis" value="${dataSource.timeBetweenEvictionRunsMillis}"/>
+		<property name="minEvictableIdleTimeMillis" value="${dataSource.minEvictableIdleTimeMillis}"/>
+		<property name="numTestsPerEvictionRun" value="${dataSource.numTestsPerEvictionRun}"/>
+		<property name="testOnBorrow" value="${dataSource.testOnBorrow}"/>
+		<property name="testWhileIdle" value="${dataSource.testWhileIdle}"/>
+		<property name="validationQuery" value="${dataSource.validationQuery}"/>
+		<property name="removeAbandoned" value="${dataSource.removeAbandoned}"/>
+		<property name="username" value="$[dbUser]" />
+		<property name="password" value="$[dbpassword]" />
+		<property name="defaultAutoCommit" value="false" />
+		<property name="initialSize" value="${dataSource.initialSize}"/>
+		<property name="connectionProperties" value="#{ sslEnabled == 'true' ? db2ConnProp : EmptyProp }"/>
+	</bean>
+	
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  		<property name="dataSource" ref="epDataSource"/>
+	
+	</bean>
+				
+	<bean id="cloakPropertiesHolder" class="com.s1.spring.CloakPropertyPlaceholderConfigurer">
+		<property name="placeholderPrefix" value="$["/>
+		<property name="placeholderSuffix" value="]"/>
+		<property name="config" ref="dataSourceProperties" />
+	</bean>
+	
+	<bean id="dataSourcePropertiesHolder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties" ref="dataSourceProperties"/>
+	</bean>
+	
+	<bean id="dataSourceProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:realm.properties"/>
+		<property name="properties">
+			<props>
+				<prop key="parser.addLineFeeds">true</prop>
+				<prop key="plugins.rollup.maxRetryCount">5</prop>
+				<prop key="plugins.cd.statement.postprocessor.list">cdStatementPostProcessorList</prop>
+				<prop key="plugins.cd.file.postprocessor.list">cdFilePostProcessorList</prop>
+				<prop key="plugins.pd.statement.postprocessor.list">pdStatementPostProcessorList</prop>
+				<prop key="plugins.pd.file.postprocessor.list">pdFilePostProcessorList</prop>
+				<prop key="jmx.hostname">localhost</prop>
+				<prop key="jmx.rmi.port">1099</prop>
+ 				<prop key="dataSource.maxActive">150</prop>
+ 				<prop key="dataSource.maxIdle">150</prop>
+ 				<prop key="dataSource.minIdle">0</prop>
+ 				<prop key="dataSource.maxWait">5000</prop>
+				<prop key="dataSource.poolPreparedStatements">true</prop>
+				<prop key="dataSource.maxOpenPreparedStatements">20000</prop>
+				<prop key="dataSource.timeBetweenEvictionRunsMillis">120000</prop>
+				<prop key="dataSource.minEvictableIdleTimeMillis">60000</prop>
+				<prop key="dataSource.numTestsPerEvictionRun">5</prop>
+				<prop key="dataSource.testOnBorrow">true</prop>
+				<prop key="dataSource.testWhileIdle">true</prop>
+				<prop key="dataSource.validationQuery">values(1)</prop>
+				<prop key="dataSource.removeAbandoned">false</prop>
+				<prop key="dataSource.initialSize">5</prop>
+				<prop key="monitorTaskPool.corePoolSize">1</prop>
+				<prop key="monitorTaskPool.maxPoolSize">1</prop>
+				<prop key="monitorTaskPool.queueCapacity">25</prop>
+				<prop key="parserTaskPool.corePoolSize">2</prop>
+				<prop key="parserTaskPool.maxPoolSize">4</prop>
+				<prop key="parserTaskPool.queueCapacity">25</prop>
+				<prop key="validationTaskPool.corePoolSize">25</prop>
+				<prop key="validationTaskPool.maxPoolSize">25</prop>
+				<prop key="validationTaskPool.queueCapacity">1000</prop>
+				<prop key="errorTaskPool.corePoolSize">2</prop>
+				<prop key="errorTaskPool.maxPoolSize">4</prop>
+				<prop key="errorTaskPool.queueCapacity">25</prop>
+				<prop key="persistenceTaskPool.corePoolSize">25</prop>
+				<prop key="persistenceTaskPool.maxPoolSize">25</prop>
+				<prop key="persistenceTaskPool.queueCapacity">3000</prop>
+				<prop key="pluginTaskPool.corePoolSize">15</prop>
+				<prop key="pluginTaskPool.maxPoolSize">15</prop>
+				<prop key="pluginTaskPool.queueCapacity">2000</prop>
+				<prop key="schema.version">372schema</prop>
+			</props>
+		</property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.common.entitlement.dao.CorpGroupEntitlementsMapper" >
+
+	<resultMap id="userGroupAssociation" type="com.s1.app.corp.groups.UserGroupAssociationValue">
+		<result property="groupOid"				column="BNKCustUserGrpKy"		jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="userOid"				column="BNKUserKy"				jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="userPrincipalOid"		column="UserPrincipalKy"		jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="custOid"				column="BNKCustomerKy"			jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="groupName"			column="GroupName"				jdbcType="VARCHAR"	/>
+		<result property="groupAccessTypeCd"	column="GroupAccessTypCd"		jdbcType="CHAR"		/>
+		<result property="isGroupSysAdmin"		column="IsGrpSysAdmin"			jdbcType="CHAR"		typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="isUserActive"			column="IsUserActive"			jdbcType="CHAR"		typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="userFirstName"		column="FirstName"				jdbcType="VARCHAR"	/>
+		<result property="userLastName"			column="LastName"				jdbcType="VARCHAR"	/>
+		<result property="userPrincipalName"	column="PrinipalName"			jdbcType="VARCHAR"	/>
+		<result property="groupDescription"		column="groupdesc"				jdbcType="VARCHAR"	/>
+	</resultMap>
+	
+	<resultMap id="companyDataServiceValueMap" type="com.s1.common.entitlement.dataservices.CompanyDataServiceValue">
+		<result property="oid"					column="BNKCmpDataSvcKy"		jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="companyKy"			column="COROrgKy"				jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="dataServiceSubTypeKy"	column="BNKDataSvcSbTypeKy"		jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="datakey"				column="DataKey"				jdbcType="VARCHAR"	/>
+		<result property="retPeriod"			column="RetentionPeriod"		jdbcType="SMALLINT"	/>
+		<result property="accountKy"			column="BNKAcctKy"				jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	</resultMap>
+	
+	<select id="getCorpGroupDataServiceOidList" parameterType="com.s1.arch.utilities.ObjectId" resultType="java.lang.String">
+		SELECT BNKCmpDataSvcKy
+		FROM BNKCustUsrGDataSvc
+		WHERE BNKCustUserGrpKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+	
+	<select id="getCompanyDataServiceOidList" parameterType="com.s1.arch.utilities.ObjectId" resultType="java.lang.String">
+		SELECT BNKCmpDataSvcKy
+		FROM BNKCmpDataSvc
+		WHERE COROrgKy = (SELECT BNKOrgKy FROM BNKCustomer 
+							WHERE BNKCustomerKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+	</select>
+	
+	<insert id="insert" parameterType="com.s1.common.entitlement.dao.ibatis.DataServiceGrantObject">
+		INSERT INTO BNKCustUsrGDataSvc
+			(BNKCustUsrGDataSvcKy,BNKCustUserGrpKy,BNKCmpDataSvcKy,updateUser)
+		VALUES (#{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+				#{cmpGroupOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+				#{companyDataServiceKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+				#{updateUser})
+	</insert>	
+	
+	<select id="getAssociatedUsersForGroup" parameterType="com.s1.arch.utilities.ObjectId" resultMap="userGroupAssociation">
+		SELECT *
+		FROM BNKUserGrpVw
+		WHERE BNKCustUserGrpKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND isUserDeleted='0'
+	</select>
+	
+	<select id="getAssociatedUsersCountForGroup" parameterType="com.s1.arch.utilities.ObjectId" resultType="int">
+		SELECT count(*)
+		FROM BNKUserGrpVw
+		WHERE BNKCustUserGrpKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND isUserDeleted='0'
+	</select>
+
+	<select id="getAssociatedGroupsForUser" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserGroupAssociationParm" resultMap="userGroupAssociation">
+		SELECT *
+		FROM BNKUserGrpVw
+		WHERE BNKUserKy = #{userOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} and
+			  BNKCustomerKy = #{custOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND isGroupDeleted='0'		
+	</select>
+	
+	<select id="getAssociatedGroupOidsForUser" parameterType="com.s1.arch.utilities.ObjectId" resultType="java.lang.String">
+		select a.arcprincipalKyGrp from ARCPrincipalGrp a, BNKCUSTUSERGRP b  where a.arcprincipalky = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} and  
+		a.ARCPRINCIPALKYGRP= b.BNKCUSTUSERGRPky
+	</select>
+	
+	<select id="getDataSvcsForGivenGroups" parameterType="java.util.List" resultMap="companyDataServiceValueMap">
+		SELECT BNKCmpDataSvcKy, COROrgKy, BNKDataSvcSbTypeKy, DataKey, RetentionPeriod, BNKAcctKy
+		FROM BNKCmpDataSvc
+		WHERE BNKCmpDataSvcKy
+		IN (
+			SELECT BNKCmpDataSvcKy FROM BNKCustUsrGDataSvc WHERE BNKCustUserGrpKy IN
+			<foreach collection="list" item="item" separator="," open="(" close=")">
+				#{item,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			</foreach>
+		)
+	</select>
+	
+	<select id="getGroupNamesFromGroupOids" parameterType="java.util.List" resultType="java.lang.String">
+		SELECT DISTINCT GroupName
+		FROM BNKCustUserGrp
+		WHERE BNKCustUserGrpKy IN
+		<foreach collection="list" item="item" separator="," open="(" close=")">
+			#{item,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		</foreach>
+		ORDER BY GroupName
+	</select>
+	
+	<delete id="removeAllGroupAssociationsForUser" parameterType="com.s1.arch.utilities.ObjectId">
+		DELETE from ARCPRINCIPALGRP m0
+		where m0.ARCPRINCIPALKYGRP not in (select a.ARCPrincipalky from arcgroup a, ARCprincipal b
+                                           where a.ARCPrincipalKy = b.ARCPrincipalKy
+                                           and b.name in ('actuateRunRole','companySysAdmin'))
+   		and m0.ARCPrincipalKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</delete>
+	
+	<delete id="removeGroupAssociationsForUserByCriteria" parameterType="map">
+		DELETE from ArcPrincipalGrp
+		WHERE arcprincipalky = #{userPrinOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		and arcPrincipalKyGrp in 
+		<foreach collection="groupOids" item="item" open="(" close=")" separator=",">
+ 	         #{item,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+ 	    </foreach>
+	</delete>
+
+	<select id="getAssociatedFullAndNoneGroupsForUser" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserGroupAssociationParm" resultMap="userGroupAssociation">
+		SELECT BNKCustUserGrpKy,GroupAccessTypCd,GroupName
+        FROM BNKUserGrpVw
+        WHERE BNKUserKy = #{userOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND
+              BNKCustomerKy = #{custOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND isGroupDeleted = '0' AND isUserDeleted = '0' 
+              AND (GroupAccessTypCd = 'F' OR GroupAccessTypCd = 'N') ORDER BY GroupAccessTypCd
+    </select>
+    
+    <select id="getAssociatedGroupsAccessTypeCdsForUser" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserGroupAssociationParm" resultType="String">
+    	SELECT DISTINCT GroupAccessTypCd
+        FROM BNKUserGrpVw
+        WHERE BNKCustomerKy = #{custOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			<if test="null != userOid">        
+        		AND BNKUserKy = #{userOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+        	</if>
+        	<if test="null != userPrincipalOid">
+        		AND UserPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+        	</if>	
+               AND isGroupDeleted = '0' AND isUserDeleted = '0'
+    </select>
+    
+    <select id="getGroupByOidAndCustomerOid" parameterType="map" resultType="String">
+    	SELECT 1 
+        FROM BNKCUSTUSERGRP
+        WHERE BNKCUSTUSERGRPKY = #{BNKCUSTUSERGRPKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+        		AND BNKCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+                AND ISDELETED='0'
+    </select>
+    
+    <select id="getUserByOidAndCustomerOid" parameterType="map" resultType="String">
+    	SELECT 1 
+        FROM BNKUSER
+        WHERE BNKUSERKY = #{BNKUSERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+        		AND BNKCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+                AND ISDELETED='0'
+    </select>
+    
+    <select id="getModifierForPendingGroupByOidAndCustomerOid" parameterType="map" resultType="String">
+    	SELECT MODIFIER 
+        FROM BNKPENDINGXMLCHNG
+        WHERE BNKPENDINGXMLCHNGKY=(SELECT BNKPENDINGXMLCHNGKY FROM BNKPENDINGGROUP 
+        				WHERE BNKPENDINGGROUPKY=#{BNKPENDINGGROUPKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+        					  AND BNKCUSTOMERKY=#{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+    </select>
+    
+    <select id="getModifierForPendingUserByOidAndCustomerOid" parameterType="map" resultType="String">
+    	SELECT MODIFIER 
+        FROM BNKPENDINGXMLCHNG
+        WHERE BNKPENDINGXMLCHNGKY=(SELECT BNKPENDINGXMLCHNGKY FROM BNKPENDINGUSER 
+        				WHERE BNKPENDINGUSERKY=#{BNKPENDINGUSERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+        		              AND CORCUSTOMERKY=#{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND ISUSERGROUP=#{ISUSERGROUP})
+        
+    </select>
+    
+    <select id="getPendingUserByOidAndCustomerOid" parameterType="map" resultType="String">
+    	SELECT 1 
+        FROM BNKPENDINGUSER
+        WHERE BNKUSERKY = #{BNKUSERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+        		AND CORCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} AND ISUSERGROUP=#{ISUSERGROUP}
+    </select>
+    
+    <select id="getIsConfidentialBatchForUserOid" parameterType="map" resultType="String">
+	    SELECT distinct a.isconfidentialbatch
+		FROM BNKCustUserGrp a, ARCPrincipalGrp b, ARCPrincipal c
+		WHERE a.isconfidentialbatch = 1
+		     AND a.bnkcustusergrpky = b.arcprincipalkygrp
+		     AND b.arcprincipalky = #{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND b.arcprincipalkygrp = c.arcprincipalky
+	    	 AND a.ISDELETED = '0'
+		     AND c.name <![CDATA[ <> ]]> 'actuateRunRole'
+    </select>
+  
+</mapper>

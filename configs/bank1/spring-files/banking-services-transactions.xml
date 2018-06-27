@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<aop:config>
+
+		<!-- Pointcut configuration -->
+
+		<aop:pointcut id="appServiceOps"
+			expression="execution(public * com.s1.app..*Service.*(..))" />
+		
+		<aop:pointcut id="bankingServiceOps"
+			expression="execution(public * com.s1.banking..*Service.*(..))" />
+
+		<aop:pointcut id="commonServiceOps"
+			expression="execution(public * com.s1.common..*Service.*(..))" />
+			
+		<aop:pointcut id="paymentsServiceOps"
+			expression="execution(public * com.s1.payments.instruction.ExtensionDisbursementService.execute*(..))" />
+			
+		<aop:pointcut id="xferApproveNoTransmitOps"
+			expression="execution(public * com.s1.app.disbursements.transfer.AllTransferService.authorizeNoTransmit*(..))" />
+			
+		<aop:pointcut id="bulkXferApproveNoTransmitOps"
+			expression="execution(public * com.s1.app.disbursements.bulktransfer.BulkTransferService.authorizeNoTransmit*(..))" />	
+			
+		<aop:pointcut id="actionItemMessagePublishOps"
+			expression="execution(public * com.s1.banking.actionitem.runtime.ActionItemRuntimeService.publish(..))" />
+			
+		<aop:pointcut id="businessServiceSettingMessagePublishOps"
+			expression="execution(public * com.s1.common.classofservice.runtime.BusinessServiceSettingRuntimeService.publish(..))" />
+		
+		<aop:pointcut id="actionItemMessageEvaluateOps"
+			expression="execution(public * com.s1.banking.actionitem.runtime.ActionItemRuntimeService.inspect(..))" />
+			
+		<aop:pointcut id="efdMessagingOps"
+			expression="execution(public * com.s1.banking.efd.upload.messaging.UploadMessageService.*(..))" />
+			
+		<aop:pointcut id="efdParsingOp"
+			expression="execution(public * com.s1.banking.efd.upload.EFDService.executeBatchParsing(..))" />
+			
+		<aop:pointcut id="efdStatusOp"
+			expression="execution(public * com.s1.banking.efd.upload.EFDService.updateBatchStatus(..))" />
+
+		<aop:pointcut id="efdTransmissionOp"
+			expression="execution(public * com.s1.banking.efd.upload.EFDService.executeBatchTransmission(..))" />
+						
+		<aop:pointcut id="efdLimitCheckForTransmissionOp"
+			expression="execution(public * com.s1.banking.efd.upload.EFDService.executeLimitCheckForBatchTransmission(..))" />
+						
+		<aop:pointcut id="uploadMessagingOps"
+			expression="execution(public * com.s1.banking.common.upload.messaging.UploadMessageService.*(..))" />
+
+		<aop:pointcut id="achImportOps"
+			expression="execution(public * com.s1.app.disbursements.corpach.common.CorpAchService.*WithIsolatedRollback(..))" />
+			
+		<aop:pointcut id="importMessagingOps"
+			expression="execution(public * com.s1.banking.common.imprt.messaging.ImportMessageService.*(..))" />
+			
+		<aop:pointcut id="importParsingOp"
+			expression="execution(public * com.s1.banking.common.imprt.ImportService.executeFileParsing(..))" />
+
+		<aop:pointcut id="importFileEntryOp"
+			expression="execution(public * com.s1.banking.common.imprt.ImportService.updateImportFileStatus(..))" />
+
+    	<aop:pointcut id="importErrorLogOp"
+			expression="execution(public * com.s1.banking.common.imprt.ErrorLogService.*(..))" />
+
+		<aop:pointcut id="uploadParsingOp"
+			expression="execution(public * com.s1.banking.common.upload.UploadBatchService.executeBatchParsing(..))" />
+
+		<aop:pointcut id="uploadLimitCheckForBatchTransmissionOp"
+			expression="execution(public * com.s1.banking.common.upload.UploadBatchService.executeLimitCheckForBatchTransmission(..))" />
+
+		<aop:pointcut id="uploadTransmissionOp"
+			expression="execution(public * com.s1.banking.common.upload.UploadBatchService.executeBatchTransmission(..))" />
+			
+		<aop:pointcut id="cDTransactionOps"
+			expression="execution(public * com.s1.app.bank.accounts.user.realtimecurrentday.CDTransactionService.*(..))" />
+
+		<aop:pointcut id="samfacadOps"
+			expression="execution(public * com.s1.app.sam.samfacade.SamFacadeBean.*(..))" />
+
+		<aop:pointcut id="transferMessageOps"
+			expression="execution(public * com.s1.app.disbursements.transfer.messaging.TransferMessagingService.*(..))" />
+	
+	    <aop:pointcut id="customerGroupOps"
+			expression="execution(public * com.s1.common.customergroup.CustomerGroupService.*(..))" />
+			
+		<aop:pointcut id="holdingCompanyOps"
+			expression="execution(public * com.s1.common.holdingcompany.service.HoldingCompanyService.*(..))" />	
+
+		<aop:pointcut id="loanAccountCommitmentOps"
+			expression="execution(public * com.s1.app.bank.accountInfoReport.loan.LoanCommitmentSubCommBalanceService.*(..))" />
+
+		<aop:pointcut id="coreAuditOps"
+			expression="execution(public * com.s1.arch.auditx.service.CoreAuditService.*(..))" />
+						
+		<aop:pointcut id="realTimeAccountSyncOps"
+			expression="execution(public * com.s1.app.bank.accounts.realtime.RealTimeAccountService.*(..))" />
+
+		<aop:pointcut id="realTimeTransactionSyncOps"
+			expression="execution(public * com.s1.app.bank.accounts.realtime.RealTimeTransactionService.*(..))" />
+			
+		<aop:pointcut id="fisCustomerPUIDServiceOps" 
+		   expression="execution(public * com.s1.app.disbursements.edelivery.FISCustomerPUIDServiceBean.*(..))" />
+
+		<aop:pointcut id="multiApproveAdaptiveAuthHandlerOps"
+		expression="execution(public * com.s1.app.adaptiveauth.multiApprove.handler.MultiApproveAdaptiveAuthHandlerService.*(..))" />
+			
+		<aop:pointcut id="mqNonXATransactionService"
+			expression="execution(public * com.s1.mq..*Service.*(..))" />
+						
+		<aop:pointcut id="asyncPmtService"
+			expression="execution(public * com.s1.app.disbursements.async.AsyncPaymentsService.*(..))" />
+		<!-- GBS-76416 -->
+		<aop:pointcut id="realtimeDatabaseLoggerServiceOps"
+			expression="execution(public * com.aci.realtime.dblogger.persistence.service.RealtimeDatabaseLoggerService.*(..))" />
+						
+			
+		<aop:pointcut id="uiUserPreferenceOps"
+			expression="execution(public * com.aciworldwide.user.uipreference.service.UIUserPreferenceService.*(..))" />
+			
+		<aop:pointcut id="uploadBatchCreateFileOps"
+			expression="execution(public * com.s1.banking.common.upload.UploadBatchService.createBatchFromFile(..))" />
+		
+		<aop:pointcut id="uploadBatchStatusOp"
+			expression="execution(public * com.s1.banking.common.upload.UploadBatchService.transmitBatches(..))" />
+			
+		<!-- <aop:pointcut id="paymentSummaryDataOps"
+			expression="execution(public * com.s1.core.paymentcenter.dao.PaymentSummaryDataDao.*(..))" />-->					
+
+		<!-- Advisor configuraiton -->
+
+		<aop:advisor id="appServiceAdvisor" pointcut-ref="appServiceOps"
+			advice-ref="txBankingServiceAdvice" />
+			
+		<aop:advisor id="xferApproveServiceAdvisor" pointcut-ref="xferApproveNoTransmitOps"
+			advice-ref="txXferApproveAdvice" />
+			
+		<aop:advisor id="bulkXferApproveServiceAdvisor" pointcut-ref="bulkXferApproveNoTransmitOps"
+			advice-ref="txXferApproveAdvice" />	
+
+		<aop:advisor id="bankingServiceAdvisor" pointcut-ref="bankingServiceOps"
+			advice-ref="txBankingServiceAdvice" />
+
+		<aop:advisor id="commonServiceAdvisor" pointcut-ref="commonServiceOps"
+			advice-ref="txBankingServiceAdvice" />
+			
+		<aop:advisor id="actionItemMessagePublishAdvisor" pointcut-ref="actionItemMessagePublishOps" 
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="businessServiceSettingMessagePublishAdvisor" pointcut-ref="businessServiceSettingMessagePublishOps" 
+			advice-ref="txMultiApprAdaptiveAuthRequiresNewTransactionAdvice" /> 
+			
+		<aop:advisor id="actionItemMessageEvaluateAdvisor" pointcut-ref="actionItemMessageEvaluateOps" 
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="efdMessagingAdvisor" pointcut-ref="efdMessagingOps"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="efdParsingAdvisor" pointcut-ref="efdParsingOp"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="efdStatusAdvisor" pointcut-ref="efdStatusOp"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="efdTransmissionAdvisor" pointcut-ref="efdTransmissionOp"
+			advice-ref="txMessagingAdvice" />
+						
+		<aop:advisor id="efdLimitCheckForTransmissionAdvisor" pointcut-ref="efdLimitCheckForTransmissionOp"
+			advice-ref="txMessagingAdvice" />
+						
+		<aop:advisor id="uploadMessagingAdvisor" pointcut-ref="uploadMessagingOps"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="achImportAdvisor" pointcut-ref="achImportOps"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="importMessagingAdvisor" pointcut-ref="importMessagingOps"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="importParsingAdvisor" pointcut-ref="importParsingOp"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="importFileEntryAdvisor" pointcut-ref="importFileEntryOp"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="importErrorLogAdvisor" pointcut-ref="importErrorLogOp"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="uploadParsingAdvisor" pointcut-ref="uploadParsingOp"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="uploadLimitCheckForBatchTransmissionAdvisor" pointcut-ref="uploadLimitCheckForBatchTransmissionOp"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="uploadTransmissionAdvisor" pointcut-ref="uploadTransmissionOp"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="updateRTMessageAdvisor" pointcut-ref="cDTransactionOps"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="samFacadServiceAdvisor" pointcut-ref="samfacadOps"
+			advice-ref="txMessagingAdvice" />
+		
+		<aop:advisor id="transferMessageAdvisor" pointcut-ref="transferMessageOps"
+			advice-ref="txMessagingAdvice" />
+		
+		<aop:advisor id="customerGroupAdvisor" pointcut-ref="customerGroupOps"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="holdingCompAdvisor" pointcut-ref="holdingCompanyOps"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="loanAcctCommitmentAdvisor" pointcut-ref="loanAccountCommitmentOps"
+			advice-ref="txMessagingAdvice" />
+
+		<aop:advisor id="coreAuditAdvisor" pointcut-ref="coreAuditOps"
+			advice-ref="txMessagingAdvice" />
+							
+		<!--<aop:advisor id="paymentSummaryMessageAdvisor" pointcut-ref="paymentSummaryDataOps"
+			advice-ref="txMessagingAdvice" />-->
+				
+		<aop:advisor id="realTimeAccountSyncAdvisor" pointcut-ref="realTimeAccountSyncOps"
+			advice-ref="txBankingServiceAdvice" />
+				
+		<aop:advisor id="realTimeTransactionSyncAdvisor" pointcut-ref="realTimeTransactionSyncOps"
+			advice-ref="txBankingServiceAdvice" />
+			
+		<aop:advisor id="multiApproveAdaptiveAuthHandlerAdvisor" pointcut-ref="multiApproveAdaptiveAuthHandlerOps"
+			advice-ref="txMultiApprAdaptiveAuthRequiresNewTransactionAdvice" />
+		
+		<aop:advisor id="mqNonXATransactionServiceAdvisor" pointcut-ref="mqNonXATransactionService"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="intlImportAdvisor" pointcut-ref="paymentsServiceOps"
+			advice-ref="txMessagingAdvice" />			
+
+		<aop:advisor id="fisCustomerPUIDServiceAdvisor" pointcut-ref="fisCustomerPUIDServiceOps"
+			advice-ref="txFisCustomerPUIDServiceAdvice" />
+			
+		<aop:advisor id="asyncPmtServiceAdvisor" pointcut-ref="asyncPmtService"
+			advice-ref="txAsyncPmtServiceAdvice" />
+		<!-- GBS-76416 -->
+		<aop:advisor id="realtimeDatabaseLoggerServiceAdvisor" pointcut-ref="realtimeDatabaseLoggerServiceOps"
+			advice-ref="txRealtimeDatabaseLoggerServiceAdvice" />
+			
+		<aop:advisor id="uiUserPreferenceAdvisor" pointcut-ref="uiUserPreferenceOps"
+			advice-ref="txBankingServiceAdvice" />
+			
+		<aop:advisor id="uploadBatchCreateFileAdvisor" pointcut-ref="uploadBatchCreateFileOps"
+			advice-ref="txMessagingAdvice" />
+			
+		<aop:advisor id="uploadBatchStatusAdvisor" pointcut-ref="uploadBatchStatusOp"
+			advice-ref="txMessagingAdvice" />
+			
+	</aop:config>
+
+	<!-- Transaction Advice configurations -->
+	<tx:advice id="txAsyncPmtServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- Read  Methods -->
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS"
+				isolation="READ_COMMITTED" />
+			<!-- All other Methods -->
+			<tx:method name="*" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txBankingServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- Read  Methods -->
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS"
+				isolation="READ_COMMITTED" />
+			<!-- All other Methods -->
+			<tx:method name="*" propagation="REQUIRED"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<!-- For approvePendingAccount method-->
+            <tx:method name="approvePendingAccount" propagation="REQUIRED"
+	            isolation="READ_COMMITTED" rollback-for="java.lang.Exception"   
+                no-rollback-for="com.s1.common.accounts.exception.MultiBankAcctAcrossCorpsException,com.s1.common.accounts.exception.DuplicateAccountAcrossCorpsException" />	
+            <tx:method name="updateForBatchOnly" propagation="REQUIRED"
+				isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception,java.rmi.RemoteException,com.s1.arch.common.ExceptionDecorator" />
+				
+			<tx:method name="createNextRecurrence" propagation="REQUIRED"
+				isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception,java.rmi.RemoteException,com.s1.arch.common.ExceptionDecorator" />
+				    
+			<tx:method name="executeData" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception,java.rmi.RemoteException,com.s1.arch.common.ExceptionDecorator" />
+				
+			<!-- SOA WIRE payment service
+				we need this because SOA use 1 transaction for full operation. In case of error from RT we still need commit transaction to DB
+			 -->	
+			<tx:method name="createWireRT" propagation="REQUIRED" 
+				rollback-for="java.lang.Exception"
+				no-rollback-for="com.s1.arch.validation.FatalValidationException" />			
+			<tx:method name="modifyRTPayment" propagation="REQUIRED" 
+				rollback-for="java.lang.Exception"
+				no-rollback-for="com.s1.arch.validation.FatalValidationException" />
+			<tx:method name="authorizeRT" propagation="REQUIRED" 
+				rollback-for="java.lang.Exception"
+				no-rollback-for="com.s1.arch.validation.FatalValidationException" />	
+			<!--End SOA Wires payment service  -->
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- NOTE: Requiring a new tx removes the guarantee of eventual consistency. -->
+	<tx:advice id="txMessagingAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txXferApproveAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="authorizeNoTransmit" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>	
+	<!-- to avoid XA-NONXA related issue  -->
+	<tx:advice	id="txMultiApprAdaptiveAuthRequiresNewTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice	id="txFisCustomerPUIDServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- GBS-76416 -->
+	<tx:advice id="txRealtimeDatabaseLoggerServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- All Methods -->
+			<tx:method name="*" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			</tx:attributes>
+	</tx:advice>
+
+</beans>

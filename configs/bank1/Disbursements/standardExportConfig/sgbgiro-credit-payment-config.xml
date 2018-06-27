@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beanio
+	xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.beanio.org/2012/03">
+
+	<!-- List of type handlers used by this configuration to parse file -->
+
+	<typeHandler name="objectIdHandler"
+		class="com.s1.frameworks.payments.exports.handlers.ObjectIdTypeHandler" />
+
+
+	<typeHandler name="s1dateHandler"
+		class="com.s1.frameworks.payments.imports.handlers.S1DateTypeHandler">
+		<property name="dateFormat" value="yyyy-MM-dd" />
+	</typeHandler>
+
+	<typeHandler name="currencyValueHandler"
+		class="com.s1.frameworks.payments.imports.handlers.CurrencyValueHandler" />
+
+	<typeHandler name="bankIdHandler"
+		class="com.s1.intl.imprt.common.StandardBankIdTypeHandler" />
+
+	<typeHandler name="translationHandler"
+		class="com.s1.frameworks.payments.exports.handlers.Translationhandler" />
+
+	<typeHandler name="SWIFTbankIdHandler"
+		class="com.s1.frameworks.payments.exports.handlers.SWIFTBankIdTypeHandler" />
+
+	<typeHandler name="OtherbankIdHandler"
+		class="com.s1.frameworks.payments.exports.handlers.OtherBankIdTypeHandler" />
+
+	<typeHandler name="SpaceHandler"
+		class="com.s1.frameworks.payments.exports.handlers.SpaceHandler" />
+
+	<typeHandler name="CountryOidHandler"
+		class="com.s1.frameworks.payments.exports.handlers.CountryOidHandler">
+		<property name="countryCdLength" value="2" />
+	</typeHandler>
+
+	<typeHandler name="CountryAlphaCdHandler"
+		class="com.s1.frameworks.payments.exports.handlers.CountryAlphaCdHandler">
+		<property name="countryCdLength" value="2" />
+	</typeHandler>
+
+
+	<typeHandler name="FreqTypHandler"
+		class="com.s1.frameworks.payments.exports.handlers.FreqTypHandler" />
+
+	<typeHandler name="ReferenceHandler"
+		class="com.s1.frameworks.payments.exports.handlers.ReferenceHandler" />
+
+	<typeHandler name="TransactionReferenceHandler"
+		class="com.s1.frameworks.payments.exports.handlers.TransactionReferenceHandler" />
+
+	<!-- Handler Definitions End -->
+
+
+	<!-- Mapping File -->
+	<stream name="Document" format="xml"
+		resourceBundle="com.s1.banking.common.imprt.user.Import-Resources">
+		<group name="CstmrCdtTrfInitn">
+			<!-- Header Record Mapping -->
+			<record name="GrpHdr" class="com.s1.banking.common.export.ExportHeaderValue"
+				occurs="0-1">
+				<field name="grpHdrMsgId" xmlName="MsgId" getter="getMsgId"
+					setter="setMsgId" />
+				<field name="grpHdrCreDtTm" xmlName="CreDtTm" getter="getCreationDateTime"
+					setter="setCreationDateTime" />
+				<field name="grpHdrNbOfTxs" xmlName="NbOfTxs" getter="getNumOfTxns"
+					setter="setNumOfTxns" />
+				<field name="grpHdrCtrlSum" xmlName="CtrlSum" getter="getControlSum"
+					setter="setControlSum" />
+				<segment name="InitgPty">
+					<field name="grpHdrInitgPtyNm" xmlName="Nm" getter="getBankName"
+						setter="setBankName" occurs="0-1" />
+					<segment name="Id" occurs="0-1">
+						<segment name="OrgId" occurs="0-1">
+							<segment name="Othr" occurs="0-1">
+								<field name="grpHdrInitgPtyId" xmlName="Id" getter="getBankIdFr"
+									setter="setBankIdFr" occurs="0-1" />
+							</segment>
+						</segment>
+					</segment>
+				</segment>
+			</record>
+			<!-- Instruction Value Mapping -->
+			<group name="instruction" class="com.s1.payments.instruction.InstructionValue"
+				xmlType="none" occurs="0+">
+				<!-- Instruction Value Mapping -->
+				<record name="PmtInf" occurs="1">
+					<field name="pmtInfPmtInfId" xmlName="PmtInfId" setter="setCustomerReference"
+						getter="getCustomerReference" typeHandler="ReferenceHandler" />
+					<field name="pmtInfPmtMtd" xmlName="PmtMtd" ignore="true"
+						literal="TRF" required="true" />
+					<segment name="PmtTpInf">
+						<segment name="LclInstrm" occurs="0-1">
+							<field name="paymentSeqNum" xmlName="Prtry" occurs="1"
+								getter="getObjectId" setter="setObjectId" typeHandler="objectIdHandler" />
+						</segment>
+					</segment>
+					<field name="pmtInfReqdExctnDt" xmlName="ReqdExctnDt" setter="setValuedate"
+						getter="getValuedate" typeHandler="s1dateHandler" occurs="0-1" />
+
+					<!-- From Account Mapping -->
+						<segment name="customerAccount" setter="setCustomerAccount"
+							getter="getCustomerAccount" class="com.s1.common.accounts.AccountHoldingValue"
+							minOccurs="1" xmlType="none">
+							<segment name="Dbtr" occurs="1">
+								<segment name="accountValue" class="com.s1.common.accounts.AccountData"
+									setter="setAccountValue" getter="getAccountValue" xmlType="none"
+									occurs="1">
+									<field name="dbtrNm" xmlName="Nm" setter="setAccountName"
+										getter="getAccountName" />
+									<segment name="DbtrAcct">
+										<segment name="Id" occurs="1">
+
+											<segment name="Othr" occurs="1">
+												<field name="dbtrAcctIBAN" xmlName="Id" occurs="1"
+													setter="setAccountId" getter="getAccountId" />
+												<field name="dbtrAcctCcy" xmlName="Ccy" setter="setIsoCurrency"
+													getter="getIsoCurrency" />
+											</segment>
+										</segment>
+									</segment>
+								</segment>
+							</segment>
+
+							<segment name="DbtrAgt">
+								<segment name="FinInstnId">
+									<field name="acctNumber" xmlName="BICFI" setter="setAccountValue"
+										getter="getAccountValue" typeHandler="SWIFTbankIdHandler"
+										occurs="0-1" />
+
+									<segment name="Othr">
+										<field name="dbtrAgtId" xmlName="Id" setter="setAccountValue"
+											getter="getAccountValue" typeHandler="OtherbankIdHandler"
+											occurs="0-1" />
+									</segment>
+								</segment>
+
+							</segment>
+						</segment>
+					
+					<segment name="CdtTrfTxInf" minOccurs="1" maxOccurs="unbounded"
+						getter="getLineItems" setter="setLineItems" collection="list"
+						class="com.s1.payments.instruction.LineItemValue">
+						<segment name="PmtId" occurs="1">
+							<field name="cdtTrfTxInfEndToEndId" xmlName="EndToEndId"
+								occurs="1" setter="setBeneficiaryReference" getter="getBeneficiaryReference" />
+						</segment>
+
+
+						<!-- Amount Mapping -->
+						<segment name="Amt">
+							<segment name="InstdAmt" occurs="0-1"
+								class="com.s1.arch.i18n.currency.Money" setter="setAmount"
+								getter="getAmount">
+								<field name="cdtTrfTxInfInstdAmtCcy" xmlName="Ccy" setter="setType"
+									getter="getType" literal="EUR" xmlType="attribute" typeHandler="currencyValueHandler"
+									required="true" />
+								<field name="cdtTrfTxInfInstdAmt" xmlName="InstdAmt" type="bigdecimal"
+									setter="setValue" getter="getValue" xmlType="text" required="true" />
+							</segment>
+						</segment>
+						<segment name="target" class="com.s1.payments.target.ThirdPartyValue"
+							xmlType="none">
+							
+								<segment name="CdtrAgt">
+									<segment name="FinInstnId">
+										<field name="cdtrAgtBIC" xmlName="BICFI" setter="setBankIdentifier"
+											getter="getBankIdentifier" />
+									</segment>
+								</segment>
+								<segment name="Cdtr">
+									<field name="recipientName" xmlName="Nm" setter="setName"
+										getter="getName" occurs="1" />
+								</segment>
+								<segment name="CdtrAcct" occurs="1">
+									<segment name="Id" occurs="1">
+										<segment name="Othr" occurs="1">
+											<field name="cdtrAcctIBAN" xmlName="Id" setter="setAccountNumber"
+												getter="getAccountNumber" required="true" />
+											<field name="cdtrAcctCcy" xmlName="Ccy" default="SGD"
+												ignore="true" />
+										</segment>
+									</segment>
+								</segment>
+						</segment>
+							<segment name="Purp" occurs="0-1">
+								<field name="Cd" setter="setRecipientCategoryCode" getter="getRecipientCategoryCode"
+									occurs="0-1" />
+							</segment>
+					</segment>
+				</record>
+
+				<!-- Exchange Rate information -->
+				<record name="SplmtryData" occurs="0-1" setter="setExportSuppData"
+					getter="getExportSuppData" class="com.s1.payments.target.ExportSupplementaryDataValue">
+					<field name="PlcAndNm" xmlName="PlcAndNm" ignore="true"
+						literal="RateInf" occurs="0-1" />
+					<segment name="Envlp" occurs="0-1">
+						<segment name="Cnts" occurs="0-1">
+							<segment name="XchgRateInf" occurs="0-1">
+								<field name="UnitCcy" xmlName="UnitCcy" occurs="0-1"
+									setter="setUnitCcy" getter="getUnitCcy" />
+								<field name="XchgRate" xmlName="XchgRate" occurs="0-1"
+									setter="setXchgRate" getter="getXchgRate" />
+								<field name="CtrctId" xmlName="CtrctId" setter="setCtrctId"
+									getter="getCtrctId" occurs="0-1" />
+							</segment>
+						</segment>
+					</segment>
+				</record>
+			</group>
+		</group>
+	</stream>
+
+
+
+
+</beanio>
+		

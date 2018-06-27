@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+	 	
+	<mapping>
+		<typeA>com.s1.arch.security.challenge.QuestionValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.challengeqa.services.ChallengeQuestion</typeB>
+		<fields>
+			<field>
+				<fieldA>isCaseSensitive</fieldA>
+				<fieldB>isCaseSensitive</fieldB>
+			</field>
+			<field>
+				<fieldA>minLength</fieldA>
+				<fieldB>minAnswerLength</fieldB>
+			</field>
+			<field>
+				<fieldA>maxLength</fieldA>
+				<fieldB>maxAnswerLength</fieldB>
+			</field>
+			<field>
+				<fieldA>setId</fieldA>
+				<fieldB>qstSetEnum</fieldB>
+			</field>
+			<field>
+				<fieldA>id</fieldA>
+				<fieldB>qstNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>text</fieldA>
+				<fieldB>qstTextMsgCd</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+</mappings>	

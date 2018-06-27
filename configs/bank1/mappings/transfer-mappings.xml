@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+ 	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.DrCrDisbursementValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.online.common.services.BusinessServiceRsType</typeB>
+		<fields>
+			<field>
+				<fieldA>disbursementValue.soaInstructionId</fieldA>
+				<fieldB>uniqueIdent</fieldB>
+			</field>
+		</fields>
+	</mapping> 		
+	
+	<mapping mapNull="false">
+	  <typeA>com.aciworldwide.pim.messages.payments.PaymentSummaryInquiryCriteriaType</typeA>
+	  <typeB>com.s1.app.disbursements.bulktransfer.dao.BulkTransferCriteria</typeB>
+	    <fields>
+			<field>
+				<fieldA>paymentIdent</fieldA>
+				<fieldB>soaInstructionId</fieldB>
+			</field>
+			<field>
+				<fieldA>paymentStatus[0]</fieldA>
+				<fieldB>statusCode</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>dateRange.fromDate</fieldA>
+				<fieldB>startDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>dateRange.toDate</fieldA>
+				<fieldB>endDate</fieldB>
+			</field>			
+		</fields>
+	</mapping>
+</mappings>

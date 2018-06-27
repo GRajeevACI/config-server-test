@@ -1,0 +1,91 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:sec="http://cxf.apache.org/configuration/security" xmlns:http="http://cxf.apache.org/transports/http/configuration"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:cxf="http://cxf.apache.org/core"
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+	http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd 
+	http://cxf.apache.org/configuration/security
+    http://cxf.apache.org/schemas/configuration/security.xsd 
+    http://cxf.apache.org/transports/http/configuration
+    http://cxf.apache.org/schemas/configuration/http-conf.xsd">
+
+
+	<import resource="gsso-outbound-ws-generic-definitions.xml" />
+
+
+	<bean id="billpayO25ProxyFactory" parent="o25ProxyFactory" lazy-init="true">
+		<property name="address" value="Address is set at runtime(programmatically)" />
+		<property name="outInterceptors">
+			<list>
+				<ref bean="billPayOutInterceptor" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor"
+		id="billPayOutInterceptor" parent="TimestampSignEncrypt_Request" lazy-init="true">
+		<constructor-arg name="props">
+		<map merge="true">
+			<entry key="encryptionUser" value="providera" /> <!-- alias of the provider -->
+		</map>
+		</constructor-arg>
+	</bean>
+		
+	<bean id="billpay_O_25_Client" factory-bean="billpayO25ProxyFactory"
+		factory-method="create" lazy-init="true">
+	</bean>
+	<bean id="CBPO25ProxyFactory" parent="o25ProxyFactory" lazy-init="true">
+		<property name="address" value="Address is set at runtime(programmatically)" />
+		<property name="outInterceptors">
+			<list>
+				<ref bean="CBPOutInterceptor" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor"
+		id="CBPOutInterceptor" parent="TimestampSignEncrypt_Request" lazy-init="true">
+		<constructor-arg name="props">
+		<map merge="true">
+			<entry key="encryptionUser" value="dollarsso" /> <!-- alias of the provider -->
+		</map>
+		</constructor-arg>
+	</bean>
+		
+	<bean id="CBP_O_25_Client" factory-bean="CBPO25ProxyFactory"
+		factory-method="create" lazy-init="true">
+	</bean>
+
+	<!-- As of UOB 512, following attributes use the value defined as part of cryptoProperties:
+			disableCNCheck, file, password and type.
+		These can easily be configured by individual third party implementation to 
+		pickup values specific to the third party.
+	-->
+	<http:conduit name="{http://com.aciworldwide/gsso}GSSOPort.http-conduit" id="abstractHttpConduit" depends-on="cryptoProperties">
+		<http:tlsClientParameters secureSocketProtocol="SSL"  disableCNCheck="#{cryptoProperties.getProperty(DISABLE_CN_CHECK)}">
+<!-- 			<sec:keyManagers keyPassword="#{cryptoProperties.getProperty(KEYSTORE_PRIVATE_PASSWORD)}" >
+				<sec:keyStore file="#{cryptoProperties.getProperty(KEYSTORE_FILE)}"
+					password="#{cryptoProperties.getProperty(KEYSTORE_PASSWORD)}" type="#{cryptoProperties.getProperty(KEYSTORE_TYPE)}" />
+			</sec:keyManagers> -->
+			<sec:trustManagers>
+				<sec:keyStore file="#{cryptoProperties.getProperty(TRUSTSTORE_FILE)}"
+					password="#{cryptoProperties.getProperty(TRUSTSTORE_PASSWORD)}" type="#{cryptoProperties.getProperty(TRUSTSTORE_TYPE)}" />
+			</sec:trustManagers>
+			<sec:cipherSuitesFilter>
+				<!-- these filters ensure that a ciphersuite with export-suitable or 
+					null encryption is used, but exclude anonymous Diffie-Hellman key change 
+					as this is vulnerable to man-in-the-middle attacks -->
+				<sec:include>.*_EXPORT_.*</sec:include>
+				<sec:include>.*_EXPORT1024_.*</sec:include>
+				<sec:include>.*_WITH_DES_.*</sec:include>
+				<sec:include>.*_WITH_AES_.*</sec:include>
+				<sec:include>.*_WITH_NULL_.*</sec:include>
+				<sec:exclude>.*_DH_anon_.*</sec:exclude>
+			</sec:cipherSuitesFilter>
+		</http:tlsClientParameters>
+	</http:conduit>	
+	
+
+</beans>

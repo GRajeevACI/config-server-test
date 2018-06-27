@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd" default-init-method="initialize">
+		
+		<bean id="configPropertiesPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties" ref="configProperties" />
+	</bean>
+   	
+  	<bean id="configProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:config/ep/corpbanking.properties"/>
+	</bean>
+		
+	<bean id="realTimeAccountService" class="com.s1.app.bank.accounts.realtime.RealTimeAccountServiceImpl" init-method="initialize" depends-on="springGrndsBootstrap">
+		<!--       	
+		<property name="localAccounts">
+      	<list>
+      		<ref bean="accountHoldingValue"></ref>
+      	</list>
+      	</property> -->
+      	<property name="customerAccountDAO" ref="customerAccountMapper" />
+      	<property name="accountDAO" ref="accountMapper" />
+      	<property name="statementDAO" ref="currentDayStatementMapper" />
+      	<property name="statementDetailDAO" ref="currentDayStatementDetailMapper" />
+      	<property name="ifxRealTimeAccountProcessor" ref="IFXRealTimeAccountProcessor" />      	
+      	<property name="dbType" value="${databasetype}" />
+      	<property name="balanceMapper" ref="balanceAlertEvaluatorMapper" />
+      	<property name="cdCashTransactionDao" ref="cdCashTransactionMapper" />
+      	<property name="parsedPDTransactionMapper" ref="parsedPDTransactionMapper" />
+      	
+      	<!-- <property name="accountAdapterProxy" ref="accountAdapterProxy" /> -->
+   	</bean>
+   	
+   	<bean id="parsedPDTransactionMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+     	 <property name="mapperInterface" value="com.s1.core.parser.dao.ParsedPDTransactionMapper" />
+	</bean>
+   	
+   	
+   	<bean id="maiAccountsAdapterImpl" class="com.s1.app.bank.accounts.realtime.MAIAccountAdapterProxyImpl" lazy-init="true" init-method="initialize" depends-on="springGrndsBootstrap">
+   		<property name="adapterURL" value="${Account.adapter.1}"/>
+   		<property name="accountProxyTimeOut" value="${Adapter.Account.TimeoutMilliSeconds}"/>
+   	</bean>
+   	
+   	<bean id= "accountAdapterProxy" class="com.s1.adapter.proxy.soap.AccountAdapterProxy" scope="prototype"></bean>
+   	
+   	<bean id="summaryFieldViewCache" class="com.s1.app.bank.accounts.SummaryFieldViewCache" init-method="initialize" scope="prototype" />
+   	
+   	
+   	<bean id="acctInqInp" class="com.s1.adapter.ns.r2001.AcctInqInp" scope="prototype" >
+   		<property name="acctInqRq" ref="acctInqRq" />
+   		<property name="signonRq" ref="signonRq" />
+   	</bean>
+   	
+   	<bean id="signonRq" class="com.s1.adapter.ns.r2001.SignonRq" scope="prototype">
+   		<property name="clientApp" ref="clientApp" />
+   		<property name="signonRqChoice" ref="signonRqChoice" />
+   	</bean>
+   	
+   	<bean id="clientApp" class="com.s1.adapter.ns.r2001.ClientApp" scope="prototype"></bean>
+   	
+	<bean id="signonRqChoice" class="com.s1.adapter.ns.r2001.SignonRqChoice" scope="prototype"></bean>
+   	
+   	
+   	<bean id="acctInqRq" class="com.s1.adapter.ns.r2001.AcctInqRq" scope="prototype" >
+   		<property name="acctInqRqChoice" ref="acctInqRqChoice" />
+   		<property name="incBal" value="true" />
+   		<property name="incExtBal" value="true" />
+   		<!-- <property name="rqUID" ref="rqUID" /> -->
+   		<property name="routeInfo" ref="routeInfo" />
+   		<property name ="custId" ref="custId"/>
+   	</bean>
+   	
+   	
+   	<bean id="acctInqRqChoice" class="com.s1.adapter.ns.r2001.AcctInqRqChoice" scope="prototype" />
+   	
+   	<bean id="rqUID" class="com.s1.arch.utilities.UUID" scope="prototype" />
+   	
+   	<bean id="routeInfo" class="com.s1.adapter.ns.r2001.RouteInfo" scope="prototype" >
+   		<property name="bankInfo" ref="bankInfo" />
+   	</bean>
+   	
+   	<bean id="custId" class="com.s1.adapter.ns.r2001.CustId" scope="prototype" />
+   	
+   	<bean id="bankInfo" class="com.s1.adapter.ns.r2001.BankInfo" scope="prototype" />
+   	
+   	<bean id="depAcctId" class="com.s1.adapter.ns.r2001.DepAcctId" scope="prototype">
+   		<property name="bankInfo" ref="bankInfo" />
+   	</bean>
+   	
+   	<bean id="cardAcctId" class="com.s1.adapter.ns.r2001.CardAcctId" scope="prototype">
+   		<property name="bankInfo" ref="bankInfo" />
+   	</bean>
+   	
+   	<bean id="loanAcctId" class="com.s1.adapter.ns.r2001.LoanAcctId" scope="prototype">
+   		<property name="bankInfo" ref="bankInfo" />
+   	</bean>
+   	
+   	<bean id="realTimeAdapterBeanPostProcessor" class="com.s1.spring.postprocessor.realtime.RealTimeAdapterBeanPostProcessor" depends-on="springGrndsBootstrap"/>
+   
+   	<bean id="currentDayStatementDetail" class="com.s1.common.accounts.statement.model.CurrentDayStatementDetail" scope="prototype" />
+   
+   	<bean id="currentDayStatementExample" class="com.s1.common.accounts.statement.model.CurrentDayStatementExample" scope="prototype" />
+   
+   	<bean id="currentDayStatementDetailExample" class="com.s1.common.accounts.statement.model.CurrentDayStatementDetailExample" scope="prototype" />
+   
+   <bean id="customerAccountAdapter" class="com.s1.common.accounts.CustomerAccountAdapter" />
+   
+    <bean id="IFXRealTimeAccountProcessor" class="com.s1.app.bank.accounts.realtime.IFXRealTimeAccountProcessor">
+		<property name="currentDayStatementDAO" ref="currentDayStatementMapper" />
+		<property name="dateFormatToConvert" value="yyyy-MM-dd HH:mm:ss.SSS" />		
+    </bean>
+	
+	<!-- Start of bean definitions for SvcAcctInq  -->
+	
+	<bean id="svcAcctInqInp" class="com.s1.adapter.ns.r2001.SvcAcctInqInp" scope="prototype" >
+		<property name="svcAcctInqRq" ref="svcAcctInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="svcAcctInqRq" class="com.s1.adapter.ns.r2001.SvcAcctInqRq" scope="prototype" >
+		<property name ="custId" ref="custId"/>
+		<property name ="incAdditDetail" value="true"/>
+		<property name ="incBal" value="true"/>
+		<property name ="incDetail" value="true"/>
+		<property name ="incExtBal" value="true"/>
+	</bean>
+	
+	<!-- End of bean definitions for SvcAcctInq  -->
+	
+	<bean id="accountAdapter" class="com.s1.app.bank.accounts.AccountAdapterModel" scope="prototype" />
+	
+	<!-- Start of bean definitions for transactions retrieval  -->
+	
+	<bean id="realTimeTransactionService" class="com.s1.app.bank.accounts.realtime.RealTimeTransactionServiceImpl" init-method="initialize" />
+	
+	<bean id="selRangeDtTypeSequence" class="com.s1.adapter.ns.r2001.SelRangeDt_TypeSequence" scope="prototype"/>
+	
+	<bean id="selRangeDt" class="com.s1.adapter.ns.r2001.SelRangeDt" scope="prototype" >
+		<property name="selRangeDt_TypeSequence" ref="selRangeDtTypeSequence" />
+	</bean>
+
+	<bean id="dtRange" class="com.s1.adapter.ns.r2001.DtRange" scope="prototype" />
+
+	
+	<bean id="depAcctMemoInqRq" class="com.s1.adapter.ns.r2001.DepAcctMemoInqRq" scope="prototype" >
+		<property name="selRangeDt" ref="selRangeDt" />
+		<property name="custId" ref="custId" />
+		<property name="depAcctId" ref="depAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>	
+	
+	<bean id="depAcctMemoInqInp" class="com.s1.adapter.ns.r2001.DepAcctMemoInqInp" scope="prototype">
+		<property name="depAcctMemoInqRq" ref="depAcctMemoInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>	
+	
+	<bean id="ccAcctMemoInqRq" class="com.s1.adapter.ns.r2001.CCAcctMemoInqRq" scope="prototype" >
+		<property name="selRangeDt" ref="selRangeDt" />
+		<property name="custId" ref="custId" />
+		<property name="cardAcctId" ref="cardAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+		
+	<bean id="ccAcctMemoInqInp" class="com.s1.adapter.ns.r2001.CCAcctMemoInqInp" scope="prototype">
+		<property name="CCAcctMemoInqRq" ref="ccAcctMemoInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="loanAcctMemoInqRq" class="com.s1.adapter.ns.r2001.LoanAcctMemoInqRq" scope="prototype" >
+		<property name="selRangeDt" ref="selRangeDt" />
+		<property name="custId" ref="custId" />
+		<property name="loanAcctId" ref="loanAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+		
+	<bean id="loanAcctMemoInqInp" class="com.s1.adapter.ns.r2001.LoanAcctMemoInqInp" scope="prototype">
+		<property name="loanAcctMemoInqRq" ref="loanAcctMemoInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="depAcctTrnInqRq" class="com.s1.adapter.ns.r2001.DepAcctTrnInqRq" scope="prototype" >
+		<property name="selRangeDt" ref="selRangeDt" />
+		<property name="custId" ref="custId" />
+		<property name="depAcctId" ref="depAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+		
+	<bean id="depAcctTrnInqInp" class="com.s1.adapter.ns.r2001.DepAcctTrnInqInp" scope="prototype">
+		<property name="depAcctTrnInqRq" ref="depAcctTrnInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+		
+	<bean id="CCAcctTrnInqRq" class="com.s1.adapter.ns.r2001.CCAcctTrnInqRq" scope="prototype" >
+		<property name="selRangeDt" ref="selRangeDt" />
+		<property name="custId" ref="custId" />
+		<property name="cardAcctId" ref="cardAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+		
+	<bean id="ccAcctTrnInqInp" class="com.s1.adapter.ns.r2001.CCAcctTrnInqInp" scope="prototype">
+		<property name="CCAcctTrnInqRq" ref="CCAcctTrnInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="loanAcctTrnInqRq" class="com.s1.adapter.ns.r2001.LoanAcctTrnInqRq" scope="prototype" >
+		<property name="selRangeDt" ref="selRangeDt" />
+		<property name="custId" ref="custId" />
+		<property name="loanAcctId" ref="loanAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+		
+	<bean id="loanAcctTrnInqInp" class="com.s1.adapter.ns.r2001.LoanAcctTrnInqInp" scope="prototype">
+		<property name="loanAcctTrnInqRq" ref="loanAcctTrnInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="idGenerator" class="com.s1.common.transact.batch.DefaultTransactIdGenerator" scope="prototype"/>
+
+	<bean id="transactionAdapterProxy" class="com.s1.adapter.proxy.soap.TransactionAdapterProxy" scope="prototype"/>
+			
+	<!-- End of bean definitions for transactions retrieval  -->
+	
+	<!-- For Loan Note Transaction Retrieval -->	
+	
+	<bean id="loanNoteTrnInqInp" class="com.s1.adapter.ns.r2001.LoanNoteTrnInqInp" scope="prototype">
+		<property name="loanNoteTrnInqRq" ref="loanNoteTrnInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="loanNoteTrnInqRq" class="com.s1.adapter.ns.r2001.LoanNoteTrnInqRq" scope="prototype">
+		<property name="dtRange" ref="dtRange" />
+		<property name="custId" ref="custId" />
+		<property name="loanAcctId" ref="loanAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+	<!--  For Loan Note Memo Inq Call -->
+	
+	<bean id="loanNoteMemoInqInp" class="com.s1.adapter.ns.r2001.LoanNoteMemoInqInp" scope="prototype">	                                              
+		<property name="loanNoteMemoInqRq" ref="loanNoteMemoInqRq" />
+		<property name="signonRq" ref="signonRq" />
+	</bean>
+	
+	<bean id="loanNoteMemoInqRq" class="com.s1.adapter.ns.r2001.LoanNoteMemoInqRq" scope="prototype">
+		<property name="dtRange" ref="dtRange" />
+		<property name="custId" ref="custId" />
+		<property name="loanAcctId" ref="loanAcctId" />
+		<property name="routeInfo" ref="routeInfo" />
+	</bean>
+	
+	<!-- END: For Loan Note Transaction Retrieval -->
+	
+	<bean id="accountAssociator" class="com.s1.app.bank.accounts.realtime.AccountAssociatorImpl"
+		parent="realTimeAccountService">
+	</bean>	
+	
+	<bean id="remoteStopPayment" class="com.s1.app.bank.stoppayment.RemoteStopPayment" />
+	
+	<bean id="remoteDocumentImage" class="com.s1.app.bank.documentimage.RemoteDocumentImage" />	
+	
+	<bean id="checkInquiryRemote" class="com.s1.common.transact.CheckInquiryRemote"/>
+</beans>

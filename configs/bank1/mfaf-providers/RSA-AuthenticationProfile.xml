@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:AuthenticationProfile
+	xmlns:tns="http://www.aciworldwide.com/authenticationProfileSchema"
+	xmlns:dynamicAttributes="http://www.aciworldwide.com/dynamicAttributes"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.aciworldwide.com/authenticationProfileSchema authenticationProfileSchema.xsd ">
+
+	<tns:Identifier>
+		<tns:Id>RSA</tns:Id>
+		<tns:Version>0.1</tns:Version>
+	</tns:Identifier>
+	<tns:Actions>
+		<tns:AuthenticationAction mode="OTP">
+		
+ 			<tns:Fields identifier="signing_form" widgetType="Form" columns="1">
+				<dynamicAttributes:fields identifier="signature"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass=""  maxLength="14">
+					<dynamicAttributes:FieldLabel defaultText="Enter Passcode" messageCode="AthTknEntPscd"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:FieldInnerLabel defaultText="Default Inner Label for Passcode" messageCode="signing.rsa.tickler.normal"></dynamicAttributes:FieldInnerLabel>
+					<dynamicAttributes:availabilityRules identifier="otpAvailabilityRuleId" beanName="OTPFieldAvailabilityRule"/>
+					<dynamicAttributes:validationRule id="signature">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="signing.rsa.message.signature.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="6" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="14" messageKey="signing.rsa.message.field.maxlength"/>
+						<!-- <dynamicAttributes:fieldValidationAttributes name="regex" messageKey=""></dynamicAttributes:fieldValidationAttributes> -->
+					</dynamicAttributes:validationRule>			
+				</dynamicAttributes:fields>
+				<dynamicAttributes:fields identifier="signature"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass="" maxLength="14">
+					<dynamicAttributes:FieldLabel defaultText="Enter Passcode" messageCode="AthTknEntPscd"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:FieldInnerLabel defaultText="Default Inner Label for Passcode" messageCode="signing.rsa.tickler.nextToken"></dynamicAttributes:FieldInnerLabel>
+					<dynamicAttributes:availabilityRules identifier="nextOTPAvailabilityRuleId" beanName="nextOTPFieldAvailabilityRule"/>
+				</dynamicAttributes:fields>
+			</tns:Fields>
+			
+			<tns:ActionMappings>
+				<tns:ActionMapping mode="TRANSACTION">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.TokenRequest"
+						destinationClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRq_Type" >
+						<tns:FieldMapping sourceField="passcode" destinationField="userTokenValidateInfo.passcode" />
+						<tns:FieldMapping sourceField="userId" destinationField="userTokenValidateInfo.customentIdent.ident" />
+						<tns:FieldMapping sourceField="operationName" destinationField="additionalAttributes[0].extendedFieldValue" />
+						<tns:FieldMapping sourceField="operationNameConstant" destinationField="additionalAttributes[0].extendedFieldName" />
+						<tns:FieldMapping sourceField="operationNameType" destinationField="additionalAttributes[0].extendedFieldType" />						
+						<tns:FieldMapping sourceField="externalAuthId" destinationField="userTokenValidateInfo.loginIdent" />
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.TokenResponse">
+						<!-- <tns:FieldMapping sourceField="userTokenLoginStatus.statusReason.code" destinationField="userTokenLoginStatus.statusReason.code" /> -->
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" />
+					</tns:InboundFieldMappings>
+ 					<tns:Recipient bean="rsaDirectAuthenticationProcessor" beanType="Spring" method="UserTokenValidate"/>  
+<!--   					<tns:Recipient bean="dummyAuthenticationProvider" beanType="Spring" method="UserTokenValidate"/> --> <!-- this is for testing purpose, the above commented proxy should be used instead -->
+				</tns:ActionMapping>
+
+				<tns:ActionMapping mode="LOGIN">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.TokenRequest"
+						destinationClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRq_Type" >
+						<tns:FieldMapping sourceField="passcode" destinationField="userTokenValidateInfo.passcode" />
+						<tns:FieldMapping sourceField="userId" destinationField="userTokenValidateInfo.customentIdent.ident" />
+						<tns:FieldMapping sourceField="operationName" destinationField="additionalAttributes[0].extendedFieldValue" />
+						<tns:FieldMapping sourceField="operationNameConstant" destinationField="additionalAttributes[0].extendedFieldName" />
+						<tns:FieldMapping sourceField="operationNameType" destinationField="additionalAttributes[0].extendedFieldType" />												
+						<tns:FieldMapping sourceField="externalAuthId" destinationField="userTokenValidateInfo.loginIdent" />
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.TokenResponse">
+						<!-- <tns:FieldMapping sourceField="userTokenLoginStatus.statusReason.code" destinationField="userTokenLoginStatus.statusReason.code" /> -->
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" />
+					</tns:InboundFieldMappings>
+						<tns:Recipient bean="rsaDirectAuthenticationProcessor" beanType="Spring" method="UserTokenValidate"/>
+<!-- 					<tns:Recipient bean="dummyAuthenticationProvider" beanType="Spring" method="UserTokenValidate"/>  --> <!-- this is for testing purpose, the above commented proxy should be used instead -->
+				</tns:ActionMapping>				
+			</tns:ActionMappings>
+			
+			<tns:AppToMFAFFieldMappings sourceClass="com.s1.app.signing.SigningValue"
+				destinationClass="com.aciworldwide.mfaf.request.TokenRequest">
+				<tns:FieldMapping sourceField="response" destinationField="passcode" />
+			</tns:AppToMFAFFieldMappings>
+						
+			<tns:AppToMFAFFieldMappingsV2 sourceClass="com.aciworldwide.pim.common.components.MFAHeaderType"
+				destinationClass="com.aciworldwide.mfaf.request.TokenRequest">
+				<tns:FieldMapping sourceField="passcode" destinationField="passcode" />
+			</tns:AppToMFAFFieldMappingsV2>
+									
+			<tns:StatusCodeMappings>
+			
+				<tns:StatusCodeMapping name="SUCCESS" statusCode="0" statusDisplayMode="INFO" nextStateMode="None">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.success" defaultStatusMessage="Authentication is successful"></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:StatusCodeMapping name="FAIL" statusCode="1" isSigningCountCheckRequired="true" signingStatus="0" nextStateMode="OTP" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.invalid" defaultStatusMessage="Token authentication failed. Verify your pin and token values."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:StatusCodeMapping name="REQUIRE_NEXT" statusCode="2" nextStateMode="OTP" signingStatus="1" statusDisplayMode="WARNING">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.nextTokenRequired" defaultStatusMessage="You have been put into next token mode due to invalid past attempts. Enter your next token value for successful authentication."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:StatusCodeMapping name="NEXT_FAILED" statusCode="4" nextStateMode="OTP" statusDisplayMode="WARNING" isSigningCountCheckRequired="true" signingStatus="0">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.nextTokenBad" defaultStatusMessage="Authentication failed while in the next token mode. You have either entered the token early or more tokens were generated since your last attempt. Re-enter a valid token for identification followed by a second valid token for successful authentication.."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>				
+				<tns:StatusCodeMapping name="REQUIRE_NEW_PIN" statusCode="5" nextStateMode="PIN_Change" signingStatus="2"  statusDisplayMode="WARNING" isSigningCountCheckRequired="false" additionalAttributesHandlerBean="rsaPINResetAttributesHandler">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.newPinRequired" defaultStatusMessage="Your passcode has been accepted but you are required to create a new PIN for your token.  Please follow the instructions below for creating your new PIN."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>	
+				<tns:FallbackMapping name="UNKNOWN_STATUS" statusCode="UNKNOWN" nextStateMode="OTP" signingStatus="0" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="signing.token.message.genericSystemError" defaultStatusMessage="Token authentication failed. Verify your pin and token values."></tns:ResourceBundleKey>
+				</tns:FallbackMapping>							
+				<tns:fallBackResourceBundleKey resourceBundleKey="signing.token.message.genericSystemError"></tns:fallBackResourceBundleKey>																
+			</tns:StatusCodeMappings>
+
+		</tns:AuthenticationAction>
+		
+		<tns:AuthenticationAction mode="PIN_Change">
+		
+ 			<tns:Fields identifier="signing_form" widgetType="Form" columns="1">
+				<dynamicAttributes:fields identifier="oldPin"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass=""  maxLength="16">
+					<dynamicAttributes:FieldLabel defaultText="New PIN" messageCode="AthTknNPin"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:availabilityRules identifier="newPINAvailabilityRuleId" beanName="newPINFieldAvailabilityRule"/>
+					<dynamicAttributes:validationRule id="oldPin">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="signing.rsa.message.newpin.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="3" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="8" messageKey="signing.rsa.message.field.maxlength"/>
+						<!-- <dynamicAttributes:fieldValidationAttributes name="regex" messageKey=""></dynamicAttributes:fieldValidationAttributes> -->
+					</dynamicAttributes:validationRule>
+				</dynamicAttributes:fields>
+				<dynamicAttributes:fields identifier="newPin"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass="" maxLength="16">
+					<dynamicAttributes:FieldLabel defaultText="Confirm New PIN" messageCode="AthTknCnfNPin"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:availabilityRules identifier="newPINAvailabilityRuleId" beanName="newPINFieldAvailabilityRule"/>
+					<dynamicAttributes:validationRule id="newPin">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="signing.rsa.message.confirmpin.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="3" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="8" messageKey="signing.rsa.message.field.maxlength"/>
+						<!-- <dynamicAttributes:fieldValidationAttributes name="regex" messageKey=""></dynamicAttributes:fieldValidationAttributes> -->
+					</dynamicAttributes:validationRule>					
+				</dynamicAttributes:fields>
+				<dynamicAttributes:fields identifier="signature"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass=""  maxLength="14">
+					<dynamicAttributes:FieldLabel defaultText="Passcode" messageCode="AthTknPsCode"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:availabilityRules identifier="newPINAvailabilityRuleId" beanName="newPINFieldAvailabilityRule"/>
+					<dynamicAttributes:validationRule id="signature">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="signing.rsa.message.signature.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="6" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="14" messageKey="signing.rsa.message.field.maxlength"/>
+						<!-- <dynamicAttributes:fieldValidationAttributes name="regex" messageKey=""></dynamicAttributes:fieldValidationAttributes> -->
+					</dynamicAttributes:validationRule>			
+				</dynamicAttributes:fields>
+			</tns:Fields>
+			
+			<tns:ActionMappings>
+				<tns:ActionMapping mode="TRANSACTION">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.PINChangeRequest"
+						destinationClass="com.aciworldwide.pim.messages.security.authentication.services.PINAddRq_Type">
+						<tns:FieldMapping sourceField="newPin" destinationField="PINAddInfo.PIN" />
+						<tns:FieldMapping sourceField="userId" destinationField="PINAddInfo.loginIdent" /><!-- this needs to be user id -->
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" /> <!--  old pin needs to be sent as an additional attribute for time being-->
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.security.authentication.services.PINAddRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.PINChangeResponse">
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" /> 
+					</tns:InboundFieldMappings>
+ 					<tns:Recipient bean="rsaDirectAuthenticationProcessor" beanType="Spring" method="PINAdd"/>  					
+				</tns:ActionMapping>
+				<tns:ActionMapping mode="LOGIN">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.PINChangeRequest"
+						destinationClass="com.aciworldwide.pim.messages.security.authentication.services.PINAddRq_Type">
+						<tns:FieldMapping sourceField="newPin" destinationField="PINAddInfo.PIN" />
+						<tns:FieldMapping sourceField="userId" destinationField="PINAddInfo.loginIdent" /><!-- this needs to be user id -->
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" /> <!--  old pin needs to be sent as an additional attribute for time being-->
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.security.authentication.services.PINAddRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.PINChangeResponse">
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" /> 
+					</tns:InboundFieldMappings>
+ 					<tns:Recipient bean="rsaDirectAuthenticationProcessor" beanType="Spring" method="PINAdd"/>  					
+				</tns:ActionMapping>				
+			</tns:ActionMappings>
+						
+			<tns:AppToMFAFFieldMappings sourceClass="com.s1.app.signing.SigningValue"
+				destinationClass="com.aciworldwide.mfaf.request.PINChangeRequest">
+				<tns:FieldMapping sourceField="newPin" destinationField="newPin" />
+			</tns:AppToMFAFFieldMappings>
+									
+			<tns:AppToMFAFFieldMappingsV2 sourceClass="com.aciworldwide.pim.common.components.MFAHeaderType"
+				destinationClass="com.aciworldwide.mfaf.request.PINChangeRequest">
+				<tns:FieldMapping sourceField="newPin" destinationField="newPin" />
+			</tns:AppToMFAFFieldMappingsV2>
+												
+			<tns:StatusCodeMappings>
+			
+				<tns:StatusCodeMapping name="PIN_ACCEPTED" statusCode="6" statusDisplayMode="INFO" nextStateMode="OTP" signingStatus="0">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.pinAccepted" defaultStatusMessage="Your new PIN has been accepted by the RSA server. Please wait for the next token value and re-authenticate using your new PIN."></tns:ResourceBundleKey>				
+				</tns:StatusCodeMapping>
+				<tns:StatusCodeMapping name="PIN_REJECTED" statusCode="7" isSigningCountCheckRequired="true" signingStatus="2" nextStateMode="PIN_Change" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.pinRejected" defaultStatusMessage="Your new PIN was rejected by the RSA server. Please review the requirements for the new PIN and try again."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:FallbackMapping name="UNKNOWN_STATUS" statusCode="UNKNOWN" nextStateMode="PIN_Change" signingStatus="2" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="validation.authentication.token.genericSystemError" defaultStatusMessage="Token authentication failed. Verify your pin and token values."></tns:ResourceBundleKey>
+				</tns:FallbackMapping>				
+				<tns:fallBackResourceBundleKey resourceBundleKey="validation.authentication.token.genericSystemError"></tns:fallBackResourceBundleKey>																
+			</tns:StatusCodeMappings>
+									
+		</tns:AuthenticationAction>
+		
+	</tns:Actions>
+
+</tns:AuthenticationProfile>

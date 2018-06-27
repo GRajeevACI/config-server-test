@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                           http://www.springframework.org/schema/util 
+                           http://www.springframework.org/schema/util/spring-util-2.5.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+	<security:http pattern="/logon/logoff" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="/service$" security="none" disable-url-rewriting="false"/>
+
+	<!-- For SOAP http requests, the authentication is handled via a separate 
+		validator that uses springsecurity, hence the pattern for services need to 
+		be ignored by spring security. -->
+	<security:http pattern="/service/payments/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/recipients/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/customer/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/templates/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/alert/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/securemessage/**" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/import\?wsdl.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/import\?xsd.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/transfer\?wsdl.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/transfer\?xsd.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/securemessage\?xsd.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/OnlineTransfer\?wsdl.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/OnlineTransfer\?xsd.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/OnlineTransferTemplate\?wsdl.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/OnlineTransferTemplate\?xsd.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/OnlineTransferImport\?wsdl.*" security="none" disable-url-rewriting="false"/>
+	<security:http request-matcher="regex" pattern="^/service/OnlineTransferImport\?xsd.*" security="none" disable-url-rewriting="false"/>
+
+	
+	<security:http request-matcher="regex" pattern="^/service/rest\?_wadl.*" security="none" disable-url-rewriting="false"/>
+	
+	<security:http pattern="/service/manage/account/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/manage/user/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/enabledFeatures/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/onlinetransfer/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/transactions/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/standardbanks/**" security="none" disable-url-rewriting="false"/>
+	<security:http pattern="/service/preferredbanks/**" security="none" disable-url-rewriting="false"/>
+
+	<!-- We want to expose the API and make it public. Hence configuring no security-->
+	<security:http pattern="/staticdoc/api/**" security="none" disable-url-rewriting="false"/>
+	
+	<security:http pattern="/api/sessionManagement/**" security="none" disable-url-rewriting="false"/>
+	
+	<!-- TODO Do we need following pattern just for imports anymore? -->
+	<security:http pattern="/service/import/**" entry-point-ref="servicesAuthenticationEntryPoint"
+		auto-config="false" create-session="stateless" authentication-manager-ref="servicesAuthenticationManager" use-expressions="false" disable-url-rewriting="false">
+		<security:csrf disabled="true"/>
+	    <security:custom-filter position="FORM_LOGIN_FILTER" ref="servicesAuthenticationProcessingFilter"/>
+	    <security:intercept-url pattern="/service/import/**"
+	    	access="ROLE_CUSTOMER,ROLE_ADMIN" />
+	    <security:logout logout-url="/logout"/>
+	    
+	</security:http>
+		
+	<security:http entry-point-ref="authenticationProcessingFilterEntryPoint" auto-config="false"
+		authentication-manager-ref="UOBAuthenticationManager" use-expressions="false" disable-url-rewriting="false">		
+		<security:headers>
+			<security:frame-options disabled="true"/>
+		</security:headers>
+		<security:csrf disabled="true"/>
+		<security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrentSessionFilter"/>
+		<security:custom-filter before="CONCURRENT_SESSION_FILTER" ref="logoutFilter"/>
+		<security:custom-filter position="FORM_LOGIN_FILTER" ref="authenticationProcessingFilter"/>					
+		<security:anonymous username="roleAnonymous"/>
+		<security:intercept-url pattern="/"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/logon/targeturl"
+			access="ROLE_CUSTOMER,ROLE_ADMIN" />
+		<security:intercept-url pattern="/logon/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/userServlet/unprotected/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/unprotected/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/prototype/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/app/corp/users/reportingSSORedirect"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/app/smallbiz/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/core/app/smallbiz/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/disb/app/smallbiz/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/bank/banking/app/smallbiz/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />		
+        <security:intercept-url pattern="/core/common/utils/reports/redirect/redirectToIPortal**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" /> 
+        <security:intercept-url pattern="/sbb/common/utils/reports/redirect/redirectToIPortal**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/common/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/core/common/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/common/paymentreports/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/app/customer/corp/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/core/app/customer/corp/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />  
+		<security:intercept-url pattern="/sbb/app/customer/corp/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/app/corp/users/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />			
+		<security:intercept-url pattern="/core/banking/app/smallbiz/user/reports/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/core/app/customer/corp/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/ui/common/home/overlay**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/sbb/app/blank**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />	
+		<security:intercept-url pattern="/disbursementscsr/**"
+			access="ROLE_ADMIN" />
+		<security:intercept-url pattern="/csr/**"
+			access="ROLE_ADMIN" />
+		<security:intercept-url pattern="/**"
+			access="ROLE_CUSTOMER,ROLE_ADMIN" />
+		<security:access-denied-handler error-page="/logon/logonpage"/><!-- to do change this to something else to align with the new ui -->
+	</security:http>	
+
+	
+    <!-- AuthenticationManager related beans -->	
+	<bean id="UOBSwitchToAuthenticationService" class="com.s1.spring.security.authproviders.UOBSwitchToAuthenticationService">
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="userSecurityService" ref="userSecurityService" />
+		<property name="preAuthenticationChecks" ref="preAuthenticationChecks" />
+		<property name="holdingCompanyService" ref="holdingCompanyService"/>
+		<property name="companyService" ref="companyService" />		
+		<property name="authorizationService" ref="authorizationService" />
+		<property name="systemWorkerService" ref="systemWorkerService" />
+	</bean>
+
+
+	<bean name="webSphereSessionInvalidator" class="com.s1.spring.security.session.WebSphereSessionInvalidator"/>
+
+	 <!-- Mobile related beans like mobileAuthenticationService, mobileAuthenticationManager, daoAuthenticationProvider and mobileAuthenticationProvider are moved to security-config-common.xml  -->	
+		
+	<bean id="jsr303-Validator"
+		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+		
+	<bean id="intrusionDetector" class="com.s1.security.IntrusionDetector">
+		<property name="validator" ref="jsr303-Validator" />
+	</bean>
+
+	<import resource="mfaf-security-config.xml"/>
+
+</beans>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.CheckNumberClearedMapper">
+
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'chkNoCleared'
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy 
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct																			  
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'account'
+											AND bapvAcct.IntegerValue = #{accountOid}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAmt.BnkAlrtSbscrptnKy 
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAmt																				  
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAmt.BnkAlrtSbscrptnKy
+											AND bapvAmt.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'checkNo'
+											AND bapvAmt.TextValue = #{checkNo}
+										)
+	</select>
+	
+</mapper>

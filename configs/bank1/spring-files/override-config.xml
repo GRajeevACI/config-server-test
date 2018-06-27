@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+	
+	<!-- 
+	  This file serves as a stand-in for any settings that need to be made which will override any spring configuration already specified.
+	  
+	  Typically, a customized version of this file should be placed on top of this empty template for deployments which require overridden spring
+	  configuration that is not specific to a particular application server.
+	  -->
+</beans>

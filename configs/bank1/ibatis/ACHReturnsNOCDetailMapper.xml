@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCDetailMapper" >
+  
+	<insert id="insert" parameterType="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsAndNOCsEntryDetailHoldingObject">
+		INSERT INTO BNKACHRETNOCENTRYDETHLDG
+		   (BNKACHRETNOCENTRYDETHLDGKY,
+			BNKACHRETNOCHLDGKY,
+			BATAUDITKY,
+			BATCHKEY,
+			AMOUNT,
+			RECEIVERNAME,	 
+			RECEIVERID,
+			RECEIVERACCOUNTNUMBER,
+			RECEIVERROUTINGNUMBER,
+			ORIGINTRACE,
+			RETURNTRACE,
+			CORRECTION,
+			RETURNORNOCCODE
+			)
+		VALUES (
+		    #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+		    #{achReturnsAndNOCsHoldingOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+		    #{batAuditKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+		    #{batchKey,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+		    #{amount,jdbcType=INTEGER,handler=org.apache.ibatis.type.BigDecimalTypeHandler},
+		    #{receiverName,jdbcType=VARCHAR},
+		    #{receiverId,jdbcType=VARCHAR},
+			#{receiverAccountNumber,jdbcType=VARCHAR},
+			#{receiverRoutingNumber,jdbcType=VARCHAR},
+			#{originTrace,jdbcType=VARCHAR},
+			#{returnTrace,jdbcType=VARCHAR},
+			#{correction,jdbcType=VARCHAR},
+		    #{returnOrNocCode,jdbcType=VARCHAR}
+			)
+	</insert>	  
+</mapper>

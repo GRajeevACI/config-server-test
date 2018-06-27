@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.management.bank.components.BankSummaryCriteriaType</typeA>
+		<typeB>com.s1.common.bank.common.BankFilterDefinition</typeB>
+		<fields>
+			<field>
+				<fieldA>bankName</fieldA>
+				<fieldB>bankName</fieldB>
+			</field>
+			<field>
+				<fieldA>bankIDType</fieldA>
+				<fieldB>bankIdTypeCodeValue</fieldB>
+			</field>
+			<field>
+				<fieldA>bankID</fieldA>
+				<fieldB>bankIdentifier</fieldB>
+			</field>
+			<field>
+				<fieldA>city</fieldA>
+				<fieldB>city</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2StateCodeToKeyConverter">
+				<fieldA>state</fieldA>
+				<fieldB>state</fieldB>
+			</field>
+			<field>
+				<fieldA>country</fieldA>
+				<fieldB>country</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	<mapping mapNull="false">
+		<typeA>com.s1.common.bank.value.StandardBankValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.management.bank.components.BankDetailType</typeB>
+		<fields>
+			<field>
+				<fieldA>bankName</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field>
+				<fieldA>nationalIdentifier</fieldA>
+				<fieldB>bankID</fieldB>
+			</field> 
+			<field>
+				<fieldA>city</fieldA>
+				<fieldB>city</fieldB>
+			</field>
+			<field reverse="true" customConverter="com.aciworldwide.arch.service.transformation.converter.CountryCodeConverter">
+				<fieldA>countryDescription</fieldA>
+				<fieldB>country</fieldB>
+			</field>
+			<field>
+				<fieldA>addressLine1</fieldA>
+				<fieldB>address</fieldB>
+			</field>
+			<field>
+				<fieldA>addressLine2</fieldA>
+				<fieldB>addressLine</fieldB>
+			</field>
+			<field reverse="true" customConverter="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2StateCodeToKeyConverter">
+				<fieldA>state</fieldA>
+				<fieldB>state</fieldB>
+			</field>
+			<field>
+				<fieldA>zipPostalCode</fieldA>
+				<fieldB>zipCode</fieldB>
+			</field>
+		</fields>
+	</mapping>
+</mappings>

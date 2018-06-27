@@ -1,0 +1,347 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<!-- =================================================================== 
+	  -  Provide custom beans to support logging and simulation handlers
+	  -  for development debug and testing.
+	  -  ===================================================================-->
+	
+	<bean id="prepareForWebService" class="com.s1.payments.process.async.handler.ExportPaymentXml">
+		<property name="expectedTypes" value="ANY" />
+		<property name="requestTransformMap">	
+			<ref bean="maiISOTransformMap"/>
+		</property>
+		<property name="paymentCategoryMap">
+			<ref bean="paymentCategoryMappings"/>	
+		</property>
+		<property name="contextParameters">
+			<ref bean="threadContextKeys" />
+		</property>	
+		<property name="parameters">
+			<util:map>
+				<entry key="includeInstructionXML" value="true"/>	
+			</util:map>	
+		</property>
+	</bean>	
+	
+	<bean id="createISOwithMultiInstruction" class="com.s1.payments.process.async.handler.MultiExportPaymentXml">
+		<!--  For debugging purposes to log the ISO with instruction XML -->
+		<property name="expectedTypes" value="ANY DELEGATE" />
+		<property name="requestTransformMap">
+			<util:map>
+				<entry key="*">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.001.001.03.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.credit.itlspcr">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/Sepa-pain.001.001.03.xsl</value>
+					</util:list>	
+				</entry>								
+				<entry key="add.credit.itlilv">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.itlilv">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.credit.caaft">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/CAAFT_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.caaft">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/CAAFT_pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.credit.sgbgiro">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SGBGIRO_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.sgbgiro">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SGBGIRO_pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.spdd">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.008.001.02.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.sadom">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SA_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.saint">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SA_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+			</util:map>
+		</property>
+		<property name="paymentCategoryMap">
+			<ref bean="paymentCategoryMappings"/>	
+		</property>
+		<property name="contextParameters">
+			<ref bean="threadContextKeys" />
+		</property>		
+		<property name="parameters">
+			<util:map>
+				<entry key="includeInstructionXML" value="false"/>	
+			</util:map>	
+		</property>
+	</bean>	
+	
+		
+	<bean id="createISOwithInstruction" class="com.s1.payments.process.async.handler.ExportPaymentXml">
+		<!--  For debugging purposes to log the ISO with instruction XML -->
+		<property name="expectedTypes" value="ANY DELEGATE" />
+		<property name="requestTransformMap">
+			<util:map>
+				<entry key="*">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.001.001.03.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.credit.caaft">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/CAAFT_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.caaft">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/CAAFT_pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.colsvc">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.009.001.01.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="modify.colsvc">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.010.001.01.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="delete.colsvc">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.011.001.01.xsl</value>
+					</util:list>	
+				</entry>
+			</util:map>
+		</property>
+		<property name="paymentCategoryMap">
+			<ref bean="paymentCategoryMappings"/>	
+		</property>
+		<property name="contextParameters">
+			<ref bean="threadContextKeys" />
+		</property>		
+		<property name="parameters">
+			<util:map>
+				<entry key="includeInstructionXML" value="true"/>	
+			</util:map>	
+		</property>
+	</bean>	
+	
+	<!-- =================================================================================== 
+	  -  Log and send the MAI CustCreditTransferInitiation message with ISO.
+	  -  This logs the output of each XML transform step separately, then does the 
+	  -  full transform pipeline and sends the message.
+	  -  =================================================================================== -->	
+	<util:list id="maiISOHandlersLogged" value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<!-- Start Debug logging -->
+		<ref bean="prepareInstructionXML" />
+		<ref bean="logInstructionNode" />
+		<ref bean="createISOwithInstruction" />
+		<ref bean="logISOWithInstruction" />
+		<ref bean="prepareForWebService" />
+		<ref bean="logMaiCustomNode" />
+		<!-- End Debug logging -->
+		<ref bean="maiISOWebServiceCall" />
+		<ref bean="prepareOperationComplete" />
+		<ref bean="logDelegateMethod" />
+		<ref bean="sendAsyncReply" />
+	</util:list>
+
+	<util:list id="intlISOHandlersLogged" value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<!-- Start Debug logging -->
+		<ref bean="createISOwithMultiInstruction" />
+		<ref bean="executeComplete"/>
+		<ref bean="logISOWithInstruction" />
+	</util:list>
+	
+	<!-- =================================================================================== 
+	  -  Simulate send/reply using ISO pain.001.001.03
+	  -  =================================================================================== -->
+	<util:list id="simulationHandlers" value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<ref bean="prepareForSend" />
+		<ref bean="logISOWithInstruction" />
+		<ref bean="simulateSendWithReply" />
+		<ref bean="importServiceStatus" />
+		<ref bean="prepareOperationComplete" />
+		<ref bean="sendAsyncReply" />
+	</util:list>
+
+	<util:list id="logSimulationHandlers" value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<ref bean="prepareInstructionXML" />
+		<ref bean="logInstructionNode" />
+		<ref bean="prepareForSend" />
+		<ref bean="logISOWithInstruction" />
+		<ref bean="simulateSendWithReply" />
+		<ref bean="logISOWithInstruction" />
+		<ref bean="importServiceStatus" />
+		<ref bean="logInstructionNode" />
+		<ref bean="prepareOperationComplete" />
+		<ref bean="logDelegateMethod" />
+		<ref bean="sendAsyncReply" />
+	</util:list>
+
+	<bean id="prepareInstructionXML" class="com.s1.payments.process.async.handler.ExportPaymentXml">
+		<property name="expectedTypes" value="ANY DELEGATE" />
+		<property name="contextParameters">
+			<ref bean="threadContextKeys" />
+		</property>		
+		<property name="parameters">
+			<util:map>
+				<entry key="includeInstructionXML" value="true"/>	
+			</util:map>	
+		</property>
+	</bean>
+
+	<bean id="prepareForSend" class="com.s1.payments.process.async.handler.ExportPaymentXml">
+		<property name="expectedTypes" value="ANY" />
+		<property name="requestTransformMap">
+			<ref bean="maiISOTransformMap" />
+		</property>
+	</bean>
+	
+	<bean id="simulateSendWithReply" class="com.s1.payments.process.async.handler.TransformPaymentXml">
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+		<property name="transforms">	
+			<util:list value-type="java.lang.String">
+				<value>xsl/toISO/pain.002.001.03.xsl</value>
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="importServiceStatus" class="com.s1.payments.process.async.handler.TransformPaymentXml">
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+		<property name="transforms">	
+			<util:list value-type="java.lang.String">
+				<value>xsl/fromISO/isoToServiceStatus.xsl</value>
+			</util:list>
+		</property>
+	</bean>
+	
+	<bean id="logDelegateMethod" class="com.s1.payments.process.async.handler.LogDelegateMethod">
+		<property name="directory" value="${async.process.xml.logs.status}" />
+		<property name="expectedTypes" value="DELEGATE" />
+	</bean>
+
+	<bean id="logInstructionNode" class="com.s1.payments.process.async.handler.LogPaymentXml">
+		<property name="directory" value="${async.process.xml.logs.instruction}" />
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+	</bean>
+	
+	<util:list id="batchInstructionHandler" value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<ref bean="batchPrepareInstructionXML" />
+		<ref bean="logInstructionNode" />
+	</util:list>
+	
+	<bean id="batchPrepareInstructionXML" class="com.s1.payments.process.async.handler.BatchExportPaymentXml">
+		<property name="expectedTypes" value="ANY DELEGATE" />
+		<property name="contextParameters">
+			<ref bean="threadContextKeys" />
+		</property>	
+		<property name="nodesToAppend">
+			<util:list value-type="java.lang.String">
+				<value>PmtInf</value>
+				<value>SplmtryData</value>
+			</util:list>
+		</property>	
+		<property name="requestTransformMap">
+			<util:map>
+				<entry key="*">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.001.001.03.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.itlspcr">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/Sepa-pain.001.001.03.xsl</value>
+					</util:list>	
+				</entry>								
+				<entry key="add.credit.itlilv">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.itlilv">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.credit.caaft">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/CAAFT_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.caaft">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/CAAFT_pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.credit.sgbgiro">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SGBGIRO_pain.001.001.05.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.sgbgiro">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SGBGIRO_pain.008.001.04.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.debit.spdd">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/pain.008.001.02.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.sadom">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SA_pain.001.001.05`.xsl</value>
+					</util:list>	
+				</entry>
+				<entry key="add.saint">
+					<util:list value-type="java.lang.String">
+						<value>xsl/toISO/SA_pain.001.001.05`.xsl</value>
+					</util:list>	
+				</entry>
+			</util:map>
+		</property>
+		<!-- <property name="parameters">
+			<util:map>
+				<entry key="includeInstructionXML" value="false"/>	
+			</util:map>	
+		</property> -->
+	</bean>
+	
+	<bean id="logISOWithInstruction" class="com.s1.payments.process.async.handler.LogPaymentXml">
+		<property name="directory" value="${async.process.xml.logs.iso}" />
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+	</bean>	
+	
+	<bean id="logMaiCustomNode" class="com.s1.payments.process.async.handler.LogPaymentXml">
+		<property name="directory" value="${async.process.xml.logs.mai}" />
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+	</bean>
+</beans>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  			    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+
+    <jee:jndi-lookup id="asyncPmntTrnsMultiApprQueueConnectionFactory"
+		jndi-name="jms/AsyncPmntTrnsMultiApprQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="asyncPmntTrnsMultiApproveProcessQueue"
+		jndi-name="jms/AsyncPmntTrnsMultiApprQueue" />
+		
+    <bean id="paymentTransferMultiApprRSAProcessTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncPmntTrnsMultiApprQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncPmntTrnsMultiApproveProcessQueue"/>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<bean id="asyncPmntTrnsMultiApprProcessMessageListener"
+		class="com.s1.app.adaptiveauth.rsa.txnmonitoring.async.AsyncPaymentTransferMultiApproveProcessMDB">
+		<property name="multiApproveAdaptiveAuthHandlerService" ref="multiApproveAdaptiveAuthHandlerService"/>
+	</bean>
+
+	<bean id="asyncPmntTrnsMultiApprProcessTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="asyncPmntTrnsMultiApprProcessMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		
+		<property name="connectionFactory" ref="asyncPmntTrnsMultiApprQueueConnectionFactory" />		
+		<property name="destination" ref="asyncPmntTrnsMultiApproveProcessQueue" />		
+		<property name="messageListener" ref="asyncPmntTrnsMultiApprProcessMessageListener"  />		
+		<property name="taskExecutor" ref="asyncPmntTrnsMultiApprProcessTaskExecutor" />		
+		<property name="transactionManager" ref="txManager" /> <!-- We do not need this , cross-check -->
+		<property name="concurrentConsumers" value="1" />		
+		<property name="maxConcurrentConsumers" value="2" />		
+		<property name="transactionTimeout" value="500" />
+	</bean>
+</beans>

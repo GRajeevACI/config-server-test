@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+	
+	<!-- 
+	  This file serves as a stand-in for any application-server-specific spring settings that need to be made.
+	  
+	  Typically, a customized version of this file should be placed on top of this empty template for deployments to application servers that
+	  require setup that is different than the built-in WebSphere 6.1 settings.
+	  -->
+</beans>

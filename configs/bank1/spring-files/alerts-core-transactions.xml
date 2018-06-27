@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<aop:config>
+
+		<aop:pointcut id="alertEvaluatorServiceOps"
+			expression="execution(public * com.s1.alerts.evaluation.EventEvaluatorService.evaluate(..))" />
+			
+		<aop:pointcut id="alertGeneratorServiceOps"
+			expression="execution(public * com.s1.alerts.generation.AlertGeneratorService.generate(..))" />
+			
+		<aop:pointcut id="alertDeliveryServiceOps"
+			expression="execution(public * com.s1.alerts.delivery.AlertDeliveryService.deliver(..))" />
+
+		<aop:pointcut id="alertServiceOps"
+			expression="execution(public * com.s1.alerts.AlertService.triggerAlertEvent(..))" />
+	
+		<aop:pointcut id="alertIfNotExistOps"
+			expression="execution(public * com.s1.alerts..*Service.*IfNotExist*(..))" />
+	 
+		<aop:pointcut id="allAlertServiceOps"
+			expression="execution(public * com.s1.alerts..*Service.*(..)) &amp;&amp; !execution(public * com.s1.alerts..*Service.*IfNotExist*(..))" />
+			
+		<aop:advisor id="alertEvaluatorServiceAdvisor" order="1"
+			pointcut-ref="alertEvaluatorServiceOps" advice-ref="txAlertRequiresNewTransactionAdvice" />
+			
+		<aop:advisor id="alertGeneratorServiceAdvisor" order="2"
+			pointcut-ref="alertGeneratorServiceOps" advice-ref="txAlertRequiresNewTransactionAdvice" />
+
+		<aop:advisor id="alertDeliveryServiceAdvisor"
+			pointcut-ref="alertDeliveryServiceOps" advice-ref="txAlertRequiresNewTransactionAdvice" />
+			
+		<aop:advisor id="alertServiceAdvisor" order="3"
+			pointcut-ref="alertServiceOps" advice-ref="txAlertRequiresNewTransactionAdvice" />
+		
+		<aop:advisor id="alertIfNotExistOps_advisor"
+			pointcut-ref="alertIfNotExistOps" 
+			advice-ref="txAlertRequiresNewSerializableTransactionAdvice" />
+		 
+		<aop:advisor id="allAlertServiceAdvisor" order="4"
+			pointcut-ref="allAlertServiceOps" advice-ref="txAlertRequiresTransactionAdvice" />
+			
+	</aop:config>
+
+	<tx:advice	id="txAlertRequiresNewTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice	id="txAlertRequiresNewReadUncommittedTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="READ_UNCOMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice	id="txAlertRequiresNewSerializableTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="SERIALIZABLE"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice	id="txAlertRequiresNoTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="NEVER" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice	id="txAlertRequiresTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+</beans>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  			    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+
+    <jee:jndi-lookup id="asyncCGQProcessQueueConnectionFactory"
+		jndi-name="jms/AsyncCGQProcessQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="asyncCGQProcessQueue"
+		jndi-name="jms/AsyncCGQProcessQueue" />
+		
+    <bean id="asyncCGQProcessTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncCGQProcessQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncCGQProcessQueue"/>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+
+	<bean id="asyncCGQProcessMessageListener"
+		class="com.s1.app.backoffice.minedata.AsyncCGQProcessMDB">
+		<property name="customerGroupService" ref="customerGroupService"/>
+	</bean>
+
+	<bean id="asyncCGQProcessTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="asyncCGQProcessMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="asyncCGQProcessQueueConnectionFactory" />
+		<property name="destination" ref="asyncCGQProcessQueue" />
+		<property name="messageListener"
+			ref="asyncCGQProcessMessageListener" />
+		<property name="taskExecutor" ref="asyncCGQProcessTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="2" />
+		<property name="transactionTimeout" value="500" />
+	</bean>
+</beans>

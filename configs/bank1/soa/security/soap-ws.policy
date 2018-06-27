@@ -1,0 +1,78 @@
+
+<wsp:Policy wsu:Id="SOAWSPolicy"
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+
+	<wsp:ExactlyOne>
+		<wsp:All>
+			<sp:AsymmetricBinding>
+				<wsp:Policy>
+					<sp:InitiatorToken>
+						<wsp:Policy>
+							<sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+								<wsp:Policy>
+									<sp:WssX509V3Token10 />
+								</wsp:Policy>
+							</sp:X509Token>
+						</wsp:Policy>
+					</sp:InitiatorToken>
+					<sp:RecipientToken>
+						<wsp:Policy>
+							<sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToInitiator">
+								<wsp:Policy>
+									<sp:WssX509V3Token10/>
+								</wsp:Policy>
+							</sp:X509Token>
+						</wsp:Policy>
+					</sp:RecipientToken>
+					<sp:AlgorithmSuite>
+						<wsp:Policy>
+							<sp:Basic128/>
+						</wsp:Policy>
+					</sp:AlgorithmSuite>
+					<sp:IncludeTimestamp/>
+					<sp:OnlySignEntireHeadersAndBody/>
+				</wsp:Policy>
+			</sp:AsymmetricBinding>
+
+
+			<sp:ContentEncryptedElements>
+				<sp:XPath xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">/soap:Envelope/soap:Body</sp:XPath>
+			</sp:ContentEncryptedElements>
+			<sp:SignedParts>
+				<sp:Body />
+			</sp:SignedParts>
+			
+			
+			<sp:TransportBinding>
+				<wsp:Policy>
+					<sp:TransportToken>
+						<wsp:Policy>
+							<sp:HttpsToken> 
+						        <wsp:Policy/> 
+						    </sp:HttpsToken> 
+						</wsp:Policy>
+					</sp:TransportToken>
+					<sp:AlgorithmSuite>
+						<wsp:Policy>
+							<sp:Basic128/>
+						</wsp:Policy>
+					</sp:AlgorithmSuite>
+					<sp:IncludeTimestamp/>
+				</wsp:Policy>
+			</sp:TransportBinding>
+			
+			
+		</wsp:All>
+	</wsp:ExactlyOne>
+	<sp:SupportingTokens>
+		<wsp:Policy>
+			<sp:UsernameToken
+				sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+				<wsp:Policy>
+					<sp:WssUsernameToken11 />
+				</wsp:Policy>
+			</sp:UsernameToken>
+		</wsp:Policy>
+	</sp:SupportingTokens>
+</wsp:Policy>

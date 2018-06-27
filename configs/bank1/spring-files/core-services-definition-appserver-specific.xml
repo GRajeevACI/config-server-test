@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+	<!-- use this data source for WebSphere	-->
+	<bean id="epDataSource" class="org.springframework.jdbc.datasource.WebSphereDataSourceAdapter">
+		<property name="targetDataSource" >
+			<bean class="org.springframework.jndi.JndiObjectFactoryBean">
+				<property name="jndiName" value="${grnds.factory.env.target.EP_DB_Interposed.javax.naming.name.j2ee}"/>
+			</bean>
+		</property>
+	</bean>
+	<bean id="epDataSourceXA" class="org.springframework.jdbc.datasource.WebSphereDataSourceAdapter">
+		<property name="targetDataSource" >
+			<bean class="org.springframework.jndi.JndiObjectFactoryBean">
+				<property name="jndiName" value="${grnds.factory.env.target.EP_DB_XA_Interposed.javax.naming.name.j2ee}"/>
+			</bean>
+		</property>
+	</bean>
+</beans>

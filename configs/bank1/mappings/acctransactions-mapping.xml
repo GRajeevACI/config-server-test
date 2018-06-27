@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.account.transaction.component.ImageType</typeA>
+	 	<typeB>com.aciworldwide.pim.messages.account.transaction.component.ImageType</typeB>
+	    	<fields>
+	        	<field customConverter="com.aciworldwide.arch.service.transformation.converter.InputStreamToByteArrayConverter">
+					<fieldA>file</fieldA>
+					<fieldB>file</fieldB>
+				</field>
+				<field>
+					<fieldA>contentType</fieldA>
+					<fieldB>contentType</fieldB>
+				</field>
+				<field>
+					<fieldA>fileName</fieldA>
+					<fieldB>fileName</fieldB>
+				</field>							
+			</fields>
+	</mapping>
+
+</mappings>

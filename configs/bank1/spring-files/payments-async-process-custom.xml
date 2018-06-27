@@ -1,0 +1,193 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean 	id="processHandlers" parent="coreProcessHandlers" 
+			class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map merge="true">
+				<entry key="SG_GIRO">
+					<ref bean="maiISOHandlersLogged" />
+				</entry>
+				<entry key="COL_INTRA">
+					<ref bean="maiISOHandlersLogged" />
+				</entry>
+				<entry key="COL_CRINT">
+					<ref bean="maiISOHandlersLogged" />
+				</entry>
+				<entry key="ITL_ILV">
+					<ref bean="batchInstructionHandler" />
+				</entry>
+				<entry key="ITL_SPCR">
+					<ref bean="batchInstructionHandler" />
+				</entry>				
+				<entry key="CA_AFT">
+					<ref bean="batchInstructionHandler" />
+				</entry>	
+				<entry key="SG_BGIRO">
+					<ref bean="batchInstructionHandler" />
+				</entry>	
+				<entry key="SP_DD">
+					<ref bean="batchInstructionHandler" />
+				</entry>
+				<entry key="SA_DOM">
+					<ref bean="batchInstructionHandler" />
+				</entry>
+				<entry key="SA_INT">
+					<ref bean="batchInstructionHandler" />
+				</entry>				
+			</map>
+		</property>
+	</bean>
+
+	<!-- ================== Process handler definitions ================== -->	
+
+	
+	<!-- =========================================================================== 
+	  -  Create and send the MAI CustCreditTransferInitiation message with ISO pain.001.001.003 
+	  -  =========================================================================== -->
+	<util:list id="maiISOHandlers" 
+		value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<ref bean="maiISOWebServiceCall" />
+		<ref bean="prepareOperationComplete" />
+		<ref bean="logDelegateMethod" />
+		<ref bean="sendAsyncReply" />
+	</util:list>
+	
+	<!-- =================================================================================== 
+	  -  Transform to MAI format with ISO pay load, send to the adapter and transform the response
+	  -  =================================================================================== -->		
+	<bean id="maiISOWebServiceCall" class="com.s1.payments.process.async.handler.SOAPCallWithReply">
+		<property name="expectedTypes" value="ANY" />
+		<property name="requestTransformMap">
+			<ref bean="maiISOTransformMap" />
+		</property>
+		<property name="responseTransformMap">
+			<ref bean="maiISOResponseTransformMap" />
+		</property>		
+		<property name="contextParameters">
+			<ref bean="threadContextKeys" />
+		</property>	
+		<property name="parameters">
+			<util:map>
+				<entry key="includeInstructionXML" value="true"/>	
+			</util:map>	
+		</property>
+		<property name="paymentCategoryMap">
+			<ref bean="paymentCategoryMappings"/>	
+		</property>
+		<!--  ==== SOAP call arguments ==== -->
+		<property name="soapMethodNameMap">
+			<ref bean="soapMethodNameMap"/>	
+		</property>	
+		<property name="targetEndpointAddress" value="${disbursements.adapter.payments.proxy.URL}"/>
+		<property name="timeout" value="${Adapter.Payment.TimeoutMilliSeconds}"/>
+		<property name="targetObjectURI" value="${disbursements.adapter.payments.proxy.ISOTargetObject}"/>
+	</bean>	
+	
+	<!-- ================== XML transform parameters ================== -->
+
+	<util:map id="soapMethodNameMap">
+		<entry key="*"        	   value="UndefinedSOAPMethod" />
+		<entry key="sggiro"        value="initiateCustCreditTransfer" />
+		<entry key="colintra"      value="initiateCustCreditTransfer" />
+		<entry key="colcrint"      value="initiateCustCreditTransfer" />
+		<entry key="coldal"        value="initiateCustCreditTransfer" />
+		<entry key="coldian"       value="initiateCustCreditTransfer" />
+		<entry key="coltrint"      value="initiateCustCreditTransfer" />
+		<entry key="coltrintr"     value="initiateCustCreditTransfer" />
+		<entry key="colinvint"     value="initiateCustCreditTransfer" />
+		<entry key="colinvintr"    value="initiateCustCreditTransfer" />
+		<entry key="create.colsvc"    value="initiateCustCreditTransfer"/>
+		<entry key="approve.colsvc"   value="initiateCustCreditTransfer"/>
+		<entry key="modify.colsvc"    value="initiateCustCreditTransfer"/>
+		<entry key="createTemplate.colsvc"    		value="initiateMandate"/>
+		<entry key="approveTemplate.add.colsvc"    	value="initiateMandate"/>	
+		<entry key="approveTemplate.modify.colsvc"	value="modifyMandate"/>	
+		<entry key="modifyTemplate.colsvc" 			value="modifyMandate"/>	
+		<entry key="deleteTemplate.colsvc" 			value="cancelMandate"/>		
+	</util:map>	
+	
+	<util:map id="maiISOTransformMap">
+		<entry key="*">
+			<ref bean="maiGenericeCustCreditTransforms"/>
+		</entry>
+		<entry key="sggiro">
+			<ref bean="bdbCustomCreditPaymentTransforms"/>
+		</entry>
+		<entry key="colintra">
+			<ref bean="bdbCustomCreditPaymentTransforms"/>
+		</entry>
+		<entry key="colint">
+			<ref bean="bdbCustomCreditPaymentTransforms"/>
+		</entry>
+	</util:map>
+	
+	<util:list id="maiGenericeCustCreditTransforms" value-type="java.lang.String">
+		<value>xsl/toISO/pain.001.001.03.xsl</value>
+		<value>xsl/mai/generic/InitiateCustCreditTransfer.xsl</value>
+	</util:list>
+	
+	<util:list id="bdbCustomCreditPaymentTransforms" value-type="java.lang.String">
+		<value>xsl/toISO/pain.001.001.03.xsl</value>
+		<value>xsl/mai/generic/InitiateCustCreditTransfer.xsl</value>
+		<value>xsl/mai/bdb/CreditPayments.xsl</value>
+	</util:list>
+		
+	<util:map id="maiISOResponseTransformMap">
+		<entry key="*">
+			<ref bean="custCreditTransferResponseTransforms"/>
+		</entry>
+	</util:map>
+			
+	<util:list id="custCreditTransferResponseTransforms" value-type="java.lang.String">
+		<value>xsl/mai/generic/InitiateCustCreditTransferResponse.xsl</value>
+	</util:list>
+	
+	<!-- ================== Thread Context key names needed by transforms ================== -->	
+	<util:list id="threadContextKeys" value-type="java.lang.String">
+		<value>affiliate_id</value>
+		<value>ChannelName</value>
+		<value>fiId</value>
+	</util:list> 
+
+	<!-- ================= Exit code mapping overrides for transmission complete ================== -->
+	<bean id="exitCodes" parent="coreExitCodes" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map merge="true">
+				<entry key="ACCP" value="sent" />
+				<entry key="RCVD" value="sent" />
+				<entry key="ACTC" value="sent" />
+				<entry key="ACSC" value="sent" />
+				<entry key="ACSP" value="sent" />
+				<entry key="ACWC" value="sent" />
+				<entry key="RJCT" value="failed" />
+				<entry key="FAIL" value="awaitingTransmission" />
+			</map>
+		</property>
+	</bean>
+	
+	<!-- ================= Mappings from payment name to payment category ================== -->
+	<bean id="paymentCategoryMappings" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="sggiro"        value="CreditIntra" />
+				<entry key="colintra"      value="CreditIntra" />
+				<entry key="colint"        value="CreditInternal" />
+				<entry key="coldal"        value="LocalTaxPmt" />
+				<entry key="coldian"       value="DianTaxPmt" />
+				<entry key="colTBD"        value="InternalXfer" />
+				<entry key="colTBD"        value="IntraXfer" />
+				<entry key="colTBD"        value="TrustXfer" />
+				<entry key="add.colsvc"    value="MandInit" />
+				<entry key="modify.colsvc" value="MandAmend" />
+				<entry key="delete.colsvc" value="MandCancel" />
+			</map>
+		</property>
+	</bean>
+	
+	<!-- ================= Include test/debug support beans ================== -->
+	<import resource="payments-async-process-custom-support.xml" />
+</beans>

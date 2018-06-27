@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd" >
+
+	<bean id="financialInstQueryCrit" class="com.aciworldwide.pim.messages.party.FinancialInstitutionQueryCriteria_Type"
+			scope="prototype"/>
+			
+	<bean id="activeorHistoricAmtAndCurr" class="com.aciworldwide.pim.iso20022.components.ActiveOrHistoricCurrencyAndAmount" scope="prototype"/>
+	<bean id="transactionAmount" class="com.aciworldwide.pim.transaction.components.TransactionAmount_Type" 
+		scope="prototype">
+		<property name="equivalentAmount" ref="activeorHistoricAmtAndCurr"></property>
+	</bean> 
+
+	<bean id="accountQueryCriteria" class="com.aciworldwide.pim.messages.account.AccountQueryCriteria_Type"
+			scope="prototype">
+		<property name="servicingInstitution" ref="financialInstQueryCrit"></property>
+	</bean>
+	
+	<bean id="additionalId" class="com.aciworldwide.pim_domain_types.pim.transaction.TransactionInstructionIdentification_Type" scope="prototype"/>
+		
+	<bean id="transferInformation" class="com.aciworldwide.pim.messages.transaction.IntraBankFundsTransferInformation_Type" 
+			scope="prototype">
+		<property name="sourceAccount" ref="accountQueryCriteria"/>
+		<property name="destinationAccount" ref="accountQueryCriteria" />
+		<property name="amount" ref="transactionAmount" />
+		<property name="additionalIdent" ref="additionalId"/>
+	</bean>
+	
+	<bean id="rqHeader" class="com.aciworldwide.pim.common.components.MessageHeader_Type" scope="prototype"/>
+	
+	<bean id="baseServiceRq" class="com.aciworldwide.pim.common.components.BaseServiceRq_Type" scope="prototype">
+		<property name="header" ref="rqHeader" />
+	</bean>		
+	
+	<bean id="intraBankFundsTransferRqProtoype" class="com.aciworldwide.pim.messages.transaction.services.IntraBankFundsTransferRq_Type"
+		scope="prototype"
+		parent="baseServiceRq">
+		<property name="transferInfo" ref="transferInformation"/>	
+	</bean>  
+
+	<bean id="transactionAmountComponent" class="com.aciworldwide.pim_domain_types.pim.transaction.TransactionAmountComponent_Type"
+		scope="prototype">
+		<property name="amount" ref="transactionAmount"/>	
+	</bean>  
+
+</beans>

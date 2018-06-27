@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.dashboard.widget.balancesChart.model.AccountBalanceView</typeA>
+		<typeB>com.aciworldwide.pim.messages.dashboardui.component.BalanceChartBalanceDetailsInfo</typeB>
+		
+		<fields>
+			<field>
+				<fieldA>accountUUID</fieldA>
+				<fieldB>accountUUID</fieldB>
+			</field>			
+			<field>
+				<fieldA>nickName</fieldA>
+				<fieldB>nickname</fieldB>
+			</field>			
+			<field>
+				<fieldA>currencyCode</fieldA>
+				<fieldB>currencyCode</fieldB>
+			</field>			
+			<field>
+				<fieldA>accountBalance</fieldA>
+				<fieldB>accountBalance</fieldB>
+			</field>
+			<field>
+				<fieldA>convertedBalance</fieldA>
+				<fieldB>convertedBalance</fieldB>
+			</field>
+			<field>
+				<fieldA>convertedCurrencyCode</fieldA>
+				<fieldB>convertedCurrencyCode</fieldB>
+			</field>			
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>accountId</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+</mappings>	
+	

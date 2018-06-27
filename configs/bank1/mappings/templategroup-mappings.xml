@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.wiretemplategroup.services.WireTemplateGroupCreateRqType
+		</typeA>
+		<typeB>com.s1.app.disbursements.templategroups.TemplateGroupValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>wireTemplateGroupName</fieldA>
+				<fieldB>groupName</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.common.components.tmpgrptemplates.WireTemplatesInfoType
+		</typeA>
+		<typeB>com.s1.app.disbursements.templategroups.GroupTemplatesValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>templateIdent</fieldA>
+				<fieldB>disbursementTemplateData.tmplSoaInstrId</fieldB>
+			</field>
+			
+			
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.wiretemplategroup.services.WireTemplateGroupsDeleteRqType
+		</typeA>
+		<typeB>com.s1.app.disbursements.templategroups.TemplateGroupValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>wireTemplateGroupName</fieldA>
+				<fieldB>groupName</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	
+	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.online.common.services.BaseListRqType
+		</typeA>
+		<typeB>com.aciworldwide.common.pagination.PagingSortingValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>offset</fieldA>
+				<fieldB>offset</fieldB>
+			</field>
+			<field>
+				<fieldA>limit</fieldA>
+				<fieldB>limit</fieldB>
+			</field>
+			<field>
+				<fieldA>sort</fieldA>
+				<fieldB>sortBy</fieldB>
+			</field>
+			<field>
+				<fieldA>sortOrder</fieldA>
+				<fieldB>sortOrder</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+	<typeA>com.s1.app.disbursements.templategroups.TemplateGroupValue
+		</typeA>
+	<typeB>com.aciworldwide.pim.common.components.tmpgrptemplates.WireTemplatesGroupsInfoType
+		</typeB>	
+		
+		<fields>
+			<field>
+				<fieldA>groupName</fieldA>
+				<fieldB>templateGroupName</fieldB>
+			</field>
+			<field>
+				<fieldA>numOfTemplate</fieldA>
+				<fieldB>numberOfTemplates</fieldB>
+			</field>
+			<field>
+				<fieldA>createPaymentEnable</fieldA>
+				<fieldB>isCreateEnabled</fieldB>
+			</field>
+			<field>
+				<fieldA>groupUUID</fieldA>
+				<fieldB>templateGroupUUID</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	
+	
+	
+	
+	<mapping mapNull="false">
+	<typeA>com.s1.app.disbursements.templategroups.GroupTemplatesValue
+		</typeA>
+	<typeB>com.aciworldwide.pim.common.components.tmpgrptemplates.WireTemplatesGroupsDetailsInfoType
+		</typeB>	
+		
+		<fields>
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.name</fieldA>
+				<fieldB>templateName</fieldB>
+			</field>
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>accountId</fieldB>
+			</field>
+			<field>
+				<fieldA>transactionTypes</fieldA>
+				<fieldB>paymentType</fieldB>
+			</field>
+			<field>
+				<fieldA>beneficiaryName</fieldA>
+				<fieldB>recipientName</fieldB>
+			</field>
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>companyAcctIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>beneficiaryName</fieldA>
+				<fieldB>recipientSummaryInfo.ident.name</fieldB>
+			</field>
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.soaInstructionId</fieldA>
+				<fieldB>paymentIdent</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	
+	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.wiretemplategroup.services.UpdateWireTemplateGroupRqType
+		</typeA>
+		<typeB>com.s1.app.disbursements.templategroups.TemplateGroupValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>wireTemplateGroupName</fieldA>
+				<fieldB>groupName</fieldB>
+			</field>
+			<field>
+				<fieldA>newWireTemplateGroupName</fieldA>
+				<fieldB>updateGroupName</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	
+	
+	<mapping mapNull="false">
+	<typeA>com.s1.app.disbursements.templategroups.GroupTemplatesValue
+		</typeA>
+	<typeB>com.aciworldwide.pim.common.components.tmpgrptemplates.WireTemplatesGroupsPaymentsInfoType
+		</typeB>	
+		
+		<fields>
+		
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.soaInstructionId</fieldA>
+				<fieldB>templateIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.name</fieldA>
+				<fieldB>templateName</fieldB>
+			</field>
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.typeCode</fieldA>
+				<fieldB>paymentType</fieldB>
+			</field>
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.isSenderReference</fieldA>
+				<fieldB>isSendersRefEditable</fieldB>
+			</field>
+			<field>
+				<fieldA>templateTransactionValue.disbursementValue.senderReference</fieldA>
+				<fieldB>senderReference</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>templateTransactionValue.isDetailsPmtEdit</fieldA>
+				<fieldB>isDetailOfPaymentEditable</fieldB>
+			</field>
+			
+		</fields>
+	</mapping>
+	
+	
+</mappings>

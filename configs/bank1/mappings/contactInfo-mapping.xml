@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.common.customer.CustomerValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.administration.services.ContactInfoDetailRsType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>address.streetAddress1</fieldA>
+				<fieldB>addressLine1</fieldB>
+			</field>
+			<field>
+				<fieldA>address.streetAddress2</fieldA>
+				<fieldB>addressLine2</fieldB>
+			</field>
+			<field>
+				<fieldA>address.streetAddress3</fieldA>
+				<fieldB>addressLine3</fieldB>
+			</field>
+			<field>
+				<fieldA>address.city</fieldA>
+				<fieldB>city</fieldB>
+			</field>
+			<field>
+				<fieldA>address.countryCode</fieldA>
+				<fieldB>countryCode</fieldB>
+			</field>
+			<field>
+				<fieldA>address.postalCode</fieldA>
+				<fieldB>zipCode</fieldB>
+			</field>
+			<field>
+				<fieldA>address.stateCode</fieldA>
+				<fieldB>stateCode</fieldB>
+			</field>
+			<field>
+				<fieldA>address.stateName</fieldA>
+				<fieldB>stateName</fieldB>
+			</field>
+			
+			<field>
+				<fieldA>companyName</fieldA>
+				<fieldB>companyName</fieldB>
+			</field>
+
+			<field>
+				<fieldA>faxNumber</fieldA>
+				<fieldB>faxNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>phoneNumber</fieldA>
+				<fieldB>phoneNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>secondaryPhoneNumber</fieldA>
+				<fieldB>secondaryPhoneNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>taxId</fieldA>
+				<fieldB>taxId</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.administration.services.ContactInfoUpdateRqType</typeA>
+		<typeB>com.s1.common.customer.CustomerValueImpl
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>addressLine1</fieldA>
+				<fieldB>address.streetAddress1</fieldB>
+			</field>
+			<field>
+				<fieldA>addressLine2</fieldA>
+				<fieldB>address.streetAddress2</fieldB>
+			</field>
+			<field>
+				<fieldA>addressLine3</fieldA>
+				<fieldB>address.streetAddress3</fieldB>
+			</field>
+			<field>
+				<fieldA>city</fieldA>
+				<fieldB>address.city</fieldB>
+			</field>
+			<field>
+				<fieldA>countryCode</fieldA>
+				<fieldB>address.countryCode</fieldB>
+			</field>
+			<field>
+				<fieldA>stateCode</fieldA>
+				<fieldB>address.stateCode</fieldB>
+			</field>
+			<field>
+				<fieldA>stateName</fieldA>
+				<fieldB>address.stateName</fieldB>
+			</field>
+			<field>
+				<fieldA>zipCode</fieldA>
+				<fieldB>address.postalCode</fieldB>
+			</field>
+			<field>
+				<fieldA>companyName</fieldA>
+				<fieldB>companyName</fieldB>
+			</field>
+
+			<field>
+				<fieldA>faxNumber</fieldA>
+				<fieldB>faxNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>phoneNumber</fieldA>
+				<fieldB>phoneNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>secondaryPhoneNumber</fieldA>
+				<fieldB>secondaryPhoneNumber</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+</mappings>

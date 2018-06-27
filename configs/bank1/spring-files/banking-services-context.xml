@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<import resource="action-items-definition.xml" />
+	<import resource="banking-services-definition.xml" />
+	<import resource="banking-aspects-definition.xml" />
+	<import resource="banking-services-transactions.xml" />
+	<import resource="banking-services-jms.xml" />
+	<import resource="cgq-process-services-jms.xml" />
+	<import resource="banking-alerts-definition.xml"/>
+	<import resource="banking-alerts-daos.xml"/>
+	<import resource="banking-alerts-transactions.xml" />
+	<import resource="banking-accounts-daos.xml"/>
+	<import resource="realtime-beans-definitions.xml"/>
+ 	<import resource="drools-beans.xml" />
+ 	<import resource="payment-transfer-multi-approve-rsa-services-jms.xml" />
+ 	<import resource="mobile-approval-services-definition.xml" />
+ 	<import resource="soa-notification-definition.xml" />
+ 	
+</beans>

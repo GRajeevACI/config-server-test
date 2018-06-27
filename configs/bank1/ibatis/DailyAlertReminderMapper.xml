@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.s1.arch.reminders.dao.DailyAlertReminderMapper">
+
+	<resultMap type="com.s1.arch.reminders.model.PasswordExpiryUsers" id="PasswordExpiryUsersMap">
+		<id column="BNKALRTSBSCRPTNKY" property="subscriptionOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKUSERKY" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="DaysToExpire" property="daysToExpiry" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<resultMap type="com.s1.arch.reminders.model.PersCodeExpiryUsers" id="PersCodeExpiryUsersMap">
+		<id column="BNKALRTSBSCRPTNKY" property="subscriptionOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKUSERKY" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="localeCdKy" property="localeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="DaysToExpire" property="daysToExpiry" jdbcType="INTEGER" />
+		<result column="customerId" property="companyId" jdbcType="VARCHAR" />
+		<result column="customerName" property="companyName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap type="com.s1.arch.utilities.AffiliateInfo" id="AffiliateInfoMap">
+		<result column="CORORGKY" property="_affiliateOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="AFFILIATEID" property="_affiliateId" jdbcType="VARCHAR" />
+		<result column="NAME" property="_affiliateName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getPersCodeExpirySubscriptions" parameterType="map"	resultMap="PersCodeExpiryUsersMap">
+		
+		SELECT b.BNKUserky, b.BNKAlrtSbscrptnKy, w.localeCdKy, w.DaysToExpire ,w.customerId, w.customerName
+		FROM 
+			BNKAlrtType a, 
+			BNKAlrtSbscrptn b, 
+			(SELECT d.BNKUserKy as userKy, 
+					u.ARCLocaleCdKy as localeCdKy, 
+					e.BNKCustomerKy as customerKy, 
+					e.CustomerId as customerId,
+					e.CustomerName as customerName,
+					e.BNKClassOfSvcKy as classOfSvcKy, 
+					days(d.PinChangeDttm + #{expirationDays} DAYS) - days(CURRENT DATE) as DaysToExpire 
+				FROM 
+					BNKOobaUser d, BNKCustomer e, BNKUser u 
+				WHERE 
+					u.BNKCustomerKy = e.BNKCustomerKy AND 
+					e.CorOrgKyFi = #{affiliateOid} AND 
+					d.BNKUserKy = u.BNKUserKy AND 
+					CURRENT TIMESTAMP &gt; (d.PinChangeDttm + (#{expirationDays} - #{reminderDays}) DAYS) AND 
+					CURRENT TIMESTAMP &lt; (d.PinChangeDttm + #{expirationDays} DAYS) 
+			) w 
+		WHERE 
+			a.AlertName = 'obaPinExpRem' AND 
+			b.BNKAlrtTypeKy = a.BNKAlrtTypeKy AND 
+			b.BNKUserky = w.userKy AND 
+			EXISTS ( 
+				<choose>
+   					<when test="isLoginSupported">
+						SELECT 1 FROM BNKCosParm p 
+						WHERE 
+							p.BNKCustomerKy = w.customerKy AND 
+							p.BNKClassOfSvcKy = w.classOfSvcKy AND 
+							p.BNKCosParmTypeKy = (SELECT BNKCosParmTypeKy FROM BNKCosParmType WHERE FieldName = 'loginAuthenticationType') AND 
+							p.ParmValue = (SELECT TO_CHAR(BNKAuthTypeKy) FROM BNKAuthType WHERE AuthTypeMsgCd = 'BNKAuthOBALgn') 
+					</when>
+					<otherwise>
+						SELECT 1 FROM SYSIBM.SYSDUMMY1 WHERE 1 &lt;&gt; 1
+					</otherwise>
+				</choose>
+			) 
+	UNION	
+		SELECT b.BNKUserky, b.BNKAlrtSbscrptnKy, w.localeCdKy, w.DaysToExpire ,w.customerId, w.customerName
+		FROM 
+			BNKAlrtType a, 
+			BNKAlrtSbscrptn b, 
+			(SELECT d.BNKUserKy as userKy, 
+					u.ARCLocaleCdKy as localeCdKy, 
+					e.BNKCustomerKy as customerKy, 
+					e.CustomerId as customerId,
+					e.CustomerName as customerName,
+					e.BNKClassOfSvcKy as classOfSvcKy, 
+					days(d.PinChangeDttm + #{expirationDays} DAYS) - days(CURRENT DATE) as DaysToExpire 
+				FROM 
+					BNKOobaUser d, BNKCustomer e, BNKUser u 
+				WHERE 
+					u.BNKCustomerKy = e.BNKCustomerKy AND 
+					e.CorOrgKyFi = #{affiliateOid} AND 
+					d.BNKUserKy = u.BNKUserKy AND 
+					CURRENT TIMESTAMP &gt; (d.PinChangeDttm + (#{expirationDays} - #{reminderDays}) DAYS) AND 
+					CURRENT TIMESTAMP &lt; (d.PinChangeDttm + #{expirationDays} DAYS) 
+			) w 
+		WHERE 
+			a.AlertName = 'obaPinExpRem' AND 
+			b.BNKAlrtTypeKy = a.BNKAlrtTypeKy AND 
+			b.BNKUserky = w.userKy AND 
+			EXISTS ( 
+				<choose>
+   					<when test="isPaymentsSupported">
+						SELECT 1 FROM BNKSvcFeature f 
+						WHERE 
+							f.BNKCustomerKy = w.customerKy AND 
+							f.BNKClassOfSvcKy = w.classOfSvcKy AND 
+							(f.BNKAuthTypeKy IN (SELECT BNKAuthTypeKy FROM BNKAuthType WHERE AuthTypeMsgCd IN ('BNKAuthOBAFin', 'BNKAuthOBAMlt')) 
+								OR 
+							 f.BNKAuthTypeKyTmpl IN (SELECT BNKAuthTypeKy FROM BNKAuthType WHERE AuthTypeMsgCd IN ('BNKAuthOBAFin', 'BNKAuthOBAMlt')) 
+							) 
+					</when>
+					<otherwise>
+						SELECT 1 FROM SYSIBM.SYSDUMMY1 WHERE 1 &lt;&gt; 1
+					</otherwise>
+				</choose>
+			) 
+			
+	</select>
+	
+	<select id="getPersCodeExpirySubscriptions-Oracle" parameterType="map" resultMap="PersCodeExpiryUsersMap">
+		
+		SELECT b.BNKUserky, b.BNKAlrtSbscrptnKy, w.localeCdKy, w.DaysToExpire ,w.customerId, w.customerName
+		FROM 
+			BNKAlrtType a, 
+			BNKAlrtSbscrptn b, 
+			(SELECT d.BNKUserKy as userKy, 
+					u.ARCLocaleCdKy as localeCdKy, 
+					e.BNKCustomerKy as customerKy, 
+					e.CustomerId as customerId,
+					e.CustomerName as customerName,
+					e.BNKClassOfSvcKy as classOfSvcKy, 
+					TRUNC(d.PinChangeDttm + #{expirationDays}) - TRUNC(SYSDATE) as DaysToExpire 
+				FROM 
+					BNKOobaUser d, BNKCustomer e, BNKUser u 
+				WHERE 
+					u.BNKCustomerKy = e.BNKCustomerKy AND 
+					e.CorOrgKyFi = #{affiliateOid} AND 
+					d.BNKUserKy = u.BNKUserKy AND 
+					SYSTIMESTAMP &gt;  CAST((d.PinChangeDttm +  #{expirationDays} -  #{reminderDays}) AS TIMESTAMP) AND 
+					SYSTIMESTAMP &lt;  CAST((d.PinChangeDttm +  #{expirationDays}) AS TIMESTAMP) 
+			) w 
+		WHERE 
+			a.AlertName = 'obaPinExpRem' AND 
+			b.BNKAlrtTypeKy = a.BNKAlrtTypeKy AND 
+			b.BNKUserky = w.userKy AND 
+			EXISTS ( 
+				<choose>
+   					<when test="isLoginSupported">
+						SELECT 1 FROM BNKCosParm p 
+						WHERE 
+							p.BNKCustomerKy = w.customerKy AND 
+							p.BNKClassOfSvcKy = w.classOfSvcKy AND 
+							p.BNKCosParmTypeKy = (SELECT BNKCosParmTypeKy FROM BNKCosParmType WHERE FieldName = 'loginAuthenticationType') AND 
+							p.ParmValue = (SELECT TO_CHAR(BNKAuthTypeKy) FROM BNKAuthType WHERE AuthTypeMsgCd = 'BNKAuthOBALgn') 
+					</when>
+					<otherwise>
+						SELECT 1 FROM DUAL WHERE 1 &lt;&gt; 1
+					</otherwise>
+				</choose>
+			)
+	UNION
+		SELECT b.BNKUserky, b.BNKAlrtSbscrptnKy, w.localeCdKy, w.DaysToExpire ,w.customerId, w.customerName
+		FROM 
+			BNKAlrtType a, 
+			BNKAlrtSbscrptn b, 
+			(SELECT d.BNKUserKy as userKy, 
+					u.ARCLocaleCdKy as localeCdKy, 
+					e.BNKCustomerKy as customerKy, 
+					e.CustomerId as customerId,
+					e.CustomerName as customerName,
+					e.BNKClassOfSvcKy as classOfSvcKy, 
+					TRUNC(d.PinChangeDttm + #{expirationDays}) - TRUNC(SYSDATE) as DaysToExpire 
+				FROM 
+					BNKOobaUser d, BNKCustomer e, BNKUser u 
+				WHERE 
+					u.BNKCustomerKy = e.BNKCustomerKy AND 
+					e.CorOrgKyFi = #{affiliateOid} AND 
+					d.BNKUserKy = u.BNKUserKy AND 
+					SYSTIMESTAMP &gt;  CAST((d.PinChangeDttm +  #{expirationDays} -  #{reminderDays}) AS TIMESTAMP) AND 
+					SYSTIMESTAMP &lt;  CAST((d.PinChangeDttm +  #{expirationDays}) AS TIMESTAMP) 
+			) w 
+		WHERE 
+			a.AlertName = 'obaPinExpRem' AND 
+			b.BNKAlrtTypeKy = a.BNKAlrtTypeKy AND 
+			b.BNKUserky = w.userKy AND 
+			EXISTS ( 
+				<choose>
+   					<when test="isPaymentsSupported">
+						SELECT 1 FROM BNKSvcFeature f 
+						WHERE 
+							f.BNKCustomerKy = w.customerKy AND 
+							f.BNKClassOfSvcKy = w.classOfSvcKy AND 
+							(f.BNKAuthTypeKy IN (SELECT BNKAuthTypeKy FROM BNKAuthType WHERE AuthTypeMsgCd IN ('BNKAuthOBAFin', 'BNKAuthOBAMlt')) 
+								OR 
+							 f.BNKAuthTypeKyTmpl IN (SELECT BNKAuthTypeKy FROM BNKAuthType WHERE AuthTypeMsgCd IN ('BNKAuthOBAFin', 'BNKAuthOBAMlt')) 
+							) 
+					</when>
+					<otherwise>
+						SELECT 1 FROM DUAL WHERE 1 &lt;&gt; 1
+					</otherwise>
+				</choose>
+			) 
+			
+	</select>
+	
+	<select id="getPasswordExpirySubscriptions" parameterType="map"	resultMap="PasswordExpiryUsersMap">
+		
+		select b.BNKUserky, b.BNKALRTSBSCRPTNKY, w.DaysToExpire
+		from
+			BNKALRTTYPE a,
+			BNKALRTSBSCRPTN b,
+			(select d.BNKUSERKY as userKy, days(a.PSWDEXPIRYDTTM) - days(sysdate) as DaysToExpire
+				from 
+					ARCUSERAUTHNTICN a, ARCIDENTITY b, BNKUSER d, BNKCustomer e
+				where a.ARCIDENTITYKY = b.ARCIDENTITYKY and
+					b.ARCPRINCIPALKY = d.ARCPRINCIPALKY and
+					d.BNKCUSTOMERKY = e.BNKCUSTOMERKY and
+					e.CORORGKYFI = #{affiliateOid} and
+					CURRENT_TIMESTAMP + #{days} DAYS &gt; PSWDEXPIRYDTTM AND
+					a.PSWDEXPIRYDTTM &gt; CURRENT_TIMESTAMP) w
+		where
+			a.AlertName = 'pwdExpRem' AND
+			b.BNKAlrtTypeKy = a.BNKAlrtTypeKy AND
+			b.BNKUserky = w.userKy
+	</select>
+	
+	<select id="getPasswordExpirySubscriptions-Oracle" parameterType="map" resultMap="PasswordExpiryUsersMap">
+		
+		select b.BNKUserky, b.BNKALRTSBSCRPTNKY, w.DaysToExpire
+		from
+			BNKALRTTYPE a,
+			BNKALRTSBSCRPTN b,
+			(select d.BNKUSERKY as userKy, (to_date(trunc(a.PSWDEXPIRYDTTM)) - to_date(trunc(sysdate))) as DaysToExpire
+				from 
+					ARCUSERAUTHNTICN a, ARCIDENTITY b, BNKUSER d, BNKCustomer e
+				where a.ARCIDENTITYKY = b.ARCIDENTITYKY and
+					b.ARCPRINCIPALKY = d.ARCPRINCIPALKY and
+					d.BNKCUSTOMERKY = e.BNKCUSTOMERKY and
+					e.CORORGKYFI = #{affiliateOid} and
+					to_timeStamp(systimestamp + #{days} )  &gt; to_timeStamp(PSWDEXPIRYDTTM) AND
+					a.PSWDEXPIRYDTTM &gt; systimestamp) w
+		where
+			a.AlertName = 'pwdExpRem' AND
+			b.BNKAlrtTypeKy = a.BNKAlrtTypeKy AND
+			b.BNKUserky = w.userKy
+	</select>
+
+	<select id="getAffiliateInfo" parameterType="string" resultMap="AffiliateInfoMap">
+		select 
+			b.CORORGKY, b.AFFILIATEID, a.NAME 
+		from 
+			CORORG a, CORAffiliateFI b 
+		where 
+			b.AFFILIATEID = #{affiliateId} and
+			a.CORORGKY = b.CORORGKY
+	</select>
+	
+	<select id="getAffiliateInfoForAll" resultMap="AffiliateInfoMap">
+		select 
+			b.CORORGKY, b.AFFILIATEID, a.NAME 
+		from 
+			CORORG a, CORAffiliateFI b 
+		where 
+			a.CORORGKY = b.CORORGKY
+	</select>
+	
+	<select id="isAlertEnabled" parameterType="map" resultType="java.lang.Boolean">
+		select a.ISENABLED from BNKALRTAFFLTOPTN a, BNKALRTTYPE b
+		where 
+			a.BNKALRTTYPEKY = b.BNKALRTTYPEKY and
+			a.CORORGKYFI = #{affiliateOid} and 
+			b.ALERTNAME = #{alertName}
+	</select>
+
+	<resultMap type="com.s1.arch.reminders.model.DailyAlertReminder" id="DailyAlertReminderMap">
+		<result column="BNKUSERKY" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="BNKCUSTOMERKY" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+	</resultMap>
+
+	<select id="getSubscribedUserAndCorporation" parameterType="string" resultMap="DailyAlertReminderMap">
+		select a.BNKUSERKY, a.BNKCUSTOMERKY 
+		from 
+			BNKUSER a, BNKCustomer b 
+		where 
+			a.BNKCUSTOMERKY = b.BNKCUSTOMERKY and
+			b.CORORGKYFI = #{affiliateOid} and
+			a.BNKUSERKY in (
+							select a.BNKUSERKY 
+							from 
+								BNKALRTSBSCRPTN a, BNKALRTTYPE b
+							where 
+								a.BNKALRTTYPEKY = b.BNKALRTTYPEKY and
+								b.ALERTNAME = #{alertName}
+						  )
+	</select>
+	
+	<resultMap type="com.s1.arch.reminders.model.ACHAuthRule" id="ACHAuthRuleMap">
+		<id column="BNKACHAUTHKY" property="achAuthKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="EXPIRATIONDATE" property="expiryDate" jdbcType="DATE" />
+		<result column="ACHAUTHNAME" property="ruleName" jdbcType="VARCHAR" />
+		<result column="BNKCUSTOMERKY" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+	</resultMap>
+	
+	<select id="getAchAuthRules" parameterType="map" resultMap="ACHAuthRuleMap">
+		select a.BNKACHAUTHKY, a.ACHAUTHNAME, a.BNKCUSTOMERKY, a.EXPIRATIONDATE 
+		from BNKACHAuth a 
+		where 
+			a.STATUSMSGCD in ('CBKAAuthAct', 'CBKAAuthWApp') and
+			EXPIRATIONDATE &gt;= DATE(CURRENT_TIMESTAMP) and
+			BNKCUSTOMERKY in
+			<foreach collection="customerOids" item="customerOid" open="(" close=")" separator=",">
+            	 #{customerOid}
+        	</foreach>
+	</select>
+	<select id="getAchAuthRules-Oracle" parameterType="map" resultMap="ACHAuthRuleMap">
+		select a.BNKACHAUTHKY, a.ACHAUTHNAME, a.BNKCUSTOMERKY, a.EXPIRATIONDATE 
+		from BNKACHAuth a 
+		where 
+			a.STATUSMSGCD in ('CBKAAuthAct', 'CBKAAuthWApp') and
+			to_date(trunc(EXPIRATIONDATE)) &gt;= sysdate  and
+			BNKCUSTOMERKY in
+			<foreach collection="customerOids" item="customerOid" open="(" close=")" separator=",">
+            	 #{customerOid}
+        	</foreach>
+	</select>
+	
+</mapper>

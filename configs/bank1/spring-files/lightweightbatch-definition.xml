@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!-- Configuration properties -->
+	<bean id="configPropertiesParent" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<!--
+		  lightweightbatch.properties should be located under s1batch/properties,
+		  which should be on the classpath.
+		  -->
+		<property name="locations">
+			<list>
+				<value>classpath:lightweightbatch.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="configProperties" parent="configPropertiesParent" />
+	<bean id="configPropertiesPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties" ref="configProperties" />
+	</bean>
+	
+	<!--
+	  The cloakPropertiesPlaceholder will use properties defined in lightweightbatch.properties to find and decrypt
+	  the cloak file, making it's properties (e.g. dbUser, dbpassword) available via $[] in this config file.
+	  -->
+	<bean id="cloakPropertiesPlaceholder" class="com.s1.spring.CloakPropertyPlaceholderConfigurer">
+		<property name="placeholderPrefix" value="$[" />
+		<property name="placeholderSuffix" value="]" />
+		<property name="config" ref="configProperties" />
+	</bean>
+	
+	<!-- Transaction Manager -->
+	<bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
+		<property name="forceShutdown" value="true" />
+	</bean>
+	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
+		<property name="transactionTimeout" value="300" />
+	</bean>
+	<bean id="tm" class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="atomikosTransactionManager" />
+		<property name="userTransaction" ref="atomikosUserTransaction" />
+	</bean>	
+	
+	<bean id="dbType" class="java.lang.String">
+		<constructor-arg value="${dbtype}" />
+	</bean>
+	<bean id="sslEnabled" class="java.lang.String">
+		<constructor-arg value="$[actuate.database.SSL.]" />
+	</bean>
+	<bean id="db2SSLConnProp" class="java.lang.String">
+		<constructor-arg value="${dbConnection.URL}:sslConnection=true;" />
+	</bean>
+	<bean id="db2NonSSLConnProp" class="java.lang.String">
+		<constructor-arg value="${dbConnection.URL}" />
+	</bean>
+	<bean id="db2Url" class="java.lang.String">
+		<constructor-arg value="#{ sslEnabled == 'true' ? db2SSLConnProp : db2NonSSLConnProp }" />
+	</bean>
+	<bean id="OracleUrl" class="java.lang.String">
+		<constructor-arg value="${dbConnection.URL}" />
+	</bean>
+	
+	<!-- Data Sources -->
+	<bean id="dataSource" class="com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean">
+		<property name="driverClassName"  value="${dbDriverName}" /> 
+		<property name="uniqueResourceName" value="dataSource" />
+		<property name="url" value="#{ dbType == 'DB2' ? db2Url : OracleUrl }" /> 
+		<property name="user" value="$[dbUser]" />
+		<property name="password" value="$[dbpassword]" />
+	</bean>
+	
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/ibatis/LightweightBatch_SqlMapConfig.xml" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory" />
+        <property name="databaseType"  value="${dbtype}" /> 
+    </bean>
+
+	<bean id="BaseMybatisDAO" abstract="true" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="dataSourceXa" class="com.atomikos.jdbc.ExtAtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="xaDataSourceClassName" value="${xaDbDriverName}" />
+		<property name="uniqueResourceName" value="dataSourceXa" />
+		<property name="databaseType"  value="${dbtype}" /> 
+		<property name="xaProperties">
+			<props>
+				<prop key="serverName">${dbHostname}</prop>
+				<prop key="portNumber">${dbPort}</prop>
+				<prop key="databaseName">${dbName}</prop>
+				<prop key="URL">${dbConnection.URL}</prop>
+				<prop key="user">$[dbUser]</prop>
+				<prop key="password">$[dbpassword]</prop>
+				<prop key="driverType">4</prop>
+				<prop key="sslEnabled">$[actuate.database.SSL.]</prop>
+				<prop key="sslConnection">true</prop>
+			</props>
+		</property>
+	</bean>
+		
+    <bean id="sqlSessionFactoryXa" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/ibatis/LightweightBatch_SqlMapConfig.xml" />
+        <property name="dataSource" ref="dataSourceXa" />
+    </bean>
+
+    <bean id="sqlSessionTemplateXa" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactoryXa" />
+        <property name="databaseType"  value="${dbtype}" />
+    </bean>
+
+	<bean id="BaseMybatisDAOXa" abstract="true" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplateXa" />
+		<property name="sequenceService" ref="sequenceServiceXa" />
+	</bean>
+	
+    <bean id="sequenceSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/ibatis/LightweightBatch_SequenceGenerator_SqlMapConfig.xml" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="sequenceSqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sequenceSqlSessionFactory" />
+        <property name="databaseType"  value="${dbtype}" />
+    </bean>
+
+    <bean id="sequenceSqlSessionFactoryXa" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/ibatis/LightweightBatch_SequenceGenerator_SqlMapConfig.xml" />
+        <property name="dataSource" ref="dataSourceXa" />
+    </bean>
+
+    <bean id="sequenceSqlSessionTemplateXa" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sequenceSqlSessionFactoryXa" />
+        <property name="databaseType"  value="${dbtype}" />
+    </bean>
+
+	<!-- JMS  -->
+    <bean id="mqFactory" class="com.ibm.mq.jms.MQXAQueueConnectionFactory">
+        <property name="queueManager" value="${mqQueueManagerName}"/>
+        <property name="hostName" value="${mqHostname}"/>
+        <property name="transportType" value="1"/>
+        <property name="port" value="${mqPort}"/>
+        <property name="channel" value="${mqChannelName}"/>
+        <property name="sSLCipherSuite" value="${mqSSLCipherSuite}"/>
+    </bean>
+	<bean id="atomikosSenderConnectionFactoryBean" class="com.atomikos.jms.AtomikosConnectionFactoryBean">
+		<property name="uniqueResourceName" value="JMS_SENDER_XA_RMI" />
+		<property name="xaConnectionFactory" ref="mqFactory" />
+		<property name="poolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+		<property name="maxIdleTime" value="15" />
+	</bean>
+	<bean id="secureConnectionFactory" class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+   		<property name="targetConnectionFactory"><ref bean="mqFactory"/></property>
+   		<property name="username" value="$[mqUser]" />
+		<property name="password" value="$[mqPassword]" />
+ 	</bean>
+	
+
+    <!-- DAOs -->
+	<bean id="sequenceService" class="com.s1.arch.batch.lightweight.persistence.sequence.BatchLocalSequenceService">
+		<property name="sequenceGenerator" ref="sequenceGenerator"/>
+	</bean>
+	
+	<bean id="sequenceGenerator" class="com.s1.arch.batch.lightweight.persistence.sequence.LegacyBatchLocalSequenceGenerator">
+		<property name="sequenceGeneratorDao" ref="sequenceGeneratorDao"/>
+		<property name="databaseType"  value="${dbtype}" />
+	</bean>
+	
+	<bean id="sequenceGeneratorDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sequenceSqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.persistence.sequence.dao.SequenceGeneratorMapper" />
+	</bean>	
+	
+	<bean id="sequenceServiceXa" class="com.s1.arch.batch.lightweight.persistence.sequence.BatchLocalSequenceService">
+		<property name="sequenceGenerator" ref="sequenceGeneratorXa"/>
+	</bean>
+	
+	<bean id="sequenceGeneratorXa" class="com.s1.arch.batch.lightweight.persistence.sequence.LegacyBatchLocalSequenceGenerator">
+		<property name="sequenceGeneratorDao" ref="sequenceGeneratorDaoXa"/>
+		<property name="databaseType"  value="${dbtype}" />
+	</bean>
+	
+	<bean id="sequenceGeneratorDaoXa" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sequenceSqlSessionTemplateXa" />
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.persistence.sequence.dao.SequenceGeneratorMapper" />
+	</bean>	
+	
+	<bean id="fiCodeDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchFiCodeMapper" />
+	</bean>
+	
+	<bean id="programCodeDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchProgramCodeMapper" />
+	</bean>
+
+	<bean id="productCodeDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchProductCodeMapper" />
+	</bean>
+
+	<bean id="batchAuditDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchAuditMapper" />
+	</bean>
+
+	<bean id="batchRunDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchRunMapper" />
+	</bean>
+
+	<bean id="batchThreadDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchThreadMapper" />
+	</bean>
+
+	<bean id="affiliateDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.LightweightBatchAffiliateUtilMapper" />
+	</bean>
+
+	<bean id="batchErrorDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchErrorMapper" />
+	</bean>
+
+	<bean id="deferredAlertDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.DeferredAlertMapper" />
+	</bean>
+
+	<bean id="deferredAlertDaoXa" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAOXa">
+		<property name="mapperInterface" value="com.s1.alerts.dao.DeferredAlertMapper" />
+	</bean>
+	<bean id="deferredAlertSegmentMapperXa" parent="BaseMybatisDAOXa">
+		<property name="mapperInterface" value="com.s1.alerts.dao.DeferredAlertSegmentMapper" />
+	</bean>
+	
+	<bean id="parsedPDStatementMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedPDStatementMapper" />
+	</bean>
+
+	<bean id="parsedPDStatementDetailMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedPDStatementDetailMapper" />
+	</bean>
+
+	<bean id="parsedPDTransactionMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedPDTransactionMapper" />
+	</bean>
+
+	<bean id="parsedPDTransactionMemoMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedPDTransactionMemoMapper" />
+	</bean>
+
+	<bean id="parsedCDStatementMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedCDStatementMapper" />
+	</bean>
+
+	<bean id="parsedCDStatementDetailMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedCDStatementDetailMapper" />
+	</bean>
+
+	<bean id="parsedCDTransactionMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedCDTransactionMapper" />
+	</bean>
+
+	<bean id="parsedCDTransactionMemoMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.core.parser.dao.ParsedCDTransactionMemoMapper" />
+	</bean>
+
+	<!-- Main alerts system -->
+	<bean id="batchInteraction" class="com.s1.arch.batch.lightweight.BatchInteraction">
+		<property name="fiCodeDao" ref="fiCodeDao" />
+		<property name="programCodeDao" ref="programCodeDao" />
+		<property name="productCodeDao" ref="productCodeDao" />
+		<property name="batchAuditDao" ref="batchAuditDao" />
+		<property name="batchRunDao" ref="batchRunDao" />
+		<property name="batchThreadDao" ref="batchThreadDao" />
+		<property name="affiliateDao" ref="affiliateDao" />
+		<property name="batchErrorDao" ref="batchErrorDao" />
+		
+		<property name="batchFICode" value="${batch.fiName}" />
+		<property name="batchProgramCode" value="TestProgram" />
+		<property name="batchProductCode" value="COR" />
+		<property name="affiliateId" value="defaultAffiliate" />
+	</bean>
+	
+	<!-- Message Source -->
+	<bean id="messageSourceParent" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>lightweightbatch_messages</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="messageSource" parent="messageSourceParent" />
+	<bean id="messages" class="com.s1.arch.batch.lightweight.message.MessageSource" />
+	<bean id="messagesPostProcessor" class="com.s1.arch.batch.lightweight.message.MessageSourceBeanPostProcessor" depends-on="messages" />
+</beans>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio xmlns="http://www.beanio.org/2012/03" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+  
+  <!-- List of type handlers used by this configuration to parse file -->
+  <typeHandler name="moneyHandler" class="com.s1.frameworks.payments.imports.handlers.MoneyDataTypeHandler">
+  	<property name="currencyAlpha3Code" value="COP"/>
+  </typeHandler>
+  <typeHandler name="s1dateHandler" class="com.s1.frameworks.payments.imports.handlers.S1DateTypeHandler">
+  	<property name="dateFormat" value="yyyyMMdd"/>
+  </typeHandler>
+  <typeHandler name="bankIdHandler" class="com.s1.intl.imprt.colgiro.StandardBankIdTypeHandler" />
+  <typeHandler name="objectIdHandler" class="com.s1.frameworks.payments.imports.handlers.ObjectIdTypeHandler" />
+  
+  <!-- Input file configurations -->
+  <stream name="instructionStream" format="fixedlength" resourceBundle="com.s1.banking.common.imprt.user.Import-Resources" strict="true">
+  	<group name="instructionValue" class="com.s1.payments.instruction.InstructionValue" minOccurs="1" maxOccurs="1">
+  		<record name="instructionRecord" order="1" minOccurs="1" maxOccurs="1" maxLength="172">
+  			<field name="recordId" rid="true" literal="1" position="0" length="1" required="true" ignore="true"/>
+  			<field name="scheduledExecutionDate" typeHandler="s1dateHandler" required="true" position="1" length="8" minLength="8" maxLength="8" trim="true"/>
+  			<field name="lastSavedNumberOfLineItems" type="java.lang.Integer" required="true" position="9" length="5"/>
+  			<field name="amount" typeHandler="moneyHandler" position="14" required="true" length="18"/>
+  			<field name="filler1" position="32" length="1" literal="0" required="true" ignore="true"/>
+  			<field name="filler2" position="34" length="8" regex="(0){8}" required="true" ignore="true"/>
+  			<field name="typeCode" type="java.lang.Integer" position="102" required="true" length="3" literal="995"/>
+  			<field name="cityCode" position="105" length="4" ignore="true"/>
+  			<field name="valuedate" typeHandler="s1dateHandler" position="109" required="false" length="8"/>
+  			<field name="branch" position="117" length="3" ignore="true"/>
+  			<!-- need to map it -->
+  			<field name="originatorIdType" position="120" length="1" regex="(C|T|E|N){1}" required="true" ignore="true"/>
+  			<field name="blank1" position="121" length="49" regex="[\ ]{49}" ignore="true"/>
+  			<field name="disfonVersionIndicator" position="170" length="2" literal="10" required="true" ignore="true"/>
+  			
+  			<segment name="customerAccount" class="com.s1.common.accounts.AccountHoldingValue" minOccurs="1" maxOccurs="1">
+  			<!-- name="originatorAccountType?????" -->
+  			<field name="paymentAccountType" type="java.lang.Integer" position="33" length="1" regex="(0|1){1}" required="true" ignore="true"/>
+  			<field name="accountOid" typeHandler="objectIdHandler" position="42" length="9" regex="\d{1,9}" required="true"/>
+  			<segment name="accountAddIds" class="com.s1.common.accounts.additional.identifier.dao.AccountsAddIdentifier" minOccurs="1" maxOccurs="1">
+  			<field name="identifier1" position="91" length="11" regex="\d{1,11}" required="true"/>
+  			</segment>
+  			</segment>
+  			<segment name="customerValue" class="com.s1.common.customer.CustomerValueImpl" minOccurs="1" maxOccurs="1">
+  			<field name="customerName" type="java.lang.String" position="51" length="40" regex="[a-zA-Z0-9ñÑ\ \.\:\;\*\#\$\%\=\&amp;\;\-\/]*"/>
+  			</segment>
+  		</record>
+  		
+  		<group name="lineItems" class="com.s1.payments.instruction.LineItemValue" collection="list" minOccurs="1" order="2" maxOccurs="unbounded">
+  		<record name="lineItem"  order="1"  minOccurs="1" maxOccurs="1" maxLength="284">
+  			<field name="recordId" rid="true" position="0" length="1" literal="2" required="true" ignore="true"/>
+  			<segment name="target" class="com.s1.payments.target.ThirdPartyValue" nillable="false">
+  				<field name="recipientIdType" position="1" length="1" required="true" regex="(C|T|E|N){1}"/>
+  				<field name="recipientId" type="java.lang.String" position="2" length="11" required="true" regex="\d{1,11}[\ ]*"/>
+  				<field name="name" type="java.lang.String" position="13" length="40" required="true" regex="[a-zA-Z0-9ñÑ\ \.\:\;\*\#\$\%\=\&amp;\;\-\/]*"/>
+  				<field name="accountType" position="53" length="2"  literal="00" ignore="true"/>
+  				<field name="accountNumber" type="java.lang.String" position="55" regex="[\ ]{17}" length="17"  ignore="true"/>
+  				<field name="destinationBank" typeHandler="bankIdHandler" position="91" length="3" required="true" regex="\d{3}"/>  				
+  				<field name="recpBank" position="94" length="3" ignore="true"/>
+  				<field name="CityCallsign" position="97" length="4" ignore="true"/>
+  				<field name="notificationType" position="219" length="1" regex="(0|1|2|\ ){1}"/>
+  				<field name="emailAddress" position="220" length="40" />
+  				<segment name="dependentValue" class="com.s1.payments.model.ColGiroThirdPartyValue" nillable="false">
+  				<field name="formOfPayment" position="90" length="1" required="true" regex="(E|H|I|B){1}"/>
+  				
+  			</segment>
+  			</segment>
+  				
+  			<field name="amount" typeHandler="moneyHandler" position="72" required="true" length="18"/>
+  			<field name="beneficiaryReference" position="101" length="10" regex="[0-9\ ]{1,10}"/>
+  			<field name="daysToExpire" type="java.lang.Integer" position="111" length="3" regex="(\d{3}|\ {3})"/>
+  			<field name="additionalInfo" position="114" length="46"  regex="[a-zA-Z0-9ñÑ\ \.\:\;\*\#\$\%\=\&amp;\;\-\/]*" />
+  			<field name="filler3" position="160" length="1"   ignore="true"/>
+  			<field name="filler4" position="161" length="11"   ignore="true"/>
+  			<field name="filler5" position="172" length="40"   ignore="true"/>
+  			<field name="filler6" position="212" length="7"   ignore="true"/>
+  			<field name="password" position="260" length="15"  regex="[a-zA-Z0-9ñÑ\ \.\:\;\*\#\$\%\=\&amp;\;\-\/]*" ignore="true"/>
+  			<field name="ControlCRC" position="275" length="9" ignore="true"/>
+  			
+  		</record>
+  		  	<record name="depndentList" class="com.s1.payments.thirdparty.ColGiroAuthorizedThirdPartyValue" minOccurs="0" maxOccurs="unbounded" order="2" collection="list" maxLength="53" >
+  			<field name="recordId" rid="true" position="0" length="1" literal="4" required="true" ignore="true"/>
+  			<field name="authPartyIdType" position="1" length="1" required="true" regex="(C|T|E|I|L|P|R){1}"/>
+  			<field name="authPartyId" position="2" length="11" required="true" regex="\d{1,11}"/>
+  			<field name="authPartyName" position="13" length="40" required="true" regex="[a-zA-Z0-9ñÑ\ \.\:\;\*\#\$\%\=\&amp;\;\-\/]*"/>
+  			</record>
+  		 </group>
+  	</group>
+  </stream>
+ </beanio>

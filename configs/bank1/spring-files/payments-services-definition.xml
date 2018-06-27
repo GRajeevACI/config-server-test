@@ -1,0 +1,121 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="paymentTypeDeploymentService"
+		class="com.s1.frameworks.payments.type.deploy.ConcretePaymentTypeDeploymentService" />
+		
+	<bean id="cbiThirdPartyService"
+		class="com.s1.emea.common.thirdparty.service.ThirdPartyServiceBean" />
+	
+	<bean id="asyncProcessService"
+		class="com.s1.payments.process.async.service.AsyncProcessServiceBean" />
+		
+	<bean id="asyncProcessReplyService"
+		class="com.s1.payments.process.async.service.AsyncProcessServiceBean" />
+<!--
+	<bean id="recurrenceSpecificationSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="classpath:config/ibatis/Mybatis-SqlMapConfig.xml" />
+		<property name="dataSource" ref="epDataSource" />
+	</bean>
+	-->
+    <bean id="recurrenceSpecificationDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+	    <property name="mapperInterface" value="com.s1.frameworks.payments.dao.RecurrenceSpecificationMapper" />
+        <property name="sequenceService" ref="sequenceService" />
+	</bean>
+	<!--
+	<bean id="schedulingHintSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="classpath:config/ibatis/Mybatis-SqlMapConfig.xml"/>
+        <property name="dataSource" ref="epDataSource" />
+	</bean>
+-->
+    <bean id="schedulingHintDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.dao.SchedulingHintMapper" />
+        <property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+    <bean id="bankLookupDataDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.payments.bank.dao.BankLookupServiceMapper" />
+	</bean>		
+	<bean id="bankLookupService" class="com.s1.payments.bank.BankLookupServiceImpl">
+		<property name="mapper" ref="bankLookupDataDao" />
+	</bean>
+	<bean id="requestForPaymentDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.dao.PaymentRequestValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+	<bean id="destinationCountryCurrencyDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.app.disbursements.common.currency.dao.DestinationCountryCurrencyMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+	<bean id="checkDigitValidator" class="com.s1.intl.disbursements.validator.CheckDigitValidator"/>
+	<bean id="contractService" class="com.s1.payments.bank.ContractServiceImpl"/>
+
+	<bean id="colGiroAuthThirdPartyMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.payments.thirdparty.dao.ColGiroAuthorizedThirdPartyMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+
+
+	<bean id="colGiroAuthThirdPartyService"
+		class="com.s1.payments.thirdparty.ColGiroAuthThirdPartyServiceImpl" >	
+			<property name="mapper" ref="colGiroAuthThirdPartyMapper" />
+			</bean>
+	<bean id="colGiroThirdPartyMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="sequenceService" ref="sequenceService" />
+		<property name="mapperInterface" value="com.s1.payments.dao.ColGiroThirdPartyValueMapper" />
+	</bean>		
+	<bean id="colGiroThirdPartyService" class="com.s1.payments.thirdparty.service.impl.ColGiroThirdPartyServiceImpl">
+    	<property name="thirdPartyMapper" ref="colGiroThirdPartyMapper"></property>
+    </bean>
+    
+     <bean id="destinationCountryCurrencyService"
+		class="com.s1.app.disbursements.common.currency.DestinationCountryCurrencyUtilImp">
+		<property name="mapper" ref="destinationCountryCurrencyDao" />
+	</bean>
+		
+	<bean id="countryAccountBankValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface"
+			value="com.s1.bnk.account.dao.CountryAccountBankValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+	<bean id="countryAccountBankValueService"
+		class="com.s1.bnk.account.service.CountryAccountBankValueUtilImp">
+		<property name="mapper" ref="countryAccountBankValueDao" />
+	</bean>
+	
+	<bean id="corpAchPagingCommonAction"
+		class="com.s1.app.disbursements.corpach.common.CorpAchPagingCommonActionProduct">
+	</bean>
+	
+	<bean id="paymentMetaDataService"
+		class="com.aci.payments.metadata.service.PaymentMetaDataServiceImpl">
+	</bean>
+	
+	<bean id="sepaCreditorIDMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="sequenceService" ref="sequenceService" />
+		<property name="mapperInterface" value="com.s1.payments.dao.SepaCreditorIDMapper" />
+	</bean>	
+	
+	<bean id="sepaCreditorIDService" class="com.s1.payments.service.impl.SepaCreditorIDServiceImpl">
+    	<property name="creditorIDMapper" ref="sepaCreditorIDMapper"></property>
+    </bean>
+    
+	
+	<bean id="paymentsRedirectUtility" class="${payments.redirect.utility}" />
+	<bean id="tpConventionUtility" class="com.s1.frameworks.payments.thirdparty.ConventionUtility" scope="prototype" lazy-init="true" />	
+	
+	<bean id="usHolidayInDestCountryStrategy" class="com.s1.common.country.usholidayindestcountry.USHolidayInDestCountryStrategyImpl" />	
+</beans>

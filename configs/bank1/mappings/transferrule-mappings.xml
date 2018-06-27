@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings>
+ 	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.transferrule.services.TransferRuleCreateRqType</typeA>
+		<typeB>com.s1.bnk.disbursement.sweeps.model.SweepRuleValue</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>startDate</fieldA>
+				<fieldB>startDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>startDate</fieldA>
+				<fieldB>ruleEvaluationDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>endDate</fieldA>
+				<fieldB>endDate</fieldB>
+			</field>
+			<field>
+				<fieldA>ruleDescription</fieldA>
+				<fieldB>ruleDescription</fieldB>
+			</field>
+			<field>
+				<fieldA>triggerType</fieldA>
+				<fieldB>triggerType</fieldB>
+			</field>
+			<field>
+				<fieldA>ruleExecutionFrequency</fieldA>
+				<fieldB>ruleExecutionFrequency</fieldB>
+			</field>
+			<field>
+				<fieldA>authMemo</fieldA>
+				<fieldB>authorizeMemo</fieldB>
+			</field>
+		
+		</fields>
+	</mapping> 		
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.bnk.disbursement.sweeps.model.SweepRuleValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.transferrule.services.TransferRuleDetailInquiryRsType</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>startDate</fieldA>
+				<fieldB>startDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>ruleEvaluationDate</fieldA>
+				<fieldB>startDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>endDate</fieldA>
+				<fieldB>endDate</fieldB>
+			</field>
+			<field>
+				<fieldA>ruleDescription</fieldA>
+				<fieldB>ruleDescription</fieldB>
+			</field>
+			<field>
+				<fieldA>triggerType</fieldA>
+				<fieldB>triggerType</fieldB>
+			</field>
+			<field>
+				<fieldA>ruleExecutionFrequency</fieldA>
+				<fieldB>ruleExecutionFrequency</fieldB>
+			</field>
+			<field>
+				<fieldA>authorizeMemo</fieldA>
+				<fieldB>authMemo</fieldB>
+			</field>
+			<field>
+				<fieldA>thresholdBalanceAmt</fieldA>
+				<fieldB>thresholdAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>targetBalanceAmt</fieldA>
+				<fieldB>targetBalanceAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>savelateralApproval</fieldA>
+				<fieldB>approveOnSubmit</fieldB>
+			</field>
+			<field>
+				<fieldA>approvalStatusCd</fieldA>
+				<fieldB>approvalStatusCode</fieldB>
+			</field>
+			<field>
+				<fieldA>bnkSweepRuleUUID</fieldA>
+				<fieldB>sweepRuleUUID</fieldB>
+			</field>
+		</fields>
+	</mapping> 		
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.bnk.disbursement.sweeps.model.SweepDsbmtHistValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.transferrule.services.TransferRuleExecXferSummaryType</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>schdExecDate</fieldA>
+				<fieldB>date</fieldB>
+			</field>
+			<field>
+				<fieldA>instrAmt</fieldA>
+				<fieldB>transferAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>instrStatusCd</fieldA>
+				<fieldB>statusCode</fieldB>
+			</field>
+		</fields>
+	</mapping> 	
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.bnk.disbursement.sweeps.model.SweepRuleValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.transferrule.services.TransferRuleSummaryType</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>startDate</fieldA>
+				<fieldB>startDate</fieldB>
+			</field>
+			<field>
+				<fieldA>ruleDescription</fieldA>
+				<fieldB>ruleDescription</fieldB>
+			</field>
+			<field>
+				<fieldA>triggerType</fieldA>
+				<fieldB>triggerType</fieldB>
+			</field>
+			<field>
+				<fieldA>ruleExecutionFrequency</fieldA>
+				<fieldB>ruleExecutionFrequency</fieldB>
+			</field>
+			<field>
+				<fieldA>thresholdBalanceAmt</fieldA>
+				<fieldB>thresholdAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>approvalStatusCd</fieldA>
+				<fieldB>approvalStatusCode</fieldB>
+			</field>
+			<field>
+				<fieldA>bnkSweepRuleUUID</fieldA>
+				<fieldB>sweepRuleUUID</fieldB>
+			</field>
+			<field>
+				<fieldA>lastUpdateUserId</fieldA>
+				<fieldB>lastUpdateUserId</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.payment.user.PaymentAuditItem</typeA>
+		<typeB>com.aciworldwide.pim.messages.transferrule.services.TransferRuleHistoryType</typeB>
+		<fields>
+			<field>
+				<fieldA>activityTime</fieldA>
+				<fieldB>activityDate</fieldB>
+			</field>
+			<field>
+				<fieldA>activity</fieldA>
+				<fieldB>activity</fieldB>
+			</field>
+			<field>
+				<fieldA>loginId</fieldA>
+				<fieldB>loginId</fieldB>
+			</field>
+			<field>
+				<fieldA>status</fieldA>
+				<fieldB>status</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+	  <typeA>com.aciworldwide.pim.messages.payments.PaymentSummaryInquiryCriteriaType</typeA>
+	  <typeB>com.s1.app.disbursements.bulktransfer.dao.BulkTransferCriteria</typeB>
+	    <fields>
+			<field>
+				<fieldA>paymentIdent</fieldA>
+				<fieldB>soaInstructionId</fieldB>
+			</field>
+			<field>
+				<fieldA>paymentStatus[0]</fieldA>
+				<fieldB>statusCode</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>dateRange.fromDate</fieldA>
+				<fieldB>startDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>dateRange.toDate</fieldA>
+				<fieldB>endDate</fieldB>
+			</field>			
+		</fields>
+	</mapping>
+</mappings>

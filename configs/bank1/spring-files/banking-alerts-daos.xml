@@ -1,0 +1,128 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+	
+	<!--
+	<bean id="exampleNormalAlertEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.ExampleNormalAlertEvaluatorMapper" />
+	</bean>
+	-->
+	<bean id="parameterlessSecurityAlertEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.ParameterlessSecurityAlertEvaluatorMapper" />
+	</bean>	
+
+	<bean id="alertInboxDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertInboxMapper" />
+	</bean>	
+	
+	<bean id="alertAffiliateOptionDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertAffiliateOptionMapper" />
+	</bean>	
+	
+	<bean id="alertAffiliateUtilDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertAffiliateUtilMapper" />
+	</bean>
+	
+	<bean id="alertAffiliateChannelDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertAffiliateChannelMapper" />
+	</bean>	
+	
+	<bean id="alertMessageDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertMessageMapper" />
+	</bean>	
+
+	<bean id="alertReminderDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.reminders.dao.AlertReminderMapper" />
+	</bean>	
+
+	<bean id="balanceAlertEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.BalanceAlertEvaluatorMapper" />
+	</bean>
+	
+	<bean id="transactionAlertEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.TransactionAlertEvaluatorMapper" />
+	</bean>
+	
+	<bean id="batchTransactionAlertMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.BatchTransactionAlertMapper" />
+	</bean>
+		
+	<bean id="transactionAlertsBulkEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.TransactionAlertsBulkEvaluatorMapper" />
+	</bean>
+			
+	<bean id="checkNumberClearedMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.CheckNumberClearedMapper" />
+	</bean>	
+	
+	<bean id="achAuthRuleExpirationMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.ACHAuthRuleExpirationMapper" />
+	</bean>	
+	
+	<bean id="efdFileStatusMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.EFDFileStatusMapper" />
+	</bean>
+	
+	<bean id="posPayStsEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.PosPayStsEvaluatorMapper" />
+	</bean>	
+	
+	<bean id="chBkrqsStsEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.ChBkrqsStsEvaluatorMapper" />
+	</bean>	
+	
+	<bean id="templateChangeEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.TemplateChangeEvaluatorMapper" />
+	</bean>	
+	
+	<bean id="paymentChangeEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.PaymentChangeEvaluatorMapper" />
+	</bean>
+	
+	<bean id="recipientChangeEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.RecipientChangeEvaluatorMapper" />
+	</bean>
+	
+	<bean id="posPayExceptionEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.PosPayExceptionEvaluatorMapper" />
+	</bean>	
+
+	<bean id="posPayACHExceptionEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.PosPayACHExceptionEvaluatorMapper" />
+	</bean>
+	
+	<bean id="fraudControlAccountStatusMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.FraudControlAccountStatusEvaluatorMapper" />
+	</bean>
+	<!-- Wire Confirmation Alert Changes Start GBS-60222-->	
+	<bean id="wireConfirmEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.WireConfirmEvaluatorMapper" />
+	</bean>	
+	<!-- Wire Confirmation Alert Changes End GBS-60222-->
+	
+	<!-- Wire FX rate change Alert Changes Start-->	
+	<bean id="wireFxRateEvaluatorMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.evaluation.dao.WireFxRateEvaluatorMapper" />
+	</bean>	
+	<!-- Wire FX rate change Alert Changes End -->
+		
+	<!-- The following are DAO instances that use an XA compliant JDBC Provider -->
+	<!-- Use these ONLY if you require 2PC for your workflow -->
+	<bean id="alertInboxDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertInboxMapper" />
+	</bean>	
+
+	<bean id="alertAffiliateOptionDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertAffiliateOptionMapper" />
+	</bean>	
+	
+	<bean id="alertMessageDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertMessageMapper" />
+	</bean>	
+	
+	<bean id="alertAffiliateUtilDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.bnk.alerts.dao.AlertAffiliateUtilMapper" />
+	</bean>	
+
+</beans>

@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="alertsEventMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="alertsEventQueueConnectionFactory" />
+		<property name="destination" ref="alertsEventQueue" />
+		<property name="messageListener" ref="alertsEventMessageListener" />
+		<property name="taskExecutor" ref="alertsEventTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name="autoStartup" value="${alert.system.event.queue.autoStartup}" />
+		<property name="concurrentConsumers" value="${alert.system.event.queue.minConcurrentConsumers}" />
+		<property name="maxConcurrentConsumers" value="${alert.system.event.queue.maxConcurrentConsumers}" />
+	</bean>
+
+	<bean id="alertsBulkEventMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="alertsBulkEventQueueConnectionFactory" />
+		<property name="destination" ref="alertsBulkEventQueue" />
+		<property name="messageListener" ref="alertsBulkEventMessageListener" />
+		<property name="taskExecutor" ref="alertsBulkEventTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name="autoStartup" value="${alert.system.bulkevent.queue.autoStartup}" />
+		<property name="concurrentConsumers" value="${alert.system.bulkevent.queue.minConcurrentConsumers}" />
+		<property name="maxConcurrentConsumers" value="${alert.system.bulkevent.queue.maxConcurrentConsumers}" />
+	</bean>
+	
+	<bean id="alertsEventTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="alertsEventQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="alertsEventQueue"/>
+<!--		<property name="sessionTransacted" value="true" />-->
+	</bean>
+
+	<bean id="alertsBulkEventTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="alertsBulkEventQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="alertsBulkEventQueue"/>
+<!--		<property name="sessionTransacted" value="true" />-->
+	</bean>
+	
+	<bean id="alertsGeneratorMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="alertsGeneratorQueueConnectionFactory" />
+		<property name="destination" ref="alertsGeneratorQueue" />
+		<property name="messageListener" ref="alertsGeneratorMessageListener" />
+		<property name="taskExecutor" ref="alertsGeneratorTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name="autoStartup" value="${alert.system.generator.queue.autoStartup}" />
+		<property name="concurrentConsumers" value="${alert.system.generator.queue.minConcurrentConsumers}" />
+		<property name="maxConcurrentConsumers" value="${alert.system.generator.queue.maxConcurrentConsumers}" />
+	</bean>
+
+	<bean id="alertsGeneratorTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="alertsGeneratorQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="alertsGeneratorQueue"/>
+<!--		<property name="sessionTransacted" value="true" />-->
+	</bean>
+	
+	<bean id="alertsDeliveryMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="alertsDeliveryQueueConnectionFactory" />
+		<property name="destination" ref="alertsDeliveryQueue" />
+		<property name="messageListener" ref="alertsDeliveryMessageListener" />
+		<property name="taskExecutor" ref="alertsDeliveryTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name="autoStartup" value="${alert.system.delivery.queue.autoStartup}" />
+		<property name="concurrentConsumers" value="${alert.system.delivery.queue.minConcurrentConsumers}" />
+		<property name="maxConcurrentConsumers" value="${alert.system.delivery.queue.maxConcurrentConsumers}" />
+	</bean>
+
+	<bean id="alertsDeliveryTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="alertsDeliveryQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="alertsDeliveryQueue"/>
+<!--		<property name="sessionTransacted" value="true" />-->
+	</bean>
+
+	<bean id="alertsEventQueueSender" class="com.s1.alerts.workflow.JMSAlertQueueImpl">
+		<constructor-arg value="eventQueue"/>
+		<property name="template" ref="alertsEventTemplate"/>
+		<property name="enabled" value="${alert.system.event.initiate.enabled}" />
+	</bean>
+
+	<bean id="alertsEventMessageListener" class="com.s1.alerts.workflow.JMSAlertQueueListener" >
+		<constructor-arg value="eventQueue"/>
+		<property name="processor" ref="evaluatorProcessor"/>
+		<property name="maxFailedDeliveryAttempts" value="2" />
+	</bean>
+	
+	<bean id="alertsBulkEventQueueSender" class="com.s1.alerts.workflow.JMSAlertQueueImpl">
+		<constructor-arg value="bulkEventQueue"/>
+		<property name="template" ref="alertsBulkEventTemplate"/>
+		<property name="enabled" value="${alert.system.event.initiate.enabled}" />
+	</bean>
+		
+	<bean id="alertsBulkEventMessageListener" class="com.s1.alerts.workflow.JMSAlertQueueListener" >
+		<constructor-arg value="bulkEventQueue"/>
+		<property name="processor" ref="evaluatorProcessor"/>
+		<property name="maxFailedDeliveryAttempts" value="2" />
+	</bean>
+	
+	<bean id="evaluatorProcessor" class="com.s1.alerts.evaluation.EvaluatorTaskProcessor">
+		<property name="evaluatorService" ref="alertsEvaluatorService"/>
+		<property name="generatorQueue" ref="alertsGeneratorQueueSender"/>
+		<property name="monitor" ref="alertsSystemMonitor" />
+	</bean>
+
+	<bean id="alertsGeneratorQueueSender" class="com.s1.alerts.workflow.JMSAlertQueueImpl">
+		<constructor-arg value="generatorQueue"/>
+		<property name="template" ref="alertsGeneratorTemplate"/>
+	</bean>
+	
+	<bean id="alertsGeneratorMessageListener" class="com.s1.alerts.workflow.JMSAlertQueueListener">
+		<constructor-arg value="generatorQueue"/>
+		<property name="processor" ref="generatorProcessor"/>
+		<property name="maxFailedDeliveryAttempts" value="2" />
+	</bean>
+	
+	<bean id="generatorProcessor" class="com.s1.alerts.generation.GeneratorTaskProcessor">
+		<property name="generatorService" ref="alertsGeneratorService"/>
+		<property name="deliveryQueue" ref="alertsDeliveryQueueSender"/>
+		<property name="monitor" ref="alertsSystemMonitor" />
+		<property name="alertHistoryDao" ref="alertInstanceHistoryDaoXa" />
+		<property name="alertHistorySegmentMapper" ref="alertInstanceHistorySegmentMapperXa" />
+		<property name="deferralService" ref="alertDeferralService" />
+	</bean>
+	
+	<bean id="alertsDeliveryQueueSender" class="com.s1.alerts.workflow.JMSAlertQueueImpl">
+		<constructor-arg value="deliveryQueue"/>
+		<property name="template" ref="alertsDeliveryTemplate"/>
+	</bean>
+	
+	<bean id="alertsDeliveryMessageListener" class="com.s1.alerts.workflow.JMSAlertQueueListener">
+		<constructor-arg value="deliveryQueue"/>
+		<property name="processor" ref="deliveryProcessor"/>
+		<property name="maxFailedDeliveryAttempts" value="2" />
+	</bean>
+	
+	<bean id="deliveryProcessor" class="com.s1.alerts.delivery.DeliveryTaskProcessor">
+		<property name="deliveryService" ref="alertsDeliveryService"/>
+		<property name="monitor" ref="alertsSystemMonitor" />
+	</bean>
+
+</beans>

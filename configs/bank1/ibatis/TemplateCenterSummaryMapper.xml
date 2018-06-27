@@ -1,0 +1,1774 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.core.templatecenter.dao.TemplateSummaryDataMapper">
+    <resultMap id="BaseResultMap" type="com.s1.core.templatecenter.TemplateSummaryData">
+        <result column="BNKDsbmtTmplKy" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="BNKCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="SOAINSTRID" property="soaInstructionId" jdbcType="VARCHAR" /> 
+        <result column="dsbmtTypeCd" property="pmtTypeCode" jdbcType="INTEGER" />
+        <result column="nameRef" property="name" jdbcType="VARCHAR" />
+        <result column="confNbr" property="confNumber" jdbcType="VARCHAR" />
+        <result column="fromAcct" property="fromAccount" jdbcType="VARCHAR" />
+        <result column="BNKAcctKyCmp" property="fromAcctOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="cmpAcctIdfr" property="compAcctIdfr" jdbcType="VARCHAR" />
+        <result column="rcpntName" property="recipient" jdbcType="VARCHAR" />
+        <result column="debitAmount" property="debitAmount" jdbcType="DECIMAL" />
+        <result column="ARCISOCrncyCdKyDebit" property="debitAmountCcyOid" jdbcType="INTEGER" />
+        <result column="debitCnt" property="debitCount" jdbcType="SMALLINT" />
+        <result column="creditAmount" property="creditAmount" jdbcType="DECIMAL" />
+        <result column="ARCISOCrncyCdKyCredit" property="creditAmountCcyOid" jdbcType="INTEGER" />
+        <result column="creditCnt" property="creditCount" jdbcType="SMALLINT" />
+        <result column="rcpntBank" property="recipientBank" jdbcType="VARCHAR" />
+        <result column="rcpntAcctNbr" property="recipientAccountNumber" jdbcType="VARCHAR" />
+        <result column="isConfidential" property="confidential" jdbcType="BOOLEAN" />
+        <result column="createUser" property="creator" jdbcType="VARCHAR" />
+        <result column="activeDttm" property="activationDateTimestamp" jdbcType="TIMESTAMP" />    
+        <result column="updateDttm" property="lastUpdateTimestamp" jdbcType="TIMESTAMP" />
+        <result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+        <result column="versionStamp" property="lockValue" jdbcType="SMALLINT" />
+        <result column="cnt" property="totalRowCount" jdbcType="INTEGER" />
+        <result column="paymentType" property="pmtTypeText" jdbcType="VARCHAR" />
+        <result column="paymentStatus" property="statusText" jdbcType="VARCHAR" />
+        <result column="instrStsCd" property="statusCode" jdbcType="INTEGER" />
+        <result column="crDrStatus" property="debitCreditBoth" jdbcType="CHAR" />
+        <result column="instrSubTypCd" property="pmtSubTypeCode" jdbcType="INTEGER" />
+        <result column="paymentSubtype" property="pmtSubTypeText" jdbcType="VARCHAR" />
+        <result column="isActive" property="isActive" jdbcType="VARCHAR" />
+        <result column="amtCrncyTypcd" property="amountCurrency" jdbcType="VARCHAR" />              
+        <result column="stdBankName" property="stdBankName" jdbcType="VARCHAR" />              
+        <result column="availability" property="availability" jdbcType="VARCHAR" />              
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        select row_number() over(
+        <if test="orderby != null">
+        <choose>
+			<when test="orderby == 'transactionNumber'">
+			   order by BNKDsbmtTmplKy
+			</when>
+             <when test="orderby == 'transactionName'">
+                order by UPPER(nameRef)
+             </when>
+             <when test="orderby == 'statusTranslation'">
+             
+               <if test="multiRecipientSearch == true">
+              			 order by paymentStatus 
+             </if>
+             
+               <if test="multiRecipientSearch == false">
+                order by d.translation
+             </if>
+                      
+             </when>
+             <when test="orderby == 'confirmationNumber'">
+                order by UPPER(confNbr)
+             </when>
+             <when test="orderby == 'availability'">
+                order by <include refid="availabilitySql" />
+             </when>
+             <when test="orderby == 'fromAccount'">
+                order by fromAcct
+             </when>
+             <when test="orderby == 'compAcctId'">
+                order by UPPER(cmpAcctIdfr)
+             </when> 
+             <when test="orderby  == 'paymentTypeTranslation'">
+             
+	              <if test="multiRecipientSearch == true">
+	              			order by UPPER(paymentType)
+	             </if>
+	             
+	               <if test="multiRecipientSearch == false">
+                order by UPPER(c.translation)
+	             </if>
+                   
+             </when>
+             <when test="orderby == 'paymentSubTypeTranslation'">
+                	order by UPPER(g.translation)
+	         </when>
+             <when test="orderby == 'updateUser'">
+                
+                  <if test="multiRecipientSearch == true">
+	              			order by UPPER(updateUser)
+	             </if>	             
+	               <if test="multiRecipientSearch == false">
+                order by UPPER(a.updateUser)
+	             </if>
+                
+                
+             </when>
+             <when test="orderby == 'totalDebitAmt'">
+                order by debitAmount
+             </when>
+             <when test="orderby == 'totalCreditAmt'">
+                order by creditAmount
+             </when>
+             <when test="orderby == 'totalAmt'">
+                order by (COALESCE(debitAmount,0) + COALESCE(creditAmount,0))
+             </when>
+             <when test="orderby == 'recipient'">
+                order by UPPER(rcpntName)
+             </when>
+             <when test="orderby == 'stdBankName'">
+                order by UPPER(stdBankName)
+             </when>
+           	 <when test="orderby == 'lastUpdatedDttm'">
+           	 
+		 		  <if test="multiRecipientSearch == true">
+	              			order by updateDttm
+	             </if>	             
+	               <if test="multiRecipientSearch == false">
+		 		order by a.updateDttm
+	             </if>
+		 		
+		 	</when>
+        	<otherwise>
+           		order by UPPER(nameRef)
+           	</otherwise>
+        </choose>
+        <if test="order != null">
+            <if test="order == 'ASC'">
+                ASC 
+                <if test="orderby == 'totalDebitAmt'">
+                	NULLS FIRST, creditAmount ASC NULLS FIRST
+             	</if>
+             	<if test="orderby == 'totalCreditAmt'">
+                	NULLS FIRST, debitAmount ASC NULLS FIRST
+             	</if>
+             	<if test="orderby == 'confirmationNumber'">
+                	NULLS FIRST
+             	</if>
+             	<if test="orderby == 'stdBankName'">
+                	NULLS FIRST
+             	</if>
+             </if>
+             <if test="order == 'DESC'">
+                DESC
+                <if test="orderby == 'totalDebitAmt'">
+                	NULLS LAST, creditAmount DESC NULLS LAST
+             	</if>
+             	<if test="orderby == 'totalCreditAmt'">
+                	NULLS LAST, debitAmount DESC NULLS LAST
+             	</if>
+             	<if test="orderby == 'confirmationNumber'">
+                	NULLS LAST
+             	</if>
+             	<if test="orderby == 'stdBankName'">
+                	NULLS LAST
+             	</if>
+             </if>
+              
+        </if>
+        </if>
+        
+        ) as row_number, 
+        <if test="multiRecipientSearch">
+            a11.* from (SELECT 
+        </if>
+        BNKDsbmtTmplKy, a.BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr, fromAcct, BNKAcctKyCmp,
+        cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+        ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+        createUser, activeDttm, a.updateDttm, a.updateUser, a.versionStamp, b.instrStsCd, crDrStatus, b.instrSubTypCd
+    </sql>
+
+	<sql id="Base_Column_List_Oracle" >
+        select row_number() over(
+        <if test="orderby != null">
+        <choose>
+			<when test="orderby == 'transactionNumber'">
+			   order by BNKDsbmtTmplKy
+			</when>
+             <when test="orderby == 'transactionName'">
+                order by UPPER(nameRef)
+             </when>
+            
+             <when test="orderby == 'statusTranslation'">
+	               <if test="multiRecipientSearch == true">
+	              			 order by paymentStatus 
+	             </if>             
+	               <if test="multiRecipientSearch == false">
+                order by d.translation
+	             </if>
+             </when>
+             
+             <when test="orderby == 'confirmationNumber'">
+                order by UPPER(confNbr)
+             </when>
+             <when test="orderby == 'availability'">
+                order by <include refid="availabilitySqlOracle" />
+             </when>
+             <when test="orderby == 'fromAccount'">
+                order by fromAcct
+             </when>
+             <when test="orderby == 'compAcctId'">
+                order by UPPER(cmpAcctIdfr)
+             </when> 
+            
+             <when test="orderby  == 'paymentTypeTranslation'">
+              	  	<if test="multiRecipientSearch == true">
+	              			order by UPPER(paymentType)
+	             	</if>	             
+	               <if test="multiRecipientSearch == false">
+                order by UPPER(c.translation)
+	             	</if>
+             </when>
+             <when test="orderby == 'paymentSubTypeTranslation'">
+                	order by UPPER(g.translation)
+	         </when>
+             <when test="orderby == 'updateUser'">
+                      <if test="multiRecipientSearch == true">
+	              			order by UPPER(updateUser)
+	           			</if>	             
+	               <if test="multiRecipientSearch == false">
+                order by UPPER(a.updateUser)
+	             </if>
+             </when>
+             
+             <when test="orderby == 'totalDebitAmt'">
+                order by debitAmount
+             </when>
+             <when test="orderby == 'totalCreditAmt'">
+                order by creditAmount
+             </when>
+             <when test="orderby == 'totalAmt'">
+                order by (COALESCE(debitAmount,0) + COALESCE(creditAmount,0))
+             </when>
+             <when test="orderby == 'recipient'">
+                order by UPPER(rcpntName)
+             </when>
+             <when test="orderby == 'stdBankName'">
+                order by UPPER(stdBankName)
+             </when>
+             
+           	 <when test="orderby == 'lastUpdatedDttm'">
+		 			<if test="multiRecipientSearch == true">
+	              			order by updateDttm
+	             	</if>	             
+	               <if test="multiRecipientSearch == false">
+		 		order by a.updateDttm
+	             </if>
+
+		 	</when>
+		 	
+        	<otherwise>
+           		order by UPPER(nameRef)
+           	</otherwise>
+        </choose>
+        <if test="order != null">
+            <if test="order == 'ASC'">
+                ASC 
+                <if test="orderby == 'totalDebitAmt'">
+                	NULLS FIRST, creditAmount ASC NULLS FIRST
+             	</if>
+             	<if test="orderby == 'totalCreditAmt'">
+                	NULLS FIRST, debitAmount ASC NULLS FIRST
+             	</if>
+             	<if test="orderby == 'confirmationNumber'">
+                	NULLS FIRST
+             	</if>
+             	<if test="orderby == 'stdBankName'">
+                	NULLS FIRST
+             	</if>
+             </if>
+             <if test="order == 'DESC'">
+                DESC
+                <if test="orderby == 'totalDebitAmt'">
+                	NULLS LAST, creditAmount DESC NULLS LAST
+             	</if>
+             	<if test="orderby == 'totalCreditAmt'">
+                	NULLS LAST, debitAmount DESC NULLS LAST
+             	</if>
+             	<if test="orderby == 'confirmationNumber'">
+                	NULLS LAST
+             	</if>
+             	<if test="orderby == 'stdBankName'">
+                	NULLS LAST
+             	</if>
+             </if>
+              
+        </if>
+        </if>
+        
+        ) as row_number, 
+        <if test="multiRecipientSearch">
+            a11.* from (SELECT 
+        </if>
+        BNKDsbmtTmplKy, a.BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr, fromAcct, BNKAcctKyCmp,
+        cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+        ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+        createUser, activeDttm, a.updateDttm, a.updateUser, a.versionStamp, b.instrStsCd, crDrStatus, b.instrSubTypCd
+    </sql>
+    
+	<sql id="availabilitySql">
+		(select translation from ARCMessage
+				  where msgcode = (coalesce(
+										(case when																														
+											  <if test="multiRecipientSearch == true">
+	              									dsbmttypecd
+	             							</if>	             							
+	             							 <if test="multiRecipientSearch == false">
+	              									a.dsbmttypecd 
+	             							</if>
+	             								             							    
+									         in   <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when 
+											    											    
+												      <if test="multiRecipientSearch == true">
+		              									 isactive = '1' 
+		             								</if>	             							
+		             								 <if test="multiRecipientSearch == false">
+		              									 b.isactive = '1' 
+		             								</if>
+		             								   
+											                     then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; current timestamp then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid})
+	</sql>
+    
+	<sql id="availabilitySqlOracle">
+		(select translation from ARCMessage
+				  where msgcode = (NVL(
+										(case when																			
+											  <if test="multiRecipientSearch == true">
+	              									dsbmttypecd
+	             							</if>	             							
+	             							 <if test="multiRecipientSearch == false">
+	              									a.dsbmttypecd 
+	             							</if>
+									     			in        
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when 											    
+													        <if test="multiRecipientSearch == true">
+				              									 isactive = '1' 
+				             								</if>	             							
+				             								 <if test="multiRecipientSearch == false">
+				              									 b.isactive = '1' 
+				             								</if>
+											    			then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; SYSTIMESTAMP then 'CORCStatInAct' else 'CORCStatActiv' end)   
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid})
+	</sql>
+    
+    <select id="selectTemplateSummaryDataForBasicCriteria" resultMap="BaseResultMap" parameterType="com.s1.core.templatecenter.dao.TemplateSummaryDataCriteria" >
+         with a1 (row_number, BNKDsbmtTmplKy, BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr,
+         fromAcct, BNKAcctKyCmp, cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount,
+         ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential, createUser, activeDttm,
+         updateDttm, updateUser, versionStamp,
+         instrStsCd, crDrStatus, instrSubTypCd, paymentType, paymentStatus, paymentSubtype,isActive, amtCrncyTypcd, stdBankName, availability)
+         as (
+        <include refid="Base_Column_List" />,
+        c.translation as paymentType,
+        d.translation as paymentStatus,
+        g.translation as paymentSubType,
+        b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        (select translation from ARCMessage
+				  where msgcode = (coalesce(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; current timestamp then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability
+        from BNKDsbmtTmplSumm a, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+        <if test="userAccessTypeCD != null">
+            <!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+                , BNKTmplCntrEntl e, BNKTmplCntrEntl f
+                <if test="isAchCompany">                       
+                    <if test="!useINClauseForACHCompany">
+                        <if test="!zeroEntitledAchCompany">
+                            , BNKACHCompanyIDEntl b0                                         
+                        </if>
+                    </if>
+                </if>
+        	<!-- </if> -->       
+        </if>
+        where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+        <if test="customerOid != null">
+            and a.BNKCustomerKy = #{customerOid}
+        </if>
+        <if test="oids != null">
+            and a.BNKDsbmtTmplKy in
+            <foreach item="oid" collection="oids" open="(" close=")" separator=",">
+                #{oid}
+            </foreach>
+        </if>
+        <if test="templateName != null"> 
+            and b.NAME__ like #{templateName}
+        </if>
+        <if test="pmtTypeCodes == null">
+            and a.dsbmtTypeCd is NULL
+        </if>
+        <if test="pmtTypeCodes != null"> 
+            and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+            <if test="userAccessTypeCD != null">
+                <!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+                    AND e.BNKACCTKY = a.BNKAcctKyCmp 
+                    AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+                    AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+                    <if test="isAchCompany">
+                       <if test="useINClauseForACHCompany">
+                           <if test="!zeroEntitledAchCompany">
+                               AND COALESCE(a.BNKAchCompanyKy, 0) IN
+                               <foreach collection="entitledACHCompanies" item="achCompanyID" open="(" close=")" separator=",">
+                                   #{achCompanyID}
+                               </foreach>
+                           </if>
+                       </if>
+                       <if test="!useINClauseForACHCompany">
+                           <if test="!zeroEntitledAchCompany">
+                               AND COALESCE(a.BNKAchCompanyKy, 0) = b0.BNKAchcompanyKy and b0.ARCPrincipalKy = #{arcPrincipalKy}                                         
+                           </if>
+                       </if>
+                   </if>
+                    AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+                   
+            </if>     
+			and a.dsbmtTypeCd in
+            <foreach collection="pmtTypeCodes" item="typeCode" open="(" close=")" separator=",">
+                #{typeCode}
+            </foreach>
+        </if>
+        <if test="pmtSubtypeCodes != null"> 
+            and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+            <foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+                #{pmtSubtypeCode}
+            </foreach>
+            ) or (g.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} 
+                and a.dsbmtTypeCd not in
+                (90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101)
+            ))
+        </if>
+        <if test="pmtTypeCodes != null and pmtSubtypeCodes == null">  
+            and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+        </if>
+        <if test="statusCodes == null"> 
+            and b.InstrStsCd is NULL
+        </if>
+        <if test="statusCodes != null"> 
+            and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+            <foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+                #{code}
+            </foreach>
+        </if> 
+        <if test="isConfidential != null">
+            and a.isConfidential = #{isConfidential}
+        </if>     
+        <if test="isActiveOnly">
+            and a.activedttm &lt; current timestamp
+        </if>
+        )   
+        select b.cnt, a.row_number, a.* from a1 a, (select count(*) as cnt from a1) b where a.row_number between 
+        <if test="fromRowNum != null">
+            #{fromRowNum} and
+        </if>
+        <if test="toRowNum != null">
+            #{toRowNum}
+        </if>
+
+    </select>
+    
+    <select id="selectTemplateSummaryDataForBasicCriteria-Oracle" resultMap="BaseResultMap" parameterType="com.s1.core.templatecenter.dao.TemplateSummaryDataCriteria" >
+         with a1 (row_number, BNKDsbmtTmplKy, BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr,
+         fromAcct, BNKAcctKyCmp, cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount,
+         ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential, createUser, activeDttm,
+         updateDttm, updateUser, versionStamp,
+         instrStsCd, crDrStatus, instrSubTypCd, paymentType, paymentStatus, paymentSubtype,isActive, amtCrncyTypcd, stdBankName, availability)
+         as (
+        <include refid="Base_Column_List_Oracle" />,
+        c.translation as paymentType,
+        d.translation as paymentStatus,
+        g.translation as paymentSubType,
+        b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        (select translation from ARCMessage
+				  where msgcode = (NVL(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; SYSTIMESTAMP then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability
+        from BNKDsbmtTmplSumm a, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+        <if test="userAccessTypeCD != null">
+            <!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+                , BNKTmplCntrEntl e, BNKTmplCntrEntl f
+                <if test="isAchCompany">                       
+                    <if test="!useINClauseForACHCompany">
+                        <if test="!zeroEntitledAchCompany">
+                            , BNKACHCompanyIDEntl b0                                         
+                        </if>
+                    </if>
+                </if>
+        	<!-- </if> -->       
+        </if>
+        where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+        <if test="customerOid != null">
+            and a.BNKCustomerKy = #{customerOid}
+        </if>
+        <if test="oids != null">
+            and a.BNKDsbmtTmplKy in
+            <foreach item="oid" collection="oids" open="(" close=")" separator=",">
+                #{oid}
+            </foreach>
+        </if>
+        <if test="templateName != null"> 
+            and b.NAME__ like #{templateName}
+        </if>
+        <if test="pmtTypeCodes == null">
+            and a.dsbmtTypeCd is NULL
+        </if>
+        <if test="pmtTypeCodes != null"> 
+            and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+            <if test="userAccessTypeCD != null">
+                <!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+                    AND e.BNKACCTKY = a.BNKAcctKyCmp 
+                    AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+                    AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+                    <if test="isAchCompany">
+                       <if test="useINClauseForACHCompany">
+                           <if test="!zeroEntitledAchCompany">
+                               AND NVL(a.BNKAchCompanyKy, 0) IN
+                               <foreach collection="entitledACHCompanies" item="achCompanyID" open="(" close=")" separator=",">
+                                   #{achCompanyID}
+                               </foreach>
+                           </if>
+                       </if>
+                       <if test="!useINClauseForACHCompany">
+                           <if test="!zeroEntitledAchCompany">
+                               AND NVL(a.BNKAchCompanyKy, 0) = b0.BNKAchcompanyKy and b0.ARCPrincipalKy = #{arcPrincipalKy}                                         
+                           </if>
+                       </if>
+                   </if>
+                    AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+                   
+                
+            </if>     
+			and a.dsbmtTypeCd in
+            <foreach collection="pmtTypeCodes" item="typeCode" open="(" close=")" separator=",">
+                #{typeCode}
+            </foreach>
+        </if>
+        <if test="pmtSubtypeCodes != null"> 
+            and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+            <foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+                #{pmtSubtypeCode}
+            </foreach>
+            ) or (g.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} 
+                and a.dsbmtTypeCd not in
+                (90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101)
+            ))
+        </if>
+        <if test="pmtTypeCodes != null and pmtSubtypeCodes == null">  
+            and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+        </if>
+        <if test="statusCodes == null"> 
+            and b.InstrStsCd is NULL
+        </if>
+        <if test="statusCodes != null"> 
+            and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+            <foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+                #{code}
+            </foreach>
+        </if> 
+        <if test="isConfidential != null">
+            and a.isConfidential = #{isConfidential}
+        </if>     
+        <if test="isActiveOnly">
+            and a.activedttm &lt; SYSTIMESTAMP
+        </if>
+        )   
+        select b.cnt, a.row_number, a.* from a1 a, (select count(*) as cnt from a1) b where a.row_number between 
+        <if test="fromRowNum != null">
+            #{fromRowNum} and
+        </if>
+        <if test="toRowNum != null">
+            #{toRowNum}
+        </if>
+
+    </select>
+
+    <select id="selectTemplateSummaryDataForAdvCriteria" resultMap="BaseResultMap" parameterType="com.s1.core.templatecenter.dao.TemplateSummaryDataAdvanceCriteria" >
+         with a1 (row_number, BNKDsbmtTmplKy, BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr,
+         fromAcct, BNKAcctKyCmp, cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount,
+         ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential, createUser, activeDttm,
+         updateDttm, updateUser, versionStamp,
+         instrStsCd, crDrStatus, instrSubTypCd, paymentType, paymentStatus, paymentSubtype,isActive, amtCrncyTypcd, stdBankName, availability, SOAINSTRID)
+         as (
+        <if test="!multiRecipientSearch">        
+			<include refid="Base_Column_List" />,
+			c.translation as paymentType,
+			d.translation as paymentStatus,
+			g.translation as paymentSubType,
+        	b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (coalesce(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; current timestamp then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID
+			from BNKDsbmtTmplSumm a, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+			<if test="userAccessTypeCD != null">
+				<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+					, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+					<if test="isAchCompany">
+	                    <if test="!useINClauseForACHCompany">
+	                        <if test="!zeroEntitledAchCompany">
+	                            , BNKACHCompanyIDEntl b0
+	                        </if>
+	                    </if>
+	                </if>
+				<!-- </if> -->
+			</if>
+			where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+			<if test="customerOid != null">
+				and a.BNKCustomerKy = #{customerOid}
+			</if>
+			<if test="oids != null">
+				and a.BNKDsbmtTmplKy in
+				<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+					#{oid}
+				</foreach>
+			</if>
+			<if test="templateName != null and templateName != ''"> 
+				and b.NAME__ like #{templateName}
+			</if>
+			<if test="pmtTypeCodes == null">
+				and a.dsbmtTypeCd is NULL
+			</if>
+			<if test="pmtTypeCodes != null"> 
+				and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						AND e.BNKACCTKY = a.BNKAcctKyCmp 
+						AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+						AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+						<if test="isAchCompany">
+                            <if test="useINClauseForACHCompany">
+                                <if test="!zeroEntitledAchCompany">
+                                    AND COALESCE(a.BNKAchCompanyKy, 0) IN
+                                    <foreach collection="entitledACHCompanies" item="achCompanyID" open="(" close=")" separator=",">
+                                        #{achCompanyID}
+                                    </foreach>
+                                </if>
+                            </if>
+                            <if test="!useINClauseForACHCompany">
+                                <if test="!zeroEntitledAchCompany">
+                                    AND COALESCE(a.BNKAchCompanyKy, 0) = b0.BNKAchcompanyKy and b0.ARCPrincipalKy = #{arcPrincipalKy}
+                                </if>
+                            </if>
+                        </if>
+						AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+					<!-- </if> -->
+				</if> 
+				<if test="pmtTypeCodesMultiRecp == null">
+					and ((a.dsbmtTypeCd is null )
+				</if>				
+				<if test="pmtTypeCodesMultiRecp != null">								
+					and ((a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesMultiRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+					<if test="pmtSubtypeCodes == null">
+						and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+					</if>	
+					<if test="pmtSubtypeCodes != null">
+						and b.instrSubtypCd in
+						<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+							#{pmtSubtypeCode}
+						</foreach>
+						and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+						<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+							#{pmtSubtypeCode}
+						</foreach>
+						) or (a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} and ( b.instrSubtypCd is null or b.instrSubtypCd not in
+						<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+							#{pmtSubtypeCode}
+						</foreach>
+						)
+						))
+					</if>
+					)
+				</if>
+				<if test="pmtTypeCodesSingleRecp != null">								
+					or ( a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesSingleRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} )
+				</if>
+				<if test="pmtTypeCodesIntlRecp != null and pmtTypeCodesIntlRecp != ''"> 
+		            or a.dsbmtTypeCd in
+            		<foreach collection="pmtTypeCodesIntlRecp" item="code" open="(" close=")" separator=",">
+      					#{code}
+            		</foreach>
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+            	</if>
+				)
+			</if>
+			<if test="statusCodes == null"> 
+				and b.InstrStsCd is NULL
+			</if>
+			<if test="statusCodes != null"> 
+				and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+				<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+					#{code}
+				</foreach>
+			</if> 
+			<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+				and UPPER(a.rcpntName) like #{thirdPartyNameRecip}
+			</if>
+			<if test="entryDesc != null and entryDesc != ''">
+				and UPPER(a.confNbr) like #{entryDesc}
+			</if>
+			<if test="rcpntBank != null and rcpntBank != ''">
+				and a.rcpntBank = #{rcpntBank}
+			</if>
+			<if test="recpAcctId != null and recpAcctId != ''">
+				and UPPER(a.rcpntacctnbr) like #{recpAcctId}
+			</if>
+			<if test="lastModifiedBy != null and lastModifiedBy != ''">
+				and a.updateUser = #{lastModifiedBy}
+			</if>
+			<if test="originatingAccountOid != null and originatingAccountOid != ''">
+				and a.bnkAcctKyCmp = #{originatingAccountOid}
+			</if>
+			<if test="achCompanyId != null and achCompanyId != ''">
+				and a.cmpAcctIdfr = #{achCompanyId}
+			</if>
+			<if test="singleAmount != null and singleAmount != ''">
+				and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+			</if>
+			 
+			
+			
+			<choose>
+			    <when test="fromAmount != null  and toAmount != null">
+			       and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}) and (a.CREDITCNT > 0))
+								or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount})and (a.DEBITCNT > 0))
+				)
+			    </when>
+			    <otherwise>
+				   <if test="fromAmount != null  or toAmount != null">
+						   
+						<if test="fromAmount != null ">
+							and( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.CREDITCNT > 0)) 
+								or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount} ) and (a.DEBITCNT > 0))) 
+			</if>
+						<if test="toAmount != null "> 
+							 and ( ((a.creditAmount <![CDATA[ >= ]]> 0) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}) and (a.CREDITCNT > 0))
+								or ((a.debitAmount <![CDATA[ >= ]]> 0) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount})and (a.DEBITCNT > 0))
+							)
+						</if>						 
+					</if>
+			    </otherwise>
+			  </choose>
+  
+			<if test="isConfidential != null">
+				and a.isConfidential = #{isConfidential}
+			</if>
+			<if test="isActiveOnly">
+            	and a.activedttm &lt; current timestamp
+        	</if>
+			)
+			select b.cnt, a.row_number, a.* from a1  a, (select count(*) as cnt from a1)  b where a.row_number between 
+			<if test="fromRowNum != null">
+				#{fromRowNum} and
+			</if>
+			<if test="toRowNum != null">
+				#{toRowNum}
+			</if>
+        </if>
+        <if test="multiRecipientSearch">        
+			<include refid="Base_Column_List" />,
+			c.translation as paymentType,
+			d.translation as paymentStatus,
+			g.translation as paymentSubType,
+			b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (coalesce(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; current timestamp then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+					<!-- </if> -->      
+				</if>
+				where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+				<if test="customerOid != null">
+					and a.BNKCustomerKy = #{customerOid}
+				</if>
+				<if test="oids != null">
+					and a.BNKDsbmtTmplKy in
+					<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+						#{oid}
+					</foreach>
+				</if>
+				<if test="templateName != null and templateName != ''"> 
+					and b.NAME__ like #{templateName}
+				</if>
+				<if test="pmtTypeCodesSingleRecp != null"> 
+					and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+					<if test="userAccessTypeCD != null">
+						<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+							AND e.BNKACCTKY = a.BNKAcctKyCmp 
+							AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+						<!-- </if> -->
+					</if>     
+					and a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesSingleRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+				</if>
+				<if test="pmtTypeCodesSingleRecp == null">
+					and a.dsbmtTypeCd is NULL
+				</if>
+				<if test="statusCodes == null"> 
+					and b.InstrStsCd is NULL
+				</if>
+				<if test="statusCodes != null"> 
+					and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if> 
+				<if test="pmtSubtypeCodes != null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="pmtSubtypeCodes == null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="entryDesc != null and entryDesc != ''">
+					and UPPER(a.confNbr) like #{entryDesc}
+				</if>
+				<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+					and UPPER(a.rcpntName) like #{thirdPartyNameRecip}
+				</if>
+				<if test="rcpntBank != null and rcpntBank != ''">
+					and a.rcpntBank = #{rcpntBank}
+				</if>
+				<if test="bankId != null and bankId != '' and (rcpntBank == null or rcpntBank == '')">
+					and UPPER(a.rcpntBank) like #{bankId}
+				</if>
+				<if test="recpAcctId != null and recpAcctId != ''">
+					and UPPER(a.rcpntacctnbr) like #{recpAcctId}
+				</if>
+				<if test="lastModifiedBy != null and lastModifiedBy != ''">
+					and a.updateUser = #{lastModifiedBy}
+				</if>
+				<if test="originatingAccountOid != null  and originatingAccountOid != ''">
+					and a.bnkAcctKyCmp = #{originatingAccountOid}
+				</if>
+				<if test="achCompanyId != null and achCompanyId != ''">
+					and a.cmpAcctIdfr = #{achCompanyId}
+				</if>
+				<if test="singleAmount != null and singleAmount != ''">
+					and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+				</if>
+				<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+					and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+						or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+					)
+				</if>
+				<if test="isConfidential != null">
+					and a.isConfidential = #{isConfidential}
+				</if>
+				<if test="isActiveOnly">
+		            and a.activedttm &lt; current timestamp
+		        </if>
+		union all 
+			Select Distinct BNKDsbmtTmplKy, a.BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr, fromAcct, BNKAcctKyCmp,
+				cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+				ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+				createUser, activeDttm, a.updateDttm, a.updateUser, a.versionStamp, b.instrStsCd, crDrStatus, b.instrSubTypCd,	
+				c.translation as paymentType,
+				d.translation as paymentStatus,
+				g.translation as paymentSubType,
+				b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (coalesce(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; current timestamp then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, BNKACHTmplRcpnt a0, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+						<if test="isAchCompany">                       
+		                    <if test="!useINClauseForACHCompany">
+		                        <if test="!zeroEntitledAchCompany">
+		                            , BNKACHCompanyIDEntl b0                                         
+		                        </if>
+		                    </if>
+		                </if>
+					<!-- </if> -->      
+				</if>
+				where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+				AND a.BNKDsbmtTmplKy = a0.BNKACHInstrTmplKy
+				<if test="customerOid != null">
+					and a.BNKCustomerKy = #{customerOid}
+				</if>
+				<if test="oids != null">
+					and a.BNKDsbmtTmplKy in
+					<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+						#{oid}
+					</foreach>
+				</if>
+				<if test="templateName != null and templateName != ''"> 
+					and b.NAME__ like #{templateName}
+				</if>
+				<if test="pmtTypeCodesMultiRecp != null"> 
+					and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+					<if test="userAccessTypeCD != null">
+						<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+							AND e.BNKACCTKY = a.BNKAcctKyCmp 
+							AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+							<if test="isAchCompany">
+                                <if test="useINClauseForACHCompany">
+                                    <if test="!zeroEntitledAchCompany">
+                                        AND COALESCE(a.BNKAchCompanyKy, 0) IN
+                                        <foreach collection="entitledACHCompanies" item="achCompanyID" open="(" close=")" separator=",">
+                                            #{achCompanyID}
+                                        </foreach>
+                                    </if>
+                                </if>
+                                <if test="!useINClauseForACHCompany">
+                                    <if test="!zeroEntitledAchCompany">
+                                        AND COALESCE(a.BNKAchCompanyKy, 0) = b0.BNKAchcompanyKy and b0.ARCPrincipalKy = #{arcPrincipalKy}
+                                    </if>
+                                </if>
+                            </if>
+							AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+							
+						<!-- </if> -->
+					</if>     
+					and a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesMultiRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+				</if>
+				<if test="pmtTypeCodesMultiRecp == null">
+					and a.dsbmtTypeCd is NULL
+				</if>
+				<if test="statusCodes == null"> 
+					and b.InstrStsCd is NULL
+				</if>				
+				<if test="statusCodes != null"> 
+					and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if> 
+				<if test="pmtSubtypeCodes != null"> 
+					and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					) or (a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} and ( b.instrSubtypCd is null or b.instrSubtypCd not in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					)
+					))
+				</if>
+				<if test="pmtSubtypeCodes == null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="entryDesc != null and entryDesc != ''">
+					and UPPER(a.confNbr) like #{entryDesc}
+				</if>
+				<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+					and UPPER(a0.thirdPartyName) like #{thirdPartyNameRecip}
+				</if>
+				<if test="bankId != null and bankId != ''">
+					and UPPER(a0.routingNumber) like #{bankId}
+				</if>
+				<if test="bankIdType != null and bankIdType != ''">
+					and a0.bankidtypecd = #{bankIdType}
+				</if>
+				<if test="recpAcctId != null and recpAcctId != ''">
+					and (UPPER(a0.acctId) like #{recpAcctId} or UPPER(a0.recipientId) like #{recpAcctId})
+				</if>
+				<if test="lastModifiedBy != null and lastModifiedBy != ''">
+					and a.updateUser = #{lastModifiedBy}
+				</if>
+				<if test="originatingAccountOid != null and originatingAccountOid != ''">
+					and a.bnkAcctKyCmp = #{originatingAccountOid}
+				</if>
+				<if test="achCompanyId != null and achCompanyId != ''">
+					and a.cmpAcctIdfr = #{achCompanyId}
+				</if>
+				<if test="singleAmount != null and singleAmount != ''">
+					and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+				</if>
+				<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+					and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+						or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+					)
+				</if>				
+				<if test="isConfidential != null">
+					and a.isConfidential = #{isConfidential}
+				</if>
+				<if test="isActiveOnly">
+		            and a.activedttm &lt; current timestamp
+		        </if>
+				
+				union all 
+			Select Distinct BNKDsbmtTmplKy, a.BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr, fromAcct, BNKAcctKyCmp,
+				cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+				ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+				b.createUser, activeDttm, a.updateDttm, a.updateUser, a.versionStamp, b.instrStsCd, crDrStatus, b.instrSubTypCd,	
+				c.translation as paymentType,
+				d.translation as paymentStatus,
+				g.translation as paymentSubType,
+				b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (coalesce(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; current timestamp then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, CBIThirdparty a0, PMTDSBMTLINEITEM li, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+					<!-- </if> -->      
+				</if>
+				where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy AND b.BNKInstrTmplKy = li.pmtdsbmtky AND li.CBIThirdPartyKy = a0.VFMThirdPartyKy
+				<if test="customerOid != null">
+					and a.BNKCustomerKy = #{customerOid}
+				</if>
+				<if test="oids != null">
+					and a.BNKDsbmtTmplKy in
+					<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+						#{oid}
+					</foreach>
+				</if>
+				<if test="templateName != null and templateName != ''"> 
+					and b.NAME__ like #{templateName}
+				</if>
+				<if test="pmtTypeCodesMultiRecp != null"> 
+					and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+					<if test="userAccessTypeCD != null">
+						<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+							AND e.BNKACCTKY = a.BNKAcctKyCmp 
+							AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+						<!-- </if> -->
+					</if>     
+					
+                  	
+                  	<if test="pmtTypeCodesIntlRecp != null and pmtTypeCodesIntlRecp != ''"> 
+                  		and ( a.dsbmtTypeCd in
+                  		<foreach collection="pmtTypeCodesIntlRecp" item="code" open="(" close=")" separator=",">
+            					#{code}
+                  		</foreach>
+						and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid})
+                  	</if>
+                  	
+				</if>				
+				<if test="statusCodes != null"> 
+					and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if> 
+				<if test="pmtSubtypeCodes != null"> 
+					and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					) or (a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} and ( b.instrSubtypCd is null or b.instrSubtypCd not in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					)
+					))
+				</if>
+				<if test="pmtSubtypeCodes == null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				
+				<if test="entryDesc != null and entryDesc != ''">
+					and UPPER(a.confNbr) like #{entryDesc}
+				</if>
+				<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+					and UPPER(a0.name) like #{thirdPartyNameRecip}
+				</if>
+				<if test="bankId != null and bankId != ''">
+					and UPPER(a0.bankId) like #{bankId}
+				</if>
+				<if test="bankIdType != null and bankIdType != ''">
+					and a0.bankidtypecdky = #{bankIdType}
+				</if>
+				<if test="recpAcctId != null and recpAcctId != ''">
+					and (UPPER(a0.acctId) like #{recpAcctId} or UPPER(a0.recipientId) like #{recpAcctId})
+				</if>
+				<if test="lastModifiedBy != null and lastModifiedBy != ''">
+					and a.updateUser = #{lastModifiedBy}
+				</if>
+				<if test="originatingAccountOid != null and originatingAccountOid != ''">
+					and a.bnkAcctKyCmp = #{originatingAccountOid}
+				</if>
+				<if test="achCompanyId != null and achCompanyId != ''">
+					and a.cmpAcctIdfr = #{achCompanyId}
+				</if>
+				<if test="singleAmount != null and singleAmount != ''">
+					and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+				</if>
+				<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+					and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+						or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+					)
+				</if>				
+				<if test="isConfidential != null">
+					and a.isConfidential = #{isConfidential}
+				</if>
+				<if test="isActiveOnly">
+		            and a.activedttm &lt; current timestamp
+		        </if>
+				
+	        )a11        
+			)
+			select b.cnt, a.row_number, a.* from a1  a, (select count(*) as cnt from a1)  b where a.row_number between 
+			<if test="fromRowNum != null">
+				#{fromRowNum} and
+			</if>
+			<if test="toRowNum != null">
+				#{toRowNum}
+			</if>
+        </if>
+    </select>
+    
+    <select id="selectTemplateSummaryDataForAdvCriteria-Oracle" resultMap="BaseResultMap" parameterType="com.s1.core.templatecenter.dao.TemplateSummaryDataAdvanceCriteria" >
+         with a1 (row_number, BNKDsbmtTmplKy, BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr,
+         fromAcct, BNKAcctKyCmp, cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount,
+         ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential, createUser, activeDttm,
+         updateDttm, updateUser, versionStamp,
+         instrStsCd, crDrStatus, instrSubTypCd, paymentType, paymentStatus, paymentSubtype,isActive, amtCrncyTypcd, stdBankName, availability, SOAINSTRID)
+         as (
+        <if test="!multiRecipientSearch">        
+			<include refid="Base_Column_List_Oracle" />,
+			c.translation as paymentType,
+			d.translation as paymentStatus,
+			g.translation as paymentSubType,
+        	b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (NVL(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; SYSTIMESTAMP then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+			<if test="userAccessTypeCD != null">
+				<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+					, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+					<if test="isAchCompany">                       
+	                    <if test="!useINClauseForACHCompany">
+	                        <if test="!zeroEntitledAchCompany">
+	                            , BNKACHCompanyIDEntl b0
+	                        </if>
+	                    </if>
+	                </if>
+				<!-- </if> -->
+			</if>
+			where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+			<if test="customerOid != null">
+				and a.BNKCustomerKy = #{customerOid}
+			</if>
+			<if test="oids != null">
+				and a.BNKDsbmtTmplKy in
+				<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+					#{oid}
+				</foreach>
+			</if>
+			<if test="templateName != null and templateName != ''"> 
+				and b.NAME__ like #{templateName}
+			</if>
+			<if test="pmtTypeCodes == null">
+				and a.dsbmtTypeCd is NULL
+			</if>
+			<if test="pmtTypeCodes != null"> 
+				and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						AND e.BNKACCTKY = a.BNKAcctKyCmp 
+						AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+						AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+						<if test="isAchCompany">
+                            <if test="useINClauseForACHCompany">
+                                <if test="!zeroEntitledAchCompany">
+                                    AND NVL(a.BNKAchCompanyKy, 0) IN
+                                    <foreach collection="entitledACHCompanies" item="achCompanyID" open="(" close=")" separator=",">
+                                        #{achCompanyID}
+                                    </foreach>
+                                </if>
+                            </if>
+                            <if test="!useINClauseForACHCompany">
+                                <if test="!zeroEntitledAchCompany">
+                                    AND NVL(a.BNKAchCompanyKy, 0) = b0.BNKAchcompanyKy and b0.ARCPrincipalKy = #{arcPrincipalKy}
+                                </if>
+                            </if>
+                        </if>
+						AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+					<!-- </if> -->
+				</if> 
+				<if test="pmtTypeCodesMultiRecp == null">
+					and ((a.dsbmtTypeCd is null )
+				</if>				
+				<if test="pmtTypeCodesMultiRecp != null">								
+					and ((a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesMultiRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+					<if test="pmtSubtypeCodes == null">
+						and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+					</if>	
+					<if test="pmtSubtypeCodes != null">
+						and b.instrSubtypCd in
+						<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+							#{pmtSubtypeCode}
+						</foreach>
+						and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+						<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+							#{pmtSubtypeCode}
+						</foreach>
+						) or (a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} and ( b.instrSubtypCd is null or b.instrSubtypCd not in
+						<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+							#{pmtSubtypeCode}
+						</foreach>
+						)
+						))
+					</if>
+					)
+				</if>
+				<if test="pmtTypeCodesSingleRecp != null">								
+					or ( a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesSingleRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} )
+				</if>
+				<if test="pmtTypeCodesIntlRecp != null and pmtTypeCodesIntlRecp != ''"> 
+		            or a.dsbmtTypeCd in
+            		<foreach collection="pmtTypeCodesIntlRecp" item="code" open="(" close=")" separator=",">
+      					#{code}
+            		</foreach>
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+            	</if>
+				)
+			</if>
+			<if test="statusCodes == null"> 
+				and b.InstrStsCd is NULL
+			</if>
+			<if test="statusCodes != null"> 
+				and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+				<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+					#{code}
+				</foreach>
+			</if> 
+			<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+				and UPPER(a.rcpntName) like #{thirdPartyNameRecip}
+			</if>
+			<if test="entryDesc != null and entryDesc != ''">
+				and UPPER(a.confNbr) like #{entryDesc}
+			</if>
+			<if test="rcpntBank != null and rcpntBank != ''">
+				and a.rcpntBank = #{rcpntBank}
+			</if>
+			<if test="recpAcctId != null and recpAcctId != ''">
+				and UPPER(a.rcpntacctnbr) like #{recpAcctId}
+			</if>
+			<if test="lastModifiedBy != null and lastModifiedBy != ''">
+				and a.updateUser = #{lastModifiedBy}
+			</if>
+			<if test="originatingAccountOid != null and originatingAccountOid != ''">
+				and a.bnkAcctKyCmp = #{originatingAccountOid}
+			</if>
+			<if test="achCompanyId != null and achCompanyId != ''">
+				and a.cmpAcctIdfr = #{achCompanyId}
+			</if>
+			<if test="singleAmount != null and singleAmount != ''">
+				and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+			</if>
+			<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+				and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+					or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+				)
+			</if>
+			<if test="isConfidential != null">
+				and a.isConfidential = #{isConfidential}
+			</if>
+			<if test="isActiveOnly">
+		            and a.activedttm &lt; SYSTIMESTAMP
+		        </if>
+			)
+			select b.cnt, a.row_number, a.* from a1  a, (select count(*) as cnt from a1)  b where a.row_number between 
+			<if test="fromRowNum != null">
+				#{fromRowNum} and
+			</if>
+			<if test="toRowNum != null">
+				#{toRowNum}
+			</if>
+        </if>
+        <if test="multiRecipientSearch">        
+			<include refid="Base_Column_List_Oracle" />,
+			c.translation as paymentType,
+			d.translation as paymentStatus,
+			g.translation as paymentSubType,
+			b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (NVL(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; SYSTIMESTAMP then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+					<!-- </if> -->      
+				</if>
+				where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+				<if test="customerOid != null">
+					and a.BNKCustomerKy = #{customerOid}
+				</if>
+				<if test="oids != null">
+					and a.BNKDsbmtTmplKy in
+					<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+						#{oid}
+					</foreach>
+				</if>
+				<if test="templateName != null and templateName != ''"> 
+					and b.NAME__ like #{templateName}
+				</if>
+				<if test="pmtTypeCodesSingleRecp != null"> 
+					and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+					<if test="userAccessTypeCD != null">
+						<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+							AND e.BNKACCTKY = a.BNKAcctKyCmp 
+							AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+						<!-- </if> -->
+					</if>     
+					and a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesSingleRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+				</if>
+				<if test="pmtTypeCodesSingleRecp == null">
+					and a.dsbmtTypeCd is NULL
+				</if>
+				<if test="statusCodes == null"> 
+					and b.InstrStsCd is NULL
+				</if>
+				<if test="statusCodes != null"> 
+					and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if> 
+				<if test="pmtSubtypeCodes != null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="pmtSubtypeCodes == null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="entryDesc != null and entryDesc != ''">
+					and UPPER(a.confNbr) like #{entryDesc}
+				</if>
+				<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+					and UPPER(a.rcpntName) like #{thirdPartyNameRecip}
+				</if>
+				<if test="rcpntBank != null and rcpntBank != ''">
+					and a.rcpntBank = #{rcpntBank}
+				</if>
+				<if test="bankId != null and bankId != '' and (rcpntBank == null or rcpntBank == '')">
+					and UPPER(a.rcpntBank) like #{bankId}
+				</if>
+				<if test="recpAcctId != null and recpAcctId != ''">
+					and UPPER(a.rcpntacctnbr) like #{recpAcctId}
+				</if>
+				<if test="lastModifiedBy != null and lastModifiedBy != ''">
+					and a.updateUser = #{lastModifiedBy}
+				</if>
+				<if test="originatingAccountOid != null  and originatingAccountOid != ''">
+					and a.bnkAcctKyCmp = #{originatingAccountOid}
+				</if>
+				<if test="achCompanyId != null and achCompanyId != ''">
+					and a.cmpAcctIdfr = #{achCompanyId}
+				</if>
+				<if test="singleAmount != null and singleAmount != ''">
+					and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+				</if>
+				<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+					and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+						or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+					)
+				</if>
+				<if test="isConfidential != null">
+					and a.isConfidential = #{isConfidential}
+				</if>
+				<if test="isActiveOnly">
+		            and a.activedttm &lt; SYSTIMESTAMP
+		        </if>
+		union all 
+			Select Distinct BNKDsbmtTmplKy, a.BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr, fromAcct, BNKAcctKyCmp,
+				cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+				ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+				createUser, activeDttm, a.updateDttm, a.updateUser, a.versionStamp, b.instrStsCd, crDrStatus, b.instrSubTypCd,	
+				c.translation as paymentType,
+				d.translation as paymentStatus,
+				g.translation as paymentSubType,
+				b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (NVL(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; SYSTIMESTAMP then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, BNKACHTmplRcpnt a0, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+						<if test="isAchCompany">                       
+		                    <if test="!useINClauseForACHCompany">
+		                        <if test="!zeroEntitledAchCompany">
+		                            , BNKACHCompanyIDEntl b0
+		                        </if>
+		                    </if>
+		                </if>
+					<!-- </if> -->      
+				</if>
+				where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+				AND a.BNKDsbmtTmplKy = a0.BNKACHInstrTmplKy
+				<if test="customerOid != null">
+					and a.BNKCustomerKy = #{customerOid}
+				</if>
+				<if test="oids != null">
+					and a.BNKDsbmtTmplKy in
+					<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+						#{oid}
+					</foreach>
+				</if>
+				<if test="templateName != null and templateName != ''"> 
+					and b.NAME__ like #{templateName}
+				</if>
+				<if test="pmtTypeCodesMultiRecp != null"> 
+					and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+					<if test="userAccessTypeCD != null">
+						<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+							AND e.BNKACCTKY = a.BNKAcctKyCmp 
+							AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+							<if test="isAchCompany">
+                                <if test="useINClauseForACHCompany">
+                                    <if test="!zeroEntitledAchCompany">
+                                        AND NVL(a.BNKAchCompanyKy, 0) IN
+                                        <foreach collection="entitledACHCompanies" item="achCompanyID" open="(" close=")" separator=",">
+                                            #{achCompanyID}
+                                        </foreach>
+                                    </if>
+                                </if>
+                                <if test="!useINClauseForACHCompany">
+                                    <if test="!zeroEntitledAchCompany">
+                                        AND NVL(a.BNKAchCompanyKy, 0) = b0.BNKAchcompanyKy and b0.ARCPrincipalKy = #{arcPrincipalKy}
+                                    </if>
+                                </if>
+                            </if>
+							AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+							
+						<!-- </if> -->
+					</if>     
+					and a.dsbmtTypeCd in
+					<foreach collection="pmtTypeCodesMultiRecp" item="typeCode" open="(" close=")" separator=",">
+						#{typeCode}
+					</foreach>
+				</if>
+				<if test="pmtTypeCodesMultiRecp == null">
+					and a.dsbmtTypeCd is NULL
+				</if>
+				<if test="statusCodes == null"> 
+					and b.InstrStsCd is NULL
+				</if>				
+				<if test="statusCodes != null"> 
+					and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if> 
+				<if test="pmtSubtypeCodes != null"> 
+					and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					) or (a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} and ( b.instrSubtypCd is null or b.instrSubtypCd not in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					)
+					))
+				</if>
+				<if test="pmtSubtypeCodes == null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="entryDesc != null and entryDesc != ''">
+					and UPPER(a.confNbr) like #{entryDesc}
+				</if>
+				<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+					and UPPER(a0.thirdPartyName) like #{thirdPartyNameRecip}
+				</if>
+				<if test="bankId != null and bankId != ''">
+					and UPPER(a0.routingNumber) like #{bankId}
+				</if>
+				<if test="bankIdType != null and bankIdType != ''">
+					and a0.bankidtypecd = #{bankIdType}
+				</if>
+				<if test="recpAcctId != null and recpAcctId != ''">
+					and (UPPER(a0.acctId) like #{recpAcctId} or UPPER(a0.recipientId) like #{recpAcctId})
+				</if>
+				<if test="lastModifiedBy != null and lastModifiedBy != ''">
+					and a.updateUser = #{lastModifiedBy}
+				</if>
+				<if test="originatingAccountOid != null and originatingAccountOid != ''">
+					and a.bnkAcctKyCmp = #{originatingAccountOid}
+				</if>
+				<if test="achCompanyId != null and achCompanyId != ''">
+					and a.cmpAcctIdfr = #{achCompanyId}
+				</if>
+				<if test="singleAmount != null and singleAmount != ''">
+					and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+				</if>
+				<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+					and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+						or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+					)
+				</if>				
+				<if test="isConfidential != null">
+					and a.isConfidential = #{isConfidential}
+				</if>
+				<if test="isActiveOnly">
+		            and a.activedttm &lt; SYSTIMESTAMP
+		        </if>
+				
+				union all 
+			Select Distinct BNKDsbmtTmplKy, a.BNKCustomerKy, dsbmtTypeCd, nameRef, confNbr, fromAcct, BNKAcctKyCmp,
+				cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+				ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+				b.createUser, activeDttm, a.updateDttm, a.updateUser, a.versionStamp, b.instrStsCd, crDrStatus, b.instrSubTypCd,	
+				c.translation as paymentType,
+				d.translation as paymentStatus,
+				g.translation as paymentSubType,
+				b.isActive as isActive, amtCrncyTypcd, stdBankName,
+        	(select translation from ARCMessage
+				  where msgcode = (NVL(
+										(case when a.dsbmttypecd in 
+									            <foreach collection="wireStatusCodes" item="code" open="(" close=")" separator=",">
+									                #{code}
+									            </foreach>
+											    then (case when b.isactive = '1' then 'CORCStatActiv' else 'CORCStatInAct' end)
+												else (case when activedttm &gt; SYSTIMESTAMP then 'CORCStatInAct' else 'CORCStatActiv' end)
+										 end) ,'CORCStatInAct')) 
+								and arcLocaleCdKy=#{localeOid}) as availability,
+			b.SOAINSTRID 
+			from BNKDsbmtTmplSumm a, CBIThirdparty a0, PMTDSBMTLINEITEM li, BNKInstrTmpl b, BNKPmtStsMsgMQT c, BNKPmtStsMsgMQT d, BNKPmtStsMsgMQT g
+				<if test="userAccessTypeCD != null">
+					<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+						, BNKTmplCntrEntl e, BNKTmplCntrEntl f
+					<!-- </if> -->      
+				</if>
+				where a.BNKDsbmtTmplKy = b.BNKInstrTmplKy AND b.BNKInstrTmplKy = li.pmtdsbmtky AND li.CBIThirdPartyKy = a0.VFMThirdPartyKy
+				<if test="customerOid != null">
+					and a.BNKCustomerKy = #{customerOid}
+				</if>
+				<if test="oids != null">
+					and a.BNKDsbmtTmplKy in
+					<foreach item="oid" collection="oids" open="(" close=")" separator=",">
+						#{oid}
+					</foreach>
+				</if>
+				<if test="templateName != null and templateName != ''"> 
+					and b.NAME__ like #{templateName}
+				</if>
+				<if test="pmtTypeCodesMultiRecp != null"> 
+					and c.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = c.enumValue and c.ARCLocaleCdKy = #{localeOid}          
+					<if test="userAccessTypeCD != null">
+						<!-- <if test="userAccessTypeCD == 'C'.toString()"> -->
+							AND e.BNKACCTKY = a.BNKAcctKyCmp 
+							AND a.dsbmtTypeCd = e.PaymenttypeCdKy AND e.ENTLTYPCD = 'A' AND e.BNKCustomerKy = #{customerOid} AND e.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND a.dsbmtTypeCd = f.PaymenttypeCdKy AND f.ENTLTYPCD = 'F' AND f.BNKCustomerKy = #{customerOid} AND f.ARCPRINCIPALKY = #{arcPrincipalKy}
+							AND ( (f.CRDRCD in ('B', 'M')) or ((f.CRDRCD = 'C') and (CRDRSTATUS = 'C')) or ((f.CRDRCD = 'D') and (CRDRSTATUS = 'D')) )
+						<!-- </if> -->
+					</if>     
+					
+                  	
+                  	<if test="pmtTypeCodesIntlRecp != null and pmtTypeCodesIntlRecp != ''"> 
+                  		and ( a.dsbmtTypeCd in
+                  		<foreach collection="pmtTypeCodesIntlRecp" item="code" open="(" close=")" separator=",">
+            					#{code}
+                  		</foreach>
+						and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid})
+                  	</if>
+                  	
+				</if>				
+				<if test="statusCodes != null"> 
+					and d.fetchId='statusCodeEnum' and b.InstrStsCd = d.enumValue and d.ARCLocaleCdKy = #{localeOid} and b.InstrStsCd in
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if> 
+				<if test="pmtSubtypeCodes != null"> 
+					and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					and ((g.fetchId='pmtSubtypeCodeEnum' and b.instrSubTypCd = g.enumValue and g.ARCLocaleCdKy = #{localeOid} and b.instrSubtypCd in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					) or (a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} and ( b.instrSubtypCd is null or b.instrSubtypCd not in
+					<foreach collection="pmtSubtypeCodes" item="pmtSubtypeCode" open="(" close=")" separator=",">
+						#{pmtSubtypeCode}
+					</foreach>
+					)
+					))
+				</if>
+				<if test="pmtSubtypeCodes == null">  
+					and a.dsbmtTypeCd = g.enumValue and g.fetchId='paymentTypesEnum' and g.ARCLocaleCdKy = #{localeOid} 
+				</if>        
+				<if test="entryDesc != null and entryDesc != ''">
+					and UPPER(a.confNbr) like #{entryDesc}
+				</if>
+				<if test="thirdPartyNameRecip != null and thirdPartyNameRecip != ''">
+					and UPPER(a0.name) like #{thirdPartyNameRecip}
+				</if>
+				<if test="bankId != null and bankId != ''">
+					and UPPER(a0.bankId) like #{bankId}
+				</if>
+				<if test="bankIdType != null and bankIdType != ''">
+					and a0.bankidtypecdky = #{bankIdType}
+				</if>
+				<if test="recpAcctId != null and recpAcctId != ''">
+					and (UPPER(a0.acctId) like #{recpAcctId} or UPPER(a0.recipientId) like #{recpAcctId})
+				</if>
+				<if test="lastModifiedBy != null and lastModifiedBy != ''">
+					and a.updateUser = #{lastModifiedBy}
+				</if>
+				<if test="originatingAccountOid != null and originatingAccountOid != ''">
+					and a.bnkAcctKyCmp = #{originatingAccountOid}
+				</if>
+				<if test="achCompanyId != null and achCompanyId != ''">
+					and a.cmpAcctIdfr = #{achCompanyId}
+				</if>
+				<if test="singleAmount != null and singleAmount != ''">
+					and ((a.creditAmount  = #{singleAmount}) or (a.debitAmount  = #{singleAmount}))
+				</if>
+				<if test="fromAmount != null and fromAmount != '' and toAmount != null and toAmount != ''">
+					and ( ((a.creditAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.creditAmount <![CDATA[ <= ]]> #{toAmount}))
+						or ((a.debitAmount <![CDATA[ >= ]]> #{fromAmount}) and (a.debitAmount <![CDATA[ <= ]]> #{toAmount}))
+					)
+				</if>				
+				<if test="isConfidential != null">
+					and a.isConfidential = #{isConfidential}
+				</if>
+				<if test="isActiveOnly">
+		            and a.activedttm &lt; SYSTIMESTAMP
+		        </if>
+				
+	        )a11        
+			)
+			select b.cnt, a.row_number, a.* from a1  a, (select count(*) as cnt from a1)  b where a.row_number between 
+			<if test="fromRowNum != null">
+				#{fromRowNum} and
+			</if>
+			<if test="toRowNum != null">
+				#{toRowNum}
+			</if>
+        </if>
+    </select>
+ 	
+    <update id="populateTmplEntitlements" statementType="CALLABLE" parameterType="map">
+        { call BNKTmplCntrEntlSP(#{v_BNKCustomerKy}, #{v_ARCPrincipalKy}, #{v_UserGroupEnabled}, #{v_userAccessTypeCd}, #{v_achCompanIDEntl}) } 
+    </update>
+	
+    <select id="getTemplateOidByName" resultType="java.lang.Long" parameterType="com.s1.app.disbursements.template.TemplateCriteria">
+    	SELECT BnkInstrTmplKy from BnkInstrTmpl where corCustomerky=#{customerOid}
+    	and Rtrim(Ltrim(UPPER(NAME))) = UPPER(#{templateName})
+    	<if test="statusList!=null">
+			<if test="statusInList">
+				and instrStsCd IN 
+			</if>
+			<if test="!statusInList">
+				and instrStsCd NOT IN 
+			</if>
+			<foreach collection="statusList" item="statusCode" open="(" close=")" separator=",">
+				#{statusCode}
+			</foreach>
+		</if>
+    </select>
+	
+</mapper>

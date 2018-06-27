@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.DrCrDisbursementValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.payments.services.BasePaymentServiceRsType</typeB>
+		<fields>
+			<field>
+				<fieldA>disbursementValue.soaInstructionId</fieldA>
+				<fieldB>paymentIdent</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.bulktransfer.BulkTransferTransactionValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.payments.services.BasePaymentServiceRsType</typeB>
+		<fields>
+			<field>
+				<fieldA>disbursementValue.soaInstructionId</fieldA>
+				<fieldB>paymentIdent</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.DrCrDisbursementValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.onlinetransfer.services.OnlineTransferValidateRsType</typeB>
+		<fields>
+			<field>
+				<fieldA>disbursementValue.soaInstructionId</fieldA>
+				<fieldB>paymentIdent</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.app.disbursements.bulktransfer.BulkTransferTransactionValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.onlinetransfer.services.OnlineTransferValidateRsType</typeB>
+		<fields>
+			<field>
+				<fieldA>disbursementValue.soaInstructionId</fieldA>
+				<fieldB>paymentIdent</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	 
+	<mapping mapNull="false">
+			<typeA>com.aciworldwide.pim.messages.onlinetransfer.services.OnlineTransferCreateRqType</typeA>
+			<typeB>com.s1.app.disbursements.DrCrDisbursementValue</typeB>
+			<fields>
+				<field>
+					<fieldA>memo</fieldA>
+					<fieldB>memo</fieldB>
+				</field>
+				<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateToTimestampConverter">
+					<fieldA>transferDateTime</fieldA>
+					<fieldB>scheduledExecutionDate</fieldB>
+				</field>						
+				<field customConverter="com.aciworldwide.pim.messages.service.transfer.converter.RecurrenceValueConverter">
+					<fieldA>recurrence</fieldA>
+					<fieldB>disbursementValue.recurrenceData</fieldB>
+				</field>
+			</fields>
+		</mapping>
+		
+		<mapping mapNull="false">
+			<typeA>com.aciworldwide.pim.messages.onlinetransfer.services.OnlineTransferCreateRqType</typeA>
+			<typeB>com.s1.app.disbursements.bulktransfer.BulkTransferTransactionValue</typeB>
+			<fields>
+				<field>
+					<fieldA>memo</fieldA>
+					<fieldB>memo</fieldB>
+				</field>
+				<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateToTimestampConverter">
+					<fieldA>transferDateTime</fieldA>
+					<fieldB>scheduledExecutionDate</fieldB>
+				</field>						
+			</fields>
+		</mapping>
+		
+		<mapping mapNull="false">
+			<typeA>com.s1.app.disbursements.bulktransfer.BulkTransferTemplateValue</typeA>
+			<typeB>com.aciworldwide.pim.messages.onlinetransfer.template.services.OnlineTransferTemplateCreateRqType</typeB>
+			<fields>
+				<field customConverter="com.aciworldwide.arch.service.transformation.converter.BooleanToZeroOneConverter">
+					<fieldA>isActive</fieldA>
+					<fieldB>activateTemplate</fieldB>
+				</field>
+				<field>
+					<fieldA>templateName</fieldA>
+					<fieldB>templateName</fieldB>
+				</field>
+				<field>
+					<fieldA>memo</fieldA>
+					<fieldB>memo</fieldB>
+				</field>
+				<field>
+					<fieldA>noOfApprovers</fieldA>
+					<fieldB>noOfApproversReqd</fieldB>
+				</field>
+				<field customConverter="com.aciworldwide.arch.service.transformation.converter.BooleanToZeroOneConverter">
+					<fieldA>AMEdit</fieldA>
+					<fieldB>allowAmountChange</fieldB>
+				</field>
+				<field>
+					<fieldA>authorizeMemo</fieldA>
+					<fieldB>memo</fieldB>
+				</field>
+				<field customConverter="com.aciworldwide.arch.service.transformation.converter.BooleanToZeroOneConverter">
+					<fieldA>memoEdit</fieldA>
+					<fieldB>allowChangeOfMemoText</fieldB>
+				</field>				
+			</fields>
+		</mapping>
+</mappings>

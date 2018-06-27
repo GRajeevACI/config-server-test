@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.app.bank.checkbook.dao.CheckbookRequestMapper">
+
+	<resultMap id="CheckbookRequestMap" type="com.s1.app.bank.checkbook.CheckbookRequest">
+		<result column="BNKCHECKBOOKRQstKy" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKCustomerKy" property="custOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKUserKy" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKAcctKy" property="acctOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="chkBkRqstrARCCountryCdKy" property="countryCd" jdbcType="INTEGER" />
+		<result column="chkBkRqstrARCStateCdKy" property="stateCd" jdbcType="INTEGER" />
+		<result column="leafletPerChkBk" property="numOfChecks" jdbcType="VARCHAR" />
+		<result column="chkBkOrdQty" property="quantityOrdered" jdbcType="SMALLINT" />
+		<result column="chkBkDeliveryMethodCd" property="deliveryMethod" jdbcType="SMALLINT" />
+		<result column="chkBkRqstrAddr1" property="address1" jdbcType="VARCHAR" />
+		<result column="chkBkRqstrAddr2" property="address2" jdbcType="VARCHAR" />
+		<result column="chkBkRqstrCity" property="city" jdbcType="VARCHAR" />
+		<result column="chkBkRqstrPostalCd" property="postalCode" jdbcType="VARCHAR" />
+		<result column="chkBkFeeAmt" property="fee" jdbcType="NUMERIC" />
+		<result column="branchName" property="branchName" jdbcType="VARCHAR" />
+		<result column="chkBkRqstrPhoneNbr" property="phoneNum" jdbcType="VARCHAR" />
+		<result column="chkBkRqstStsCd" property="status" jdbcType="SMALLINT" />
+		<result column="chkBkRefNbr" property="refNum" jdbcType="VARCHAR" />
+		<result column="chkBkDlvrdQty" property="quantityDelivered" jdbcType="SMALLINT" />
+		<result column="chkBkRqstrARCISOCrncyCdKy" property="currencyCd" jdbcType="SMALLINT" />
+		<result column="createDttm" property="updateDateTime" jdbcType="TIMESTAMP" />
+		<result column="updateDttm" property="updateDateTime" jdbcType="TIMESTAMP" />
+		<result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+		<result column="versionStamp" property="versionStamp" jdbcType="SMALLINT" />
+	</resultMap>
+
+	<resultMap id="CheckbookRequestOutputEntryMap" type="com.s1.app.bank.checkbook.batch.CheckbookRequestOutputValue">
+		<result column="affId" property="affiliateId" jdbcType="VARCHAR" />
+		<result column="custId" property="companyId" jdbcType="VARCHAR" />
+		<result column="acctId" property="accountNumber" jdbcType="VARCHAR" />
+		<result column="acctOid" property="accountOid" jdbcType="VARCHAR" />
+		<result column="productCode" property="productCode" jdbcType="VARCHAR" />
+		<result column="FIID" property="FIId" jdbcType="VARCHAR" />
+		<result column="leafletPerChkBk" property="numberOfChecks" jdbcType="VARCHAR" />
+		<result column="quantityOrdered" property="quantity" jdbcType="SMALLINT" />
+		<result column="deliveryMethod" property="deliveryMethod" jdbcType="SMALLINT" />
+		<result column="custName" property="companyName" jdbcType="VARCHAR" />
+		<result column="branchName" property="deliveryBranchName" jdbcType="VARCHAR" />
+		<result column="addr1" property="address1" jdbcType="VARCHAR" />
+		<result column="addr2" property="address2" jdbcType="VARCHAR" />
+		<result column="country" property="country" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="state" property="state" jdbcType="VARCHAR" />
+		<result column="postalCode" property="postalCode" jdbcType="VARCHAR" />
+		<result column="phoneNumber" property="phoneNum" jdbcType="VARCHAR" />
+		<result column="refNumber" property="secNum" jdbcType="VARCHAR" />
+		<result column="feeAmt" property="fee" jdbcType="NUMERIC" />
+	</resultMap>
+
+	<select id="selectCheckbookRequestByOid" parameterType="com.s1.arch.utilities.ObjectId" resultMap="CheckbookRequestMap">
+		SELECT 
+			R.BNKCHECKBOOKRQstKy, 
+			R.BNKCustomerKy,
+			R.BNKUserKy,
+			R.BNKAcctKy,
+			R.chkBkRqstrARCCountryCdKy, 
+			R.chkBkRqstrARCStateCdKy, 
+			R.leafletPerChkBk, 
+			R.chkBkOrdQty, 
+			R.chkBkDeliveryMethodCd, 
+			R.chkBkRqstrAddr1, 
+			R.chkBkRqstrAddr2, 
+			R.chkBkRqstrCity, 
+			R.chkBkRqstrPostalCd, 
+			R.chkBkFeeAmt, 
+			R.branchName, 
+			R.chkBkRqstrPhoneNbr, 
+			R.chkBkRqstStsCd,
+			R.chkBkRefNbr, 
+			R.chkBkDlvrdQty,
+			R.chkBkRqstrARCISOCrncyCdKy,
+			R.createDttm, 
+			R.updateDttm, 
+			R.updateUser, 
+			R.versionStamp 
+		FROM 
+			BNKCHECKBOOKRQst R 
+		WHERE 
+			R.BNKCHECKBOOKRQstKy = #{id, jdbcType=INTEGER, typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+
+	<select id="selectCheckbookRequestByCustomerOidAndRefNum" parameterType="com.s1.app.bank.checkbook.CheckbookRequest" resultMap="CheckbookRequestMap">
+		SELECT 
+			R.BNKCHECKBOOKRQstKy, 
+			R.BNKCustomerKy,
+			R.BNKUserKy,
+			R.BNKAcctKy,
+			R.chkBkRqstrARCCountryCdKy, 
+			R.chkBkRqstrARCStateCdKy, 
+			R.leafletPerChkBk, 
+			R.chkBkOrdQty, 
+			R.chkBkDeliveryMethodCd, 
+			R.chkBkRqstrAddr1, 
+			R.chkBkRqstrAddr2, 
+			R.chkBkRqstrCity, 
+			R.chkBkRqstrPostalCd, 
+			R.chkBkFeeAmt, 
+			R.branchName, 
+			R.chkBkRqstrPhoneNbr, 
+			R.chkBkRqstStsCd,
+			R.chkBkRefNbr, 
+			R.chkBkDlvrdQty,
+			R.chkBkRqstrARCISOCrncyCdKy,
+			R.createDttm, 
+			R.updateDttm, 
+			R.updateUser, 
+			R.versionStamp 
+		FROM 
+			BNKCHECKBOOKRQst R 
+		WHERE 
+			BNKCustomerKy = #{custOid, jdbcType=INTEGER, typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND chkBkRefNbr = #{refNum, jdbcType=VARCHAR}  
+	</select>
+
+	<update id="updateCheckbookRequestStatusAndQuantityDelivered" parameterType="com.s1.app.bank.checkbook.CheckbookRequest">
+		UPDATE 
+			BNKCHECKBOOKRQst 
+		<set>
+			chkBkRqstStsCd = #{status, jdbcType=SMALLINT}
+			<if test="quantityDelivered != null" >
+				, chkBkDlvrdQty = #{quantityDelivered, jdbcType=SMALLINT}
+			</if>
+		</set>
+		WHERE 
+			BNKCustomerKy = #{custOid, jdbcType=INTEGER, typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND chkBkRefNbr = #{refNum, jdbcType=VARCHAR}  
+	</update>
+
+	<resultMap type="com.s1.app.bank.checkbook.user.CheckbookView" id="CheckbookViewList"> 
+		<result column='BNKCHECKBOOKRQSTKY' property='id' />
+		<result column='LEAFLETPERCHKBK' property='numberOfChecks' />
+		<result column='CREATEDTTM' property='dateOrdered' jdbcType="TIMESTAMP" />
+		<result column='CHKBKRQSTSTSCD' property='status'  />
+		<result column='CHKBKORDQTY' property='orderedQuantity'  />		
+		<result column='BNKACCTKY' property='accountId' />
+		<result column='ACCTID' property='accountNumber' />
+		<result column='ACCTNAME' property='nickName' />
+		<result column='BNKUSERKY' property='userId' />
+	</resultMap>
+	
+	<sql id="CheckBookCriteria">
+		<if test="criteria != null">    		
+   			<if test="criteria.fromDate != null">    				
+   				<![CDATA[ AND R.CREATEDTTM >= #{criteria.fromDate,jdbcType=TIMESTAMP} ]]>   			
+   			</if>    		
+   			<if test="criteria.toDate != null">    				
+   				<![CDATA[ AND R.CREATEDTTM <= #{criteria.toDate,jdbcType=TIMESTAMP} ]]>    			
+   			</if>    
+   			<if test="criteria.accountId != null">    				
+   				AND A.BNKACCTKY = #{criteria.accountId,jdbcType=INTEGER}   			
+   			</if>		
+   			<if test="criteria.orderStatus != null">    				
+   				AND R.CHKBKRQSTSTSCD = #{criteria.orderStatus,jdbcType=INTEGER}   			
+   			</if>	    			
+    	</if>
+	</sql>
+	
+	<select id="getCheckbookCountByStatus" parameterType="map" resultType="int">	
+		SELECT COUNT(*) 		
+		FROM BNKCHECKBOOKRQST R JOIN BNKACCT A ON R.BNKACCTKY = A.BNKACCTKY
+		WHERE R.CHKBKRQSTSTSCD in
+		<foreach item="item" collection="status" separator="," open="(" close=")">
+    	    	#{item}
+    	</foreach> 
+    	<include refid="CheckBookCriteria"/>
+	</select>
+	
+	<select id="getCheckbookListByStatus" parameterType="map" resultMap="CheckbookViewList">
+		WITH BASIC AS (
+		SELECT			
+			R.BNKCHECKBOOKRQSTKY,            
+			R.LEAFLETPERCHKBK,
+			R.CREATEDTTM,
+			R.CHKBKORDQTY,
+			R.CHKBKRQSTSTSCD,
+			R.BNKUSERKY,
+			A.BNKACCTKY,
+			A.ACCTID,
+			A.ACCTNAME
+			<choose>	    	 	
+	    	 	<when test="sortKey == 'status'">
+	    	 		,CASE (R.CHKBKRQSTSTSCD)
+		      			<foreach item="item" collection="statusMap.entrySet()" separator=" ">
+	    	    			WHEN ${item.key} THEN ${item.value}
+	    				</foreach>    	 			    	 		
+	    	 		END AS STATUS
+			    </when>
+  			</choose>			
+			FROM 
+				BNKCHECKBOOKRQST R JOIN BNKACCT A ON R.BNKACCTKY = A.BNKACCTKY
+			WHERE
+				R.CHKBKRQSTSTSCD in
+				<foreach item="item" collection="status" separator="," open="(" close=")">
+    	    		#{item}
+    			</foreach>
+    		<include refid="CheckBookCriteria"/>	    			
+		), NUMBERED AS (
+			SELECT ROW_NUMBER() OVER(			
+    		ORDER BY 			
+			<choose>
+	    	 	<when test="sortKey == 'sequenceNumber'">
+	      			BNKCHECKBOOKRQSTKY
+			    </when>
+	    	 	<when test="sortKey == 'accountNumber'" >
+	      			ACCTID
+			    </when>
+	    	 	<when test="sortKey == 'numberOfChecks'">
+	      			LEAFLETPERCHKBK
+			    </when>
+	    	 	<when test="sortKey == 'quantityOrdered'">
+	      			CHKBKORDQTY
+			    </when>
+	    	 	<when test="sortKey == 'datetimeOrdered'">
+	      			CREATEDTTM
+			    </when>
+	    	 	<when test="sortKey == 'status'">
+	      			STATUS
+			    </when>
+	    		<otherwise>
+	      			BNKCHECKBOOKRQSTKY
+	    		</otherwise>
+  			</choose>  	
+  			<choose>
+    	 		<when test="sortDir == 'down'">
+      				DESC
+		    	</when>
+		    	<otherwise>
+		    		ASC
+    			</otherwise>
+			</choose>  	 
+			) AS INDEX_, BASIC.* FROM BASIC 	
+		) SELECT * FROM NUMBERED <![CDATA[ WHERE INDEX_ >= #{start} AND INDEX_ < #{finish}]]>
+	</select>
+
+	<select id="selectCheckbookRequestOutputEntryByOid" parameterType="com.s1.arch.utilities.ObjectId" resultMap="CheckbookRequestOutputEntryMap">
+		SELECT 
+			aff.AFFILIATEID AS affId, 
+			cust.CUSTOMERID AS custId, 
+			acct.ACCTID AS acctId, 
+			req.BNKAcctKy AS acctOid, 
+			prod.PRODUCTCODE AS productCode, 
+			acct.FIID AS FIID,
+			req.leafletPerChkBk AS leafletPerChkBk, 
+			req.chkBkOrdQty AS quantityOrdered, 
+			req.chkBkDeliveryMethodCd AS deliveryMethod,
+			cust.CUSTOMERNAME AS custName, 
+			req.branchName AS branchName, 
+			req.chkBkRqstrAddr1 AS addr1, 
+			req.chkBkRqstrAddr2 AS addr2, 
+			country.ISOALPHA3CD AS country, 
+			req.chkBkRqstrCity AS city, 
+			state.ISOCDELEMENT AS state, 
+			req.chkBkRqstrPostalCd AS postalCode, 
+			req.chkBkRqstrPhoneNbr AS phoneNumber, 
+			req.chkBkRefNbr AS refNumber, 
+			req.chkBkFeeAmt AS feeAmt
+		FROM 
+			BNKCHECKBOOKRQst req 
+			JOIN BNKCUSTOMER cust ON req.BNKCustomerKy = cust.BNKCustomerKy 
+			JOIN CORAffiliateFi aff ON cust.COROrgKyFi  = aff.COROrgKy 
+			JOIN BNKAcct acct ON req.BNKAcctKy = acct.BNKAcctKy 
+			JOIN ARCCountryCd country ON req.chkBkRqstrARCCountryCdKy = country.ARCCountryCdKy
+			JOIN ARCStateCd state ON req.chkBkRqstrARCStateCdKy = state.ARCStateCdKy
+			JOIN BNKProduct prod ON acct.BNKProductKY = prod.BNKProductKY
+		WHERE 
+			req.BNKCHECKBOOKRQstKy = #{id, jdbcType=INTEGER, typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+	
+	<update id="updateCheckbookRequestStatus" parameterType="com.s1.app.bank.checkbook.CheckbookRequest">
+		UPDATE 
+			BNKCHECKBOOKRQst 
+		<set>
+			chkBkRqstStsCd = #{status, jdbcType=SMALLINT}
+		</set>
+		WHERE 
+			BNKCHECKBOOKRQstKy = #{oid, jdbcType=INTEGER, typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</update>
+	
+	<update id="updateCheckbookRecord" parameterType="com.s1.app.bank.checkbook.CheckbookRequest">
+		UPDATE 
+			BNKCHECKBOOKRQst 
+		<set>
+			chkBkRqstStsCd = #{status, jdbcType=SMALLINT},
+			BNKCustomerKy= #{custOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			BNKUserKy= #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			BNKAcctKy= #{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			chkBkRqstrARCCountryCdKy= #{countryCd,jdbcType=INTEGER},
+			chkBkRqstrARCStateCdKy= #{stateCd,jdbcType=INTEGER},
+			leafletPerChkBk= #{numOfChecks,jdbcType=VARCHAR},
+			chkBkOrdQty= #{quantityOrdered,jdbcType=SMALLINT},
+			chkBkDeliveryMethodCd= #{deliveryMethod,jdbcType=SMALLINT},
+			chkBkRqstrAddr1= #{address1,jdbcType=VARCHAR},
+			chkBkRqstrAddr2= #{address2,jdbcType=VARCHAR},
+			chkBkRqstrCity= #{city,jdbcType=VARCHAR},
+			chkBkRqstrPostalCd= #{postalCode,jdbcType=VARCHAR},
+			chkBkFeeAmt= #{fee,jdbcType=INTEGER,handler=org.apache.ibatis.type.BigDecimalTypeHandler},
+			branchName= #{branchName,jdbcType=VARCHAR},
+			chkBkRqstrPhoneNbr= #{phoneNum,jdbcType=VARCHAR},
+			chkBkRefNbr= #{refNum,jdbcType=VARCHAR},
+			chkBkDlvrdQty= #{quantityDelivered,jdbcType=SMALLINT},
+			updateDttm= #{updateDateTime,jdbcType=TIMESTAMP},
+			updateUser= #{updateUser,jdbcType=VARCHAR},
+			versionStamp=#{versionStamp,jdbcType=SMALLINT}
+		</set>
+		WHERE 
+			BNKCHECKBOOKRQstKy = #{oid, jdbcType=INTEGER, typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</update>
+	
+	<insert id="insertCheckbookRequest" parameterType="com.s1.app.bank.checkbook.CheckbookRequest">
+		insert into BNKCheckBookRqst(
+			BNKCheckBookRqstKy, 
+			BNKCustomerKy,
+			BNKUserKy,
+			BNKAcctKy,
+			chkBkRqstrARCCountryCdKy, 
+			chkBkRqstrARCStateCdKy, 
+			leafletPerChkBk, 
+			chkBkOrdQty, 
+			chkBkDeliveryMethodCd, 
+			chkBkRqstrAddr1, 
+			chkBkRqstrAddr2, 
+			chkBkRqstrCity, 
+			chkBkRqstrPostalCd, 
+			chkBkFeeAmt, 
+			branchName, 
+			chkBkRqstrPhoneNbr, 
+			chkBkRqstStsCd,
+			chkBkRefNbr, 
+			chkBkDlvrdQty,
+			chkBkRqstrARCISOCrncyCdKy, 
+			createDttm, 
+			updateDttm, 
+			updateUser, 
+			versionStamp 
+		)values(
+			#{oid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{custOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{countryCd,jdbcType=INTEGER},
+			#{stateCd,jdbcType=INTEGER},
+			#{numOfChecks,jdbcType=VARCHAR},
+			#{quantityOrdered,jdbcType=SMALLINT},
+			#{deliveryMethod,jdbcType=SMALLINT},
+			#{address1,jdbcType=VARCHAR},
+			#{address2,jdbcType=VARCHAR},
+			#{city,jdbcType=VARCHAR},
+			#{postalCode,jdbcType=VARCHAR},
+			#{fee,jdbcType=INTEGER,handler=org.apache.ibatis.type.BigDecimalTypeHandler},
+			#{branchName,jdbcType=VARCHAR},
+			#{phoneNum,jdbcType=VARCHAR},
+			#{status,jdbcType=SMALLINT},
+			#{refNum,jdbcType=VARCHAR},
+			#{quantityDelivered,jdbcType=SMALLINT},
+			#{currencyCd,jdbcType=INTEGER},
+			#{updateDateTime,jdbcType=TIMESTAMP},
+			#{updateDateTime,jdbcType=TIMESTAMP},
+			#{updateUser,jdbcType=VARCHAR},
+			#{versionStamp,jdbcType=SMALLINT}
+		)
+	</insert>
+
+		<insert id="insertCheckbookRequestwithoutFee" parameterType="com.s1.app.bank.checkbook.CheckbookRequest">
+		insert into BNKCheckBookRqst(
+			BNKCheckBookRqstKy, 
+			BNKCustomerKy,
+			BNKUserKy,
+			BNKAcctKy,
+			chkBkRqstrARCCountryCdKy, 
+			chkBkRqstrARCStateCdKy, 
+			leafletPerChkBk, 
+			chkBkOrdQty, 
+			chkBkDeliveryMethodCd, 
+			chkBkRqstrAddr1, 
+			chkBkRqstrAddr2, 
+			chkBkRqstrCity, 
+			chkBkRqstrPostalCd, 
+			branchName, 
+			chkBkRqstrPhoneNbr, 
+			chkBkRqstStsCd,
+			chkBkRefNbr, 
+			chkBkDlvrdQty, 
+			createDttm, 
+			updateDttm, 
+			updateUser, 
+			versionStamp 
+		)values(
+			#{oid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{custOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{acctOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{countryCd,jdbcType=INTEGER},
+			#{stateCd,jdbcType=INTEGER},
+			#{numOfChecks,jdbcType=VARCHAR},
+			#{quantityOrdered,jdbcType=SMALLINT},
+			#{deliveryMethod,jdbcType=SMALLINT},
+			#{address1,jdbcType=VARCHAR},
+			#{address2,jdbcType=VARCHAR},
+			#{city,jdbcType=VARCHAR},
+			#{postalCode,jdbcType=VARCHAR},
+			#{branchName,jdbcType=VARCHAR},
+			#{phoneNum,jdbcType=VARCHAR},
+			#{status,jdbcType=SMALLINT},
+			#{refNum,jdbcType=VARCHAR},
+			#{quantityDelivered,jdbcType=SMALLINT},
+			#{updateDateTime,jdbcType=TIMESTAMP},
+			#{updateDateTime,jdbcType=TIMESTAMP},
+			#{updateUser,jdbcType=VARCHAR},
+			#{versionStamp,jdbcType=SMALLINT}
+		)
+	</insert>
+		
+</mapper>

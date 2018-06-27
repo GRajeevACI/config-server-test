@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+
+ <mapping mapNull="false">
+	  <typeA>com.aciworldwide.pim.messages.party.customer.services.CustomerCreateRqType</typeA>
+	  <typeB>com.s1.common.customer.CustomerValueImpl</typeB>
+	    <fields>
+	    	<field customConverter="com.aciworldwide.arch.service.transformation.converter.FIId2OidConverter">
+	  			<fieldA>affiliateIdent</fieldA>
+				<fieldB>affiliateOid</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.CurrencyCodeToKeyConverter">
+				<fieldA>customerDetails.preferredCurrency</fieldA>
+				<fieldB>ISOCurrencyCdKy</fieldB>
+			</field>
+			 <field customConverter="com.aciworldwide.arch.service.transformation.converter.CosName2IdConverter">
+				<fieldA>customerDetails.classOfServiceIdent</fieldA>
+				<fieldB>classOfServiceOid</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.CosStatusConverter">
+				<fieldA>customerDetails.status</fieldA>
+				<fieldB>isEnrolled</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.ident</fieldA>
+				<fieldB>customerId</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.party.organization.corporationName</fieldA>
+				<fieldB>customerName</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.party.organization.taxIdentificationNum</fieldA>
+				<fieldB>taxId</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.bankRepName</fieldA>
+				<fieldB>bankRep</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.repManagerName</fieldA>
+				<fieldB>bankRepManager</fieldB>
+			</field>
+			
+		 	<field>
+				<fieldA>customerDetails.contactDetail.name.givenName</fieldA>
+				<fieldB>contactPersonName</fieldB>
+			</field> 
+			<field>
+				<fieldA>customerDetails.contactDetail.address.addressLine[0]</fieldA>
+				<fieldB>address.streetAddress1</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.address.addressLine[1]</fieldA>
+				<fieldB>address.streetAddress2</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.address.addressLine[2]</fieldA>
+				<fieldB>address.streetAddress3</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.address.stateProvince.name</fieldA>
+				<fieldB>address.stateName</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2StateCodeToKeyConverter">
+				<fieldA>customerDetails.contactDetail.address.stateProvince.code</fieldA>
+				<fieldB>address.inlStateOid</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.address.city</fieldA>
+				<fieldB>address.city</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.address.postalCode</fieldA>
+				<fieldB>address.postalCode</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.faxNumber</fieldA>
+				<fieldB>faxNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.phoneNumbers[0].phoneNumber</fieldA>
+				<fieldB>phoneNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>customerDetails.contactDetail.phoneNumbers[1].phoneNumber</fieldA>
+				<fieldB>secondaryPhoneNumber</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2CountryCodeToKeyConverter">
+				<fieldA>customerDetails.contactDetail.address.countryCode</fieldA>
+				<fieldB>address.inlCountryOid</fieldB>
+			</field>
+		</fields>
+	</mapping> 
+	
+	<mapping mapNull="false">
+	  <typeA>com.aciworldwide.pim.messages.party.customer.component.Customer3Type</typeA>
+	  <typeB>com.s1.common.customer.CustomerValueImpl</typeB>
+	    <fields>
+	    	<field customConverter="com.aciworldwide.arch.service.transformation.converter.CurrencyCodeToKeyConverter">
+				<fieldA>preferredCurrency</fieldA>
+				<fieldB>ISOCurrencyCdKy</fieldB>
+			</field>
+			 <field customConverter="com.aciworldwide.arch.service.transformation.converter.CosName2IdConverter">
+				<fieldA>classOfServiceIdent</fieldA>
+				<fieldB>classOfServiceOid</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.CosStatusConverter">
+				<fieldA>status</fieldA>
+				<fieldB>isEnrolled</fieldB>
+			</field>
+			<field>
+				<fieldA>ident</fieldA>
+				<fieldB>customerId</fieldB>
+			</field>
+			<field>
+				<fieldA>party.organization.corporationName</fieldA>
+				<fieldB>customerName</fieldB>
+			</field>
+			<field>
+				<fieldA>party.organization.taxIdentificationNum</fieldA>
+				<fieldB>taxId</fieldB>
+			</field>
+			<field>
+				<fieldA>bankRepName</fieldA>
+				<fieldB>bankRep</fieldB>
+			</field>
+			<field>
+				<fieldA>repManagerName</fieldA>
+				<fieldB>bankRepManager</fieldB>
+			</field>
+			
+		 	<field>
+				<fieldA>contactDetail.name.givenName</fieldA>
+				<fieldB>contactPersonName</fieldB>
+			</field> 
+			<field>
+				<fieldA>contactDetail.address.addressLine[0]</fieldA>
+				<fieldB>address.streetAddress1</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.address.addressLine[1]</fieldA>
+				<fieldB>address.streetAddress2</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.address.addressLine[2]</fieldA>
+				<fieldB>address.streetAddress3</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.address.stateProvince.name</fieldA>
+				<fieldB>address.stateName</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2StateCodeToKeyConverter">
+				<fieldA>contactDetail.address.stateProvince.code</fieldA>
+				<fieldB>address.inlStateOid</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.address.city</fieldA>
+				<fieldB>address.city</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.address.postalCode</fieldA>
+				<fieldB>address.postalCode</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.faxNumber</fieldA>
+				<fieldB>faxNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.phoneNumbers[0].phoneNumber</fieldA>
+				<fieldB>phoneNumber</fieldB>
+			</field>
+			<field>
+				<fieldA>contactDetail.phoneNumbers[1].phoneNumber</fieldA>
+				<fieldB>secondaryPhoneNumber</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2CountryCodeToKeyConverter">
+				<fieldA>contactDetail.address.countryCode</fieldA>
+				<fieldB>address.inlCountryOid</fieldB>
+			</field>
+		</fields>
+	</mapping> 
+	
+	<mapping>
+	  <typeA>com.s1.common.company.CompanySummaryView</typeA>
+	  <typeB>com.aciworldwide.pim.messages.online.common.component.CustomerSummaryType</typeB>
+	    <fields>	    	
+	    	<field>
+				<fieldA>customerId</fieldA>
+				<fieldB>customerIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>companyName</fieldA>
+				<fieldB>customerName</fieldB>
+			</field>
+			<field>
+				<fieldA>city</fieldA>
+				<fieldB>city</fieldB>
+			</field>
+			<field>
+				<fieldA>countryDesc</fieldA>
+				<fieldB>country</fieldB>
+			</field>
+			<field>
+				<fieldA>affiliateName</fieldA>
+				<fieldB>affiliateName</fieldB>
+			</field>
+			<field>
+				<fieldA>classOfSvcName</fieldA>
+				<fieldB>classOfServiceName</fieldB>
+			</field>
+			<field>
+				<fieldA>regionDesc</fieldA>
+				<fieldB>state.name</fieldB>
+			</field>	
+			<field>
+				<fieldA>phoneNumber1</fieldA>
+				<fieldB>phoneNumber.phoneNumber</fieldB>
+			</field>							
+		</fields>
+	</mapping> 
+	
+	
+	<mapping mapNull="false">
+	  <typeA>com.aciworldwide.pim.messages.online.common.component.COSParamType</typeA>
+	  <typeB>com.s1.common.classofservice.CosParmValue</typeB>
+	    <fields>	    	
+	    	<field>
+				<fieldA>COSParamCode</fieldA>
+				<fieldB>fieldName</fieldB>
+			</field>
+			<field>
+				<fieldA>COSParamValue</fieldA>
+				<fieldB>value</fieldB>
+			</field>
+			<field>
+				<fieldA>COSParamValueType</fieldA>
+				<fieldB>valueType</fieldB>
+			</field>
+			<field>
+				<fieldA>ranking</fieldA>
+				<fieldB>ranking</fieldB>
+			</field>
+		</fields>
+	</mapping> 
+	
+	<mapping mapNull="false">
+	  <typeA>com.aciworldwide.pim.messages.online.common.component.COSFeatureType</typeA>
+	  <typeB>com.s1.common.classofservice.BusinessServiceSettingValue</typeB>
+	    <fields>	    	
+	    	<field>
+				<fieldA>featureCode</fieldA>
+				<fieldB>defaultFeature.description</fieldB>
+			</field>
+			<field>
+				<fieldA>ISEnabled</fieldA>
+				<fieldB>activated</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.CreditTypeConverter">
+				<fieldA>creditDebitType</fieldA>
+				<fieldB>credit</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.DebitTypeConverter">
+				<fieldA>creditDebitType</fieldA>
+				<fieldB>debit</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.AuthTypeConverter">
+				<fieldA>authType</fieldA>
+				<fieldB>authenticationType</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.AuthTypeConverter">
+				<fieldA>templateAuthType</fieldA>
+				<fieldB>templateAuthType</fieldB>
+			</field>
+			<field>
+				<fieldA>thresholdAmount.amount</fieldA>
+				<fieldB>thresholdAmount</fieldB>
+			</field>
+			<!-- <field>
+				<fieldA>approverDetail.fixedApprover</fieldA>
+				<fieldB>fiApprovalSettingsValue.numberOfApprovers</fieldB>
+			</field> -->
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.VariableApproverConverter">
+				<fieldA>approverDetail</fieldA>
+				<fieldB>fiApprovalSettingsValue</fieldB>
+			</field>
+			<field>
+				<fieldA>freeItems</fieldA>
+				<fieldB>numberOfFreeItems</fieldB>
+			</field>
+			<field>
+				<fieldA>monthlyFee.amount</fieldA>
+				<fieldB>featureCharge</fieldB>
+			</field>
+			<field>
+				<fieldA>feePerItem.amount</fieldA>
+				<fieldB>perItemCharge</fieldB>
+			</field>
+		</fields>
+	</mapping> 
+</mappings>

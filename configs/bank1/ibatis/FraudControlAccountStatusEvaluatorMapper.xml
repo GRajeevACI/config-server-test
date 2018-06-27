@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.FraudControlAccountStatusEvaluatorMapper">
+
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = #{alertName} 
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy 
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct																			  
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'account'
+											AND bapvAcct.IntegerValue = #{accountOid}
+											
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy 
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct																			  
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'fraudCtrlType'
+											AND bapvAcct.IntegerValue = #{fraudCtrlTypeId}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy 
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct																			  
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'accountStatus'
+											AND bapvAcct.IntegerValue = #{accountStatusId}
+										)
+	</select>
+
+</mapper>

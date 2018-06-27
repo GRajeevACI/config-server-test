@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio xmlns="http://www.beanio.org/2012/03" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+  
+  <stream name="partial-pending-user-stream" format="xml" xmlType="none" strict="true">
+  	<record name="UserBlock" class="com.s1.common.dualapproval.user.xml.UserBlock" minOccurs="1" maxOccurs="1">
+  		<segment xmlName="UserElement"  name="userElement" minOccurs="1" maxOccurs="1" class="com.s1.common.dualapproval.user.xml.UserElement">
+  		   <field name="key" xmlName="Key" minOccurs="0"/>
+  			<field name="entityKey" xmlName="entityKey" minOccurs="0"/>
+  			<field name="identityKey" xmlName="identityKey" minOccurs="0"/>
+  			<field name="loginId" xmlName="loginId" minOccurs="0"/>
+  			<field name="name" xmlName="name" minOccurs="0"/>
+  			<field name="userIdentity" xmlName="userIdentity" minOccurs="0"/>  			
+  			<field name="email" xmlName="email" minOccurs="0"/>
+  			<field name="isConfScrnEnabled" xmlName="isConfScrnEnabled" minOccurs="0"/>
+  			<field name="versionStamp" xmlName="versionStamp" minOccurs="0"/>
+  			<field name="updateUser" xmlName="UpdateUser" minOccurs="0"/>
+  			<field name="isTradeFinanceEnabled" xmlName="isTradeFinanceEnabled" minOccurs="0"/>
+  			<field name="userAccessTypeCd" xmlName="userAccessTypeCd" minOccurs="0"/>
+  			<field name="userLimitsTypeCd" xmlName="userLimitsTypeCd" minOccurs="0" />
+  		</segment>  	
+  	    <segment xmlName="UserApprovalOperations"  name="userApprovalOperations" minOccurs="0" maxOccurs="1" class="com.s1.common.dualapproval.user.xml.UserApprovalOperations">  			 			
+  			<segment name="approvalOperationList" xmlName="ApprovalOperation"  minOccurs="0" maxOccurs="unbounded"
+					getter="getApprovalOperation" setter="setApprovalOperation" collection="array"
+					class="com.s1.common.dualapproval.user.xml.ApprovalOperation">					
+						<field  name="name"  xmlName="Name"  minOccurs="0" maxOccurs="1" />											
+			</segment>
+  		</segment>	  
+  		<segment xmlName="UserGroupAssociation"  name="userGroupAssociation" minOccurs="0" maxOccurs="1" class="com.s1.common.dualapproval.user.xml.UserGroupAssociation">  			 			
+  			<segment name="associatedGroupList" xmlName="AssociatedGroup"  minOccurs="0" maxOccurs="unbounded"
+					getter="getAssociatedGroup" setter="setAssociatedGroup" collection="array"
+					class="com.s1.common.dualapproval.user.xml.AssociatedGroup">					
+						<field  name="groupOid"  xmlName="GroupOid"  minOccurs="0" maxOccurs="1" />											
+			</segment>
+  		</segment>	  
+  		
+  		<segment xmlName="EmployeeElement"  name="employeeElement" minOccurs="1" maxOccurs="1" class="com.s1.common.dualapproval.user.xml.EmployeeElement">
+  		
+  			<field name="isCompanySystemAdministrator" xmlName="IsCompanySystemAdministrator" minOccurs="0"/>
+  			<field name="isConfidentialBatch" xmlName="IsConfidentialBatch" minOccurs="0"/>
+  			<field name="isActive" xmlName="IsActive" minOccurs="0"/>
+  			<field name="objectId" xmlName="ObjectId" minOccurs="0"/>
+  			<field name="VFMUserKy" xmlName="VFMUserKy" minOccurs="0"/>
+  			<field name="VFMCompanyKy" xmlName="VFMCompanyKy" minOccurs="0"/>
+  			<field name="familyName" xmlName="FamilyName" minOccurs="0"/>
+  			<field name="givenName" xmlName="GivenName" minOccurs="0"/>
+  			<field name="middleName" xmlName="MiddleName" minOccurs="0"/>
+  			<field name="approvalStatus" xmlName="ApprovalStatus" minOccurs="0"/>
+  			<field name="isDeleted" xmlName="IsDeleted" minOccurs="0"/>
+  		
+  		</segment>
+  		
+  			
+  	</record>
+  </stream>
+ </beanio>

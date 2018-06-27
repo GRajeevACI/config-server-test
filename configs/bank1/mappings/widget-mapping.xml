@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.dashboard.model.UserWidgetPreference</typeA>
+		<typeB>com.aciworldwide.pim.messages.widget.services.UserWidgetPreferenceType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field>
+				<fieldA>listorder</fieldA>
+				<fieldB>listorder</fieldB>
+			</field>
+			<field>
+				<fieldA>intVal</fieldA>
+				<fieldB>intVal</fieldB>
+			</field>
+			<field>
+				<fieldA>decimalvalue</fieldA>
+				<fieldB>decimalvalue</fieldB>
+			</field>
+			<field>
+				<fieldA>stringVal</fieldA>
+				<fieldB>stringVal</fieldB>
+			</field>
+			<field>
+				<fieldA>boolVal</fieldA>
+				<fieldB>boolVal</fieldB>
+			</field>
+			<field>
+				<fieldA>dateVal</fieldA>
+				<fieldB>dateVal</fieldB>
+			</field>
+			<field>
+				<fieldA>isAccountIdOrNickName</fieldA>
+				<fieldB>isAccountIdOrNickName</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+</mappings>

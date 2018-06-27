@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="authorizationService" class="com.s1.arch.security.authorization.Authorizer" factory-method="createFilterChain">
+		<constructor-arg ref="delegatingAuthorizationService" />
+	</bean>
+	
+	<bean id="authorizationDataService" class="com.s1.arch.security.authorization.AuthorizationDataServiceImpl">
+		<property name="authGrantMapper" ref="authorizationMapper" />
+		<property name="operationMapper" ref="grantOperationMapper" />
+		<property name="targetTypeMapper" ref="grantTargetTypeMapper" />
+	</bean>
+	
+	<bean id="delegatingAuthorizationService" class="com.s1.arch.security.authorization.DelegatingAuthorizationService">
+		<property name="delegate" ref="authorizationDataService" />
+	</bean>
+
+    <bean id="grantOperationMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.GrantOperationMapper" />
+	</bean>
+	
+	<bean id="grantTargetTypeMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.GrantTargetTypeMapper" />
+	</bean>
+
+	<bean id="grantPrincipalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.GrantPrincipalMapper" />
+	</bean>
+	
+</beans>

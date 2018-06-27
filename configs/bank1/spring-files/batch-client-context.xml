@@ -1,0 +1,477 @@
+<!--  This file is used by com.s1.arch.batch.BatchClient to configure Services that will be called via RMI.  
+	This file should be the only Spring Config file needed by Batch. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"
+	default-lazy-init="true">
+	<import resource="validation-definition.xml"/>
+	<import resource="ach-validation-definition.xml"/>
+	<!-- For Common DB handling -->
+	<bean id="dbUtil"
+		class="com.s1.arch.persistence.util.DBUtilImpl" init-method="initialize"/>
+
+	<bean id="springBeanFactoryBridge"
+		class="com.s1.arch.spring.SpringBeanFactoryBridge" lazy-init="false" />
+
+	<bean id="springGrndsBootstrap"
+		class="com.s1.arch.common.bootstrap.SpringGrndsBootstrap" />
+
+	<bean id="propertyConfigurer"
+		class="com.s1.arch.spring.beans.factory.config.GrndsPropertyPlaceHolderConfigurer"
+		depends-on="springGrndsBootstrap" /> 
+	
+	<bean id="urlContainer" class="com.s1.arch.spring.remote.RoundRobinUrlContainer">
+		<property name="hostsPortsString" value="${batch.client.rmi_hosts_ports}" />
+		<property name="waitTimeToAttemptRetry" value="300" />
+	</bean>
+
+	<bean id="batchServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="batchService" />
+		<property name="serviceInterface" value="com.s1.arch.batch.core.BatchThreadProcessorService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	<bean id="sequenceServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="sequenceService" />
+		<property name="serviceInterface" value="com.s1.arch.persistence.sequence.SequenceService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	<bean id="bankingProductServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="bankingProductService" />
+		<property name="serviceInterface" value="com.s1.common.product.ProductService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	<bean id="summaryFieldCodeMapServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="summaryFieldCodeMapService" />
+		<property name="serviceInterface" value="com.s1.common.product.summaryFieldConfiguration.SummaryFieldCodeMapService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	<bean id="affiliateFIServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="affiliateFIService" />
+		<property name="serviceInterface" value="com.s1.core.organization.AffiliateFIService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="affiliateServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="affiliateService" />
+		<property name="serviceInterface" value="com.s1.banking.common.organization.affiliate.AffiliateService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+
+	<bean id="channelServiceRemote"	class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="channelService" />
+		<property name="serviceInterface" value="com.s1.arch.channel.ChannelService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	<bean id="localeServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="localeService" />
+		<property name="serviceInterface" value="com.s1.arch.i18n.locale.LocaleService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="efdServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="efdService" />
+		<property name="serviceInterface" value="com.s1.banking.efd.upload.EFDService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	<bean id="alertSubscriptionServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="alertSubscriptionService" />
+		<property name="serviceInterface" value="com.s1.alerts.services.AlertSubscriptionService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="uploadLogServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="uploadLogService" />
+		<property name="serviceInterface" value="com.s1.banking.efd.upload.log.UploadLogService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="userSecurityServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="userSecurityService" />
+		<property name="serviceInterface" value="com.s1.arch.security.user.UserSecurityService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	<bean id="auditServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="auditService" />
+		<property name="serviceInterface" value="com.s1.arch.auditx.AuditService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	<bean id="principalManagerServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="principalManagerService" />
+		<property name="serviceInterface" value="com.s1.arch.principal.PrincipalManagerService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	<bean id="authorizationServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="authorizationService" />
+		<property name="serviceInterface" value="com.s1.arch.security.authorization.AuthorizationService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	<bean id="importServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="importService" />
+		<property name="serviceInterface" value="com.s1.banking.common.imprt.ImportService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="enumerationServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="enumerationService" />
+		<property name="serviceInterface" value="com.s1.arch.enumeration.EnumerationService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="exportFileWrapperServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="exportFileWrapperService" />
+		<property name="serviceInterface" value="com.s1.export.message.ExportFileWrapperService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="applicationServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="applicationService" />
+		<property name="serviceInterface" value="com.s1.common.application.ApplicationService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="codesTableServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="codesTableService" />
+		<property name="serviceInterface" value="com.s1.arch.codestable.CodesTableService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="standardPmtReportServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="standardPmtReportService" />
+		<property name="serviceInterface" value="com.s1.common.paymentreports.customreports.StandardPmtReportService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="customPmtReportServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="customPmtReportService" />
+		<property name="serviceInterface" value="com.s1.common.paymentreports.customreports.CustomPmtReportService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	
+	<bean id="userServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="userService" />
+		<property name="serviceInterface" value="com.s1.common.user.UserService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="reportUtilServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="reportUtilService" />
+		<property name="serviceInterface" value="com.s1.common.utils.reports.ReportUtilService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="disclaimerServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="disclaimerService" />
+		<property name="serviceInterface" value="com.s1.common.disclaimer.DisclaimerService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="transferMessagingServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="transferMessagingService" />
+		<property name="serviceInterface" value="com.s1.app.disbursements.transfer.messaging.TransferMessagingService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="alertServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="alertService" />
+		<property name="serviceInterface" value="com.s1.alerts.AlertService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="userAccessScheduleServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="userAccessScheduleService" />
+		<property name="serviceInterface" value="com.s1.common.accessschedule.UserAccessScheduleService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="parametersServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="parametersService" />
+		<property name="serviceInterface" value="com.s1.common.parameters.ParametersService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+
+	<bean id="dstAdjustmentIfcRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="dstAdjustmentIfc" />
+		<property name="serviceInterface" value="com.s1.arch.utilities.DSTAdjustmentIfc" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	
+	<bean id="concreteMobRptServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="mobRptService" />
+	 	<property name="serviceInterface" value="com.s1.app.mobileBanking.batch.persistence.MobRptService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+
+	  <bean id="corpAchTaxServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="corpAchTaxService" />
+		<property name="serviceInterface" value="com.s1.app.disbursements.corpach.tax.CorpAchTaxService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>  
+
+	<bean id="acctAdditionalIdentifierServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="acctAdditionalIdentifierService" />
+		<property name="serviceInterface" value="com.s1.common.accounts.additional.identifier.AcctAdditionalIdentifierService" />		
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+<!--	<bean id="bcsProductServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">-->
+<!--		<property name="remoteServiceName" value="bcsProductService" />-->
+<!--		<property name="serviceInterface" value="com.s1.banking.domain.product.BCSProductService" />-->
+<!--		<property name="lookupStubOnStartup" value="false" />-->
+<!--		<property name="cacheStub" value="false" />-->
+<!--		<property name="refreshStubOnConnectFailure" value="true" />-->
+<!--		<property name="roundRobinUrlContainer" ref="urlContainer" />-->
+<!--	</bean>-->
+<!---->
+<!--	<bean id="applicationRegistryServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">-->
+<!--		<property name="remoteServiceName" value="applicationRegistryService" />-->
+<!--		<property name="serviceInterface" value="com.s1.core.applicationregistry.ApplicationRegistryService" />-->
+<!--		<property name="lookupStubOnStartup" value="false" />-->
+<!--		<property name="cacheStub" value="false" />-->
+<!--		<property name="refreshStubOnConnectFailure" value="true" />-->
+<!--		<property name="roundRobinUrlContainer" ref="urlContainer" />-->
+<!--	</bean>-->
+<!--	-->
+<!--	<bean id="currencyConversionServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">-->
+<!--		<property name="remoteServiceName" value="currencyConversionService" />-->
+<!--		<property name="serviceInterface" value="com.s1.bnk.currencyconversion.CurrencyConversionService" />-->
+<!--		<property name="lookupStubOnStartup" value="false" />-->
+<!--		<property name="cacheStub" value="false" />-->
+<!--		<property name="refreshStubOnConnectFailure" value="true" />-->
+<!--		<property name="roundRobinUrlContainer" ref="urlContainer" />-->
+<!--	</bean>-->
+
+	<!-- Extension to allow Account class to be replaced -->
+	<bean id="commonAccount" class="com.s1.banking.common.Account"/>
+
+	<bean id="processScheduleService"
+		class="com.s1.common.schedule.ProcessScheduleServiceBean" />
+
+	<bean id="currencyConversionService"
+		class="com.s1.common.currencyconversion.service.CurrencyConversionServiceBean">
+		<property name="currencyConversionUtil" ref="currencyConversionUtil" />
+	</bean>
+	<bean id="currencyConversionUtil"
+		class="com.s1.common.currencyconversion.common.CurrencyConversion"/>
+	
+	<bean id="cutoffTimeService" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="cutoffTimeService" />
+		<property name="serviceInterface"
+			value="com.s1.common.schedule.CutoffTimeService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	
+	
+ 	<bean id="coreAuditServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="coreAuditService" />
+		<property name="serviceInterface" value="com.s1.arch.auditx.service.CoreAuditService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	
+	<bean id="auditService"
+		class="com.s1.arch.auditx.ConcreteAuditService" />
+	
+	 	<!-- Extension to allow StatusCodes class -->
+	<bean id="statusCodesImpl" class="com.s1.banking.common.StatusCodesImpl" scope="singleton" lazy-init="false"/>
+	
+	<bean id="commonStatusCodes" class="com.s1.app.disbursements.StatusCodes" lazy-init="false">
+		<property name="statusCodesImpl" ref="statusCodesImpl"></property>
+	</bean>
+	
+		
+	<bean id="DynamicOperationMessages" class="com.aci.gsso.entitlements.DynamicOperationMessages">
+		<property name="grndsDomain" value="deployer" />
+		<property name="grndsSubDomain" value="{}" />
+	</bean>
+	
+	<bean id="countryAccountBankValueService" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="countryAccountBankValueService" />
+		<property name="serviceInterface" value="com.s1.bnk.account.service.CountryAccountBankValueUtilIfc" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	<bean id="bankLookupService" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="bankLookupService" />
+		<property name="serviceInterface" value="com.s1.payments.bank.BankLookupService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	 
+	<bean id="pagedCollectionService"
+		class="com.s1.arch.pagedcollection.ConcretePagedCollectionService" />
+		
+	<bean id="sepaCreditorIDService" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="sepaCreditorIDService" />
+		<property name="serviceInterface" value="com.s1.payments.service.SepaCreditorIDService" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+	
+	<bean id="authorizationBridgeService" class="com.s1.arch.security.authoriz.ConcreteAuthorizationService">
+		
+	</bean>
+	
+	<bean id="entitlementService" class="com.s1.common.entitlement.EntitlementServiceBean" />
+	<bean id="ibanPlusService"
+		class="com.aci.payments.bank.ConcreteIBANPlusService" />
+	<bean id="positivePayService"
+		class="com.s1.app.smallbiz.positivepay.PositivePayServiceBean" />	
+
+	<!-- #Added for GBS-82509 -->
+	<bean id="thirdPartyService"
+		class="com.s1.app.disbursements.thirdParty.ThirdPartyServiceBean" />	
+	<bean id="corpAchService"
+		class="com.s1.app.disbursements.corpach.common.CorpAchServiceBean" />
+			
+	<bean id="frequencyConstantsImpl" class="com.s1.app.disbursements.recurrence.FrequencyConstantsImpl" scope="singleton" lazy-init="false"/>
+	
+	<bean id="commonFrequencyConstants" class="com.s1.app.disbursements.recurrence.FrequencyConstants"  lazy-init="false">
+		<property name="frequencyConstantsImpl" ref="frequencyConstantsImpl"></property>
+	</bean>
+	
+	<!-- GBS-67853 -->	
+	 <bean id="intlPmtReportValueUtilityHelper" class="com.s1.common.intlpmtreports.IntlPmtReportValueUtilityHelper" scope="singleton" /> 
+	
+	 <bean id="intlPmtReportFormUtilityHelper" class="com.s1.common.intlpmtreports.IntlPmtReportFormUtilityHelper" scope="singleton" />
+	
+	<bean id="intlReportTokenUtilityHelper" class="com.s1.common.intlpmtreports.IntlReportTokenUtilityHelper" scope="singleton" />
+	
+	<bean id="corpAchServiceUtilityHelper" class="com.s1.app.disbursements.corpach.common.CorpAchServiceUtilityHelper" scope="singleton" />
+	
+	
+	<bean id="pmtReportsUtilityHelper" class="com.s1.common.paymentreports.customreports.PmtReportsUtilityHelper" scope="singleton" />
+	
+	<bean id="customReportsUtilityHelper" class="com.s1.app.bank.reports.customreports.ReportsUtilityHelper" scope="singleton" />
+	
+	<!-- GBS-47418 -->
+	<bean id="transactionTypesHelper" class="com.s1.app.disbursements.TransactionTypesHelper" scope="singleton" />
+	
+	<!-- GBS-387845 -->
+	<bean id="userPropertiesToXMLMapperHelper" class="com.s1.banking.common.pending.util.UserPropertiesToXMLMapperHelper" scope="singleton" /> 
+	
+	<bean id="xMLToUserPropertiesMapperHelper" class="com.s1.banking.common.pending.util.XMLToUserPropertiesMapperHelper" scope="singleton" /> 
+	
+	<bean id="commonUtilityHelper" class="com.s1.common.user.UtilityHelper" scope="singleton" /> 
+	<!--  GBS-36095-->
+	<bean id="exportUtilityHelper" class="com.s1.banking.common.export.user.UtilityHelper" scope="singleton" /> 
+	
+	<bean id="forwardingUtilityHelper" class="com.s1.app.disbursements.corpach.common.ui.ForwardingUtilityHelper" scope="singleton" /> 
+	
+	
+	<!-- GBS-37307 -->
+	<bean id="exportFieldConstantsImpl" class="com.s1.banking.common.export.execute.ExportFieldConstantsImpl" scope="singleton" /> 
+	
+	<!-- GBS-80913 GBS-81751-->
+	<bean id="suspectActionImpl" class="com.s1.app.smallbiz.positivepay.user.SuspectActionImpl" scope="singleton" />
+	
+	<bean id="entitlementType" 	class="com.s1.common.entitlement.EntitlementType" />
+</beans>

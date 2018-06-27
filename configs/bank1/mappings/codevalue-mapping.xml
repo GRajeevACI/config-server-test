@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.s1.arch.codestable.CodesTableItemValue
+		</typeA>
+		<typeB>com.aciworldwide.pim.message.reports.reportdelivery.CodesTableItemListType
+		</typeB>
+		<fields>						
+			<field>
+				<fieldA>description</fieldA>
+				<fieldB>description</fieldB>
+			</field>
+			<field>
+				<fieldA>codeValue</fieldA>
+				<fieldB>codeValue</fieldB>
+			</field>
+		</fields>
+	</mapping>
+</mappings>

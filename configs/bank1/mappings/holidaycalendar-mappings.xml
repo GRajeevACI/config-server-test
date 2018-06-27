@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.s1.common.country.holiday.CountryHolidayListData
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.holiday.component.HolidayListByCountryType
+		</typeB>
+		<fields>
+			<field
+				customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+				<fieldA>holidayDate</fieldA>
+				<fieldB>holidayDate</fieldB>
+			</field>
+			<field>
+				<fieldA>holidayDescription</fieldA>
+				<fieldB>holidayDesc</fieldB>
+			</field>
+		</fields>
+	</mapping>
+</mappings>

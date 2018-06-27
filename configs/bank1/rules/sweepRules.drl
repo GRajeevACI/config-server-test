@@ -1,0 +1,52 @@
+package com.s1.bnk.disbursement.sweeps.model
+
+#list any import classes here.
+import com.s1.app.disbursements.transfer.sweeps.user.SweepsConstants;	
+
+#declare any global variables here
+
+rule "Trigger type is Above and for account is the source account"
+salience 1
+when
+	$rule : SweepRuleValue ( triggerType == SweepsConstants.TRIGGER_ABOVE, forAcctBalanceBD > thresholdBalanceAmountBD && > targetBalanceAmountBD)
+then
+	$rule.setCreateTransfer(true);
+	$rule.setForAccountSource(true);
+	$rule.setTransferAmountBD($rule.getForAcctBalanceBD().subtract($rule.getTargetBalanceAmountBD()));
+
+end
+
+rule "Trigger type is Above and for account is the destination account"
+salience 2
+when
+	$rule : SweepRuleValue ( triggerType == SweepsConstants.TRIGGER_ABOVE, forAcctBalanceBD > thresholdBalanceAmountBD && < targetBalanceAmountBD)
+then
+	$rule.setCreateTransfer(true);
+	$rule.setForAccountSource(false);
+	$rule.setTransferAmountBD($rule.getTargetBalanceAmountBD().subtract($rule.getForAcctBalanceBD()));
+
+end
+
+
+rule "Trigger type is Below and for account is the source account"
+salience 3
+when
+	$rule : SweepRuleValue ( triggerType == SweepsConstants.TRIGGER_BELOW, forAcctBalanceBD < thresholdBalanceAmountBD && > targetBalanceAmountBD)
+then
+	$rule.setCreateTransfer(true);
+	$rule.setForAccountSource(true);
+	$rule.setTransferAmountBD($rule.getForAcctBalanceBD().subtract($rule.getTargetBalanceAmountBD()));
+
+end
+
+
+rule "Trigger type is Below and for account is the destination account"
+salience 4
+when
+	$rule : SweepRuleValue ( triggerType == SweepsConstants.TRIGGER_BELOW, forAcctBalanceBD < thresholdBalanceAmountBD && < targetBalanceAmountBD)
+then
+	$rule.setCreateTransfer(true);
+	$rule.setForAccountSource(false);
+	$rule.setTransferAmountBD($rule.getTargetBalanceAmountBD().subtract($rule.getForAcctBalanceBD()));
+
+end

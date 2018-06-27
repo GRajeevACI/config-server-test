@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aci.gsso.mapper.GssoUserInfoMapper" >
+
+    <resultMap id="UserIdentifiersResultMap" type="com.aci.gsso.model.GssoUserIdentifiers" >
+        <result column="arcPrincipalKy" property="principalOid"  jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="bnkUserKy" property="userOid"  jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="bnkCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="customerId" property="customerId" jdbcType="VARCHAR" />        
+    </resultMap>
+    
+    <select id="getUserIdentifiers" parameterType="map" resultMap="com.aci.gsso.mapper.GssoUserInfoMapper.UserIdentifiersResultMap">
+        SELECT ARCPRINCIPAL.arcPrincipalKy, BNKUser.bnkUserKy,  bnkCustomer.customerId, bnkCustomer.bnkCustomerKy
+        FROM ARCPRINCIPAL, BNKUSER, bnkCustomer
+        WHERE ARCPRINCIPAL.name =  #{logonId,jdbcType=VARCHAR}
+              AND ARCPRINCIPAL.arcprincipalKy = BNKUSER.arcprincipalKy
+              AND bnkCustomer.bnkCustomerKy = bnkUser.bnkCustomerKy
+    </select>
+    
+	<resultMap id="UserResultMap" type="com.aci.gsso.model.GssoUserInfo" >
+		<result column="bnkUserKy" property="userOid"  jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="bnkCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="givenName" property="givenName" jdbcType="VARCHAR" />
+        <result column="userAccessTypeCd" property="userAccessTypeCd" jdbcType="CHAR" />
+        <result column="middleName" property="middleName" jdbcType="VARCHAR" />
+	    <result column="familyName" property="familyName" jdbcType="VARCHAR" />
+	    <result column="emailAddress" property="emailAddress" jdbcType="VARCHAR" />
+	    <result column="taxId" property="taxId" jdbcType="VARCHAR" />
+	    <result column="primaryPhoneNbr" property="primaryPhoneNbr" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getUserInfo" parameterType="map" resultMap="com.aci.gsso.mapper.GssoUserInfoMapper.UserResultMap">
+		SELECT bnkUserKy, bnkCustomerKy, userAccessTypeCd, givenName, middleName, familyName, emailAddress, taxID as taxId, primaryPhoneNbr as primaryPhoneNbr
+		FROM BNKUSER
+		WHERE BNKUser.bnkUserKy =  #{userOid,jdbcType=INTEGER}
+	</select>
+	
+	<resultMap id="CustomerResultMap" type="com.aci.gsso.model.GssoCustomerInfo" >
+	    <result column="customerName" property="name" />
+	    <result column="taxId" property="taxId" jdbcType="VARCHAR" />
+	    <result column="primaryPhoneNbr" property="primaryPhoneNbr" jdbcType="VARCHAR" />
+	    <result column="addressLine1" property="addressLine1" jdbcType="VARCHAR" />
+	    <result column="addressLine2" property="addressLine2" jdbcType="VARCHAR" />
+	    <result column="addressLine3" property="addressLine3" jdbcType="VARCHAR" />
+	    <result column="city" property="city" jdbcType="VARCHAR" />
+        <result column="postalCode" property="postalCode" jdbcType="VARCHAR" />
+        <result column="stateCode" property="stateCode" jdbcType="VARCHAR" />
+	    <result column="countryCode" property="countryCode" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getCustomerInfo" parameterType="map" resultMap="com.aci.gsso.mapper.GssoUserInfoMapper.CustomerResultMap">
+		SELECT customerId, customerName, BNKCustomer.taxID, BNKCustomer.primaryPhoneNbr, addressLine1, addressLine2, addressLine3, city, postalCode,
+               arcStateCd.isoCdElement as stateCode, arcCountryCd.ISOALPHA3CD as countryCode
+               FROM  BNKCUSTOMER LEFT OUTER JOIN ARCSTATECD ON BNKCUSTOMER.arcStateCdKy = ARCSTATECD.arcStateCdKy
+               LEFT OUTER JOIN ARCCOUNTRYCD ON BNKCUSTOMER.arcCountryCdKy = ARCCOUNTRYCD.arcCountryCdKy
+               WHERE BNKCUSTOMER.bnkCustomerKy =  #{customerOid,jdbcType=VARCHAR} 
+	</select>
+	
+	<!-- TODO: Add the other fields when they are determined. -->
+	<resultMap id="AccountResultMap" type="com.aci.gsso.model.GssoAccountInfo" >
+        <result column="accountKy" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="accountID" property="accountID" jdbcType="VARCHAR" />
+        <result column="accountRoutingId" property="accountRoutingId" jdbcType="VARCHAR" />
+        <result column="accountIdMask" property="accountIdMask" jdbcType="VARCHAR" /> 
+        <result column="isNonReplaceDisplayCharacter" property="isNonReplaceDisplayCharacter" jdbcType="VARCHAR" typeHandler="org.apache.ibatis.type.BooleanTypeHandler" />
+        <result column="maskReplaceChar" property="maskReplaceCharacter" jdbcType="CHAR" />     
+        <result column="currencyCode" property="currencyCode" jdbcType="VARCHAR" />
+		<result column="productCode" property="productCode" jdbcType="VARCHAR" />
+        <result column="statementKy" property="statementOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	</resultMap>
+	
+	<select id="getAccountInfo" parameterType="map" resultMap="com.aci.gsso.mapper.GssoUserInfoMapper.AccountResultMap">
+		select acct.bnkAcctKy as accountKy, acct.acctId as accountId, acct.fiId as accountRoutingId, acct.productCode as ProductCode,
+		    currency.textCurrCd AS currencyCode,
+		    stmt.bnkCdyStmtKy as statementKy, stmt.stmtDttm as statementDateTime, 
+		    product.ACCTNUMDSPLYMASK as accountIdMask,
+		    product.ISNONDSPLYREPLACE as isNonReplaceDisplayCharacter,
+		    product.MASKREPLACECHAR as maskReplaceChar
+		from bnkacct acct, arcIsoCurrencyCd currency, bnkcdystmt stmt, bnkProduct product
+		where acct.bnkAcctKy = #{accountOid}
+		and stmt.bnkacctky = acct.bnkacctky
+		and acct.bnkProductKy = product.bnkProductKy
+		and acct.isocurrencycdky = currency.arcisocurrencycdky
+		--and rownumber = 1
+        order by stmt.stmtDttm DESC
+		fetch first 1 row only
+	</select>
+
+    <select id="getAccountInfo-Oracle" parameterType="map" resultMap="com.aci.gsso.mapper.GssoUserInfoMapper.AccountResultMap">
+		select acct.bnkAcctKy as accountKy, acct.acctId as accountId, acct.fiId as accountRoutingId, acct.productCode as ProductCode,
+		    currency.textCurrCd AS currencyCode,
+		    stmt.bnkCdyStmtKy as statementKy, stmt.stmtDttm as statementDateTime, 
+		    product.ACCTNUMDSPLYMASK as accountIdMask,
+		    product.ISNONDSPLYREPLACE as isNonReplaceDisplayCharacter,
+		    product.MASKREPLACECHAR as maskReplaceChar
+		from bnkacct acct, arcIsoCurrencyCd currency, bnkcdystmt stmt, bnkProduct product
+		where acct.bnkAcctKy = #{accountOid}
+		and stmt.bnkacctky = acct.bnkacctky
+		and acct.bnkProductKy = product.bnkProductKy
+		and acct.isocurrencycdky = currency.arcisocurrencycdky
+		and rownum = 1
+        order by stmt.stmtDttm DESC
+	</select>
+	
+	<select id="getBalanceInfo" parameterType="map" resultType="java.lang.String">
+	select stmtdetail.appFldDefValue as balanceAmount
+	from bnkcdystmtdetail stmtDetail, bnkappflddef fldDef
+    where stmtDetail.bnkcdystmtky = #{statementOid} 
+	and flddef.FIELDNAME = #{balanceType}
+	and fldDef.bnkappflddefky = stmtDetail.bnkappflddefky
+	order by stmtDetail.EFFECTIVEDTTM DESC
+	fetch first 1 rows only
+	</select>
+	
+	<select id="getBalanceInfo-Oracle" parameterType="map" resultType="java.lang.String">
+	select stmtdetail.appFldDefValue as balanceAmount
+	from bnkcdystmtdetail stmtDetail, bnkappflddef fldDef
+    where stmtDetail.bnkcdystmtky = #{statementOid} 
+	and flddef.FIELDNAME = #{balanceType}
+	and fldDef.bnkappflddefky = stmtDetail.bnkappflddefky
+	and rownum = 1
+	order by stmtDetail.EFFECTIVEDTTM DESC
+	</select>
+	
+</mapper>

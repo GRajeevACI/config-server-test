@@ -1,0 +1,4 @@
+services/core_services.properties
+services/banking_services.properties
+services/remote_services.properties
+services/payment_services.properties

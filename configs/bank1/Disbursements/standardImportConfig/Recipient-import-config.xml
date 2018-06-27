@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<beanio xmlns="http://www.beanio.org/2012/03" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+  <typeHandler name="recipientIdHandler" class="com.s1.frameworks.payments.imports.handlers.RecipientIdTypeHandler" />
+  <typeHandler name="moneyHandler" class="com.s1.frameworks.payments.imports.handlers.MoneyDataTypeHandler">
+  	<property name="currencyAlpha3Code" value="USD"/>
+  </typeHandler>
+  <typeHandler name="bankIdHandler" class="com.s1.frameworks.payments.imports.handlers.DestinationBankIdTypeHandler" />
+  <typeHandler name="statusHandler" class="com.s1.frameworks.payments.imports.handlers.AccountVerificationStatusHandler" />
+  <stream name="lineItemStream" format="csv" >
+  	<record name="lineItem" class="com.s1.payments.instruction.LineItemValue" order="1" minOccurs="1">
+  			<segment name="target" class="com.s1.payments.target.ThirdPartyValue" nillable="false">
+  				<field name="name"/>
+  				<field name="recipientIdType"/>
+  				<field name="recipientId"/>
+  				<field name="accountNumber"/>
+  				<field name="accountType"/>
+  				<field name="destinationBank" typeHandler="bankIdHandler"/>  				
+  				<field name="accountVerificationStatus" typeHandler="statusHandler"/>
+  			</segment>
+  			<field name="amount" typeHandler="moneyHandler"/>
+  		</record>
+  </stream>
+ </beanio>

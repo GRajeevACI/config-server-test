@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+	
+	<!-- This bean for testing purposes only -->	
+	<bean id="testCBIPaymentExecutor" class="com.s1.emea.disbursement.batch.CBIExecuteAdapterStrategy"/>	
+	
+	<bean id="streamCompletionChecker" class="com.s1.frameworks.payments.recurring.StreamCompletionChecker">
+		<property name="order" value="200"/>  
+		<property name="completed">	
+			<util:list id="streamCompleteStatus" value-type="java.lang.String">
+				<value>sent</value>
+				<value>accepted</value>
+				<value>confirmed</value>
+				<value>completed</value>		
+				<value>deleted</value>
+			</util:list>
+		</property> 
+	</bean>	
+			
+	<bean id="maintenanceLauncher" class="com.s1.frameworks.payments.recurring.MaintenanceLauncher">
+		<property name="order" value="100"/>  
+	</bean>	
+
+	<aop:config>
+		<aop:pointcut expression="execution(*  com.s1.frameworks.payments.PaymentExecutorIfc.execute*(com.s1.app.disbursements.DrCrDisbursementValue,com.s1.common.customer.CustomerValue))
+					and args(value,customer)" 
+				id="paymentStreamExecutor"/>
+				
+		<aop:aspect id="completeRecurringPaymentStreams" ref="streamCompletionChecker">
+			<!-- This expression should be fine tuned to trigger on methods which change payments in a recurring payment stream
+			such that maintenance on the stream is required. The pattern should be as narrow as possible so that the solution is
+			as efficient as possible. The pattern should probably include argument or annotation elements 
+			which select on a value object uniquely identifying a recurring payment.
+			-->
+
+		 	<aop:after method="checkForCompletion" pointcut-ref="paymentStreamExecutor"/>		
+		</aop:aspect>	
+		
+		<aop:aspect id="maintainRecurringPayment" ref="maintenanceLauncher">
+			<!-- This expression should be fine tuned to trigger on methods which change payments in a recurring payment stream
+			such that maintenance on the stream is required. The pattern should be as narrow as possible so that the solution is
+			as efficient as possible. The pattern should probably include argument or annotation elements 
+			which select on a value object uniquely identifying a recurring payment.
+			-->
+
+		 	<aop:after method="performMaintenance" pointcut-ref="paymentStreamExecutor"/>		
+		</aop:aspect>
+	</aop:config>
+</beans>

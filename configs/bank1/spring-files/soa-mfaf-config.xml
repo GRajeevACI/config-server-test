@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<bean name="mfafEntryPoint" class="com.aciworldwide.arch.service.mfaf.EntryPointImpl">
+		<property name="transactionTypes" ref="mfafTransactionTypesMap"></property>
+		<property name="helper" ref="mfafHelper"></property>
+		<property name="validationDomain" value="soa" />
+		<property name="validationSubdomain">
+			<list>
+				<value>validation/mfaf</value>
+			</list>
+		</property>
+		<!-- <property name="validator" ref="mfafValidator"></property> -->
+		<property name="signingService" ref="defaultSigningService"></property>
+		<property name="statusHandler" ref="defaultStatusHandler"></property>
+		<property name="authService" ref="defaultAuthenticationService"/>
+	</bean>
+
+	<bean name="defaultStatusHandler"
+		class="com.aciworldwide.arch.service.mfaf.DefaultStatusHandler">
+		<property name="helper" ref="mfafHelper"></property>
+		<property name="providerIdMap" ref="providerIdMap"></property>
+		<property name="tokenActivationService" ref="defaultTokenActivationService"></property>
+	</bean>
+
+	<bean name="defaultSigningService"
+		class="com.aciworldwide.arch.service.mfaf.DefaultSigningService">
+		<property name="mfafHelper" ref="mfafHelper"></property>
+		<property name="tokenActivationService" ref="defaultTokenActivationService"></property>
+		<property name="processor" ref="genericRequestProcessor"></property>
+	</bean>
+
+	<bean name="defaultTokenActivationService"
+		class="com.aciworldwide.arch.service.mfaf.DefaultTokenActivationService" />
+
+	<bean name="mfafValidator" class="com.aciworldwide.arch.service.mfaf.DefaultValidator" />
+
+	<bean name="mFAAvailabilityRule"
+		class="com.aciworldwide.common.configuration.DefaultMFAAvailabilityRule">
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+		<property name="providerIdMap" ref="providerIdMap"></property>
+		<property name="helper" ref="mfafHelper"></property>
+		<property name="tokenActivationService" ref="defaultTokenActivationService"></property>
+		<property name="metaDataService" ref="authenticationMetaDataService"></property>
+		<property name="authService" ref="defaultAuthenticationService"/>
+	</bean>
+
+	<util:map id="mfafTransactionTypesMap">
+		<entry key="CCD">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="PPD">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="RCK">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_RCK" />
+		</entry>
+		<entry key="WEB">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_WEB" />
+		</entry>
+		<entry key="TEL">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TEL" />
+		</entry>
+		<entry key="CHILD">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CHILD" />
+		</entry>
+		<entry key="CTX">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CTX" />
+		</entry>
+		<entry key="TAX">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TAX" />
+		</entry>
+		<entry key="DOMIAT">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_DOMIAT" />
+		</entry>
+		<entry key="IAT">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_IAT" />
+		</entry>
+		<entry key="DIRDEP" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="PAYIND" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="COLLINDWR" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="PAYBUS" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="COLLBUS" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="PAYCHILD" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CHILD" />
+		</entry>
+		<entry key="COLLRETCH" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_RCK" />
+		</entry>
+		<entry key="PAYTAX" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TAX" />
+		</entry>
+		<entry key="COLLINDTEL" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TEL" />
+		</entry>
+		<entry key="COLLINDWEB" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_WEB" />
+		</entry>
+		<entry key="INT">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_INT_TO_INT" />
+		</entry>
+		<entry key="USWIRE">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DOMESTIC_WIRE" />
+		</entry>
+		<entry key="INTLWIRE" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_CROSS_BORDER_WIRE" />
+		</entry>
+		<entry key="DRAFT">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DRAFT"/>
+		</entry>
+		<entry key="ADR">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ADVICE_TO_RECEIVE"/>
+		</entry>
+		<entry key="DRAWDOWN">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DRAWDOWN"/>
+		</entry>
+		<entry key="MULTIBANK">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_MULTIBANK"/>
+		</entry>
+		<entry key="FEDTAX">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_FED_TAX"/>
+		</entry>
+		<entry key="BOOKWIRE">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_BOOK_WIRE"/>
+		</entry>
+		<entry key="SINGLE">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_INT_TO_INT"/>
+		</entry>
+		<entry key="ONE_TO_MANY">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_ONE_TO_MANY"/>
+		</entry>
+		<entry key="MANY_TO_ONE">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_MANY_TO_ONE"/>
+		</entry>
+		<entry key="XFERRULETransfer">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_RULES"/>
+		</entry>
+		<entry key="LOAN">
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_INT_TO_LOAN"/>
+			<!-- <util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_LOAN_TO_INT"/> -->
+		</entry>
+													
+	</util:map>
+	
+	<util:map id="providerIdMap">
+		<entry key="RSA" value="21ibj16avjq0sfh8p52ptlnf5l" />
+		<entry key="VASCO" value="cuqa3u5416kq1fu2etcfrp5q3u" />
+		<entry key="SYMANTEC" value="merji0s055fukbuqk45iluunpr" />
+		<entry key="PASSWORD" value="Xr5PdP7TSTKJhGy9Jkr9dSowoH"></entry>
+	</util:map>
+</beans>

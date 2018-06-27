@@ -1,0 +1,202 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!--  	<bean id="workflowRegistryService"-->
+	<!--		class="com.s1.arch.workflow.ConcreteWorkflowRegistryService" />-->
+	<!--	<bean id="provisionalGrantService"-->
+	<!--		class="com.s1.arch.security.authorization.provisional.ConcreteProvisionalGrantService" />-->
+	<!--	<bean id="campaignOfferService"-->
+	<!--		class="com.s1.core.campaignOffer.ConcreteCampaignOfferService" />-->
+	<!--	<bean id="reportService"-->
+	<!--		class="com.s1.core.report.ConcreteReportService" />-->
+	<!--	<bean id="noteService" class="com.s1.core.note.ConcreteNoteService" />-->
+	<!--	<bean id="campaignService"-->
+	<!--		class="com.s1.core.campaign.ConcreteCampaignService" />-->
+	<!--	<bean id="incidentService"-->
+	<!--		class="com.s1.core.incident.ConcreteIncidentService" />-->
+	<!--	<bean id="behaviorService"-->
+	<!--		class="com.s1.core.behavior.ConcreteBehaviorService" />-->
+	<bean id="customerService"
+		class="com.s1.core.customer.ConcreteCustomerService" />
+	<bean id="employeeService"
+		class="com.s1.core.employee.ConcreteEmployeeService" />
+	<bean id="custSgmtService"
+		class="com.s1.core.custSgmt.ConcreteCustSgmtService" />
+	<bean id="channelService"
+		class="com.s1.arch.channel.ConcreteChannelService" />
+	<bean id="productService"
+		class="com.s1.core.product.ConcreteProductService" />
+	<bean id="messageService"
+		class="com.s1.arch.i18n.message.ConcreteMessageService" />
+	<bean id="businessContactService"
+		class="com.s1.core.businesscontact.ConcreteBusinessContactService" />
+	<bean id="genericDispatcherService"
+		class="com.s1.arch.lcf.ConcreteGenericDispatcherService" />
+	<bean id="challengeQuestionAdminService"
+		class="com.s1.arch.security.challenge.ConcreteChallengeQuestionAdminService" />
+	<bean id="enumerationService"
+		class="com.s1.arch.enumeration.ConcreteEnumerationService" />
+
+	<bean id="localeService"
+		class="com.s1.arch.i18n.locale.ConcreteLocaleService" />
+	<bean id="dynamicAttributeService"
+		class="com.s1.arch.dynamicattribute.ConcreteDynamicAttributeService" />
+
+	<bean id="contextSharingService"
+		class="com.s1.arch.contextsharing.ConcreteContextSharingService" />
+	<bean id="auditService"
+		class="com.s1.arch.auditx.ConcreteAuditService" />
+	<bean id="applicationRegistryService"
+		class="com.s1.core.applicationregistry.ConcreteApplicationRegistryService" />
+	<bean id="affiliateFIService"
+		class="com.s1.core.organization.ConcreteAffiliateFIService" />
+	<bean id="affiliateService"
+		class="com.s1.banking.common.organization.affiliate.ConcreteAffiliateService" />
+	<bean id="parametersService"
+		class="com.s1.common.parameters.ParametersServiceBean" />
+		
+	<bean id="personService"
+		class="com.s1.core.person.ConcretePersonService" />
+	<bean id="organizationService"
+		class="com.s1.core.organization.ConcreteOrganizationService" />
+	<bean id="aggregationService"
+		class="com.s1.core.aggregation.ConcreteAggregationService" />
+	<bean id="custSgmtDetService"
+		class="com.s1.core.custSgmtDet.ConcreteCustSgmtDetService" />
+	<bean id="navigationDescriptorService"
+		class="com.s1.core.navigation.ConcreteNavigationDescriptorService" />
+	<bean id="offerTypeService"
+		class="com.s1.core.offertype.ConcreteOfferTypeService" />
+	<bean id="authenticationService"
+		class="com.s1.arch.security.authentication.ConcreteAuthenticationService" />
+	<bean id="identityService"
+		class="com.s1.arch.security.identity.ConcreteIdentityService" />
+	<bean id="pagedCollectionService"
+		class="com.s1.arch.pagedcollection.ConcretePagedCollectionService" />
+	<bean id="logonAdminService"
+		class="com.s1.arch.security.logonadmin.ConcreteLogonAdminService" />
+	<bean id="userSecurityService"
+		class="com.s1.arch.security.user.ConcreteLocalUserSecurityService" />
+	<bean id="lockoutService"
+		class="com.s1.arch.security.lockout.ConcreteLockoutService" />
+	<bean id="passwdAdminService"
+		class="com.s1.arch.security.passwdadmin.ConcretePasswdAdminService" />
+	<bean id="principalManagerService"
+		class="com.s1.arch.principal.ConcretePrincipalManagerService" />
+
+	<!-- For Common DB handling -->
+	<bean id="dbUtil"
+		class="com.s1.arch.persistence.util.DBUtilImpl" init-method="initialize"/>
+
+	<bean id="authorizationBridgeService"
+		class="com.s1.arch.security.authoriz.ConcreteAuthorizationService" />
+
+	<bean id="sequenceGeneratorService"
+		class="com.s1.arch.persistence.sequence.ConcreteSequenceGeneratorSupportService" />
+	<bean id="sequenceService"
+		class="com.s1.arch.persistence.sequence.LocalDatabaseSequenceService">
+		<property name="sequenceGenerator"
+			ref="sequenceGeneratorService" />
+		<property name="invokeRetries" value="3"/>
+		<property name="msecSleepBetweenRetries" value="20"/>
+	</bean>
+	<bean id="userEntitlementsOpsTargetsMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.UserEntitlementsOpsTargetsMapper" />
+	</bean>
+
+	<bean id="springBeanFactoryBridge"
+		class="com.s1.arch.spring.SpringBeanFactoryBridge" lazy-init="false" />
+	<bean id="springBootstrap"
+		class="com.s1.arch.bootstrap.SpringS1Bootstrap" lazy-init="false" depends-on="springGrndsBootstrap" />
+		
+	<!-- This is only needed for the websphere data source using grnds properties
+		<bean id="propertyConfigurer"
+			class="com.s1.arch.spring.beans.factory.config.GrndsPropertyPlaceHolderConfigurer"
+			depends-on="springGrndsBootstrap" lazy-init="false"/>
+	--> 
+	<bean id="springGrndsBootstrap"
+		class="com.s1.arch.common.bootstrap.SpringGrndsBootstrap" lazy-init="false" depends-on="springBeanFactoryBridge"/>
+	<!-- use this data source for WebSphere	
+	 <bean id="epDataSource" class="org.springframework.jdbc.datasource.WebSphereDataSourceAdapter">
+	   <property name="targetDataSource" >
+	   	 <bean 	class="org.springframework.jndi.JndiObjectFactoryBean">
+		   <property name="jndiName" value="${grnds.factory.env.target.EP_DB_Interposed.javax.naming.name.j2ee}"/>
+		</bean>
+	   </property>
+	 </bean>
+		 
+	 --> 
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/config/ibatis/Mybatis-SqlMapConfig.xml" />
+        <property name="dataSource" ref="epDataSource" />
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory" />
+    </bean>
+
+	<bean id="BaseMybatisDAO" abstract="true" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="BaseMybatisBatchDAO" abstract="true" class="com.s1.arch.mybatis.BatchExecutionMapperFactoryBean">
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+    </bean>
+    
+    <bean id="sqlSessionFactoryXA" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/config/ibatis/Mybatis-SqlMapConfig.xml" />
+        <property name="dataSource" ref="epDataSource" />
+    </bean>
+
+    <bean id="sqlSessionTemplateXA" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactoryXA" />
+    </bean>
+
+	<bean id="BaseMybatisDAOXA" abstract="true" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplateXA" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+    <bean id="authorizationMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.AuthorizationGrantMapper" />
+	</bean> 
+	<!-- use this data source for JBoss 
+        <bean id="jbossJndiEPTemplate" class="org.springframework.jndi.JndiTemplate">
+          <property name="environment">
+          <props>
+                <prop key="java.naming.factory.initial">org.jnp.interfaces.NamingContextFactory</prop>
+          </props>
+          </property>
+         </bean>
+ 
+	 <bean id="epDataSource" class="org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter">
+	   <property name="targetDataSource" >
+	   	 <bean 	class="org.springframework.jndi.JndiObjectFactoryBean">
+		   <property name="jndiName" value="${grnds.factory.env.target.EP_DB_Interposed.javax.naming.subcontext}/${grnds.factory.env.target.EP_DB_Interposed.javax.naming.name.j2ee}"/>
+            	      <property name="jndiTemplate">
+                         <ref local="jbossJndiEPTemplate"/>
+                      </property>
+		</bean>
+	   </property>
+	 </bean>
+         -->
+
+	<!-- <bean id="adaptiveAuthenticationService" class="com.s1.app.adaptiveauth.rsa.RSAMAIAadptiveAuth" /> -->
+
+    <!--  <bean id="sequenceService" class="org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean" scope="prototype">
+		<property name="jndiName" value="ejb/com/s1/arch/sequence/SequenceServiceHome"/>
+		<property name="businessInterface" value="com.s1.arch.persistence.sequence.SequenceService"/>
+		<property name="jndiTemplate">
+			<ref local="jndiTemplate"/>
+		</property>
+		<property name="cacheHome" value="false"/>
+		<property name="lookupHomeOnStartup" value="false"/>
+		<property name="resourceRef" value="false"/>
+		<property name="homeInterface" value="com.s1.arch.persistence.sequence.SequenceServiceHome"/>
+    </bean>  -->
+    
+</beans>

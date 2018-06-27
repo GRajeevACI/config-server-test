@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean id="mappingReader" class="org.beanio.spring.BeanIOFlatFileItemReader">
+		<property name="streamMapping"
+			value="classpath:/config/mappings/mappings-stream.xml" />
+		<property name="streamName" value="mappings" />
+		<property name="encoding" value="UTF-8" />
+	</bean>
+
+
+	<bean id="transformationConfiguration"
+		class="com.aciworldwide.arch.service.transformation.ObjectMappingConfiguration"
+		init-method="init">
+		<constructor-arg index="0">
+			<list>
+				<value>classpath:/config/mappings/common-mappings.xml</value>
+				<value>classpath:/config/mappings/pmt-mappings.xml</value>
+				<value>classpath:/config/mappings/ach-mappings.xml</value>
+				<value>classpath:/config/mappings/addenda-mappings.xml</value>
+				<value>classpath:/config/mappings/recipient-mappings.xml</value>
+				<value>classpath:/config/mappings/securemessage-mappings.xml</value>
+				<value>classpath:/config/mappings/import-mappings.xml</value>
+				<value>classpath:/config/mappings/export-mapping.xml</value>
+				<value>classpath:/config/mappings/customer-mappings.xml</value>
+				<value>classpath:/config/mappings/account-mappings.xml</value>
+				<value>classpath:/config/mappings/user-mappings.xml</value>
+				<value>classpath:/config/mappings/usergroup-mappings.xml</value>
+				<value>classpath:/config/mappings/transfer-mappings.xml</value>
+				<value>classpath:/config/mappings/alertManagement-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/onlinetransfer-mappings.xml
+				</value>
+				<value>classpath:/config/mappings/acctransactions-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/accountinfo-mappings.xml</value>
+				<value>classpath:/config/mappings/contactInfo-mapping.xml</value>
+				<value>classpath:/config/mappings/bankmanagement-mapping.xml</value>
+				<value>classpath:/config/mappings/wire-mappings.xml</value>
+				<value>classpath:/config/mappings/currency-conversion-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/external-account-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/notifications-mappings.xml</value>
+				<value>classpath:/config/mappings/widget-mapping.xml</value>
+				<value>classpath:/config/mappings/disclaimer-mappings.xml</value>
+				<value>classpath:/config/mappings/utility-mappings.xml</value>
+				<value>classpath:/config/mappings/balanceChart-mappings.xml</value>
+				<value>classpath:/config/mappings/check-service-mapping.xml</value>
+				<value>classpath:/config/mappings/positivepay-mapping.xml</value>
+				<value>classpath:/config/mappings/issuemaintenance-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/campaignMessages-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/pagingSort-mapping.xml</value>
+				<value>classpath:/config/mappings/rsa-adaptiveauth-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/challengeqa-mappings.xml</value>
+				<value>classpath:/config/mappings/templategroup-mappings.xml</value>
+				<value>classpath:/config/mappings/holidaycalendar-mappings.xml
+				</value>
+				<value>classpath:/config/mappings/achauthorization-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/codevalue-mapping.xml</value>
+				<value>classpath:/config/mappings/reportdeliverylabel-mapping.xml
+				</value>
+				<value>classpath:/config/mappings/billpay-mappings.xml</value>
+				<value>classpath:/config/mappings/fileservices-mapping.xml</value>
+				<value>classpath:/config/mappings/transferrule-mappings.xml</value>
+				<value>classpath:/config/mappings/rdc-mapping.xml</value>
+				<!-- override-mappings.xml should always be at the end. -->
+				<value>classpath:/config/mappings/override-mappings.xml</value>
+			</list>
+		</constructor-arg>
+		<property name="mappingReader" ref="mappingReader" />
+	</bean>
+
+	<bean id="orikaObjectMapper"
+		class="com.aciworldwide.arch.service.transformation.ObjectMapper"
+		init-method="init" depends-on="transformationConfiguration">
+		<property name="configuration" ref="transformationConfiguration" />
+	</bean>
+
+	<bean id="objectTransformationService"
+		class="com.aciworldwide.arch.service.transformation.TransformationServiceImpl"
+		init-method="initializeMapperFacade" depends-on="orikaObjectMapper">
+		<property name="objectMapper" ref="orikaObjectMapper" />
+	</bean>
+
+	<bean id="currencyConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CurrencyCodeConverter" />
+
+	<bean id="s1DateConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.S1DateConverter" />
+
+	<bean id="objectIdConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.ObjectIdConverter" />
+
+	<bean id="accountIdListConverter"
+		class="com.aciworldwide.common.account.AccountIdentificationListConverter" />
+
+	<bean id="accountIdConverter"
+		class="com.aciworldwide.common.account.AccountIdentificationConverter" />
+
+	<bean id="fiIdListConverter" class="com.aciworldwide.common.account.FiIdListConverter" />
+
+	<bean id="accountTypeListConverter"
+		class="com.aciworldwide.common.account.AccountTypeListConverter" />
+
+	<bean id="balanceListConverter" class="com.aciworldwide.common.account.BalanceListConverter" />
+
+	<bean id="creditDebitConverter"
+		class="com.aciworldwide.payments.converter.ach.CreditDebitConverter" />
+
+	<bean id="secAmountAllocationConverter"
+		class="com.aciworldwide.payments.converter.ach.SecAmountAllocationConverter" />
+
+	<bean id="secAccountAmountConverter"
+		class="com.aciworldwide.payments.converter.ach.SecAccountAmountConverter" />
+
+	<bean id="achPaymentCreateRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHPaymentCreateRqConverter" />
+	<bean id="achTemplateCreateRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHTemplateCreateRequestConverter" />
+	<bean id="achPaymentFinalApprovalRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHPaymentFinalApprovalRequestConverter" />
+	<bean id="achTemplateFinalApprovalRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHTemplateFinalApprovalRequestConverter" />
+
+	<bean id="achPaymentUpdateRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHPaymentUpdateRqConverter" />
+	<bean id="achTemplateUpdateRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHTemplateUpdateRequestConverter" />
+
+	<bean id="achPaymentValidateRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHPaymentValidateRqConverter" />
+
+	<bean id="achPaymentSaveIncompleteRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHPaymentSaveIncompleteRqConverter" />
+	<bean id="achTemplateSaveIncompleteRqConverter"
+		class="com.aciworldwide.payments.converter.ach.ACHTemplateSaveIncompleteRqConverter" />
+
+	<bean id="achCrossBorderCurrencyMapper"
+		class="com.aciworldwide.pim.messages.service.mapper.ACHCrossBorderCurrencyMapper" />
+
+	<bean id="accountInfoTypeAccountValueConverter"
+		class="com.aciworldwide.common.account.AccountInfoTypeAccountValueConverter">
+		<property name="accountService" ref="accountService" />
+	</bean>
+
+	<bean id="singleAddendaStringConverter"
+		class="com.aciworldwide.payments.converter.ach.SingleAddendaStringConverter" />
+
+	<bean id="singleAddendaTypeConverter"
+		class="com.aciworldwide.payments.converter.ach.SingleAddendaTypeConverter" />
+
+	<bean id="isoAlpha2CountryCodeToKeyConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2CountryCodeToKeyConverter" />
+		
+	<bean id="isoAlpha3CountryCodeToKeyConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.IsoAlpha3CountryCodeToKeyConverter" />
+
+	<bean id="isoAlpha2StateCodeToKeyConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2StateCodeToKeyConverter" />
+
+	<bean id="achQuickPayHistoryListConverter"
+		class="com.aciworldwide.payments.converter.achquickpay.AchQuickPayHistoryListConverter" />
+
+	<bean id="specialReportListConvertor"
+		class="com.aciworldwide.reports.convertor.specialreport.SpecialReportListConvertor" />
+
+	<bean id="specialReporthistoryConvertor"
+		class="com.aciworldwide.reports.convertor.specialreport.SpecialReportHistoryConvertor" />
+
+	<bean id="reportDeliveryListConvertor"
+		class="com.aciworldwide.reports.convertor.reportdelivery.ReportDeliveryListConvertor" />
+
+	<bean id="bankIdTypeToEnumStringValueConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.BankIdTypeToEnumStringValueConverter" />
+
+	<bean id="countryCodeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CountryCodeConverter" />
+
+	<bean id="currencyCodeToKeyConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CurrencyCodeToKeyConverter" />
+
+	<bean id="isoAlpha2CountryCodeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2CountryCodeConverter" />
+
+	<bean id="isoAlpha2StateCodeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.IsoAlpha2StateCodeConverter" />
+
+	<bean id="fiIdentificationCustomMapper"
+		class="com.aciworldwide.services.pim.jaxb.model.mapper.FIIdentificationCustomMapper" />
+	<bean id="accountIdentificationCustomMapper"
+		class="com.aciworldwide.services.pim.jaxb.model.mapper.AccountIdentificationCustomMapper" />
+	<bean id="creditDebitTypeConverter"
+		class="com.aciworldwide.services.pim.jaxb.model.converter.CreditDebitTypeConverter" />
+	<bean id="accountTypeCustomMapper"
+		class="com.aciworldwide.services.pim.jaxb.model.mapper.AccountTypeCustomMapper" />
+	<bean id="additionalAccountIdentifierCustomMapper"
+		class="com.aciworldwide.services.pim.jaxb.model.mapper.AdditionalAccountIdentifierCustomMapper" />
+	<bean id="customPaymentAllocationMapper"
+		class="com.aciworldwide.services.pim.jaxb.model.mapper.PaymentAllocationMapper" />
+
+	<bean id="achPaymentInquiryRsMapper"
+		class="com.aciworldwide.payments.mapper.ach.ACHPaymentInquiryRsMapper" />
+	<bean id="achTemplateInquiryRsMapper"
+		class="com.aciworldwide.payments.mapper.ach.ACHTemplateDetailInquiryRsMapper" />
+
+	<bean id="recipientInquiryRsMapper"
+		class="com.aciworldwide.recipients.mapper.RecipientInquiryRsMapper" />
+
+	<bean id="importProfileInquiryRsMapper"
+		class="com.aciworldwide.imprt.mapper.ImportProfileInquiryRsMapper" />
+
+	<bean id="importProfileSummaryRecordMapper"
+		class="com.aciworldwide.imprt.mapper.ImportProfileSummaryRecordMapper">
+		<property name="udUtility" ref="udUtils" />
+	</bean>
+
+	<bean id="importProfileInquiryDetailRsMapper"
+		class="com.aciworldwide.imprt.mapper.ImportProfileDetailInquiryRsMapper">
+		<property name="udUtility" ref="udUtils" />
+	</bean>
+
+	<bean id="exportProfileInquiryDetailRsMapper"
+		class="com.aciworldwide.export.mapper.ExportProfileDetailInquiryRsMapper">
+		<property name="soaUtil" ref="soaExportUtils" />
+	</bean>
+
+	<bean id="exportProfileBaseMapper" class="com.aciworldwide.export.mapper.ExportProfileBaseMapper">
+		<property name="soaUtil" ref="soaExportUtils" />
+	</bean>
+
+	<bean id="cosName2IdConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CosName2IdConverter" />
+
+	<bean id="CosStatusConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CosStatusConverter" />
+
+	<bean id="FIId2OidConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.FIId2OidConverter" />
+
+	<bean id="customerCOSOverrideRqConverter"
+		class="com.aciworldwide.enrollment.service.customer.converter.CustomerCOSOverrideRqConverter">
+		<property name="COSParamFieldNameMap" ref="COSParamFieldNameMap" />
+	</bean>
+
+	<bean id="recipientCreateRqConverter"
+		class="com.aciworldwide.payments.recipient.converters.RecipientCreateRequestConverter" />
+
+	<bean id="recipientUpdateRqConverter"
+		class="com.aciworldwide.payments.recipient.converters.RecipientUpdateRequestConverter" />
+
+	<bean id="COSParamFieldNameMap" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="DualAuthTemplates" value="displayTemplateDualAuth" />
+				<entry key="DualAuthRecipients" value="isRecipientsDualAuthRequired" />
+				<entry key="UserLogonAuthType" value="loginAuthenticationType" />
+				<entry key="IsBillingHardCharge" value="isBillingHrdChrg" />
+				<entry key="IsAutoAccountAssociate" value="isAutoAcctAssociate" />
+				<entry key="IsUserAndEntitlementAdmin" value="" />
+				<entry key="DualAuthUserAdminClient" value="isCorpUserDualAprvl" />
+				<entry key="DualAuthUserAdminSAM" value="isSAMUserDualAprvl" />
+				<entry key="IsApproveOwnEnabled" value="isApprOwnEnabled" />
+				<entry key="IsTemplateOverrideForApprovals" value="isTemplateOverride" />
+				<entry key="DisplayPanelAuthForPayments" value="" />
+				<entry key="DisplayPanelAuthPerPayment" value="displayPerPaymentPanelAuth" />
+				<entry key="DisplayPanelAuthForEFD" value="displayEFDPanelAuth" />
+				<entry key="DisplayWireTemplateGroupsAdmin" value="displayIsWireTemplateGroups" />
+				<entry key="TransferNavigationType" value="transferNavigation" />
+				<entry key="IsBulkTransfersEnabled" value="bulkInternalTransfers" />
+				<entry key="IsExternalAccountsEnabled" value="isExternalAccount" />
+				<entry key="IsACHPrenotesEnabled" value="" />
+				<entry key="UserEntitlementsType" value="userEntitlements" />
+				<entry key="USACHType" value="USAchWrkFlwAtr" />
+				<entry key="ApplicationHomePage" value="" />
+				<entry key="IsCSAMobileAdmin" value="CsrUserMobPhnAdmin" />
+				<entry key="IsMobileSelfEnroll" value="PBAllowSelfEnrollByMobileUser" />
+				<entry key="IsSecureMsgAttachmentEnabled" value="isRecipientsDualAuthRequired" />
+				<entry key="EnableUserGroups" value="isUserGroupsEnabled" />
+				<entry key="IsUserAcctAccessACHCompanyIDEnabled" value="canUsrAccessByACHCmpId" />
+				<entry key="CanAdminEnableOOBAAccess" value="canAdminEnableOOBA" />
+				<entry key="CanAdminDisableOOBAAccess" value="canUserDisableOOBA" />
+				<entry key="CanAdminTextMessage" value="canAdminTextMessg" />
+				<entry key="CanAdminVoice" value="canAdminVoice" />
+				<entry key="CanCSAAdministerUserProfileMobilePhone" value="CsrEnrollmentOfMobileUsers" />
+				<entry key="CanUserDisableOOBAAccess" value="canUserDisableOOBA" />
+				<entry key="AdaptiveAuthenticationGroup" value="adaptiveAuthGroup" />
+				<entry key="AdaptiveAuthenticationGroupTransactions" value="adaptiveAuthGroupForTransaction" />
+				<entry key="ClassOfServiceTheme" value="SelectedSkin" />
+				<entry key="ApplicationExitPath" value="ApplicationExitPath" />
+				<entry key="DisplayIsMultiUser" value="displayIsMultiUser" />
+				<entry key="IsSingleCrncyEnbld" value="isSingleCrncyEnbld" />
+				<entry key="DashBoardTitle" value="dashboardTitle" />
+
+
+			</map>
+		</property>
+	</bean>
+
+	<bean id="debitTypeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.DebitTypeConverter" />
+
+	<bean id="creditTypeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CreditTypeConverter" />
+
+	<bean id="authTypeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.AuthTypeConverter" />
+
+	<bean id="variableApproverConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.VariableApproverConverter" />
+
+
+
+	<bean id="inputStreamToByteArrayConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.InputStreamToByteArrayConverter" />
+
+	<bean id="customerAccountPropertiesMapper"
+		class="com.aciworldwide.pim.messages.service.mapper.CustomerAccountPropertiesMapper">
+		<property name="customerService" ref="bankingCustomerService" />
+		<property name="bankIdMap" ref="bankIdMap" />
+	</bean>
+
+	<bean id="bankIdTypeEnumValueConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.BankIdTypeToEnumValueConverter">
+		<property name="bankIdMap" ref="bankIdMap" />
+		<property name="alternateIDMap" ref="alternateIDMap" />
+	</bean>
+
+	<bean id="productCodeToValueConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.HostProductCodeToProductValueConverter" />
+
+	<bean id="productCodeToOidConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.HostProductCodeToProductOidConverter" />
+
+	<bean id="accountPendingValueConvertor"
+		class="com.aciworldwide.pim.messages.service.mapper.AccountInfoTypePendingValueConverter">
+		<property name="customerService" ref="bankingCustomerService" />
+		<property name="accountService" ref="accountService" />
+	</bean>
+
+	<bean id="languageOidConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.LanguageObjectIdConverter" />
+
+	<bean id="createUserRequestConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.CreateUserRequestMapper">
+		<property name="userUtilService" ref="userUtilService" />
+	</bean>
+
+	<bean id="createUserGroupRequestConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.CreateUserGroupRequestMapper">
+	</bean>
+
+	<bean id="updateUserGroupRequestConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.UpdateUserGroupRequestMapper" />
+
+	<bean id="updateUserRequestConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.UpdateUserRequestMapper">
+		<property name="companyService" ref="companyService" />
+		<property name="userUtilService" ref="userUtilService" />
+	</bean>
+
+	<bean id="privilegeLevelConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.CommonDataMapperConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.PRIVILEGELEVEL" />
+		</property>
+	</bean>
+
+	<bean id="reversePrivilegeLevelConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.ReverseDataMapperConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.PRIVILEGELEVEL" />
+		</property>
+	</bean>
+
+	<bean id="funcAccessConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.FunctionalAccessConverter">
+		<property name="advEmbededConverter" ref="funcPrivilegeAccessConverter" />
+		<property name="basicEmbededConverter" ref="basicFuncPrivilegeAccessConverter" />
+	</bean>
+
+	<bean id="basicFuncPrivilegeAccessConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.GenericPrivilegesConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.BASIC_FUNCTIIONAL" />
+		</property>
+	</bean>
+
+	<bean id="funcPrivilegeAccessConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.GenericPrivilegesConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.FUNCTIIONAL" />
+		</property>
+	</bean>
+
+	<bean id="basicFuncPrivilegeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.GenericPrivilegeConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.BASIC_FUNCTIIONAL" />
+		</property>
+	</bean>
+
+	<bean id="funcPrivilegeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.GenericPrivilegeConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.FUNCTIIONAL" />
+		</property>
+	</bean>
+
+	<bean id="functionalPrivilegeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.FunctionalPrivilegeConverter">
+		<property name="advEmbededConverter" ref="funcPrivilegeConverter" />
+		<property name="basicEmbededConverter" ref="basicFuncPrivilegeConverter" />
+	</bean>
+
+
+	<bean id="efdAccessConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.EFDAccessConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.EFD" />
+		</property>
+	</bean>
+
+	<bean id="userApprovalConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.ApprovalAccessConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.APPROVAL" />
+		</property>
+	</bean>
+
+	<bean id="accountPrivilegeAccessConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.GenericPrivilegesConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.ACCOUNT" />
+		</property>
+	</bean>
+	<bean id="userAccountsOprtnsConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.CustomerAccountsOperationsConverter">
+		<property name="accountEmbededConverter" ref="accountPrivilegeAccessConverter" />
+		<property name="accountAccessUtils" ref="accountAccessUtil" />
+	</bean>
+
+	<bean id="userLimitFromConvertor"
+		class="com.aciworldwide.pim.messages.service.mapper.UserPaymentLimitFromConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.LIMIT" />
+		</property>
+	</bean>
+
+	<bean id="paymentLimitConverter"
+		class="com.aciworldwide.pim.messages.service.user.converter.PaymentLimitConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.LIMIT" />
+		</property>
+	</bean>
+
+	<bean id="efdOperaionFromConvertor"
+		class="com.aciworldwide.pim.messages.service.mapper.EFDOpeationFromConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.EFD" />
+		</property>
+	</bean>
+
+	<bean id="approvalsPrivilegesConverter"
+		class="com.aciworldwide.pim.messages.service.user.converter.ApprovalsPrivilegesConverter">
+	</bean>
+
+	<bean id="userAccountsOprtnsFromConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.CustomerAccountsOperationsFromConverter">
+		<property name="accountEmbededConverter" ref="accountPrivilegeAccessConverter" />
+		<property name="accountAccessUtils" ref="accountAccessUtil" />
+	</bean>
+
+	<bean id="accountPrivilegeSummaryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.AccountPrivilegeSummaryConverter">
+		<property name="accountAccessUtils" ref="accountAccessUtil" />
+	</bean>
+
+	<bean id="userLimitConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.UserLimitConverter" />
+	<bean id="userGroupLimitConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.UserGroupLimitConverter" />
+	<bean id="accessScheduleConverter"
+		class="com.aciworldwide.pim.messages.service.user.converter.AccessScheduleConverter" />
+	<bean id="userAccessScheduleConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.UserAccessScheduleConverter" />
+
+	<bean id="dayCodeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.DayCodeConverter" />
+
+	<bean id="txnCodeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransactionCodeDataMapperConverter" />
+
+	<bean id="pmntStatusCodeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.PaymentStatusCodeDataMapperConverter" />
+
+
+	<bean id="userDetailInquiryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.UserDetailInquiryConverter">
+		<property name="userUtilService" ref="userUtilService" />
+	</bean>
+
+	<bean id="userSearchCriteriaMapper"
+		class="com.aciworldwide.pim.messages.service.mapper.UserCriteriaMapper">
+	</bean>
+	<bean id="groupNameConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.CorpGroupNameToObjectOidConverter">
+		<property name="userUtilService" ref="userUtilService" />
+	</bean>
+
+	<bean id="stringBooleanConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.StringBooleanConverter">
+		<property name="fragment">
+			<util:constant static-field="com.aciworldwide.common.mapper.DataMapper.BOOL" />
+		</property>
+	</bean>
+
+	<bean id="pendingStatusConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.PendingStatusConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.PENDINGSTATUS" />
+		</property>
+	</bean>
+
+	<bean id="transAcctData_AcctHldVal_Conv"
+		class="com.aciworldwide.common.account.TransferAcctData_AccountHoldingValue_Converter" />
+
+	<bean id="paginationConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.PaginationMapper" />	
+
+	<bean id="dataServiceMapper"
+		class="com.aciworldwide.pim.messages.service.mapper.DataServiceMapper">
+		<property name="userUtilService" ref="userUtilService" />
+	</bean>
+
+	<bean id="accountLimitConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.AccountLimitConverter" />
+	<bean id="accountEntitlementConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.AccounEntitlementConverter" />
+	<bean id="s1DateToTimestampConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.S1DateToTimestampConverter" />
+
+	<bean id="fundsTransferInstructionCreateRqTypeTransferValueConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineTransferCreateRqTypeTransferValueConverter">
+		<property name="transferUtility" ref="transferUtility" />
+	</bean>
+	<bean
+		id="fundsTransferInstructionFinalApprovalRqTypeTransferValueConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineTransferFinalApprovalRqTypeTransferValueConverter">
+		<property name="transferUtility" ref="transferUtility" />
+	</bean>
+
+	<bean
+		id="fundsTransferInstructionFinalApprovalRqTypeBulkTransferValueConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineBulkTransferFinalApprovaleRqTypeBulkTrValueConverter"
+		parent="bulkTransferReqConverter" />
+
+	<bean id="fundsTransferInstructionUpdateRqTypeTransferValueConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineTransferUpdateRqTypeTransferValueConverter">
+		<property name="allTransferService" ref="allTransferService" />
+		<property name="transferUtility" ref="transferUtility" />
+	</bean>
+
+	<bean id="transferTemplateCreateAbstractConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.TransferTemplateRqTemplateValConverter"
+		abstract="true">
+		<property name="transferUtility" ref="transferUtility" />
+		<property name="transferTemplateUtil" ref="onlineTransferTemplateUtility" />
+	</bean>
+
+	<bean id="trnsfrTemplCreateRqConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.TransferTemplateCreateRqConverter"
+		parent="transferTemplateCreateAbstractConverter" />
+
+	<bean id="trnsfrTemplUpdateRqConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.TransferTemplateUpdateRqConverter"
+		parent="transferTemplateCreateAbstractConverter" />
+
+	<bean id="trnsfrTemplFinalApprovalRqConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.TransferTemplateFinalApprovalRqConverter"
+		parent="transferTemplateCreateAbstractConverter" />
+
+	<bean id="instructionConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.InstructionConverter" />
+	<bean id="recurrenceValueConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.RecurrenceValueConverter" />
+
+	<bean id="historyValueConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.HistoryValueConverter">
+		<property name="identityService" ref="identityService" />
+	</bean>
+
+	<bean id="transferSummaryCriteriaConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransferSummaryCriteriaConverter">
+		<property name="fragment">
+			<util:constant
+				static-field="com.aciworldwide.common.mapper.DataMapper.PMNT_STATUS" />
+		</property>
+	</bean>
+
+	<bean id="transferTemplateSummaryCriteriaConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransferTemplateSummaryCriteriaConverter">
+	</bean>
+
+	<bean name="secureMsgToDetailInqConverter"
+		class="com.aciworldwide.securemessage.converter.SecureMessageToDetailInquiryConverter" />
+
+	<bean name="secureMessageValueToSummaryTypeConverter"
+		class="com.aciworldwide.securemessage.converter.SecureMessageValueToSummaryTypeConverter" />
+
+	<bean id="transferTemplateSummaryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransferTemplateSummaryConverter">
+	</bean>
+
+	<bean id="transferTemplateDetailConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransferTemplateDetailConverter">
+	</bean>
+
+	<bean id="transferTemplateHistoryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransferTemplateHistoryConverter">
+	</bean>
+
+	<bean id="accountInfoToTransferAccountSummaryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.AccountInfoToTransferAccountSummaryConverter">
+	</bean>
+
+	<bean id="bool2ZeroOneConv"
+		class="com.aciworldwide.arch.service.transformation.converter.BooleanToZeroOneConverter" />
+
+	<bean id="bulkTransferToSummaryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.BulkTransferToSummaryConverter">
+	</bean>
+
+	<bean id="simpleTransferToSummaryConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.SimpleTransferToSummaryConverter">
+	</bean>
+
+	<bean id="otmValueGenerator"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OTMValueGenerator">
+		<property name="transferUtility" ref="transferUtility" />
+	</bean>
+
+	<bean id="mtoValueGenerator"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.MTOValueGenerator">
+		<property name="transferUtility" ref="transferUtility" />
+	</bean>
+
+	<bean id="bulkTransferReqConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineBulkTransferRqTypeBulkTrValueConverter"
+		abstract="true">
+		<property name="tranTypeToGeneratorMap">
+			<map>
+				<entry
+					key="#{T(com.s1.app.disbursements.TransactionTypes).CB_TRANSFER_ONE_TO_MANY}"
+					value="otmValueGenerator" />
+				<entry
+					key="#{T(com.s1.app.disbursements.TransactionTypes).CB_TRANSFER_MANY_TO_ONE}"
+					value="mtoValueGenerator" />
+			</map>
+		</property>
+		<property name="transferUtility" ref="transferUtility" />
+		<property name="bulkTransferService" ref="bulkTransferService" />
+	</bean>
+
+	<bean id="bulkTransferCreateReqConverter"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineBulkTransferCreateRqTypeBulkTrValueConverter"
+		parent="bulkTransferReqConverter" />
+
+	<bean id="transactionTypeConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransactionTypeConverter">
+	</bean>
+
+	<bean id="transactionAccountConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransactionAccountConverter">
+	</bean>
+
+	<bean id="transactionItemListConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.TransactionItemListConverter">
+	</bean>
+
+	<bean id="accountPreferencesConverter"
+		class="com.aciworldwide.pim.messages.service.accountinfo.converter.AccountPreferencesConverter">
+	</bean>
+
+	<bean id="accountHoldingValueConvertor"
+		class="com.aciworldwide.pim.messages.service.accountinfo.converter.AccountHoldingValueConvertor">
+	</bean>
+
+	<bean id="importInfoConverter"
+		class="com.aciworldwide.common.imprt.converters.ImportInfoConverter">
+		<property name="importFacadeService" ref="importFacadeService" />
+	</bean>
+
+	<bean id="transferImportInfoConverter"
+		class="com.aciworldwide.common.transfer.converters.imprt.TransferImportInfoConverter">
+		<property name="importFacadeService" ref="importFacadeService" />
+	</bean>
+
+	<bean id="bulkTrRqTypeToBulkTrValConv"
+		class="com.aciworldwide.pim.messages.service.transfer.converter.OnlineBulkTransferUpdRqTypeBulkTrValueConvertor"
+		parent="bulkTransferReqConverter">
+	</bean>
+
+	<bean id="accountTransactionConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.AccountTransactionConverter">
+	</bean>
+
+	<bean id="accountTransactionDetailConverter"
+		class="com.aciworldwide.pim.messages.service.mapper.AccountTransactionDetailConverter">
+	</bean>
+	<bean id="abstractAccountDataConv"
+		class="com.aciworldwide.pim.messages.service.accountinfo.converter.AbstractAccountDataConvertor"
+		abstract="true" />
+
+	<bean id="accountHoldingToDetailConv"
+		class="com.aciworldwide.pim.messages.service.accountinfo.converter.AccountHoldingValue_DetailInquiryRs_Convertor"
+		parent="abstractAccountDataConv" />
+	<bean id="accountDataToSummConv"
+		class="com.aciworldwide.pim.messages.service.accountinfo.converter.AccountData_SummaryInquiryRs_Convertor"
+		parent="abstractAccountDataConv" />
+
+	<bean id="acctHoldingValueToAcctBalanceDetailConverter"
+		class="com.aciworldwide.pim.messages.service.accountinfo.converter.AccountHoldingValue_AccountBalanceDetailsType_Converter" />
+
+	<!-- This is duplicate bean , need to correct -->
+	<bean id="acctHoldingValueToAcctBalanceDetailConverterForDashboardUI"
+		class="com.aciworldwide.pim.messages.service.dashboardui.converter.AccountHoldingValue_AccountBalanceDetailsType_Converter" />
+
+
+	<!--Account Statement Service START -->
+
+	<bean id="abstractAcctStmtDocumentImageCriteriaConvertor"
+		class="com.aciworldwide.common.account.statement.converter.Abstract_SourceObject_DocumentImageCriteria_Convertor"
+		abstract="true">
+		<property name="AccountStatementHelper" ref="accountStatementHelperBean" />
+	</bean>
+	<bean id="acctStmtSummary_DocImageCriteriaConvertor"
+		class="com.aciworldwide.common.account.statement.converter.StatementSummaryInquiryRqType_DocumentImageCriteria_Convertor"
+		parent="abstractAcctStmtDocumentImageCriteriaConvertor" />
+
+	<bean id="acctStmtDetail_DocImageCriteriaConvertor"
+		class="com.aciworldwide.common.account.statement.converter.StatementDetailInquiryRqType_DocumentImageCriteria_Convertor"
+		parent="abstractAcctStmtDocumentImageCriteriaConvertor" />
+	<!--Account Statement Service End -->
+
+	<bean id="addendaGenerateSOAAddendaValueConverter"
+		class="com.aciworldwide.common.payment.ach.addenda.converter.ACHAddendaGenerateRqType_SOAAddendaValue_Converter">
+	</bean>
+
+	<bean id="addendaValueAddendaTypeConverter"
+		class="com.aciworldwide.common.payment.ach.addenda.converter.SOAAddendaValue_AddendaType_Converter">
+	</bean>
+
+	<bean id="achLightPaymentCreateRqConverter"
+		class=" com.aciworldwide.payments.converter.ach.ACHLightPaymentCreateRqConverter" />
+
+	<bean id="wireOrderingCustomerConverter"
+		class="com.aciworldwide.pim.messages.mapper.WireOrderingCustomerConverter">
+		<property name="thirdPartyService" ref="thirdPartyService" />
+	</bean>
+
+	<bean id="wireRecipientConverter"
+		class="com.aciworldwide.pim.messages.mapper.WireRecipientConverter">
+		<property name="thirdPartyService" ref="thirdPartyService" />
+	</bean>
+
+	<bean id="disbursementValueToWirePaymentInfoConverter"
+		class="com.aciworldwide.pim.messages.mapper.DisbursementValueToWirePaymentInfoConverter">
+		<property name="fedWireUtility" ref="fedWireUtility" />
+	</bean>
+	
+	<bean id="remittanceInfoTypeToFedwireRemittanceInformation"
+		class="com.aciworldwide.pim.messages.mapper.remittance.RemittanceInfoTypeToFedwireRemittanceInformationConverter">
+	</bean>
+
+	<bean id="bankWireInstrTmplValueToWireTemplateInfoConverter"
+		class="com.aciworldwide.pim.messages.mapper.BankWireInstrTmplValueToWireTemplateInfoConverter">
+		<property name="fedWireUtility" ref="fedWireUtility" />
+	</bean>
+	<bean id="achAuthAcctValueConverter"
+		class="com.aciworldwide.common.converter.AchAuthAcctValueConverter" />
+	<bean id="achAuthListConvertor" class="com.aciworldwide.common.converter.AchAuthListConvertor" />
+
+	<bean id="exchangeRateCurrencyConversionTypeConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.ExchangeRateCurrencyConversionTypeConverter" />
+
+	<bean id="createReportDeliveryConvertor"
+		class="com.aciworldwide.reports.convertor.reportdelivery.CreateReportDeliveryConvertor">
+		<property name="reportDeliveryUtility" ref="rptDeliveryUtility" />
+	</bean>
+
+	<bean id="achAuthValueConvertor" class="com.aciworldwide.common.converter.AchAuthValueConvertor" />
+	<bean id="viewReportDeliveryConvertor"
+		class="com.aciworldwide.reports.convertor.reportdelivery.ViewReportDeliveryConvertor" />
+	<bean id="editReportDeliveryConvertor"
+		class="com.aciworldwide.reports.convertor.reportdelivery.EditReportDeliveryConvertor">
+		<property name="reportDeliveryUtility" ref="rptDeliveryUtility" />
+	</bean>
+
+	<bean id="dateToTimeStampConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.DateToTimestampConverter" />
+		
+	<bean id="stringToDateConverter"
+		class="com.aciworldwide.arch.service.transformation.converter.StringToDateConverter" />
+	<bean id="transferRuleCreateRqTypeConverter"
+		class="com.aciworldwide.pim.messages.service.transferrule.converter.TransferRuleCreateRqTypeConverter">
+		<property name="accountService" ref="accountService" />
+	</bean>
+	<bean id="transferRuleUpdateRqTypeConverter"
+		class="com.aciworldwide.pim.messages.service.transferrule.converter.TransferRuleUpdateRqTypeConverter">
+		<property name="accountService" ref="accountService" />
+	</bean>
+	<bean id="formFileBeanConvertor" class="com.aciworldwide.common.convertor.FormFileBeanConvertor" />
+	 
+	<bean id="approveOwnAuthorizationConverter" class="com.aciworldwide.arch.service.transformation.converter.ApproveOwnAuthorizationConverter" />
+	
+	<bean id="gssoProviderTypeConverter" class="com.aciworldwide.pim.messages.service.mapper.GSSOProviderTypeConverter" />
+	<bean id="dfltIssueDtConvertor" class="com.aciworldwide.common.convertor.DfltIssueDtConvertor" />
+</beans>		

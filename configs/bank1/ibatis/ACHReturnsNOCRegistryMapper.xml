@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCRegistryMapper" >
+  	
+	<insert id="insert" parameterType="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCRegistryValue">
+		INSERT INTO BNKACHRetNOCRegistry (BNKACHRetNOCRegistryKY,BATAUDITKY,IMMEDIATEORIGIN,FILECREATIONDTTM,UPDATEDTTM,UPDATEUSER,VERSIONSTAMP)
+		VALUES (
+			#{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{batAuditOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{immediateOrigin,jdbcType=VARCHAR},
+			#{fileCreationDttm,jdbcType=TIMESTAMP},
+			#{updateDateTime,jdbcType=TIMESTAMP},
+			#{updateUser,jdbcType=VARCHAR},
+			#{versionStamp,jdbcType=SMALLINT}
+			)
+	</insert>
+	
+  <delete id="deleteRecord" parameterType="com.s1.arch.utilities.ObjectId" >
+    delete from BNKACHRetNOCRegistry
+    where batAuditKy = #{batchAuditKy,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+  </delete>
+	
+</mapper>

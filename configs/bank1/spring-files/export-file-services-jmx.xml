@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!-- WebSphere specific section -->
+	<bean id="adminService" class="com.ibm.websphere.management.AdminServiceFactory" factory-method="getAdminService"/>
+	<bean id="adminService.defaultDomain" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
+	<bean id="adminService.cellName" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
+	<bean id="adminService.nodeName" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
+	<bean id="adminService.processName" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
+	<bean id="websphereNamingStrategy" class="com.s1.export.monitor.WebSphereNamingStrategy">
+		<property name="domainName" ref="adminService.defaultDomain"/>
+		<property name="cellName" ref="adminService.cellName"/>
+		<property name="nodeName" ref="adminService.nodeName"/>
+		<property name="processName" ref="adminService.processName"/>
+	</bean>
+	
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="beans">
+			<map>
+				<entry key="com.s1.export.provider.BAIExportMonitor" value-ref="baiMonitor" />
+				<entry key="com.s1.export.provider.CSVExportMonitor" value-ref="csvMonitor" />
+			</map>
+		</property>
+		<property name="namingStrategy" ref="websphereNamingStrategy" />
+		<property name="assembler">
+			<bean class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+				<property name="attributeSource">
+					<bean class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource" />
+				</property>
+			</bean>
+		</property>
+	</bean>	
+</beans>

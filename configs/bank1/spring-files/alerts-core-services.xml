@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/util
+						http://www.springframework.org/schema/util/spring-util-3.0.xsd"						
+	xmlns:util="http://www.springframework.org/schema/util">
+
+	<bean id="alertsMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename">
+			<value>config/locale/alert-log-messages</value>
+		</property>
+	</bean>
+	
+	<bean id="alertsMessages" class="com.s1.alerts.logging.MessageSource">
+	</bean>
+	
+	<bean id="alertsMessagesPostProcessor" class="com.s1.alerts.logging.MessageSourceBeanPostProcessor" depends-on="alertsMessages">
+	</bean>
+
+	<!-- An empty decider chain - redefine in integration-layer config -->
+	<bean id="alertTypeEnabledDecider" class="com.s1.alerts.integration.AndDeciderChain" />
+	
+	<bean id="alertService" class="com.s1.alerts.AlertServiceImpl">
+		<property name="alertTypeDao" ref="alertTypeDao" />
+		<property name="alertTypeParameterDao" ref="alertTypeParameterDao" />
+		<property name="alertSubscriptionDao" ref="alertSubscriptionDao"/>
+		<property name="alertSubscriptionDaoXa" ref="alertSubscriptionDaoXa"/>
+		<property name="securityEvaluator" ref="securityEvaluator" />
+		<property name="generatorQueue" ref="alertsGeneratorQueueSender" />
+		<property name="evaluatorQueue" ref="alertsEventQueueSender" />
+	</bean>
+	
+	<bean id="alertTypeFacadeService" class="com.s1.alerts.DefaultAlertTypeFacadeService">
+		<constructor-arg ref="alertTypesDefinition" />
+		<property name="alertService" ref="alertService" />	
+		
+		<!-- AlertType enablement decider chain-->
+		<property name="alertTypeEnabledDecider" ref="alertTypeEnabledDecider" />
+	</bean>
+	
+	<bean id="alertSubscriptionService" class="com.s1.alerts.services.AlertSubscriptionServiceImpl">
+		<property name="subscriptionDAO" ref="alertSubscriptionDao" />
+		<property name="paramValueDAO" ref="alertParameterValueDao" />
+		<property name="deferredDAO" ref="deferredAlertDao" />
+		<property name="paramDAO" ref="alertTypeParameterDao" />
+		<property name="destinationSubscriptionDAO" ref="alertDestinationSubscriptionDao" />
+		<property name="dataAccessUtil" ref="dataAccessUtil" />
+		<property name="alertTypeDAO" ref="alertTypeDao"/>
+		
+	</bean>
+
+	<bean id="alertDestinationService" class="com.s1.alerts.services.DefaultAlertDestinationService">
+		<property name="alertDestinationDao" ref="alertDestinationDao" />
+		<property name="alertUtilDao" ref="alertUtilDao" />
+		<property name="alertDestinationSubscriptionMapper" ref="alertDestinationSubscriptionDao" />
+		<property name="dataAccessUtil" ref="dataAccessUtil" />
+	</bean>
+	
+	<bean id="dataAccessUtil" class="com.s1.alerts.services.DataAccessUtil" >
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="alertDeferralService" class="com.s1.alerts.generation.AlertDeferralServiceImpl">
+		<property name="deferredAlertDao" ref="deferredAlertDaoXa" />
+		<property name="deferredAlertSegmentMapper" ref="deferredAlertSegmentMapperXa" />
+	</bean>
+	
+	<bean id="alertDeliveryChannelService" class="com.s1.alerts.services.AlertDeliveryChannelServiceImpl">
+		<property name="alertDeliveryChannelDao" ref="alertDeliveryChannelDaoXa" />
+	</bean>
+	
+	<bean id="alertTransactionParameterService" class="com.s1.bnk.alerts.service.impl.AlertTransactionParameterServiceImpl">
+		<property name="alertTransactionParameterDAO" ref="alertTransactionParameterDAO" />
+	</bean>
+		
+	<!-- Empty security evaluator placeholder.  Should be overridden in application Spring config -->
+	<bean id="securityEvaluator" class="com.s1.alerts.evaluation.NullEventEvaluator" />
+
+	<bean id="alertsEvaluatorService" class="com.s1.alerts.evaluation.EventEvaluatorServiceImpl">
+		<property name="evaluatorMap" ref="eventEvaluators"/>
+	</bean>
+	
+	<!-- Empty evaluator map placeholder.  Should be overridden in application Spring config -->
+	<util:map id="eventEvaluators">
+	</util:map>
+
+	<bean id="alertsGeneratorService" class="com.s1.alerts.generation.AlertGeneratorServiceImpl">
+		<property name="generatorMap" ref="alertGenerators"/>
+		<property name="alertService" ref="alertService"/>
+	</bean>
+
+	<!-- Empty generator map placeholder.  Should be overridden in application Spring config -->
+	<util:map id="alertGenerators">
+	</util:map>
+
+	<bean id="alertsDeliveryService" class="com.s1.alerts.delivery.AlertDeliveryServiceImpl">
+		<property name="senderMap" ref="alertSenders"/>
+	</bean>
+
+	<!-- Mostly-empty alertSenders placeholder -->
+	<util:map id="alertSenders">
+		<entry key="mock" value-ref="systemOutAlertSender"/>
+	</util:map>
+
+	<bean id="systemOutAlertSender" class="com.s1.alerts.delivery.SystemOutAlertSender">
+	</bean>
+
+</beans>

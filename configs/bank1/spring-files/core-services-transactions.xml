@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<aop:config>
+
+		<!-- Pointcut configuration -->
+		
+		<aop:pointcut id="corServiceOps"
+			expression="execution(public * com.s1.core..*Service.*(..)) and !execution(public * com.s1.core.product.ProductService.*(..)) " />
+
+		<aop:pointcut id="archServiceOps"
+			expression="execution(public * com.s1.arch..*Service.*(..)) 
+			and !execution(public * com.s1.arch.persistence.sequence.LocalDatabaseSequenceService.*(..))  
+			and !execution(public * com.s1.arch.persistence.sequence.ConcreteSequenceGeneratorSupportService.*(..))
+			and !execution(public * com.s1.arch.auditx.ConcreteAuditService.*(..))  
+			and !execution(public * com.s1.arch.dynamicattribute.ConcreteDynamicAttributeService.*(..))
+			and !execution(public * com.s1.arch.batch.core.ConcreteBatchThreadProcessorService.*(..))" />
+
+		<aop:pointcut id="sequenceServiceOps"
+			expression="execution(public * com.s1.arch.persistence.sequence.LocalDatabaseSequenceService.*(..))" />
+
+		<aop:pointcut id="sequenceGeneratorServiceOps" 
+		   expression="execution(public * com.s1.arch.persistence.sequence.ConcreteSequenceGeneratorSupportService.*(..))" />
+
+		<aop:pointcut id="auditServiceOps"
+			expression="execution(public * com.s1.arch.auditx.ConcreteAuditService.*(..))" />
+			
+
+		<aop:pointcut id="productServiceOps"
+			expression="execution(public * com.s1.core.product.ProductService.*(..))" />
+
+		<aop:pointcut id="dynamicAttributeServiceOps"
+			expression="execution(public * com.s1.arch.dynamicattribute.ConcreteDynamicAttributeService.*(..))" />
+
+		<aop:pointcut id="sessionRegistryDAOOps"
+			expression="execution(public * com.s1.spring.security.sessionregistry.dao.SessionRegistryMapper.*(..))" />
+
+		<aop:pointcut id="ssoDAOOps"
+			expression="execution(public * com.s1.spring.security.sso.dao.SingleSignonMapper.*(..))" />
+
+		<!-- Advisor configuration -->
+		
+		<aop:advisor id="corServiceAdvisor"
+			pointcut-ref="corServiceOps" advice-ref="txCorServiceAdvice" />
+
+		<aop:advisor id="archServiceAdvisor"
+			pointcut-ref="archServiceOps" advice-ref="txCorServiceAdvice" />
+
+		<aop:advisor id="sequenceServiceAdvisor"
+			pointcut-ref="sequenceServiceOps" advice-ref="txSequenceServiceAdvice" />
+
+		<aop:advisor id="sequenceGeneratorServiceAdvisor"
+			pointcut-ref="sequenceGeneratorServiceOps" advice-ref="txSequenceGeneratorServiceAdvice" />
+
+		<aop:advisor id="auditServiceAdvisor"
+			pointcut-ref="auditServiceOps" advice-ref="txAuditServiceAdvice" />
+
+		<aop:advisor id="productServiceAdvisor"
+			pointcut-ref="productServiceOps" advice-ref="txProductServiceAdvice" />
+
+		<aop:advisor id="dynamicAttributeServiceAdvisor"
+			pointcut-ref="dynamicAttributeServiceOps" advice-ref="txDynamicAttributeServiceAdvice" />
+
+		<aop:advisor id="sessionRegistryDAOAdvisor"
+			pointcut-ref="sessionRegistryDAOOps" advice-ref="txSessionRegistryDAOAdvice" />
+
+		<aop:advisor id="ssoDAOAdvisor"
+			pointcut-ref="ssoDAOOps" advice-ref="txSSODAOAdvice" />
+
+	</aop:config>
+
+	<!-- Transaction Advice configurations -->
+
+	<tx:advice id="txCorServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- Read  Methods -->
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED"/>
+			<tx:method name="find*" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED"/>
+			<!-- Write  Methods -->
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txSequenceServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="getNextFromDb" propagation="REQUIRES_NEW" isolation="SERIALIZABLE" />
+			<tx:method name="getNext*" propagation="REQUIRED"/>
+			<tx:method name="*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txSequenceGeneratorServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="nextBlock" propagation="REQUIRES_NEW" isolation="SERIALIZABLE" />
+			<tx:method name="findAllSequenceNames" propagation="REQUIRES_NEW" isolation="READ_COMMITTED"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txAuditServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="createAuditData" propagation="NOT_SUPPORTED" />
+			<tx:method name="logImmediate*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED"/>
+			<tx:method name="log" propagation="REQUIRED" isolation="READ_COMMITTED" />
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice id="txProductServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="findProductInstanceAddressListByTypeOnHost" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="findProductInstanceAddressListOnHost" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="findProductInstancePrimaryAddressOnHost" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txDynamicAttributeServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="SUPPORTS" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+        <tx:advice id="txSessionRegistryDAOAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="countByExample" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="select*" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+			<tx:method name="delete*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+			<tx:method name="insert*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+
+	<!-- TODO: explore remoting alternative of SessionMapRMIRefService EJB Service -->
+
+        <tx:advice id="txSSODAOAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="countByExample" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="select*" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+			<tx:method name="delete*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+			<tx:method name="insert*" propagation="REQUIRED" isolation="READ_COMMITTED" 
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!--  Transaction Manager Configuration 
+		springTransactionManager=org.springframework.transaction.jta.WebSphereUowTransactionManager
+	-->
+
+
+	<!--
+		<bean id="txManager" class="com.s1.arch.spring.transaction.MockPlatformTransactionManager"/>
+	-->
+
+	<aop:config>
+
+		<aop:pointcut id="adaptiveAuthOps"
+			expression="execution(public * com.s1.app.adaptiveauth.AdaptiveAuthenticationService.*(..))" />
+
+		<aop:advisor id="adaptiveAuthAdvisor" pointcut-ref="adaptiveAuthOps"
+			advice-ref="adaptiveAuthAdvice" />
+
+	</aop:config>
+
+	<!-- Transaction Advice configurations -->
+	<tx:advice id="adaptiveAuthAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+ <import resource="core-services-transactions-appserver-specific.xml" />
+</beans>

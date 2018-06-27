@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paymentType xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PaymentType.xsd" identifier="InternationalPaymentMetaData" version="1.0.0">
+
+	<!-- Dynamic attributes for Singapore Giro Payments -->
+	<dynamicAttributeType identifier="paymenttype" attributeType="Payment">
+		<fields widgetType="ContentBox" identifier="tiContent">
+			<fieldLabel messageCode="LBLPmtInfo" defaultText="Payment Information"/>
+			<fields widgetType="JspWidget" identifier="fromAcctWidget" widgetPath="/common/transact/user/includes/complexWidgets/fromAccountWidgetWrapper.jsp"/>
+			<fields widgetType="JspWidget" identifier="currencyConverterWidget" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/currencyConverterWidgetWrapper.jsp"/>
+			<!--
+			<fields widgetType="SelectInput" identifier="paymentCurrency_currencyCode" name="paymentCurrency.currencyCode" isRequired="true" isVisible="true" placeholder="paymentCurrency.currencyCode" value="">
+				<fieldLabel messageCode="labelPaymentCurrency"/>
+				<allowedValues identifier="catPurpValues" beanName="com.aci.payments.metadata.ui.PopulateCurrency"/>
+			</fields>
+			-->
+			<fields widgetType="TextInput" identifier="customerReference" name="customerReference" isRequired="false" isVisible="true" size="40">
+				<fieldLabel messageCode="LBLCustRef" defaultText="Customer Reference"/>
+			</fields>		
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="psContent">
+			<fieldLabel messageCode="LBLPmtSchd" defaultText="Payment Schedule"/>
+			<fields widgetType="JspWidget" identifier="recurranceWidget" widgetPath="/common/transact/user/includes/complexWidgets/payScheduleContentWrapper.jsp"/>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="optContent">
+			<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+			<availabilityRules identifier="optContentAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.options.SaudiOptionsContentBoxAvailabilityRule"/>
+			<fields widgetType="StaticInput" identifier="authorizeMemo" name="authorizeMemo" isRequired="false" isView="false">
+				<fieldLabel messageCode="LBLAuthMemo" defaultText="Authorization Memo"/>
+				<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoStaticViewAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="Container" identifier="workflowContainer"   isVisible="true" customClass="form_complex_input" labelSpacer="true">
+				<fieldLabel messageCode="LBLWorkflow" defaultText="Workflow"/>
+				<availabilityRules identifier="WorkflowAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.options.WorkflowContainerAvailabilityRule"/>
+				<fields widgetType="CheckInput" identifier="confidential" name="confidential" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLConfid" defaultText="Confidential" />
+					<availabilityRules identifier="confidentialRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ConfidentialFieldAvailabilityRule"/>
+				</fields>
+				<fields widgetType="CheckInput" identifier="approvalChoice" name="approvalChoice" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLAppOnSbt" defaultText="Approve on Submit" />
+					<availabilityRules identifier="saveAsTemplate" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApproveOnSubmitFieldAvailabilityRule"/>
+				</fields>
+				<fields widgetType="CheckInput" identifier="saveAsTemplate" name="saveAsTemplate" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLSaveAsTmpl" defaultText="Save as Template" />
+					<availabilityRules identifier="saveAsTemplate" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.SaveAsTemplateFieldAvailabilityRule"/>
+				</fields>
+			</fields>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="beneContent">
+			<fieldLabel messageCode="LBLRecipients" defaultText="Recipients"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContent" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bulkRecipientListWrapper.jsp"/>
+		</fields>
+		
+		
+		<!--  Attributes for Payment View Screen -->
+		<fields widgetType="ContentBox" identifier="recContent" isView="true">
+			<fieldLabel messageCode="LBLRecrPmts" defaultText="Recurring Payment"/>
+			<availabilityRules identifier="showRecContent" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RecurringContentAvailabilityRule"/>
+			<fields widgetType="StaticInput" identifier="customerAccount" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLUpdate" defaultText="Update"/>
+				<allowedValues identifier="recUpdtDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecurringInformationDisplay" />
+			</fields>
+		</fields>
+		<fields widgetType="ContentBox" identifier="tiContent" isView="true">
+			<fieldLabel messageCode="LBLPmtInfo" defaultText="Payment Information"/>
+			<fields widgetType="StaticInput" identifier="customerAccount" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLPmtAcct" defaultText="Payment Account"/>
+				<allowedValues identifier="acctInfoDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.DisplayAccountInformation" />
+			</fields>
+			<fields widgetType="StaticInput" identifier="destinationCurrency" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLRecpCurr" defaultText="Recipient Currency"/>
+				<allowedValues identifier="destCurrDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.DestinationCurrencyDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ContractFieldsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="amountType" name="fxContractAmounts" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLAmtCurr" defaultText="Amount Currency"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.AmountCurrencyDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AmountCurrencyAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="contractNumber" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLContrNo" defaultText="Contract Number"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ContractNumberDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RateDetailsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="contractRate" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLContrRt" defaultText="Contract rate"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ContractRateDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RateDetailsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="rate" name="rate" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRate" defaultText="Rate"/>
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ContractFieldsAvailabilityRule"/>
+			</fields>
+			
+			
+			<fields widgetType="StaticInput" identifier="recpAccountAmount" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRcpAccAmt" defaultText="Recipient Account Amount"/>
+				<allowedValues identifier="recpAccountAmount" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecpAccountAmountDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RecpAccountAmountAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="pmtAccountAmount" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLPmtAccAmt" defaultText="Payment Account Amount"/>
+				<allowedValues identifier="pmtAccountAmount" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.PmtAccountAmountDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.PmtAccountAmountAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="customerReference" name="customerReference" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLCustRef" defaultText="Customer Reference"/>
+			</fields>
+		</fields>
+
+		<fields widgetType="ContentBox" identifier="psContent" isView="true">
+			<fieldLabel messageCode="LBLPmtSchd" defaultText="Payment Schedule"/>
+			<fields widgetType="StaticInput" identifier="valuedate" name="valuedate" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLPmtDate" defaultText="Payment Date"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="scheduledExecutionDate" name="scheduledExecutionDate" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLSendDate" defaultText="Send Date"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="recurrenceSpecification" name="recurrenceSpecification" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLFreq" defaultText="Frequency"/>
+				<allowedValues identifier="frequency" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.FrequencyDisplay" />
+			</fields>
+		</fields>
+				
+		<fields widgetType="ContentBox" identifier="optContent" isView="true">
+			<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+			<fields widgetType="StaticInput" identifier="authorizeMemo" name="authorizeMemo" isRequired="false" isView="true">
+				<fieldLabel messageCode="LBLAuthMemo" defaultText="Authorization Memo"/>
+				<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoStaticViewAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="confidential" name="confidential" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLConfid" defaultText="Confidential"/>
+				<allowedValues identifier="confidentialDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ConfidentialDisplay" />
+				<availabilityRules identifier="confidentialRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ConfidentialFieldAvailabilityRule"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="approvalChoice" name="approvalChoice" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLAppOnSbt" defaultText="Approve on Submit"/>
+				<allowedValues identifier="approvalChoiceDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ApprovalChoiceDisplay" />
+				<availabilityRules identifier="saveAsTemplate" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApprovalChoiceViewAvailabilityRule"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="saveAsTemplate" name="saveAsTemplate" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLSaveAsTmpl" defaultText="Save as template"/>
+				<allowedValues identifier="saveAsTemplateDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.SaveAsTemplateDisplay" />
+				<availabilityRules identifier="saveAsTemplateRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.SaveAsTemplateFieldAvailabilityRule"/>
+			</fields>			
+		</fields>				
+		
+		<fields widgetType="ContentBox" identifier="beneContent" isView="true">
+			<fieldLabel messageCode="LBLRecipients" defaultText="Recipients"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContentView" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bulkRecipientListViewWrapper.jsp"/>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="authContent" isView="true">
+			<fieldLabel messageCode="LBLAuth" defaultText="Authorization"/>
+			<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoViewAvailabilityRule"/>
+			<fields widgetType="TextInput" identifier="authorizationMemo" name="authorizeMemo" isRequired="false" isVisible="true" maxLength="40" size="40" isView="false">
+				<fieldLabel messageCode="LBLMemo" defaultText="Memo"/>
+			</fields>
+		</fields>
+		<fields widgetType="JspWidget" identifier="apprContentView" widgetPath="/common/transact/user/includes/complexWidgets/approvalAuthContentWrapper.jsp" isView="true"/>
+		
+	</dynamicAttributeType>
+	
+	<!-- Dynamic attributes for Singapore Giro Templates -->
+	<dynamicAttributeType identifier="sgbGiroTemplate" attributeType="Template">
+		<fields widgetType="ContentBox" identifier="tiContent">
+			<fieldLabel messageCode="LBLTmplInfo" defaultText="Template Information"/>
+			<fields widgetType="DateInput" identifier="activationDate" minDate="today" isRequired="true" isVisible="true">
+				<fieldLabel messageCode="LBLTmplActv" defaultText="Template Activation"/>
+			</fields>
+			<fields widgetType="TextInput" identifier="templateName" isRequired="true" isVisible="true">
+				<fieldLabel messageCode="LBLTmplName" defaultText="Template Name" />
+			</fields>
+			<fields widgetType="MoneyInput" identifier="maxAmount_value" name="maxAmount.value" displayCurrency="true" isRequired="false" isVisible="true">
+				<fieldLabel messageCode="LBLTmplLimit" defaultText="Template Limit" />
+			</fields>
+			<fields widgetType="JspWidget" identifier="fromAcctWidget" widgetPath="/common/transact/user/includes/complexWidgets/fromAccountWidgetWrapper.jsp"/>
+			<fields widgetType="JspWidget" identifier="currencyConverterWidget" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/currencyConverterWidgetWrapper.jsp"/>
+			<fields widgetType="Container" identifier="senderReferenceContainer" isVisible="true" customClass="container_auto_size" labelSpacer="true">
+				<fieldLabel messageCode="LBLCustRef" defaultText="Customer Reference" />
+				<fields widgetType="Container" identifier="senderReferenceContaineri" isVisible="true" columns="2" customClass="container_auto_size">
+					<fields widgetType="CheckInput" identifier="customerRefEditable" value="on" isRequired="false" isVisible="true">
+						<fieldInnerLabel messageCode="LBLAllwChg" defaultText="Allow Change" />
+					</fields>
+					<fields widgetType="TextInput" identifier="customerReference" size="40" isRequired="false" isVisible="true">
+					</fields>
+				</fields>
+			</fields>
+		</fields>
+		<fields widgetType="ContentBox" identifier="optContent">
+			<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+			<availabilityRules identifier="templateOptContent" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.options.TemplateOptionsContentBoxAvailabilityRule"/>
+			<fields widgetType="StaticInput" identifier="authorizeMemo" name="authorizeMemo" isRequired="false" isView="false">
+				<fieldLabel messageCode="LBLAuthMemo" defaultText="Authorization Memo"/>
+				<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoStaticViewAvailabilityRule"/>
+			</fields>
+			<fields widgetType="Container" identifier="workflowContainer"   isVisible="true" customClass="form_complex_input" labelSpacer="true">
+				<fieldLabel messageCode="LBLWorkflow" defaultText="Workflow"/>
+				<availabilityRules identifier="templateWorkflowAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.options.TemplateWorkflowContainerAvailabilityRule"/>
+				<fields widgetType="CheckInput" identifier="confidential" name="confidential" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLConfid" defaultText="Confidential" />
+					<availabilityRules identifier="confidentialRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ConfidentialFieldAvailabilityRule"/>
+				</fields>
+				<fields widgetType="CheckInput" identifier="approvalChoice" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLAppSubChk" defaultText="Approve on submit" />
+					<availabilityRules identifier="approvalChoiceAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApprovalChoiceViewAvailabilityRule"/>
+				</fields>
+				<fields widgetType="CheckInput" identifier="selectApprovers" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLChgApDfChk" defaultText="Change number of approvers from default setting" />
+					<events identifier="hideNumberOfApprovers" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="false" instigatorID="selectApprovers" receiverID="numberOfApprovers"/>
+					<events identifier="showNumberOfApprovers" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="true" instigatorID="selectApprovers" receiverID="numberOfApprovers"/>
+					<availabilityRules identifier="selectApproversAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.NumberOfApproversAvailabilityRule"/>
+				</fields>
+				<fields widgetType="SelectInput" identifier="numberOfApprovers" isRequired="false" isVisible="false" value="">
+					<allowedValues identifier="numberOfApproverValues" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.PopulateApprovers" />
+					<availabilityRules identifier="selectApproversAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.NumberOfApproversAvailabilityRule"/>
+				</fields>
+			</fields>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="beneContent">
+			<fieldLabel messageCode="LBLRecipients" defaultText="Recipients"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContent" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bulkRecipientListWrapper.jsp"/>
+		</fields>
+		
+		<!--  Attributes for Template View Screen -->
+		<fields widgetType="ContentBox" identifier="tiContent" isView="true">
+			<fieldLabel messageCode="LBLTmplInfo" defaultText="Template Information"/>
+			<fields widgetType="StaticInput" identifier="activationDate" name="activationDate" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLTmplActv" defaultText="Template Activation"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="templateName" name="templateName" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLTmplName" defaultText="Template Name" />
+			</fields>
+			<fields widgetType="StaticInput" identifier="maxAmount" name="maxAmount" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLTmplLimit" defaultText="Template Limit" />
+			</fields>
+			<fields widgetType="StaticInput" identifier="customerAccount" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLPmtAcct" defaultText="Payment Account"/>
+				<allowedValues identifier="acctInfoDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.DisplayAccountInformation" />
+			</fields>
+			<fields widgetType="StaticInput" identifier="destinationCurrency" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpCurr" defaultText="Recipient Currency"/>
+				<allowedValues identifier="destCurrDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.DestinationCurrencyDisplay" />
+				<availabilityRules identifier="destinationCurrencyAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ContractFieldsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="tmpAmountIndicator" name="amountType" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLTmplAmtInd" defaultText="Template Amount Indicator"/>
+				<allowedValues identifier="pmtAccountAmount" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.TemplateAmountIndicatorDisplay" />
+			</fields>
+			<fields widgetType="Container" identifier="senderReferenceContainer" isVisible="true" customClass="container_auto_size" labelSpacer="true">
+				<fieldLabel messageCode="LBLCustRef" defaultText="Customer Reference"/>
+				<fields widgetType="TextInput" identifier="customerReference" size="40" isRequired="false" isVisible="true" displayMode="text" isView="true" customClass="allowchangetext">
+					<allowedValues identifier="customerReferenceDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.CustomerReferenceDisplay" />
+				</fields>
+			</fields>
+		</fields>
+
+		<fields widgetType="ContentBox" identifier="optContent" isView="true">
+			<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+			<fields widgetType="StaticInput" identifier="authorizeMemo" name="authorizeMemo" isRequired="false" isView="true">
+				<fieldLabel messageCode="LBLAuthMemo" defaultText="Authorization Memo"/>
+				<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoStaticViewAvailabilityRule"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="confidential" name="confidential" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLConfid" defaultText="Confidential"/>
+				<availabilityRules identifier="confidentialRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ConfidentialFieldAvailabilityRule"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="approvalChoice" name="approvalChoice" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLAppOnSbt" defaultText="Approve on Submit"/>
+				<allowedValues identifier="approvalChoiceDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ApprovalChoiceDisplay" />
+				<availabilityRules identifier="saveAsTemplate" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApprovalChoiceViewAvailabilityRule"/>
+			</fields>	
+			<fields widgetType="StaticInput" identifier="scriptApproversField" name="numberOfApprovers" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLChgNoOfApr" defaultText="Change Number of Approvers" />
+				<allowedValues identifier="selectApproversValues" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.HasNumberOfApproversDisplay" />
+				<availabilityRules identifier="selectApproversAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.NumberOfApproversAvailabilityRule"/>				
+			</fields>
+			<fields widgetType="StaticInput" identifier="numberOfApprovers" isRequired="false" isVisible="true" isView="true" labelSpacer="true">
+				<allowedValues identifier="numberOfApproversValues" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.NumberOfApproversDisplay" />
+				<availabilityRules identifier="selectApproversAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.NumberOfApproversAvailabilityRule"/>
+			</fields>
+	
+		</fields>				
+		
+		<fields widgetType="ContentBox" identifier="beneContent" isView="true">
+			<fieldLabel messageCode="LBLRecipients" defaultText="Recipients"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContentView" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bulkRecipientListViewWrapper.jsp"/>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="authContent" isView="true">
+			<fieldLabel messageCode="LBLAuth" defaultText="Authorization"/>
+			<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoViewAvailabilityRule"/>
+			<fields widgetType="TextInput" identifier="authorizationMemo" name="authorizeMemo" isRequired="false" isVisible="true" maxLength="40" size="40" isView="false">
+				<fieldLabel messageCode="LBLMemo" defaultText="Memo"/>
+			</fields>
+		</fields>
+		<fields widgetType="JspWidget" identifier="apprContentView" widgetPath="/common/transact/user/includes/complexWidgets/approvalAuthContentWrapper.jsp" isView="true"/>
+	</dynamicAttributeType> 
+	
+	<!-- Dynamic attributes for Singapore Giro Recipient Overlay -->
+	<dynamicAttributeType identifier="recipienttype" attributeType="Recipient">
+		<fields widgetType="Form" identifier="recipientinput" columns="1">
+			
+			<fields widgetType="TextInput" identifier="name" isRequired="true" isVisible="true" size="35">
+				<fieldLabel messageCode="LBLRecpName" defaultText="Recipient Name" />
+			</fields>	
+			
+			<fields widgetType="TextInput" identifier="accountNumber" isRequired="true" isVisible="true" maxLength="34">
+				<fieldLabel messageCode="LBLAcctNo" defaultText="Account Number" />
+			</fields>
+			
+			<fields widgetType="JspWidget" identifier="bankInfoWidget" isRequired="true" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bankWidgetWrapper.jsp" isView="false"/>
+			 
+			<fields widgetType="Container" identifier="options" isVisible="true" customClass="form_complex_input" labelSpacer="true">
+				<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+				<availabilityRules identifier="optionsFields" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.OptionsFieldsAvailabilityRule"/>
+				<fields widgetType="CheckInput" identifier="saveToList" name="saveToList" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLSaveMast" defaultText="Save to master recipient list" toolTipMessageCode="LBLSaveMast" defaultToolTipText="Save to master recipient list"/>
+					<events identifier="hideSaveToList" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="false" instigatorID="saveToList" receiverID="recpCheckContainer,approvalChoice"/>
+					<events identifier="showSaveToList" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="true" instigatorID="saveToList" receiverID="recpCheckContainer,approvalChoice"/>					
+					<availabilityRules identifier="showSaveToList" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.IsShowSaveToMaster"/>
+				</fields>
+				<fields widgetType="JspWidget" identifier="nicknameWidget" isRequired="true" widgetPath="/common/transact/user/includes/complexWidgets/nicknameWrapper.jsp" isView="false">
+					<availabilityRules identifier="showSaveToList" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.IsShowSaveToMaster"/>
+				</fields>
+				<fields widgetType="CheckInput" identifier="approvalChoice" name="approvalChoice" value="on" isRequired="false" isVisible="false" customClass="recpApprovalChoice">
+					<fieldInnerLabel messageCode="LBLRecAppSub" defaultText="Approve master recipient on submit"/>
+					<availabilityRules identifier="showApprovalChoice" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.IsShowRecipientsApproveOnSubmit"/>
+				</fields>
+				
+				<fields widgetType="CheckInput" identifier="showAddInfo" name="showAddInfo" value="" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLAddRcpAdv" defaultText="Add recipient advising information" toolTipMessageCode="LBLAddRcpAdv" defaultToolTipText="Add recipient advising information"/>
+					<events identifier="hideShowAddInfo" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="false" instigatorID="showAddInfo" receiverID="addinfoContainer,notificationType"/>
+					<events identifier="showshowAddInfo" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="true" instigatorID="showAddInfo" receiverID="addinfoContainer,notificationType"/>
+					<availabilityRules identifier="addRecipientAdvising" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AddRecipientAdvisingFieldAvailabilityRule"/>
+				</fields>
+				<fields widgetType="Container" identifier="addinfoContainer" isVisible="false" customClass="indented" labelSpacer="true" >
+					<fields widgetType="SelectInput" identifier="notificationType" isRequired="true" isVisible="false" placeholder="notificationType" value="">
+						<fieldLabel messageCode="LBLNotifType" defaultText="Notification Type"/>
+						<!-- hide all fields -->
+						<events identifier="hideAll" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="" instigatorID="notificationType" receiverID="emailAddress,number,notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<!-- hide all fields but the country fields -->
+						<events identifier="hideNonCountry" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="BNKRcpNotfMai" instigatorID="notificationType" receiverID="emailAddress,number"/>
+						<events identifier="showCountry" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="BNKRcpNotfMai" instigatorID="notificationType" receiverID="notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<!-- hide all fields but the email field -->
+						<events identifier="hideNonEmail" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="BNKRcpNotfEml" instigatorID="notificationType" receiverID="number,notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<events identifier="showEmail" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="BNKRcpNotfEml" instigatorID="notificationType" receiverID="emailAddress"/>
+						<!-- hide all fields but the SMS/Text field -->
+						<events identifier="hideNonSMS" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="BNKRcpNotfNbr" instigatorID="notificationType" receiverID="emailAddress,notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<events identifier="showSMS" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="BNKRcpNotfNbr" instigatorID="notificationType" receiverID="number"/>
+						<allowedValues identifier="notificationTypeValues" beanName="com.aci.payments.metadata.ui.PopulateNotificationTypes" />  
+					</fields>
+					<fields widgetType="TextInput" identifier="emailAddress" isRequired="true" isVisible="false" maxLength="50" size="52">
+						<fieldLabel messageCode="LBLEmailAddr" defaultText="Email Address" />
+					</fields>
+					<fields widgetType="TextInput" identifier="number" isRequired="true" isVisible="false" maxLength="10" size="12">
+						<fieldLabel messageCode="LBLSMSNo" defaultText="Number for SMS/Text" />
+					</fields>
+					<fields widgetType="SelectInput" identifier="notfCountry_countryCode" name="notfCountry.countryCode" isRequired="true" isVisible="false" placeholder="notfCountry.countryCode" value="">
+						<fieldLabel messageCode="LBLCountry" defaultText="Country"/>
+						<allowedValues identifier="countryCodeValues" beanName="com.aci.payments.metadata.ui.PopulateCountries" />
+					</fields>
+					<fields widgetType="TextInput" identifier="notfAddress1" isRequired="true" isVisible="false" maxLength="70" size="55">
+						<fieldLabel messageCode="LBLAddress" defaultText="Address" />
+					</fields>
+					<fields widgetType="TextInput" identifier="notfAddress2" isRequired="false" isVisible="false" maxLength="70" size="55">
+						<fieldLabel messageCode="LBLAddrLine2" defaultText="Address Line 2" />
+					</fields>
+					<fields widgetType="TextInput" identifier="notfAddress3" isRequired="false" isVisible="false" maxLength="70" size="55">
+						<fieldLabel messageCode="LBLAddrLine3" defaultText="Address Line 3" />
+					</fields>
+				</fields>
+			</fields>			
+		</fields>
+		
+		<!--  Attributes for Recipient View Screen -->		
+		<fields widgetType="Form" identifier="recipientView" columns="1" isView="true">
+			<fields widgetType="StaticInput" identifier="name" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpName" defaultText="Recipient Name" />
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="accountNumber" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLAcctNo" defaultText="Account Number" />
+			</fields>
+			
+			<fields widgetType="JspWidget" identifier="bankInfoWidget" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bankWidgetPreviewWrapper.jsp"/>
+			
+			<fields widgetType="StaticInput" identifier="saveToList" name="dependent" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLSaveMast" defaultText="Save to Master Recipient List"/>
+				<allowedValues identifier="saveAsMasterDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.SaveAsMasterRecipientDisplay" />
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="approvalChoice" name="approvalChoice" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecAppSub" defaultText="Approve master recipient on submit"/>
+				<allowedValues identifier="approvalChoiceDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecipientApprovalChoiceDisplay" />
+				<availabilityRules identifier="showApprovalChoice" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.IsShowRecApproveOnSubmitPreview"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="nickname" name="nickname" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpNickNm" defaultText="Recipient Nickname"/>
+				<availabilityRules identifier="nickNameAR" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.IsMasterAvailabilityRule"/>
+			</fields>
+			
+			
+			<fields widgetType="StaticInput" identifier="recpAdvising" name="notificationType" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpAdvInf" defaultText="Recipient Advising Information"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecipientAdvisingDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RecipientAdvisingAvailabilityRule"/>
+			</fields>
+		</fields>		
+	</dynamicAttributeType>
+		
+	<!-- Dynamic attributes for Master Recipient -->
+	<dynamicAttributeType identifier="MasterRecipientType" attributeType="MasterRecipient">
+		<fields widgetType="Form" identifier="recipientinput" columns="1">
+			<fields widgetType="CheckInput" identifier="useForPayments" name="useForPayments" value="true" isRequired="true" isVisible="true">
+				<fieldLabel messageCode="LBLPmtType" defaultText="Payment Type"/>
+				<fieldInnerLabel messageCode="LBLCredit" defaultText="Credit" />
+			</fields>
+			<fields widgetType="CheckInput" identifier="useForCollections" name="useForCollections" value="true" isRequired="false" isVisible="true" labelSpacer="true">
+				<fieldInnerLabel messageCode="LBLDebit" defaultText="Debit" />
+			</fields>
+		
+			<fields widgetType="TextInput" identifier="name" isRequired="true" isVisible="true" size="35">
+				<fieldLabel messageCode="LBLRecpName" defaultText="Recipient Name" />
+			</fields>
+			
+			<fields widgetType="JspWidget" identifier="someWidget" isRequired="true" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/recpMasterNicknameWrapper.jsp" isView="false"/>	
+			
+			<fields widgetType="TextInput" identifier="accountNumber" isRequired="true" isVisible="true" maxLength="34">
+				<fieldLabel messageCode="LBLAcctNo" defaultText="Account Number" />
+			</fields>
+			
+			<fields widgetType="JspWidget" identifier="bankInfoWidget" isRequired="true" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bankWidgetMasterWrapper.jsp" isView="false"/>
+			 
+			<fields widgetType="Container" identifier="options" isVisible="true" customClass="form_complex_input" labelSpacer="true">
+				<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+				<availabilityRules identifier="addtTPRecipientAdvising" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AddTPRecipientAdvisingFieldAvailabilityRule"/>
+				<fields widgetType="CheckInput" identifier="showAddInfo" name="showAddInfo" value="" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLAddRcpAdv" defaultText="Add recipient advising information" toolTipMessageCode="LBLAddRcpAdv" defaultToolTipText="Add recipient advising information"/>
+					<events identifier="hideShowAddInfo" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="false" instigatorID="showAddInfo" receiverID="addinfoContainer,notificationType"/>
+					<events identifier="showshowAddInfo" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="true" instigatorID="showAddInfo" receiverID="addinfoContainer,notificationType"/>
+				</fields>
+				<fields widgetType="Container" identifier="addinfoContainer" isVisible="false" customClass="indented" labelSpacer="true" >
+					<fields widgetType="SelectInput" identifier="notificationType" isRequired="true" isVisible="false" placeholder="notificationType" value="">
+						<fieldLabel messageCode="LBLNotifType" defaultText="Notification Type"/>
+						<!-- hide all fields -->
+						<events identifier="hideAll" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="" instigatorID="notificationType" receiverID="emailAddress,number,notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<!-- hide all fields but the country fields -->
+						<events identifier="hideNonCountry" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="BNKRcpNotfMai" instigatorID="notificationType" receiverID="emailAddress,number"/>
+						<events identifier="showCountry" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="BNKRcpNotfMai" instigatorID="notificationType" receiverID="notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<!-- hide all fields but the email field -->
+						<events identifier="hideNonEmail" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="BNKRcpNotfEml" instigatorID="notificationType" receiverID="number,notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<events identifier="showEmail" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="BNKRcpNotfEml" instigatorID="notificationType" receiverID="emailAddress"/>
+						<!-- hide all fields but the SMS/Text field -->
+						<events identifier="hideNonSMS" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onchange" triggerValue="BNKRcpNotfNbr" instigatorID="notificationType" receiverID="emailAddress,notfCountry_countryCode,notfAddress1,notfAddress2,notfAddress3"/>
+						<events identifier="showSMS" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onchange" triggerValue="BNKRcpNotfNbr" instigatorID="notificationType" receiverID="number"/>
+						<allowedValues identifier="notificationTypeValues" beanName="com.aci.payments.metadata.ui.PopulateNotificationTypes" />  
+					</fields>
+					<fields widgetType="TextInput" identifier="emailAddress" isRequired="true" isVisible="false" maxLength="50" size="52">
+						<fieldLabel messageCode="LBLEmailAddr" defaultText="Email Address" />
+					</fields>
+					<fields widgetType="TextInput" identifier="number" isRequired="true" isVisible="false" maxLength="10" size="12">
+						<fieldLabel messageCode="LBLSMSNo" defaultText="Number for SMS/Text" />
+					</fields>
+					<fields widgetType="SelectInput" identifier="notfCountry_countryCode" name="notfCountry.countryCode" isRequired="true" isVisible="false" placeholder="notfCountry.countryCode" value="">
+						<fieldLabel messageCode="LBLCountry" defaultText="Country"/>
+						<allowedValues identifier="countryCodeValues" beanName="com.aci.payments.metadata.ui.PopulateCountries" />
+					</fields>
+					<fields widgetType="TextInput" identifier="notfAddress1" isRequired="true" isVisible="false" maxLength="70" size="55">
+						<fieldLabel messageCode="LBLAddress" defaultText="Address" />
+					</fields>
+					<fields widgetType="TextInput" identifier="notfAddress2" isRequired="false" isVisible="false" maxLength="70" size="55">
+						<fieldLabel messageCode="LBLAddrLine2" defaultText="Address Line 2" />
+					</fields>
+					<fields widgetType="TextInput" identifier="notfAddress3" isRequired="false" isVisible="false" maxLength="70" size="55">
+						<fieldLabel messageCode="LBLAddrLine3" defaultText="Address Line 3" />
+					</fields>
+				</fields>
+			</fields>			
+		</fields>
+		
+		<!--  Attributes for Master Recipient View Screen -->		
+		<fields widgetType="Form" identifier="recipientView" columns="1" isView="true">
+			<fields widgetType="StaticInput" identifier="paymentType" name="electronicPayee" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLPmtType" defaultText="Payment Type" />
+				<allowedValues identifier="paymentTypeDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecipientPmtTypeDisplay" />
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="name" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpName" defaultText="Recipient Name" />
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="nickname" name="nickname" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpNickNm" defaultText="Recipient Nickname"/>
+				<availabilityRules identifier="nickNameAR" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.IsMasterAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="accountNumber" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLAcctNo" defaultText="Account Number" />
+			</fields>
+			
+			<fields widgetType="JspWidget" identifier="bankInfoWidget" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bankWidgetPreviewWrapper.jsp"/>
+									
+			<fields widgetType="StaticInput" identifier="recpAdvising" name="notificationType" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRecpAdvInf" defaultText="Recipient Advising Information"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecipientAdvisingDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RecipientAdvisingAvailabilityRule"/>
+			</fields>			
+		</fields>		
+	</dynamicAttributeType>
+	
+	<!-- Dynamic attributes for Singapore Giro Repetitive Payments -->
+	<dynamicAttributeType identifier="sgbGiroTemplate" attributeType="RepetitivePayment">
+		<fields widgetType="ContentBox" identifier="tiContent">
+			<fieldLabel messageCode="LBLPmtInfo" defaultText="Payment Information"/>
+			<fields widgetType="StaticInput" identifier="templateName" name="templateName" isRequired="false" isVisible="true" displayMode="text" >
+				<fieldLabel messageCode="LBLTmplName" defaultText="Template Name" />
+			</fields>
+			<fields widgetType="JspWidget" identifier="fromAcctWidget" widgetPath="/common/transact/user/includes/complexWidgets/fromAccountWidgetWrapper.jsp"/>
+			<fields widgetType="JspWidget" identifier="currencyConverterWidget" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/currencyConverterWidgetWrapper.jsp"/>
+		</fields>
+		<fields widgetType="HiddenInput" identifier="customerReferenceHidden" name="customerReference">
+			<availabilityRules identifier="custRefRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.CustomerReferenceAvailabilityRule"/>
+		</fields>
+		<fields widgetType="HiddenInput" identifier="customerRefEditableHidden" name="customerRefEditable"/>
+		<fields widgetType="TextInput" identifier="customerReference" name="customerReference" isRequired="false" isVisible="true" displayMode="com.aci.payments.dynamicattributes.parameters.displayrules.CustomerReferenceDisplayMode" size="40">
+			<fieldLabel messageCode="LBLCustRef" defaultText="Customer Reference" />
+		</fields>
+		<fields widgetType="ContentBox" identifier="psContent">
+			<fieldLabel messageCode="LBLPmtSchd" defaultText="Payment Schedule"/>
+			<fields widgetType="JspWidget" identifier="recurranceWidget" widgetPath="/common/transact/user/includes/complexWidgets/payScheduleContentWrapper.jsp"/>
+		</fields>
+		<fields widgetType="ContentBox" identifier="optContent">
+			<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+			<availabilityRules identifier="optContentAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.options.GiroOptionsContentBoxAvailabilityRule"/>
+			<fields widgetType="StaticInput" identifier="authorizeMemo" name="authorizeMemo" isRequired="false" isView="false">
+				<fieldLabel messageCode="LBLAuthMemo" defaultText="Authorization Memo"/>
+				<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoStaticViewAvailabilityRule"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="confidential" name="confidential" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLConfid" defaultText="Confidential"/>
+				<availabilityRules identifier="confidentialRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ConfidentialFieldAvailabilityRule"/>
+			</fields>
+			<fields widgetType="Container" identifier="workflowContainer"   isVisible="true" customClass="form_complex_input" labelSpacer="true">
+				<fieldLabel messageCode="LBLWorkflow" defaultText="Workflow"/>
+				<availabilityRules identifier="workflowContainerAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApprovalChoiceViewAvailabilityRule"/>
+				<fields widgetType="CheckInput" identifier="approvalChoice" value="true" isRequired="false" isVisible="true">
+					<fieldInnerLabel messageCode="LBLAppSubChk" defaultText="Approve on submit" />
+					<availabilityRules identifier="approvalChoiceAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApprovalChoiceViewAvailabilityRule"/>
+				</fields>
+			</fields>
+		</fields>		
+		<fields widgetType="ContentBox" identifier="beneContent">
+			<fieldLabel messageCode="LBLRecipients" defaultText="Recipients"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContent" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bulkRecipientListWrapper.jsp"/>
+		</fields>
+		
+		
+		<!--  Attributes for Repetitive Payment View Screen -->
+		<fields widgetType="ContentBox" identifier="recContent" isView="true">
+			<fieldLabel messageCode="LBLRecrPmts" defaultText="Recurring Payment"/>
+			<availabilityRules identifier="showRecContent" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RecurringContentAvailabilityRule"/>
+			<fields widgetType="StaticInput" identifier="customerAccount" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLUpdate" defaultText="Update"/>
+				<allowedValues identifier="recUpdtDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecurringInformationDisplay" />
+			</fields>
+		</fields>
+		<fields widgetType="ContentBox" identifier="tiContent" isView="true">
+			<fieldLabel messageCode="LBLPmtInfo" defaultText="Payment Information"/>
+			<fields widgetType="StaticInput" identifier="templateName" name="templateName" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLTmplName" defaultText="Template Name" />
+			</fields>
+			<fields widgetType="StaticInput" identifier="customerAccount" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLPmtAcct" defaultText="Payment Account"/>
+				<allowedValues identifier="acctInfoDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.DisplayAccountInformation" />
+			</fields>
+			<fields widgetType="StaticInput" identifier="destinationCurrency" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLRecpCurr" defaultText="Recipient Currency"/>
+				<allowedValues identifier="destCurrDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.DestinationCurrencyDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ContractFieldsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="amountType" name="fxContractAmounts" isRequired="false" isVisible="true"  isView="true">
+				<fieldLabel messageCode="LBLAmtCurr" defaultText="Amount Currency"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.AmountCurrencyDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AmountCurrencyAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="contractNumber" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLContrNo" defaultText="Contract Number"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ContractNumberDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RateDetailsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="contractRate" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLContrRt" defaultText="Contract rate"/>
+				<allowedValues identifier="amtCurrencyDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ContractRateDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RateDetailsAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="rate" name="rate" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRate" defaultText="Rate"/>
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ContractFieldsAvailabilityRule"/>
+			</fields>
+			
+			
+			<fields widgetType="StaticInput" identifier="recpAccountAmount" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLRcpAccAmt" defaultText="Recipient Account Amount"/>
+				<allowedValues identifier="recpAccountAmount" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.RecpAccountAmountDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.RecpAccountAmountAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="pmtAccountAmount" name="fxContractAmounts" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLPmtAccAmt" defaultText="Payment Account Amount"/>
+				<allowedValues identifier="pmtAccountAmount" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.PmtAccountAmountDisplay" />
+				<availabilityRules identifier="1stRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.PmtAccountAmountAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="customerReference" name="customerReference" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLCustRef" defaultText="Customer Reference"/>
+			</fields>
+		</fields>
+
+		<fields widgetType="ContentBox" identifier="psContent" isView="true">
+			<fieldLabel messageCode="LBLPmtSchd" defaultText="Payment Schedule"/>
+			<fields widgetType="StaticInput" identifier="valuedate" name="valuedate" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLPmtDate" defaultText="Payment Date"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="scheduledExecutionDate" name="scheduledExecutionDate" isRequired="false" isVisible="true" displayMode="text" isView="true">
+				<fieldLabel messageCode="LBLSendDate" defaultText="Send Date"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="recurrenceSpecification" name="recurrenceSpecification" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLFreq" defaultText="Frequency"/>
+				<allowedValues identifier="frequency" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.FrequencyDisplay" />
+			</fields>
+		</fields>
+				
+		<fields widgetType="ContentBox" identifier="optContent" isView="true">
+			<fieldLabel messageCode="LBLOptions" defaultText="Options"/>
+			<availabilityRules identifier="optContentAvailable" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.options.GiroOptionsContentBoxAvailabilityRule"/>
+			<fields widgetType="StaticInput" identifier="authorizeMemo" name="authorizeMemo" isRequired="false" isView="true">
+				<fieldLabel messageCode="LBLAuthMemo" defaultText="Authorization Memo"/>
+				<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoStaticViewAvailabilityRule"/>
+			</fields>
+			
+			<fields widgetType="StaticInput" identifier="confidential" name="confidential" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLConfid" defaultText="Confidential"/>
+				<allowedValues identifier="confidentialDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ConfidentialDisplay" />
+				<availabilityRules identifier="confidentialRule" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ConfidentialFieldAvailabilityRule"/>
+			</fields>
+			<fields widgetType="StaticInput" identifier="approvalChoice" name="approvalChoice" isRequired="false" isVisible="true" isView="true">
+				<fieldLabel messageCode="LBLAppOnSbt" defaultText="Approve on Submit"/>
+				<allowedValues identifier="approvalChoiceDisplay" beanName="com.aci.payments.dynamicattributes.parameters.displayrules.ApprovalChoiceDisplay" />
+				<availabilityRules identifier="saveAsTemplate" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.ApprovalChoiceViewAvailabilityRule"/>
+			</fields>
+		</fields>				
+		
+		<fields widgetType="ContentBox" identifier="beneContent" isView="true">
+			<fieldLabel messageCode="LBLRecipients" defaultText="Recipients"/>
+			<fields widgetType="JspWidget" identifier="bulkRecpContentView" widgetPath="/common/transact/user/includes/complexWidgets/sgbgiro/bulkRecipientListViewWrapper.jsp"/>
+		</fields>
+		
+		<fields widgetType="ContentBox" identifier="authContent" isView="true">
+			<fieldLabel messageCode="LBLAuth" defaultText="Authorization"/>
+			<availabilityRules identifier="authorizeMemo" beanName="com.aci.payments.dynamicattributes.parameters.availabilityrules.AuthorizationMemoViewAvailabilityRule"/>
+			<fields widgetType="TextInput" identifier="authorizationMemo" name="authorizeMemo" isRequired="false" isVisible="true" maxLength="40" size="40" isView="false">
+				<fieldLabel messageCode="LBLMemo" defaultText="Memo"/>
+			</fields>
+		</fields>
+		<fields widgetType="JspWidget" identifier="apprContentView" widgetPath="/common/transact/user/includes/complexWidgets/approvalAuthContentWrapper.jsp" isView="true"/>
+	</dynamicAttributeType>
+</paymentType>

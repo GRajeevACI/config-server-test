@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.arch.security.authorization.dao.AuthorizationGrantMapper" >
+	<resultMap type="com.s1.arch.common.NameValuePair" id="targetMap">
+         <result property="name" column="name"/>
+     	<result property="value" column="arctargetky" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+     </resultMap>
+     
+     <resultMap type="com.s1.arch.common.NameValuePair" id="targetOprtnCountMap">
+         <result property="name" column="acctky"/>
+        <result property="value" column="oprnCount" javaType="java.lang.Integer" />
+     </resultMap>
+     
+     <resultMap id="targetEntitltmentStatusResultMap" type="com.s1.arch.common.NameValuePair">
+        <result property="name" column="acctky"/>
+        <result column="entitltmentType" property="value" />      
+    </resultMap>
+     
+	<delete id="deleteNoneTargetOpsByPrincipalName" parameterType="java.lang.String">
+		delete
+		from ARCGRANT 
+		where ARCGRANT.ARCGRANTKY in (
+			select a.ARCGRANTKY from ARCGRANT  a, ARCPRINCIPAL b, ARCTARGET c
+	        where a.ARCPRINCIPALKY = b.ARCPRINCIPALKY
+            and b.name = #{value} 
+            and a.ARCTARGETKY = c.ARCTARGETKY
+            and c.NAME ='20040723154236:113745e2:fdec6b0d6f:S1:PLAT:NoneTarget'
+        )
+	</delete>
+
+	<delete id="deleteFuncOpsByPrincipalName" parameterType="java.lang.String">
+		delete from ARCGRANT a  where exists (
+		SELECT 1 FROM ARCGRANT, ARCPRINCIPAL, ARCOPERATION, BNKFUNCOPRTN
+			WHERE a.ARCGRANTky= ARCGRANTky and ARCPRINCIPAL.ARCPrincipalKy = ARCGRANT.ARCPrincipalKy			
+				AND ARCPRINCIPAL.name = #{value} 
+				AND ARCGRANT.ARCOperationKy = ARCOPERATION.ARCOperationKy
+				<!-- '/payment/recipients/manage' , '/payment/recipients/view' , '/payment/ach/template/view' are not in BNKFUNCOPRTN table these operation are special operation-->				
+				AND (ARCOPERATION.name = BNKFUNCOPRTN.operationName  or ARCOPERATION.name ='/payment/recipients/manage' or ARCOPERATION.name ='/payment/recipients/view' or ARCOPERATION.name ='/payment/ach/template/view')
+		) 	
+	</delete>
+
+	<delete id="deleteGrantsByPrincipalAndTarget" parameterType="java.util.Map">
+		DELETE
+		FROM ARCGRANT 
+		WHERE ARCGRANT.ARCGRANTKY in (
+			SELECT a.ARCGRANTKY FROM ARCGRANT a, ARCPRINCIPAL b, ARCTARGET c
+	        WHERE a.ARCPRINCIPALKY = b.ARCPRINCIPALKY
+            AND b.name = #{principalName} 
+            AND a.ARCTARGETKY = c.ARCTARGETKY
+            AND c.NAME = #{targetName}
+        )
+	</delete>
+	
+	
+	
+	<delete id="deleteGrantsByPrincipalTargetAndType" parameterType="java.util.Map">
+		DELETE
+		FROM ARCGRANT 
+		WHERE ARCGRANT.ARCGRANTKY in (
+			SELECT a.ARCGRANTKY FROM ARCGRANT a, ARCPRINCIPAL b, ARCTARGET c,  ARCTARGETTYPE d
+	        WHERE a.ARCPRINCIPALKY = b.ARCPRINCIPALKY
+            AND b.name = #{principalName} 
+            AND a.ARCTARGETKY = c.ARCTARGETKY
+            AND c.ARCTARGETTYPEKY = d.ARCTARGETTYPEKY
+            AND c.NAME = #{targetName}
+            AND d.NAME = #{targetType}
+        )
+	</delete>
+
+	<delete id="deleteGrantsByPrincipalAndTargetType" parameterType="java.util.Map">
+		DELETE
+		FROM ARCGRANT 
+		WHERE ARCGRANT.ARCGRANTKY in (
+			SELECT a.ARCGRANTKY FROM ARCGRANT a, ARCPRINCIPAL b, ARCTARGET c, ARCTARGETTYPE d
+	        WHERE a.ARCPRINCIPALKY = b.ARCPRINCIPALKY
+            AND b.name = #{principalName} 
+            AND a.ARCTARGETKY = c.ARCTARGETKY
+			AND c.ARCTARGETTYPEKY = d.ARCTARGETTYPEKY
+            AND d.NAME = #{targetType}
+        )
+	</delete>
+
+
+	<delete id="deleteGrantsByPrncplTrgtTypeOprn" parameterType="java.util.Map">
+		DELETE
+				FROM   arcgrant
+				WHERE  arcgrant.arcgrantky IN
+				       (SELECT a.arcgrantky
+				              FROM   arcgrant a,
+				                     arcprincipal b,
+				                     arctarget c,
+				                     arctargettype d,
+				                     arcoperation E,
+		
+		<if test="!isGroupEnabled"> BNKUser F, BNKCustomer bc</if>
+		<if test="isGroupEnabled"> BNKCUSTUSERGRP BC</if>						                     
+									 
+				      WHERE  a.arcprincipalky = b.arcprincipalky
+					  AND    bc.BNKCustomerky = #{companyId}
+					  <if test="!isGroupEnabled"> 
+					  and    bc.BNKCustomerky = F.BNKCustomerky
+					  and    F.ARCPrincipalKy = b.ARCPrincipalKy
+					  </if>
+					  <if test="isGroupEnabled"> AND BC.BNKCustUserGrpKy = B.ARCPRINCIPALKY </if>
+		              AND    a.arctargetky = c.arctargetky
+		              AND    c.arctargettypeky = d.arctargettypeky
+		              AND    a.arcoperationky = e.arcoperationky
+		              AND    d.NAME = #{targetType}
+                  AND    c.NAME = #{targetName}
+                  AND E.name = #{operationName}
+				        ) 
+	</delete>
+
+
+	<select id="selectPrincipalOid" parameterType="java.lang.String" resultType="java.lang.Long">
+		SELECT ARCPRINCIPALKY FROM ARCPRINCIPAL WHERE NAME = #{value}
+	</select>
+	
+	<insert id="insertGrant" parameterType="com.s1.arch.security.authorization.data.GrantObject">
+		
+		INSERT INTO ARCGrant
+			(ARCGRANTKY,ARCTARGETKY,ARCPRINCIPALKY,ARCOPERATIONKY,ARCQUALFRSETKY,ISPOSITIVE,UPDATEUSER)
+		VALUES (
+			#{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{targetKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{principalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{operationKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{qualifierSetKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{isPositive ,jdbcType=CHAR,typeHandler=com.s1.arch.ibatis.ZeroOneBooleanTypeHandler},#{updateUser}
+			)
+	</insert>
+	
+	
+	
+	<select id="getAllOperations"  resultMap="targetMap">
+		select name, arcoperationky as arctargetky from arcoperation  
+	</select>
+	
+    <select id="getSomeOperations" parameterType="java.lang.String" resultMap="targetMap">
+        select name, arcoperationky as arctargetky from arcoperation  where name like #{value}
+    </select>
+
+
+	
+    <resultMap id="OperationsResultMap" type="com.s1.arch.security.authorization.model.Grant" >
+    <result column="ARCGRANTKY" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="ARCTARGETKY" property="targetOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="ARCPRINCIPALKY" property="principalOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="ARCOPERATIONKY" property="operationOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="ARCQUALFRSETKY" property="qualifierSetOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="ISPOSITIVE" property="isPositive" jdbcType="CHAR" />
+    <result column="UPDATEUSER" property="updateUser" jdbcType="VARCHAR" />
+    <result column="UPDATEDTTM" property="updateDateTime" jdbcType="TIMESTAMP" />
+    <result column="UPDATESYSTEM" property="updateSystem" jdbcType="CHAR" />
+    <result column="VERSIONSTAMP" property="versionStamp" jdbcType="SMALLINT" />
+  </resultMap>
+  
+	<select id="selectAuthorizedOperationsForGroups" resultMap="OperationsResultMap"  parameterType="java.util.Map">
+	
+		SELECT G.ARCOPERATIONKY, 
+			G.ARCQUALFRSETKY, 
+			G.ISPOSITIVE
+		FROM ARCGrant G, 
+			ARCTarget T
+		WHERE (G.ARCPrincipalKy IN
+			(SELECT a.ARCPrincipalKyGrp
+		     FROM ARCPrincipalGrp a
+		     WHERE a.ARCPrincipalKy = #{principal}
+			UNION ALL
+			 SELECT f.ARCPrincipalKyGrp
+		     FROM ARCPrincipalGrp a, ARCPrincipalGrp f
+		     WHERE a.ARCPrincipalKy = #{principal}		    
+		     AND f.ARCPrincipalKy = a.ARCPrincipalKyGrp		     
+		     ))
+		AND G.ARCTargetKy = T.ARCTargetKy
+		AND T.ARCTARGETTYPEKY = #{targetType}
+		AND T.NAME = #{targetName}
+		
+		UNION
+		
+		SELECT G.ARCOPERATIONKY, 
+			G.ARCQUALFRSETKY, 
+			G.ISPOSITIVE
+		FROM ARCGrant G, 
+			ARCTarget T
+		WHERE G.ARCPrincipalKy = #{principal}
+		AND G.ARCTargetKy = T.ARCTargetKy
+		AND T.ARCTARGETTYPEKY = #{targetType}
+		AND T.NAME = #{targetName}
+
+	</select>  
+
+	<select id="selectAuthorizedOperationsForPrincipal" resultMap="OperationsResultMap"  parameterType="java.util.Map">
+		SELECT g.ARCOPERATIONKY, g.ARCQUALFRSETKY, g.ISPOSITIVE
+		FROM ARCGRANT G, ARCTARGET T
+		WHERE G.ARCTARGETKY = T.ARCTARGETKY
+		AND g.ARCPrincipalKy = #{principal}
+		AND T.ARCTARGETTYPEKY = #{targetType}
+		AND T.NAME = #{targetName} 
+	</select>
+
+	<select id="selectPendingXmlDataForPendingUser" resultType="java.lang.String"  parameterType="java.lang.Long">
+		SELECT pxc.PendingXmlData
+		FROM BNKPendingXmlChng pxc, BNKPendingUser pu
+		WHERE pu.BNKPendingUserKy = #{pendingUser} AND pxc.BNKPendingXmlChngKy = pu.BNKPendingXmlChngKy
+	</select>
+
+	<select id="selectOraclePendingXmlDataForPendingUser" resultType="java.lang.Object"  parameterType="java.lang.Long">
+		SELECT pxc.PendingXmlData
+		FROM BNKPendingXmlChng pxc, BNKPendingUser pu
+		WHERE pu.BNKPendingUserKy = #{pendingUser} AND pxc.BNKPendingXmlChngKy = pu.BNKPendingXmlChngKy
+	</select>	
+	
+	<resultMap id="GroupViewResultMap" type="com.s1.arch.security.authorization.model.GroupView">
+		<result column="ARCPrincipalKyGrp" property="groupOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+	</resultMap>
+  
+    
+	<select id="selectGroupsForPrincipal"  resultMap="GroupViewResultMap" parameterType="com.s1.arch.utilities.ObjectId">
+		SELECT a.ARCPrincipalKyGrp, p.name
+		 FROM ARCPrincipalGrp a, ARCPrincipal p
+		WHERE a.ARCPrincipalKy = #{principal}
+		and a.ARCPrincipalKyGrp = p.ARCPrincipalKy
+		UNION
+		SELECT b.ARCPrincipalKyGrp, p.name
+		 FROM ARCPrincipalGrp b, ARCPrincipal p
+		WHERE b.ARCPrincipalKy IN (SELECT a.ARCPrincipalKyGrp
+		                           FROM ARCPrincipalGrp a
+		                          WHERE a.ARCPrincipalKy = #{principal})
+		and b.ARCPrincipalKyGrp = p.ARCPrincipalKy
+	</select>
+	
+	<select id="selectTargetGroupsForPrincipal"  resultMap="GroupViewResultMap" parameterType="java.util.Map">	
+		select a.arcprincipalKyGrp, c.name 
+		from ARCPrincipalGrp a, 
+			BNKCUSTUSERGRP b,
+			ARCPrincipal c  
+		where a.arcprincipalky = #{principal} 
+			and	a.ARCPRINCIPALKYGRP= b.BNKCUSTUSERGRPky
+			and a.arcprincipalky = c.arcprincipalky
+	</select>			
+	
+	 <resultMap type="java.lang.String" id="domainsResult"> 
+	   <result property="name" column="name"/> 
+	 </resultMap> 
+
+	<select id="selectGroupsByPrincipals"  resultMap="domainsResult" parameterType="java.util.List">
+		
+		select a.name from ARCPrincipal a
+		where a.name IN 
+            <foreach item="principal" collection="list" open="(" close=")" separator=",">
+                #{principal}
+            </foreach>		
+		      and exists (select ARCPrincipalKy
+		                 from ARCGroup b
+		                 where a.ARCPrincipalKy = b.ARCPrincipalKy)
+                		
+	</select>
+	
+	<resultMap id="TargetOperationResultMap" type="com.s1.arch.security.authorization.model.TargetOperationView">
+		<result column="ARCTargetTypeKy" property="targetTypeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="NAME" property="targetName" jdbcType="VARCHAR" />
+		<result column="ARCOperationKy" property="operationOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+	</resultMap>
+		
+	<select id="selectTargetsForGroups"  resultMap="TargetOperationResultMap" parameterType="java.util.Map">
+		SELECT DISTINCT T.ARCTARGETTYPEKY, 
+			T.name, 
+			G.ARCOperationKy
+		 FROM ARCGrant G, 
+		 	ARCTarget T
+		 WHERE G.ARCPrincipalKy IN 
+		 	(SELECT a.ARCPrincipalKyGrp
+		     FROM ARCPrincipalGrp a
+		     WHERE a.ARCPrincipalKy = #{principal}
+  			UNION
+			SELECT a.ARCPrincipalKy
+		     FROM ARCPrincipalGrp a
+		     WHERE a.ARCPrincipalKy = #{principal}	
+		    UNION
+			SELECT f.ARCPrincipalKyGrp
+		     FROM ARCPrincipalGrp a, ARCPrincipalGrp f
+		     WHERE a.ARCPrincipalKy = #{principal}		    
+		     AND f.ARCPrincipalKy = a.ARCPrincipalKyGrp		     
+		     )
+		 AND G.ARCTargetKy = T.ARCTargetKy
+		 AND G.ARCOperationKy IN 
+
+         <foreach item="operation" collection="operations" open="(" close=")" separator=",">
+             #{operation}
+         </foreach>
+        
+	</select>	
+	
+    <select id="selectAcctTargetOprtnsCountForPrincipal"  resultMap="targetOprtnCountMap" parameterType="com.s1.arch.utilities.ObjectId">
+        SELECT b.name acctky, 
+            count(a.arcgrantky) oprnCount
+        FROM arcgrant a, 
+             ARCTARGET b, 
+             arctargettype c 
+        WHERE a.arcprincipalky=  #{principal}
+            AND a.arctargetky=b.arctargetky 
+            AND b.arctargettypeky=c.arctargettypeky 
+            AND c.name='Account' 
+            and a.ISPOSITIVE='1'
+        group by a.arctargetky, b.name, c.name
+    </select>
+    
+  <select id="selectAcctEntitlementStatusForPrincipal"  resultMap="targetEntitltmentStatusResultMap" parameterType="com.s1.arch.utilities.ObjectId">  
+    
+	with a1(entitltmentType, operation, operationky) as (select (case when name = '/dataop/user/account/full' then 'F' when name =  '/dataop/user/account/none' then 'N' when name =  '/dataop/user/account/custom' then 'C' else 'E' end) as entitltmentType, name, arcoperationky from arcoperation where name in ('/dataop/user/account/full','/dataop/user/account/none','/dataop/user/account/custom'))
+	select  b.name acctky, 
+	           a1.entitltmentType entitltmentType
+	              FROM  
+	            ARCTARGET b,
+	             arctargettype c,
+	             arcgrant a 
+	          ,   a1            
+	            WHERE a.arcprincipalky= #{principal}
+	            and a1.operationky=  a.arcoperationky
+	            AND a.arctargetky=b.arctargetky 
+	           AND b.arctargettypeky=c.arctargettypeky 
+	           AND c.name='Account' 
+	           and a.ISPOSITIVE='1'
+    </select>
+    
+	<select id="selectTargetsForPrincipal"  resultMap="TargetOperationResultMap" parameterType="java.util.Map">
+		SELECT T.ARCTARGETTYPEKY, 
+			T.NAME, g.ARCOperationKy
+		FROM ARCGRANT G, 
+			ARCTARGET T
+		WHERE G.ARCTARGETKY = T.ARCTARGETKY
+		AND g.ARCPrincipalKy = #{principal}
+		AND g.ARCOPERATIONKY IN 
+        <foreach item="operation" collection="operations" open="(" close=")" separator=",">
+            #{operation}
+        </foreach>
+	</select>
+	
+	<select id="getPendingUser" resultType="com.s1.arch.utilities.ObjectId" parameterType="map">
+		SELECT DISTINCT BNKPENDINGUSERKY
+		FROM BNKPENDINGUSER
+		WHERE ISUSERGROUP = #{isUserGroup,typeHandler=com.s1.arch.ibatis.ZeroOneBooleanTypeHandler} 
+		AND BNKUSERKY = #{userOid,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}			
+	</select>
+	
+	 <resultMap type="com.s1.arch.utilities.ObjectId" id="entitledUsersMap"> 
+		<result column="bnkuserky" property="value" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	 </resultMap> 
+	 	
+	<select id="getEntitledUsersByCompanyDataOps" resultMap="entitledUsersMap" parameterType="java.util.Map">
+		select distinct  u.bnkuserky from bnkuser u, bnkcustomer c where USERACCESSTYPECD='F' 
+		and c.bnkcustomerky=u.bnkcustomerky and c.CUSTOMERID=#{companyId}
+		<if test="activeOnly"> and u.ISACTIVE = 1 </if>  
+		and u.ISDELETED = 0
+		
+		union all
+		
+		select distinct  u.bnkuserky from arcgrant g, arcoperation o, bnkuser u, bnkcustomer c 
+		where o.arcoperationky=g.arcoperationky and  c.bnkcustomerky=u.bnkcustomerky and 
+		c.CUSTOMERID=#{companyId} and g.arcprincipalky=u.arcprincipalky
+		and  o.name=#{dataOperation}
+		<if test="activeOnly"> and u.ISACTIVE = 1 </if>
+		and u.ISDELETED = 0		
+		
+		union all
+		
+		select distinct  u.bnkuserky from arcgrant g, arcoperation o, bnkuser u, bnkcustomer c , 
+		BNKCUSTUSERGRP grp, ARCPRINCIPALGRP asso where asso.ARCPRINCIPALKY= u.ARCPRINCIPALKY and 
+		asso.ARCPRINCIPALKYGRP=grp.BNKCUSTUSERGRPKY and o.arcoperationky=g.arcoperationky and  
+		c.bnkcustomerky=u.bnkcustomerky and grp.bnkcustomerky=u.bnkcustomerky  and c.CUSTOMERID=#{companyId} and 
+		g.arcprincipalky=grp.BNKCUSTUSERGRPKY
+		and  o.name=#{dataOperation}
+		<if test="activeOnly"> and u.ISACTIVE = 1 </if>
+		and u.ISDELETED = 0		
+		
+		union all	
+		
+		select distinct  u.bnkuserky from  bnkuser u, bnkcustomer c , BNKCUSTUSERGRP grp, 
+		ARCPRINCIPALGRP asso where asso.ARCPRINCIPALKY= u.ARCPRINCIPALKY and asso.ARCPRINCIPALKYGRP=grp.BNKCUSTUSERGRPKY  
+		and  c.bnkcustomerky=u.bnkcustomerky and grp.bnkcustomerky=u.bnkcustomerky  
+		and c.CUSTOMERID=#{companyId} and  grp.groupACCESSTYPCD='F'
+		<if test="activeOnly"> and u.ISACTIVE = 1 </if>
+		and u.ISDELETED = 0		
+			
+	</select>
+		
+	<resultMap id="entitledUserTargetMap" type="com.s1.arch.security.authorization.model.GroupView">
+		<result column="bnkuserky" property="groupOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+	</resultMap>	 
+	 		
+	<select id="getEntitledUsersTargetsByCompanyDataOps" resultMap="entitledUserTargetMap" parameterType="java.util.Map">
+		select distinct  u.bnkuserky, 'FULL_ACCESS' name
+		from bnkuser u, bnkcustomer c where USERACCESSTYPECD='F' 
+		and c.bnkcustomerky=u.bnkcustomerky and c.CUSTOMERID=#{companyId} 
+		and u.ISDELETED = 0
+		
+		union all
+		
+		SELECT  distinct  u.bnkuserky, t.name
+			FROM ARCGRANT G, ARCOPERATION O,
+		
+			ARCTARGET T, 
+			bnkuser u, bnkcustomer c
+	
+		WHERE G.ARCTARGETKY = T.ARCTARGETKY
+		AND O.ARCOPERATIONKY =  G.ARCOPERATIONKY
+		AND O.NAME IN ('/dataop/user/account/full','/dataop/gsso/CBP')		
+		AND c.bnkcustomerky=u.bnkcustomerky 
+		and c.CUSTOMERID=#{companyId} 
+		and g.arcprincipalky=u.arcprincipalky
+		and u.ISDELETED = 0			
+		
+		union all
+		
+		select distinct  u.bnkuserky, t.name 
+		from ARCGRANT G, ARCOPERATION O,
+		 bnkuser u, bnkcustomer c , ARCTARGET T, 
+		BNKCUSTUSERGRP grp, ARCPRINCIPALGRP asso where asso.ARCPRINCIPALKY= u.ARCPRINCIPALKY and 
+		asso.ARCPRINCIPALKYGRP=grp.BNKCUSTUSERGRPKY and  
+		O.ARCOPERATIONKY =  G.ARCOPERATIONKY and
+		O.NAME IN ('/dataop/user/account/full','/dataop/gsso/CBP')	and			 
+		c.bnkcustomerky=u.bnkcustomerky and grp.bnkcustomerky=u.bnkcustomerky  
+		and c.CUSTOMERID=#{companyId} and 
+		g.arcprincipalky=grp.BNKCUSTUSERGRPKY
+		
+		and  G.ARCTARGETKY = T.ARCTARGETKY
+		and u.ISDELETED = 0		
+		
+		union all	
+		
+		select distinct  u.bnkuserky, 'FULL_ACCESS' name from  bnkuser u, bnkcustomer c , BNKCUSTUSERGRP grp, 
+		ARCPRINCIPALGRP asso where asso.ARCPRINCIPALKY= u.ARCPRINCIPALKY and asso.ARCPRINCIPALKYGRP=grp.BNKCUSTUSERGRPKY  
+		and  c.bnkcustomerky=u.bnkcustomerky and grp.bnkcustomerky=u.bnkcustomerky  
+		and c.CUSTOMERID=#{companyId} and  grp.groupACCESSTYPCD='F'
+		and u.ISDELETED = 0		
+			
+	</select>		
+	
+   <update id="copyAccountGrants" parameterType="map" statementType="CALLABLE">
+         call BNKACCTGrantCopySp(#{V_sourcePrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{V_targetPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+	</update>	
+</mapper>

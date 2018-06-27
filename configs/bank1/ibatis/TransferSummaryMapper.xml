@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.app.disbursements.transfer.dao.TransferSummaryMapper">
+
+	<resultMap id="DayStatsResultMap" type="com.s1.core.dashboard.bean.DayStatsData">
+    	<result column="eventCount" property="count" jdbcType="INTEGER" />
+    	<result column="eventDate" property="date" jdbcType="TIMESTAMP" />    	
+    </resultMap>
+    
+    <resultMap id="TransferSummaryMap" type="com.s1.app.disbursements.transfer.TransferSummaryBean">
+    	<result column="instructionId" property="instructionId" jdbcType="INTEGER" />
+    	<result column="amount" property="amount" jdbcType="DECIMAL" />
+    	<result column="currency" property="currency" jdbcType="INTEGER" />    	
+    	<result column="transactionType" property="transactionType" jdbcType="INTEGER" />
+    	<result column="fromName1" property="fromName1" jdbcType="VARCHAR" />
+    	<result column="fromName2" property="fromName2" jdbcType="VARCHAR" />
+    	<result column="fromName3" property="fromName3" jdbcType="VARCHAR" />
+    	<result column="fromName4" property="fromName4" jdbcType="VARCHAR" />    	    	
+    </resultMap>
+        
+	<!-- fromAccountsWithPaymentTypes must not be null-->
+	<select id="countTransferSummaryData" parameterType="com.s1.app.disbursements.bulktransfer.dao.BulkTransferCriteria" resultMap="DayStatsResultMap">
+		SELECT a.SCHDEXECUTIONDTTM eventDate, count(a.VFMInstrKy) eventCount FROM
+		VFMInstr a JOIN VXFInstr b ON b.VFMInstrKy = a.VFMInstrKy		 
+		WHERE (
+		    <foreach item="itemAccount" collection="fromAccountsWithPaymentTypes.entrySet()" open="(" close=")" separator=" OR ">
+		    	b.VFMSrcAcctKy = #{itemAccount.key} AND a.VFMInstrTypeCdKy IN  
+            		<foreach item="itemType" collection="itemAccount.value" open="(" close=")" separator=",">
+                		#{itemType}
+            		</foreach>
+            			    	
+	    	</foreach>
+	    )    	 			    	 		
+        
+        <if test="statusCode != null">
+        	AND a.VFMInstrStsCdKy = #{statusCode}	
+        </if>        
+        <if test="startDate != null">        	 
+        	AND a.SCHDEXECUTIONDTTM <![CDATA[ >= ]]> #{startDate,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+        </if>
+        <if test="endDate != null">
+        	AND a.SCHDEXECUTIONDTTM <![CDATA[ < ]]> #{endDate,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+        </if>
+        GROUP BY SCHDEXECUTIONDTTM
+	</select>
+	    
+	<!-- fromAccountsWithPaymentTypes must not be null-->
+	<select id="selectTransferSummaryData" parameterType="com.s1.app.disbursements.bulktransfer.dao.BulkTransferCriteria" resultMap="TransferSummaryMap">
+		WITH BASIC AS (		
+		SELECT a.SCHDEXECUTIONDTTM, 
+			   a.instructionID AS instructionId, 
+			   a.instrAmount AS amount, 
+			   a.ISOCurrencyCdKy AS currency, 
+			   a.VFMInstrTypeCdKy AS transactionType,
+			   d.nickName AS fromName1,
+			   e.description AS fromName2,
+			   f.nickName AS fromName3,
+			   f.bankId AS fromName4
+	    FROM
+		       VFMInstr a 
+		       JOIN VXFInstr b ON b.VFMInstrKy = a.VFMInstrKy
+			   LEFT JOIN BNKAcct c ON b.VFMSrcAcctKy = c.BNKAcctKy 
+		       LEFT JOIN BNKCustAcct d on d.BNKAcctKy = b.VFMSrcAcctKy AND d.CORCustomerKy = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		       LEFT JOIN BNKProduct e on e.BNKProductKy = c.BNKProductKy
+		       LEFT JOIN VXFTPAcct f on f.VXFTPAcctky = b.VXFTPSrcAcctKy
+		WHERE (
+		    <foreach item="itemAccount" collection="fromAccountsWithPaymentTypes.entrySet()" open="(" close=")" separator=" OR ">
+		    	b.VFMSrcAcctKy = #{itemAccount.key} AND a.VFMInstrTypeCdKy IN  
+            		<foreach item="itemType" collection="itemAccount.value" open="(" close=")" separator=",">
+                		#{itemType}
+            		</foreach>
+            			    	
+	    	</foreach>
+	    )    	 			    	 		        
+        <if test="statusCode != null">
+        	AND a.VFMInstrStsCdKy = #{statusCode}	
+        </if>        
+        <if test="startDate != null">
+        	AND a.SCHDEXECUTIONDTTM <![CDATA[ >= ]]> #{startDate,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+        </if>
+        <if test="endDate != null">
+        	AND a.SCHDEXECUTIONDTTM <![CDATA[ < ]]> #{endDate,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+        </if>
+        ), NUMBERED AS (
+			SELECT ROW_NUMBER() OVER(ORDER BY instructionID) AS INDEX_, BASIC.* FROM BASIC 	
+		) SELECT * FROM NUMBERED <![CDATA[ WHERE INDEX_ >= #{fromRowNum} AND INDEX_ <= #{toRowNum}]]>
+	</select>
+
+</mapper>

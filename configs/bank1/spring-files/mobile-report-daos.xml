@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="mobileReportDTLAPIDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.batch.persistence.dao.MobileReportDTLAPIMapper" />
+	</bean>	
+
+	<bean id="mobileReportDTLSMSDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.batch.persistence.dao.MobileReportDTLSMSMapper" />
+	</bean>	
+
+	<bean id="mobileReportDTLXHTMLDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.batch.persistence.dao.MobileReportDTLXHTMLMapper" />
+	</bean>	
+	
+	<bean id="mobileReportUsageDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.batch.persistence.dao.MobileReportUsageMapper" />
+	</bean>
+	
+	<bean id="mobileReportSummaryDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.batch.persistence.dao.MobileReportSummaryMapper" />
+	</bean>
+
+	<bean id="mobileOobaSessionDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.authentication.ooba.MobileOobaSessionServiceMapper" />
+	</bean>	
+</beans>
+

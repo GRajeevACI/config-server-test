@@ -1,0 +1,2203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<!-- AlertAffiliateService -->
+	<bean id="alertAffiliateService" class="com.s1.bnk.alerts.service.impl.AlertAffiliateServiceImpl">
+		<property name="alertAffiliateOptionDao" ref="alertAffiliateOptionDao" />
+		<property name="alertAffiliateChannelDao" ref="alertAffiliateChannelDao" />
+		<property name="alertAffiliateUtilDao" ref="alertAffiliateUtilDao" />
+		<property name="channelEnabledForAlertTypeAndAffiliate" ref="channelEnabledForAlertTypeAndAffiliate" />
+		<property name="alertTypeEnabledForAffiliate" ref="alertTypeEnabledForAffiliate" />
+		<property name="alertMessageDao" ref="alertMessageDaoXa" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+	<!-- Deciders -->
+	<bean id="alertTypeEnabledForAffiliate" class="com.s1.bnk.alerts.decider.AlertTypeEnabledForAffiliate">
+		<property name="alertAffiliateOptionDao" ref="alertAffiliateOptionDao" />
+	</bean>
+	<bean id="featuresEnabledForAlertType" class="com.s1.bnk.alerts.decider.AllFeaturesAreEnabledForAlertType" />
+	<bean id="userEntitledToAlertType" class="com.s1.bnk.alerts.decider.UserEntitledForAlertType" />
+	<bean id="channelEnabledForAlertTypeAndAffiliate" class="com.s1.bnk.alerts.decider.ChannelEnabledForAffiliateAndAlertType">
+		<property name="alertAffiliateUtilDao" ref="alertAffiliateUtilDao" />
+	</bean>
+	<bean id="userFlagsValidForAlertType" class="com.s1.bnk.alerts.decider.UserFlagsValidForAlertType" />
+	<bean id="cosParamFlagsEnabledForAlertType" class="com.s1.bnk.alerts.decider.CosParamFlagsEnabledForAlertType" />
+	<bean id="accountsEntitledForAlertType" class="com.s1.bnk.alerts.decider.AccountEntitledForAlertType" />
+
+	<!-- Redefine the alertTypeEnabledDecider bean to use our deciders -->
+	<bean id="alertTypeEnabledDecider" class="com.s1.alerts.integration.AndDeciderChain">
+		<property name="deciders">
+			<list value-type="com.s1.alerts.integration.Decider">
+				<ref bean="alertTypeEnabledForAffiliate"/>
+				<ref bean="featuresEnabledForAlertType"/>
+				<ref bean="userEntitledToAlertType"/>
+				<ref bean="userFlagsValidForAlertType" />
+				<ref bean="cosParamFlagsEnabledForAlertType" />
+				<ref bean="accountsEntitledForAlertType" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="SMSServiceProvider" class="com.s1.common.MCMSMSServiceProvider"/>
+	
+	<!-- Customized senders -->	
+	<util:map id="alertSenders">
+		<entry key="inbox" value-ref="inboxAlertSender"/>
+		<entry key="email" value-ref="emailAlertSender"/>
+		<entry key="smsemail" value-ref="smsAlertSender"/>
+		<entry key="mock" value-ref="systemOutAlertSender"/>		
+	</util:map>
+
+	<bean id="alertInboxService" class="com.s1.bnk.alerts.service.impl.AlertInboxServiceImpl">
+		<property name="alertInboxDao" ref="alertInboxDaoXa"/>
+	</bean>
+
+	<bean id="alertInboxServiceNonXA" class="com.s1.bnk.alerts.service.impl.AlertInboxServiceImpl">
+		<property name="alertInboxDao" ref="alertInboxDao"/>
+	</bean>
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${alert.system.delivery.email.smtp.host}"/>
+	</bean>
+
+	<bean id="emailMessageTemplate" class="org.springframework.mail.SimpleMailMessage">
+		<property name="from" value="${alert.system.delivery.email.from}"/>
+		<property name="replyTo" value="${alert.system.delivery.email.replyTo}"/>
+	</bean>
+
+	<bean id="alertUserSetupService" class="com.s1.bnk.alerts.service.impl.AlertUserSetupServiceImpl">
+		<property name="destinationCreators">
+			<list value-type="com.s1.bnk.alerts.service.impl.DefaultAlertDestinationCreator">
+				<!-- Creates web-inbox destination -->
+				<bean class="com.s1.bnk.alerts.service.impl.EmptyAddressDestinationCreator">
+					<property name="deliveryChannelDao" ref="alertDeliveryChannelDao" />
+					<property name="destinationService" ref="alertDestinationService" />
+					<property name="alertAffiliateService" ref="alertAffiliateService" />
+					<property name="messageSource" ref="alertMessageSource"/>
+					<property name="nicknameMsgCode" value="BNKAlrtWbInNm" />
+					<property name="channelCode" value="inbox" />
+				</bean>
+				
+				<!-- Creates Primary Email destination -->
+				<bean class="com.s1.bnk.alerts.service.impl.PrimaryEmailDestinationCreator">
+					<property name="deliveryChannelMapper" ref="alertDeliveryChannelDao" />
+					<property name="destinationMapper" ref="alertDestinationDao" />
+					<property name="destinationService" ref="alertDestinationService" />
+					<property name="alertAffiliateService" ref="alertAffiliateService" />
+					<property name="messageSource" ref="alertMessageSource"/>
+					<property name="nicknameMsgCode" value="BNKAlrtPrEmNm" />
+					<property name="channelCode" value="email" />
+				</bean>
+			</list>
+		</property>
+		<property name="subscriptionCreators">
+			<list value-type="com.s1.bnk.alerts.service.impl.DefaultAlertSubscriptionCreator">
+				<!-- Automatically create subscriptions for security-alert alert types -->
+				<bean class="com.s1.bnk.alerts.service.impl.SecurityAlertSubscriptionCreator">
+					<property name="subscriptionService" ref="alertSubscriptionService" />
+					<property name="alertAffiliateService" ref="alertAffiliateService" />
+					<property name="subscriptionDao" ref="alertSubscriptionDao" />
+					<property name="destinationDao" ref="alertDestinationDao" />
+					<property name="deliveryChannelDao" ref="alertDeliveryChannelDao" />
+					<property name="inboxChannelId" value="inbox" />
+					<property name="emailChannelId" value="email" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="alertMessageService" class="com.s1.bnk.alerts.service.impl.AlertMessageServiceImpl">
+		<property name="messageSource" ref="alertMessageSource"/>
+		<property name="alertMessageDao" ref="alertMessageDaoXa" />
+		<property name="alertAffiliateService" ref="alertAffiliateService" />
+		<property name="alertAffiliateOptionDao" ref="alertAffiliateOptionDao" />
+	</bean>
+	
+	<bean id="alertMessageSource" class="com.s1.bnk.alerts.service.impl.AggregatingMessageSource">
+		<property name="sources">
+			<list>
+				<bean class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+					<property name="basename" value="config/alerts/alerts-messages" />
+				</bean>
+				<bean class="com.s1.bnk.alerts.service.impl.TranslationServiceMessageSource" depends-on="springGrndsBootstrap" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="smsAlertSender" class="com.s1.bnk.alerts.delivery.mcm.SMSAlertSender" />
+	
+	<bean id="inboxAlertSender" class="com.s1.bnk.alerts.delivery.InboxAlertSender">
+		<property name="alertInboxService" ref="alertInboxService"/>
+	</bean>
+
+	<bean id="affiliateCachedConfigFactory" class="com.s1.bnk.alerts.integration.CachingGrndsConfigEnvFactory">
+		<property name="domain" value="ep" />
+		<property name="alertAffiliateUtilMapper" ref="alertAffiliateUtilDao" />
+	</bean>
+	
+	<bean id="emailAlertSender" class="com.s1.bnk.alerts.delivery.EmailAlertSender">
+		<property name="mailSender" ref="mailSender"/>
+		<property name="alertAffiliateUtilMapper" ref="alertAffiliateUtilDao" />
+		<property name="configFactory" ref="affiliateCachedConfigFactory" />
+		<property name="fromAddressGrndsProperty" value="alert.system.delivery.email.from" />
+		<property name="replyToAddressGrndsProperty" value="alert.system.delivery.email.replyTo" />
+	</bean>
+
+	<bean id="smsEmailAlertSender" class="com.s1.bnk.alerts.delivery.smsemail.SmsEmailAlertSender">
+		<property name="mailSender" ref="mailSender"/>
+		<property name="alertAffiliateUtilMapper" ref="alertAffiliateUtilDao" />
+		<property name="configFactory" ref="affiliateCachedConfigFactory" />
+		<property name="fromAddressGrndsProperty" value="alert.system.delivery.smsemail.from" />
+		<property name="replyToAddressGrndsProperty" value="alert.system.delivery.smsemail.replyTo" />
+		<property name="truncateMessageIfNecessary" value="${alert.system.delivery.smsemail.truncateMessageIfNecessary}" />
+		<property name="maxMessageLength" value="${alert.system.delivery.smsemail.maxMessageLength}" />
+		<property name="onlySendToConsole" value="${alert.system.delivery.smsemail.onlySendToConsole}" />
+	</bean>
+	
+	<!-- Reminder scheduling service and helpers -->
+	<bean id="calendarVerificationUtils" class="com.s1.arch.reminders.GregorianCalendarVerificationUtils" />
+
+	<bean id="recurrenceScheduler" class="com.s1.arch.reminders.RecurrenceScheduler">
+		<property name="calendarVerificationUtils" ref="calendarVerificationUtils" />
+	</bean>
+
+	<bean id="alertReminderService" class="com.s1.arch.reminders.service.AlertReminderServiceImpl">
+		<property name="alertReminderDao" ref="alertReminderDao" />
+		<property name="calendarVerificationUtils" ref="calendarVerificationUtils" />
+		<property name="recurrenceScheduler" ref="recurrenceScheduler" />
+	</bean>
+
+	<!-- Base DefaultAlertTypeFacade -->
+	<bean id="baseAlertTypeFacade" abstract="true" class="com.s1.bnk.alerts.DefaultAlertTypeFacade" depends-on="springGrndsBootstrap" >
+		<property name="authorizer" ref="authorizationService" />
+		<property name="subscriptionService" ref="alertSubscriptionService" />	
+		<property name="authorizationService" ref="authorizationService" />
+		<property name="alertAffiliateUtilMapper" ref="alertAffiliateUtilDao" />
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFormatter" />
+		</property>
+	</bean>
+	
+	<!-- Base AccountParameterFacade -->
+	<bean id="baseAccountParameterFacade" class="com.s1.bnk.alerts.integration.AccountParameterFacade" >
+		<property name="authorizationService" ref="authorizationService" />
+	</bean>
+
+	<!-- Base Evaluator -->
+	<bean id="baseEvaluator" abstract="true" class="com.s1.bnk.alerts.evaluation.BaseEvaluator">
+		<property name="alertTypeEnabledDecider" ref="alertTypeEnabledDecider" />
+		<property name="alertTypeFacadeService" ref="alertTypeFacadeService" />
+		<property name="bankingCustomerService" ref="bankingCustomerService" />
+		<property name="userService" ref="userService" />
+		<property name="alertSubscriptionService" ref="alertSubscriptionService" />
+		<property name="alertDestinationDao" ref="alertDestinationDao" />
+		<property name="alertAffiliateService" ref="alertAffiliateService" />
+	</bean>
+	
+	<!-- Base Security Evaluator -->
+	<bean id="baseSecurityEvaluator" abstract="true" class="com.s1.bnk.alerts.evaluation.BaseSecurityEvaluator" parent="baseEvaluator">
+		<property name="alertUserSetupService" ref="alertUserSetupService" />
+		<property name="alertAffiliateUtilDao" ref="alertAffiliateUtilDao" />
+	</bean>
+
+	<!--  Base AlertGenerator -->	
+	<bean id="baseAlertGenerator" abstract="true">
+		<property name="alertDeliveryChannelService" ref="alertDeliveryChannelService" />
+		<property name="alertMessageService" ref="alertMessageService" />
+		<property name="alertService" ref="alertService" />
+		<property name="defaultAlertDestinationTranslators">
+			<list value-type="com.s1.alerts.DefaultAlertDestinationTranslator">
+				<!-- Inject the Primary Email Address for a user's 'Primary Email Address' destination -->
+				<bean class="com.s1.bnk.alerts.integration.PrimaryEmailDestinationTranslator">
+					<property name="alertDeliveryChannelService" ref="alertDeliveryChannelService" />
+					<property name="alertAffiliateUtilDao" ref="alertAffiliateUtilDao" />
+					<property name="emailChannelName" value="email" />
+				</bean>
+				<!-- Translate SmsEmail destinations into email addresses -->
+				<bean class="com.s1.bnk.alerts.integration.SmsEmailDestinationTranslator">
+					<property name="smsEmailChannelId" value="smsemail" />
+					<property name="alertDeliveryChannelService" ref="alertDeliveryChannelService" />
+					<property name="smsTransformerService" ref="smsTransformerService" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Base Simple SMS Carrier Transformer -->
+	<bean id="baseSimpleSmsTransformer" class="com.s1.bnk.alerts.delivery.smsemail.SimpleSmsCarrierEmailAddressTransformer" abstract="true">
+		<property name="phoneNumberStripPattern" value="[^0-9]" />
+		<property name="phoneNumberValidatePattern" value="[0-9]{10}" />
+		<property name="phoneNumberHint" value="5555555555"/>
+	</bean>
+	
+	<!-- SmsCarrierEmailAddressTransformerService -->
+	<bean id="smsTransformerService" class="com.s1.bnk.alerts.delivery.smsemail.SmsCarrierEmailAddressTransformerServiceImpl">
+		<property name="transformers">
+			<list value-type="com.s1.bnk.alerts.delivery.smsemail.SmsCarrierEmailAddressTransformer">
+				<bean id="attSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="att" />
+					<property name="name" value="AT&amp;T" />
+					<property name="emailDomain" value="mms.att.net" />
+				</bean>
+				<bean id="alltelSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="alltel" />
+					<property name="name" value="Alltel" />
+					<property name="emailDomain" value="message.alltel.com" />
+				</bean>
+				<bean id="cellularOneSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="cellularOne" />
+					<property name="name" value="CellularOne" />
+					<property name="emailDomain" value="mobile.celloneusa.com" />
+				</bean>
+				<bean id="nextelSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="nextel" />
+					<property name="name" value="Nextel" />
+					<property name="emailDomain" value="messaging.nextel.com" />
+				</bean>
+				<bean id="sprintSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="sprint" />
+					<property name="name" value="Sprint" />
+					<property name="emailDomain" value="messaging.sprintpcs.com" />
+				</bean>
+				<bean id="tmobileSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="tmobile" />
+					<property name="name" value="T-Mobile" />
+					<property name="emailDomain" value="tmomail.net" />
+				</bean>
+				<bean id="uscellularSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="uscellular" />
+					<property name="name" value="U.S. Cellular" />
+					<property name="emailDomain" value="email.uscc.net" />
+				</bean>
+				<bean id="verizonSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="verizon" />
+					<property name="name" value="Verizon" />
+					<property name="emailDomain" value="vtext.com" />
+				</bean>
+				<bean id="virginSmsTransformer" parent="baseSimpleSmsTransformer">
+					<property name="id" value="virgin" />
+					<property name="name" value="Virgin Mobile" />
+					<property name="emailDomain" value="vmobl.com" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="commonAlertGenerator" class="com.s1.alerts.generation.CommonAlertGenerator" parent="baseAlertGenerator" />
+	
+	<bean id="personalReminderAlertGenerator" class="com.s1.alerts.generation.PersonalReminderAlertGenerator" parent="commonAlertGenerator"/>
+	
+	<!-- NewUserSecurityAlert -->
+	<!-- Facade -->
+	<bean id="newUserSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+	
+	<!-- Evaluator -->
+	
+	<bean id="newUserSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.NewUserSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<!-- ContactInfoSecAlert-->
+	<!-- Facade -->
+	<bean id="contactInfoSecAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	
+	<bean id="contactInfoSecAlertEvaluator" class="com.s1.bnk.alerts.evaluation.ContactInfoSecAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<bean id="emailContactInfoSecAlertEvaluator" class="com.s1.bnk.alerts.evaluation.EmailContactInfoSecAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+		<property name="emailAlertSetupService" ref="alertEmailSetupService"/>
+	</bean>
+	
+	<!-- PasswordChangeSecurityAlert -->
+	<!-- Facade -->
+	<bean id="passwordChangeSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="passwordChangeSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PasswordChangeSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+    <!-- RecipientChangeSecurityAlert -->
+    <!-- Facade -->
+	<bean id="recipientChangeAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+
+	<!-- Evaluator -->
+	<bean id="recipientChangeAlertEvaluator" class="com.s1.bnk.alerts.evaluation.RecipientChangeAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+    
+    
+
+	<bean id="oobaEnrollmentSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaEnrollmentSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAEnrollmentSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<bean id="oobaChangeMobileSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaChangeMobileSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAChangeMobileSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<bean id="oobaResetPerCodeSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaResetPerCodeSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAResetPerCodeSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	
+	<bean id="oobaChangeMailSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaChangeMailSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAChangeMailSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	
+	<bean id="oobaGenSMSCodeSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaGenSMSCodeSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAGenSMSCodeSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<bean id="oobaUnlockSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaUnlockSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAUnlockSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+	<bean id="oobaLockoutSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaLockoutSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBALockoutSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+    <bean id="oobaEnableDisableSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaEnableDisableSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.OOBAEnableDisableSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<!-- SecureMessageAlert -->
+	<!-- Facade -->
+	<bean id="secureMessageAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="secureMessageAlertEvaluator" class="com.s1.bnk.alerts.evaluation.SecureMessageAlertEvaluator" parent="baseEvaluator" >
+		<property name="parameterlessAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+	<!-- DeliveryOptionsSecurityAlert -->
+	<!-- Facade -->
+	<bean id="deliveryOptionsSecurityAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="deliveryOptionsSecurityAlertEvaluator" class="com.s1.bnk.alerts.evaluation.DeliveryOptionsSecurityAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+	<!-- ExternalTransferAccountExpirationAlert -->
+	<!-- Facade -->
+	<bean id="externalTransferAccountExpirationAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="externalTransferAccountExpirationAlertEvaluator" class="com.s1.bnk.alerts.evaluation.ExternalTransferAccountExpirationAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+	<!-- ExternalTransferAccountReminderAlert -->
+	<!-- Facade -->
+	<bean id="externalTransferAccountReminderAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="externalTransferAccountReminderAlertEvaluator" class="com.s1.bnk.alerts.evaluation.ExternalTransferAccountReminderAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+	<!-- ExternalTransferVerificationReminderAlert -->
+	<!-- Facade -->
+	<bean id="externalTransferVerificationReminderAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="externalTransferVerificationReminderAlertEvaluator" class="com.s1.bnk.alerts.evaluation.ExternalTransferVerificationReminderAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+	<!-- NewExternalTransferAccountAlert -->
+	<!-- Facade -->
+	<bean id="newExternalTransferAccountAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="newExternalTransferAccountAlertEvaluator" class="com.s1.bnk.alerts.evaluation.NewExternalTransferAccountAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+	
+    <!-- SECURITY ALERT - User Entitlement Change -->
+    <!-- Facade -->
+    <bean id="userEntitlementChangeAlertFacade" parent="baseAlertTypeFacade">
+        <property name="active" value="true"/>
+    </bean>
+    <!-- Evaluator -->
+    <bean id="userEntitlementChangeAlertEvaluator" class="com.s1.bnk.alerts.evaluation.UserEntitlementChangeAlertEvaluator" parent="baseSecurityEvaluator" >
+        <property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+    </bean>
+    
+    <!-- SECURITY ALERT - User ID Unlock -->
+    <!-- Facade -->
+    <bean id="userIdUnlockAlertFacade" parent="baseAlertTypeFacade">
+        <property name="active" value="true"/>
+    </bean>
+    <!-- Evaluator -->
+    <bean id="userIdUnlockAlertEvaluator" class="com.s1.bnk.alerts.evaluation.UserIdUnlockAlertEvaluator" parent="baseSecurityEvaluator" >
+        <property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+    </bean>
+    
+    <!-- SECURITY ALERT - Template Change -->
+    <!-- Facade -->
+	<bean id="templatesChangeAlertFacade" parent="baseAlertTypeFacade">
+		<property name="csa" value="true"/>
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="templatesChangeAlertEvaluator" class="com.s1.bnk.alerts.evaluation.TemplatesChangeAlertEvaluator" parent="baseSecurityEvaluator" >
+		<property name="parameterlessSecurityAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+    
+	<!--  ACH positive pay decision status alert -->
+	
+	<bean id="ACHposPayStsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFunctionalEntitlementsAll" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACH_POSITIVE_PAY_VIEW" />
+			</list>
+		</property>	
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_POSITIVE_PAY" />
+			</list>
+		</property>	
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.PositivePayDecisionStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />
+						<property name="posPayTypeCode" >
+							<util:constant static-field="com.s1.app.smallbiz.positivepay.user.Constants.ACH_POS_PAY_CODE"/>
+						</property>
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_ACH_POSITIVE_PAY" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PosPayStsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+				<property name="posPayTypeCode" >
+					<util:constant static-field="com.s1.app.smallbiz.positivepay.user.Constants.ACH_POS_PAY_CODE"/>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="ACHposPayStatusEvaluator" class="com.s1.bnk.alerts.evaluation.ACHPosPayStatusEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="posPayStsEvaluatorMapper" />
+	</bean>
+
+	<bean id="TemplateStsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.TemplateStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+				<entry key="method" >
+					<bean class="com.s1.bnk.alerts.integration.TemplateMethodFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+				<entry key="mtndByBnk" >
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+				<entry key="mtndByCust" >
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+			</util:map>
+		</property>	
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.TemplateStsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+			</bean>
+		</property>	
+		<property name="requiredFeaturesAny">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CHILD" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TAX" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CTX" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TEL" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_WEB" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_IAT" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_DOM_IAT" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS_WITHREMITTANCE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.BOOKWIRE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNATIONAL_WIRETRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAFTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ADVICETORECEIVE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.MULTIBANK" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.USFEDERALTAX" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAWDOWN" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_COLLECTIONS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_ELECTRONIC_SERVICE_PROVIDER_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_OTHER_THIRD_PARTY_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_PAYROLL_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_SERVICE_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_SUPPLIER_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLUMBIA_GIRO_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.EXTERNAL_TRANFERS_OUTBOUND" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.EXTERNAL_TRANFERS_INBOUND" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.CANADA_AFT" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ILV_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.SEPA_PAYMENTS" />
+			</list>
+		</property>	
+		<property name="requiredFunctionalEntitlementsAny" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_DEBITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_DEBITS_TEMPLATE_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_CREDITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_DEBITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_DEBITS_TEMPLATE_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_CREDITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CHILD_SUPPORT_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CHILD_SUPPORT_CREDITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TAX_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TAX_CREDITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CTX_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CTX_CREDITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TEL_DEBITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TEL_DEBITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_WEB_DEBITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_WEB_DEBITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_CREDITS_TEMPLATE_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_DEBITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_DEBITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_CREDITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_CREDITS_TEMPLATE_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_DEBITS_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_DEBITS_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACCOUNT_TRANSFER_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACCOUNT_TRANSFER_CREATE_MODIFY_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_TRANSFER_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_WIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_WIRE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_BOOKWIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_BOOKWIRE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_CB_WIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_CB_WIRE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_DRAFT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_DRAFT_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_ADVICETORECEIVE_CREATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_PAYMENT_ADVICETORECEIVE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.MULTIBANK_TEMPLATE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.MULTIBANK_TEMPLATE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_USFEDERAL" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_USFEDERAL_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_DRAWDOWN" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_DRAWDOWN_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_ITLSEPA_CREDIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_ITLSEPA_CREDIT_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_ITLILV_CREDIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_ITLILV_CREDIT_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_ITLILV_DEBIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_ITLILV_DEBIT_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_CAAFT_CREDIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_CAAFT_CREDIT_VIEW" />
+	
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_CAAFT_DEBIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.TEMPLATE_CAAFT_DEBIT_VIEW" />
+			</list>
+		</property>	
+	</bean>
+	<bean id="templateChangeAlertEvaluator" class="com.s1.bnk.alerts.evaluation.TemplateChangeEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="templateChangeEvaluatorMapper" />
+	</bean>
+	
+	<bean id="PaymentStsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.PaymentStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+				<entry key="method" >
+					<bean class="com.s1.bnk.alerts.integration.PaymentMethodFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+				<entry key="threshold" >
+					<bean class="com.s1.bnk.alerts.integration.OptionalParameterFacade" />
+				</entry>
+			</util:map>
+		</property>	
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PaymentStsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+			</bean>
+		</property>	
+		<property name="requiredFeaturesAny">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CHILD" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TAX" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CTX" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TEL" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_WEB" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_IAT" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_DOM_IAT" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_RCK" />
+				
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_COLLECTIONS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_ELECTRONIC_SERVICE_PROVIDER_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_OTHER_THIRD_PARTY_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_PAYROLL_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_SERVICE_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLOMBIA_SUPPLIER_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.COLUMBIA_GIRO_PAYMENTS" />
+								
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.EXTERNAL_TRANFERS_OUTBOUND" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.EXTERNAL_TRANFERS_INBOUND" />
+				
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS_WITHREMITTANCE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.BOOKWIRE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNATIONAL_WIRETRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAFTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ADVICETORECEIVE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.MULTIBANK" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.USFEDERALTAX" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAWDOWN" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.CANADA_AFT" />				
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ILV_PAYMENTS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.SEPA_PAYMENTS" />
+			</list>
+		</property>	
+		<property name="requiredFunctionalEntitlementsAny" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_DEBITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_DEBITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_DEBITS_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_CREDITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_PPD_CREDITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLL_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLL_REPRTATIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLL_VIEW" />
+								
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLPSE_CREATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLPSE_VIEW" />
+
+                <util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLOTP_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLOPT_REPRTATIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLOTP_VIEW" />
+				                				
+                <util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLPYRL_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLPYRL_REPRTATIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLPYRL_VIEW" />
+									
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLSVC_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLSVC_REPRTATIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLSVC_VIEW" />
+				
+                <util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLSUPP_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLSUPP_REPRTATIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLSUPP_VIEW" />
+				                 
+                <util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLGIRO_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLGIRO_REPRTATIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_COLGIRO_VIEW" />
+				                 
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_DEBITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_DEBITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_DEBITS_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_CREDITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CCD_CREDITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CHILD_SUPPORT_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CHILD_SUPPORT_CREDITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CHILD_SUPPORT_CREDITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TAX_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TAX_CREDITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TAX_CREDITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CTX_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CTX_CREDITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_CTX_CREDITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TEL_DEBITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TEL_DEBITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_TEL_DEBITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_WEB_DEBITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_WEB_DEBITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_WEB_DEBITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_CREDITS_REPETITIVE_APPROVE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_CREDITS_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_DEBITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_DEBITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_IAT_DEBITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_CREDITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_CREDITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_CREDITS_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_DEBITS_NON_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_DEBITS_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACH_DOM_IAT_DEBITS_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_REPRESENT_CHECK" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_REPRESENT_CHECK_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACCOUNT_TRANSFER_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ACCOUNT_TRANSFER_CREATE_MODIFY_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_TRANSFER_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_EXTERNAL_TRANSFER_INBOUND_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_EXTERNAL_TRANSFER_INBOUND_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_EXTERNAL_TRANSFER_OUTBOUND_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_EXTERNAL_TRANSFER_OUTBOUND_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_BOOKWIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_BOOKWIRE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_BOOKWIRE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CB_WIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CB_WIRE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CB_WIRE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAFT_NONREP_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAFT_REP_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAFT_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ADVICETORECEIVE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ADVICETORECEIVE_CREATE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ADVICETORECEIVE_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.MULTIBANK_NONREP_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.MULTBANK_REP_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.MULTIBANK_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_USFEDERAL" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_USFEDERAL_CREATE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_USFEDERAL_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAWDOWN" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAWDOWN_CREATE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAWDOWN_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLSEPA_CREDIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLSEPA_CREDIT_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLSEPA_CREDIT_VIEW" />
+				
+			    <util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLILV_CREDIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLILV_CREDIT_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLILV_CREDIT_VIEW" />
+				                 
+			    <util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLILV_DEBIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLILV_DEBIT_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_ITLILV_DEBIT_VIEW" />
+
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CAAFT_CREDIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CAAFT_CREDIT_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CAAFT_CREDIT_VIEW" />
+				
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CAAFT_DEBIT_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CAAFT_DEBIT_REPETITIVE_CREATE_MODIFY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CAAFT_DEBIT_VIEW" />
+			</list>
+		</property>	
+	</bean>
+
+	<bean id="paymentChangeAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PaymentChangeEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="paymentChangeEvaluatorMapper" />
+	</bean>
+	
+<!-- Recipeient Status Alert -->
+
+<bean id="RecipientStsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.RecipientStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+				<entry key="method" >
+					<bean class="com.s1.bnk.alerts.integration.RecipientMethodFacade">
+						<property name="enumerationService" ref="enumerationService" />
+						<property name="usRcptMsgCodeOprnMap">
+							<util:map id="usRcptMsgCodeOprnMap">
+								<entry key-ref="usRcptTpMsgCode" value-ref="usRcptTpOprn"/>
+							</util:map>
+						</property>
+					</bean>
+				</entry>
+			</util:map>
+		</property>	
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.RecipientStsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+			</bean>
+		</property>	
+		<!-- 
+		<property name="requiredFeaturesAny">
+			<list>
+		</list>
+		</property>	-->
+		<property name="requiredFunctionalEntitlementsAny" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY_CLC" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY_ILV" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY_SPCR" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY_CA" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY_COLG" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY_SG" />							
+			</list>
+		</property>	 
+	</bean>
+
+	<bean id="recipientChangeAlertEvaluatorARB" class="com.s1.bnk.alerts.evaluation.RecipientChangeEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="recipientChangeEvaluatorMapper" />
+	</bean>
+	
+<!-- Recipient Status Alert End -->	
+	
+	<bean id="ACHAuthRuleStsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_AUTHORIZATION" />
+			</list>
+		</property>	
+		<property name="active" value="true"/>	
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.ACHAuthRuleStsParameterFacade">
+						<property name="enumerationService" ref="enumerationService" />
+						<property name="posPayTypeCode" >
+							<util:constant static-field="com.s1.app.smallbiz.positivepay.user.Constants.ACH_AUTH_RULE"/>
+						</property>
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_ACH_AUTH_RULE" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PosPayStsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+				<property name="posPayTypeCode" >
+					<util:constant static-field="com.s1.app.smallbiz.positivepay.user.Constants.ACH_AUTH_RULE"/>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="ACHAuthRuleStsEvaluator" class="com.s1.bnk.alerts.evaluation.ACHAuthRuleStsEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="posPayStsEvaluatorMapper" />
+	</bean>
+	
+	<!-- Positive Pay Decision Status Alert -->
+	<bean id="posPayStsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFunctionalEntitlementsAll" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.POSITIVE_PAY" />
+			</list>
+		</property>	
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.POSITIVE_PAY_DECISION" />
+			</list>
+		</property>	
+		<property name="active" value="true"/>	
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.PositivePayDecisionStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />
+						<property name="posPayTypeCode" >
+							<util:constant static-field="com.s1.app.smallbiz.positivepay.user.Constants.STD_POS_PAY_CODE"/>
+						</property>
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_POSITIVE_PAY" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PosPayStsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+				<property name="posPayTypeCode" >
+					<util:constant static-field="com.s1.app.smallbiz.positivepay.user.Constants.STD_POS_PAY_CODE"/>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="posPayStatusEvaluator" class="com.s1.bnk.alerts.evaluation.PosPayStatusEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="posPayStsEvaluatorMapper" />
+	</bean>
+	
+	<!-- Check book request -->
+	
+	<!-- Check book request Status Alert -->
+	<bean id="chBkrqsAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFunctionalEntitlementsAny">
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.CHECK_BOOK" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.CHECK_BOOK_VIEW" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.CHECK_BOOK_DELETE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.CHECK_BOOK_APPROVE" />				
+			</list>
+		</property>	
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.CHECK_BOOK_REQUEST" />
+			</list>
+		</property>	
+		<property name="active" value="true"/>	
+		<property name="parameters">
+			<util:map>
+				<entry key="status" >
+					<bean class="com.s1.bnk.alerts.integration.ChBkrqsStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />						
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_CHECK_BOOK" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.ChBkrqsAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />				
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="chBkrqsStatusEvaluator" class="com.s1.bnk.alerts.evaluation.ChBkrqsStatusEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="chBkrqsStsEvaluatorMapper" />
+	</bean>
+	
+	
+	<!-- Check book request end -->
+	
+	<!-- Positive Pay exception alert -->
+	<bean id="posPayExceptionAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFunctionalEntitlementsAll" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.POSITIVE_PAY" />
+			</list>
+		</property>	
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.POSITIVE_PAY_DECISION" />
+			</list>
+		</property>		
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="exception" >
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+				<entry key="noException" >
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_POSITIVE_PAY" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>	
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PosPayExceptionParamFormatter" />
+		</property>		
+	</bean>
+	<!-- Evaluator -->
+	<bean id="posPayExceptionEvaluator" class="com.s1.bnk.alerts.evaluation.PosPayExceptionEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="posPayExceptionEvaluatorMapper" />
+	</bean>
+	
+	<!-- Positive Pay ACH Exception alert -->
+	<bean id="posPayACHExceptionAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFunctionalEntitlementsAll" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACH_POSITIVE_PAY_VIEW" />
+			</list>
+		</property>	
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_POSITIVE_PAY" />
+			</list>
+		</property>		
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="exception" >
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+				<entry key="noException" >
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_ACH_POSITIVE_PAY" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>	
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PosPayACHExceptionParamFormatter" />
+		</property>		
+	</bean>
+	<!-- Evaluator -->
+	<bean id="posPayACHExceptionEvaluator" class="com.s1.bnk.alerts.evaluation.PosPayACHExceptionEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="posPayACHExceptionEvaluatorMapper" />
+	</bean>
+	
+	<!--  Fraud Control Account Status Alert -->
+	<bean id="fraudControlAccountStatusAlertFacade" parent="baseAlertTypeFacade">
+		<property name="requiredFunctionalEntitlementsAny" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.POSITIVE_PAY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.REVERSE_POSITIVE_PAY" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACH_POSITIVE_PAY_VIEW" />
+			</list>
+		</property>	
+		<property name="requiredFeaturesAny">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.POSITIVE_PAY_DECISION" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.REVERSE_POSITIVE_PAY" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_POSITIVE_PAY" />
+			</list>
+		</property>	
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="fraudCtrlType" >
+					<bean class="com.s1.bnk.alerts.integration.FraudControlAccountStatusAlertFraudTypeFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_POSITIVE_PAY" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_REVERSE_POSITIVE_PAY" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_ACH_POSITIVE_PAY" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="accountStatus" >
+					<bean class="com.s1.bnk.alerts.integration.FraudControlAccountStatusAlertStatusFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+			</util:map>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.FraudControlAccountStatusAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+			</bean>
+		</property>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="fraudControlAccountStatusEvaluator" class="com.s1.bnk.alerts.evaluation.FraudControlAccountStatusEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="fraudControlAccountStatusMapper" />
+	</bean>
+
+	<!-- User entitlement requires approval alert-->
+	<bean id="userEntitlementReqApprvlFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="csa" value="true"/>
+		<property name="requiredCosParamsAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.CosParmValue.IS_CORPUSER_DUAL_AUTH_ENABLED" />
+			</list>
+		</property>		
+	</bean>
+	<!-- Evaluator -->
+	<bean id="userEntitlementReqApprvlEvaluator" class="com.s1.bnk.alerts.evaluation.UserEntitlementRequiresApprovalEvaluator" parent="baseEvaluator" >
+		<property name="parameterlessAlertEvaluatorMapper" ref="parameterlessSecurityAlertEvaluatorMapper"></property>
+	</bean>
+
+	<!-- Map of alert names to AlertTypeFacade beans -->
+	<bean id="alertTypesDefinition" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map key-type="java.lang.String" value-type="com.s1.alerts.AlertTypeFacade">
+				<entry key="pwdExpRem"  value-ref="passwordExpirationAlertFacade"/>
+				<entry key="obaPinExpRem"  value-ref="oobaPersCodeExpirationAlertFacade"/>
+				<entry key="achAuthExp" value-ref="achAuthRuleExpAlertFacade"/>
+				<entry key="efdFileStat" value-ref="efdFileStatusAlertFacade"/>
+				<entry key="acctBalOver" value-ref="accountBalanceOverAlertFacade" />
+				<entry key="acctBalUnder" value-ref="accountBalanceUnderAlertFacade" />
+				<entry key="transAlert" value-ref="transactionAlertFacade" />
+				<entry key="newUsrSecAlrt" value-ref="newUserSecurityAlertFacade"/>
+				<entry key="pwdChgSecAlrt" value-ref="passwordChangeSecurityAlertFacade"/>
+				<entry key="obaEnlSecAlrt" value-ref="oobaEnrollmentSecurityAlertFacade"/>
+				<entry key="obaMobSecAlrt" value-ref="oobaChangeMobileSecurityAlertFacade"/>
+				<entry key="obaCodSecAlrt" value-ref="oobaResetPerCodeSecurityAlertFacade"/>
+				<entry key="obaRMlSecAlrt" value-ref="oobaChangeMailSecurityAlertFacade"/>
+				<entry key="obaSmsSecAlrt" value-ref="oobaGenSMSCodeSecurityAlertFacade"/>
+				<entry key="obaLckSecAlrt" value-ref="oobaUnlockSecurityAlertFacade"/>
+				<entry key="obaUDiSecAlrt" value-ref="oobaEnableDisableSecurityAlertFacade"/>
+				<entry key="obaLokSecAlrt" value-ref="oobaLockoutSecurityAlertFacade"/>
+				
+				<entry key="secMsgNtAlrt"  value-ref="secureMessageAlertFacade"/>
+				<entry key="delOptUpAlrt"  value-ref="deliveryOptionsSecurityAlertFacade"/>
+				<entry key="trfActExpAlrt"  value-ref="externalTransferAccountExpirationAlertFacade"/>
+				<entry key="trfActRemAlrt"  value-ref="externalTransferAccountReminderAlertFacade"/>
+				<entry key="trfVerRemAlrt"  value-ref="externalTransferVerificationReminderAlertFacade"/>
+				<entry key="newTrfActAlrt"  value-ref="newExternalTransferAccountAlertFacade"/>
+				<entry key="cInfoSecAlrt" value-ref="contactInfoSecAlertFacade"/>
+				<entry key="posPayStsAlrt"  value-ref="posPayStsAlertFacade"/>
+				<entry key="ACHPayStsAlrt"  value-ref="ACHposPayStsAlertFacade"/>
+				<entry key="entReqAppvl" value-ref="userEntitlementReqApprvlFacade"/>
+				<entry key="chkNoCleared" value-ref="checkNumberClearedAlertFacade"/>
+				<entry key="posPayExAlrt"  	value-ref="posPayExceptionAlertFacade"	/>
+				<entry key="poPyACHExAlrt"  value-ref="posPayACHExceptionAlertFacade"	/>
+				<entry key="ACHrulStsAlrt" value-ref="ACHAuthRuleStsAlertFacade"/>
+				<entry key="tmplStsAlrt"  value-ref="TemplateStsAlertFacade"/>
+				<entry key="pmntStsAlrt"  value-ref="PaymentStsAlertFacade"/>
+				<entry key="recpStsAlrt"  value-ref="RecipientStsAlertFacade"/>
+				<entry key="rmndrAlert" value-ref="personalReminderAlertFacade" />
+				<entry key="periodicBal" value-ref="periodicBalanceAlertFacade"/>
+				<entry key="rmndrPPayAlrt" value-ref="posPayAchDecisionAlertFacade" />
+				<entry key="chBkrqsAlrt"  value-ref="chBkrqsAlertFacade"/>
+				<entry key="frCtlAcStAlrt" value-ref="fraudControlAccountStatusAlertFacade" />
+                <!-- SECURITY ALERT - User Entitlement Change -->
+                <entry key="usrEntlChSec" value-ref="userEntitlementChangeAlertFacade" />
+                <!-- SECURITY ALERT - User ID Unlock -->
+                <entry key="usrIdUnlock" value-ref="userIdUnlockAlertFacade" />
+                <!-- SECURITY ALERT - Recipient Change -->
+                <entry key="recptChnAlrt" value-ref="recipientChangeAlertFacade" />                
+                <!-- SECURITY ALERT - Template Change -->
+                <entry key="tmplChgSec" value-ref="templatesChangeAlertFacade" />
+                <!-- Wire Confirmation Alert Changes Start-->
+				<entry key="wireConfirm" value-ref="wireConfirmAlertFacade" />
+				<!-- Wire Confirmation Alert Changes End -->
+				<!-- Wire FX Rate Change Alert Start-->
+				 <entry key="wireFxRtChng" value-ref="wireFxRateChangeAlertFacade" />
+				<!-- Wire FX Rate Change Alert End-->
+				
+			</map>
+		</property>
+	</bean>	
+	
+	<!-- Map of event types to EventEvaluator lists -->
+	<util:map id="eventEvaluators">
+	
+		<!-- Wire Confirmation Alert Changes Start GBS-60222 -->		
+		<entry key="wireConfirmAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="wireConfirmAlertEvaluator"/>
+			</list>
+		</entry>
+	
+		<entry key="wireFxRateChangeAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="wireFxRateChangeAlertEvaluator"/>
+			</list>
+		</entry>
+
+		<entry key="newUserSecurityEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="newUserSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="emailContactInfoSecAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="emailContactInfoSecAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="contactInfoSecAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="contactInfoSecAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="passwordChangeEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="passwordChangeSecurityAlertEvaluator" />
+			</list>
+		</entry>
+        <!-- SECURITY ALERT -Recipient Change -->
+        <entry key="recipientChangeEvent">
+            <list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+                <ref bean="recipientChangeAlertEvaluator" />
+            </list>
+        </entry>
+		<entry key="oobaEnrollmentEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaEnrollmentSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaChangeMobileEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaChangeMobileSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaResetPerCodeEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaResetPerCodeSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaChangeMailEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaChangeMailSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaGenSMSCodeEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaGenSMSCodeSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaUnlockEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaUnlockSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaLockoutEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaLockoutSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		<entry key="oobaEnableDisableEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaEnableDisableSecurityAlertEvaluator" />
+			</list>
+		</entry>
+		
+		<entry key="secureMessageEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="secureMessageAlertEvaluator" />
+			</list>
+		</entry>
+        <entry key="userEntitlementChangeEvent">
+            <list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+                <ref bean="userEntitlementChangeAlertEvaluator" />
+            </list>
+        </entry>        
+		<entry key="deliveryOptionsEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="deliveryOptionsSecurityAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="externalTransferAccountExpirationEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="externalTransferAccountExpirationAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="externalTransferAccountReminderEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="externalTransferAccountReminderAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="externalTransferVerificationReminderEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="externalTransferVerificationReminderAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="newExternalTransferAccountAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="newExternalTransferAccountAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="accountBalanceChangedEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="accountBalanceUnderAlertEvaluator"/>
+				<ref bean="accountBalanceOverAlertEvaluator"/>
+			</list>
+		</entry>
+		
+		<entry key="transactionAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="transactionAlertEvaluator"/>
+			</list>
+		</entry>
+		
+		<entry key="transactionAlertsBulkEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="transactionAlertsBulkEvaluator"/>
+			</list>
+		</entry>
+				
+		<entry key="templateStatusChangeEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="templateChangeAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="paymentStatusChangeEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="paymentChangeAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="recipientStatusChangeEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="recipientChangeAlertEvaluatorARB"/>
+			</list>
+		</entry>
+		<entry key="posPayStatusEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="posPayStatusEvaluator"/>
+			</list>
+		</entry>
+		
+		<entry key="chBkrqsStatusEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="chBkrqsStatusEvaluator"/>
+			</list>
+		</entry>
+		<entry key="ACHposPayStatusEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="ACHposPayStatusEvaluator"/>
+			</list>
+		</entry>
+		
+		<entry key="ACHAuthRuleStsEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="ACHAuthRuleStsEvaluator"/>
+			</list>
+		</entry>
+		
+		<entry key="userEntitlementRequiresApprovalEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="userEntitlementReqApprvlEvaluator"/>
+			</list>
+		</entry>
+		
+		<entry key="checkNumberClearedEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="checkNumberClearedAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="posPayExceptionEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="posPayExceptionEvaluator"/>
+			</list>
+		</entry>
+		<entry key="posPayACHExceptionEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="posPayACHExceptionEvaluator"/>
+			</list>
+		</entry>
+		<entry key="pwdExpRemEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="passwordExpirationAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="obaPinExpRemEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="oobaPersCodeExpirationAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="achAuthExpEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="achAuthRuleExpAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="efdFileStatusEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="efdFileStatusAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="rmndrAlertEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="personalReminderAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="periodicBalEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="periodicBalanceAlertEvaluator"/>
+			</list>
+		</entry>
+		<entry key="rmndrPPayAlrtEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="posPayAchDecisionReminderAlertEvaluator"/>
+			</list>
+		</entry>
+        <entry key="userIdUnlockEvent">
+            <list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+                <ref bean="userIdUnlockAlertEvaluator"/>
+            </list>
+        </entry> 
+        <entry key="templatesChangeEvent">
+            <list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+                <ref bean="templatesChangeAlertEvaluator" />
+            </list>
+        </entry>
+        <entry key="fraudControlAccountStatusEvent">
+			<list value-type="com.s1.alerts.evaluation.AlertEventEvaluator">
+				<ref bean="fraudControlAccountStatusEvaluator"/>
+			</list>
+		</entry>
+	</util:map>
+	
+	<!-- Map of alert names to AlertGenerator beans -->
+	<util:map id="alertGenerators">
+		<entry key="newUsrSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="cInfoSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="pwdChgSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaEnlSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaMobSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaCodSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaRMlSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaSmsSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaLckSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaUDiSecAlrt" value-ref="commonAlertGenerator" />
+		<entry key="obaLokSecAlrt" value-ref="commonAlertGenerator" />
+		
+		<entry key="secMsgNtAlrt" value-ref="commonAlertGenerator" />
+		<entry key="delOptUpAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="trfActExpAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="trfActRemAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="trfVerRemAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="newTrfActAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="acctBalUnder" value-ref="commonAlertGenerator"/>
+		<entry key="acctBalOver" value-ref="commonAlertGenerator"/>
+		<entry key="transAlert" value-ref="commonAlertGenerator"/>
+		<entry key="posPayStsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="chBkrqsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="ACHPayStsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="posPayExAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="poPyACHExAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="ACHrulStsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="entReqAppvl" value-ref="commonAlertGenerator"/>
+		<entry key="chkNoCleared" value-ref="commonAlertGenerator"/>
+		<entry key="tmplStsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="pwdExpRem" value-ref="commonAlertGenerator"/>
+		<entry key="obaPinExpRem" value-ref="commonAlertGenerator"/>
+		<entry key="achAuthExp" value-ref="commonAlertGenerator"/>
+		<entry key="pmntStsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="recpStsAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="periodicBal" value-ref="commonAlertGenerator"/>
+		<entry key="rmndrAlert" value-ref="personalReminderAlertGenerator"/>
+		<entry key="posPayAchDecision" value-ref="commonAlertGenerator"/>
+		<entry key="rmndrPPayAlrt" value-ref="commonAlertGenerator"/>
+		<entry key="efdFileStat" value-ref="commonAlertGenerator"/>
+		<entry key="frCtlAcStAlrt" value-ref="commonAlertGenerator"/>
+        <!-- SECURITY ALERT - User Entitlement Change -->
+        <entry key="usrEntlChSec" value-ref="commonAlertGenerator"/>
+        
+        <!-- SECURITY ALERT - User ID Unlock -->
+        <entry key="usrIdUnlock" value-ref="commonAlertGenerator"/>
+        <!-- SECURITY ALERT - Recipient Changes -->
+        <entry key="recptChnAlrt" value-ref="commonAlertGenerator"/>
+              
+        <!-- SECURITY ALERT - Template Change -->
+        <entry key="tmplChgSec" value-ref="commonAlertGenerator"/>
+        <!-- Wire Confirmation Alert Changes Start GBS-60222-->
+		<entry key="wireConfirm" value-ref="commonAlertGenerator" />
+		<!-- Wire Confirmation Alert Changes End GBS-60222-->
+		<entry key="wireFxRtChng" value-ref="commonAlertGenerator"/>
+	</util:map>
+	
+	<!-- Wire Confirmation Alert Changes Start -->
+	
+	<bean id="wireConfirmAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_BOOKWIRE" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_DRAWDOWN"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_CROSS_BORDER"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_FED_TAX"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCTS_DOMESTIC" />								
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="transType">
+					<bean class="com.s1.bnk.alerts.integration.WireConfirmTransTypeFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny" > 
+ 			<list> 
+ 				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_BOOKWIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAWDOWN" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_USFEDERAL" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CB_WIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCTS_DOMESTIC" />
+ 			</list> 
+ 		</property>
+ 		<property name="requiredFeaturesAny">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.BOOKWIRE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAWDOWN" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNATIONAL_WIRETRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS" />				
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.USFEDERALTAX" />				   
+			</list>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_BOOKWIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_DRAWDOWN"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_CROSS_BORDER"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_FED_TAX"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCTS_DOMESTIC" />				
+			</list>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.WireConfirmAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+			</bean>
+		</property>
+	</bean>	
+	<!-- Wire Confirmation Alert Changes End   -->
+	<!-- Wire Confirmation Alert Changes Start GBS-60222-->
+	<!-- Evaluator -->
+	<bean id="wireConfirmAlertEvaluator" class="com.s1.bnk.alerts.evaluation.WireConfirmAlertEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="wireConfirmEvaluatorMapper" />
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+	</bean>	
+	<!-- Wire Confirmation Alert Changes End GBS-60222-->
+	
+	<!-- Wire FX Rate Change Alert Start -->
+	
+	<bean id="wireFxRateChangeAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_BOOKWIRE" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_DRAWDOWN"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_CROSS_BORDER"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.WIRE_ACCOUNTS_FED_TAX"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE"/>														
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="transType">
+					<bean class="com.s1.bnk.alerts.integration.WireConfirmTransTypeFacade">
+						<property name="enumerationService" ref="enumerationService" />
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny" > 
+ 			<list> 
+ 				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_BOOKWIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_DRAWDOWN" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_USFEDERAL" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_CB_WIRE" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.PAYMENT_WIRE"/>
+ 			</list> 
+ 		</property>
+ 		<property name="requiredFeaturesAny">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.BOOKWIRE" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAWDOWN" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNATIONAL_WIRETRANSFERS" />
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS" />				
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.USFEDERALTAX" />				   
+			</list>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.INTERNATIONAL_WIRE"/>				
+			</list>
+		</property>		
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.WireConfirmAlertParamFormatter">
+				<property name="enumerationService" ref="enumerationService" />
+			</bean>
+		</property>
+	</bean>	
+	<!-- Wire FX Rate Change Alert End   -->
+	<!-- Wire FX Rate Change Alert Start -->
+	<!-- Evaluator -->
+	<bean id="wireFxRateChangeAlertEvaluator" class="com.s1.bnk.alerts.evaluation.WireFxRateChangeAlertEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="wireFxRateEvaluatorMapper" />
+		
+	</bean>	
+	<!-- Wire FX Rate Change Alert End-->
+	
+	
+	<!-- Account Balance Over -->
+	<bean id="accountBalanceOverAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="threshold" >
+					<bean class="com.s1.bnk.alerts.integration.RequiredParameterFacade">
+						<constructor-arg index="0" type="java.lang.String" value="amount"/>
+						<constructor-arg index="1" type="java.lang.String" value="invalid.amount"/>
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDSUM"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDSUM"/>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="balances">
+					<bean class="com.s1.bnk.alerts.integration.AccountBalaceParameterFacade">
+						<property name="dao" ref="balanceAlertEvaluatorMapper"/>
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDSUM"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDSUM"/>
+			</list>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.BalanceAlertParameterFormatter" />
+		</property>
+	</bean>
+	
+	<!-- Evaluator -->
+	<bean id="accountBalanceOverAlertEvaluator" class="com.s1.bnk.alerts.evaluation.AccountOverBalanceEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="balanceAlertEvaluatorMapper" />
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+	</bean>
+	
+	<!-- Account Balance Under -->
+	<bean id="accountBalanceUnderAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="threshold" >
+					<bean class="com.s1.bnk.alerts.integration.RequiredParameterFacade">
+						<constructor-arg index="0" type="java.lang.String" value="amount"/>
+						<constructor-arg index="1" type="java.lang.String" value="invalid.amount"/>
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDSUM"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDSUM"/>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="balances">
+					<bean class="com.s1.bnk.alerts.integration.AccountBalaceParameterFacade">
+						<property name="dao" ref="balanceAlertEvaluatorMapper"/>
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDSUM"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDSUM"/>
+			</list>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.BalanceAlertParameterFormatter" />
+		</property>
+	</bean>
+	
+	<!-- Evaluator -->
+	<bean id="accountBalanceUnderAlertEvaluator" class="com.s1.bnk.alerts.evaluation.AccountUnderBalanceEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="balanceAlertEvaluatorMapper" />
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+	</bean>
+	
+	<!-- Transaction Alert -->
+	<bean id="transactionAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="account">
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDDET" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDDET" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="transaction">
+					<bean class="com.s1.bnk.alerts.integration.AccountTransactionParameterFacade">
+						<property name="dao" ref="transactionAlertEvaluatorMapper"/>
+					</bean>
+				</entry>
+				<entry key="amtType">
+					<bean class="com.s1.bnk.alerts.integration.DefaultAlertParameterFacade" />
+				</entry>
+				<entry key="threshold" >
+					<bean class="com.s1.bnk.alerts.integration.OptionalParameterFacade" />
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDDET" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDDET" />
+			</list>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.TransactionAlertParameterFormatter" />
+		</property>
+	</bean>
+	
+	<!-- Evaluator -->
+	<bean id="transactionAlertEvaluator" class="com.s1.bnk.alerts.evaluation.TransactionAlertEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="transactionAlertEvaluatorMapper" />
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+	</bean>
+	
+	<bean id="transactionAlertsBulkEvaluator" class="com.s1.bnk.alerts.evaluation.TransactionAlertsBulkEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="transactionAlertsBulkEvaluatorMapper" />
+		<property name="batchTransactionAlertMapper" ref="batchTransactionAlertMapper" />
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+	</bean>
+		
+	<!-- Check Number Cleared alert -->
+	<bean id="checkNumberClearedAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="parameters">
+			<util:map>
+				<entry key="checkNo" >
+					<bean class="com.s1.bnk.alerts.integration.RequiredParameterFacade">
+						<constructor-arg index="0" type="java.lang.String" value="checkNo"/>
+						<constructor-arg index="1" type="java.lang.String" value="invalid.checkNumber"/>
+					</bean>
+				</entry>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDDET" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDDET" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDDET" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDDET" />
+			</list>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.CheckNoClearedParamFormatter" />
+		</property>
+	</bean>
+		
+	<!-- Evaluator -->
+	<bean id="checkNumberClearedAlertEvaluator" class="com.s1.bnk.alerts.evaluation.CheckNumberClearedEvaluator" parent="baseEvaluator" >
+		<property name="dao" ref="checkNumberClearedMapper" />
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+		<property name="accountMapper" ref="accountMapper"/>
+	</bean>
+
+	<!-- Password Expiration Reminder -->	
+	<bean id="passwordExpirationAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="passwordExpirationAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PasswordExpirationReminderAlertEvaluator" parent="baseEvaluator" />
+	
+	<!-- OOBA Personal Code Expiration Reminder -->	
+	<bean id="oobaPersCodeExpirationAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="oobaPersCodeExpirationAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PersCodeExpirationReminderAlertEvaluator" parent="baseEvaluator" />
+	
+	<bean id="achAuthRuleExpAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_AUTHORIZATION" />
+			</list>
+		</property>
+		<property name="requiredFunctionalEntitlementsAll" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACH_AUTHORIZATION_VIEW" />
+			</list>
+		</property>
+		<property name="parameters">
+			<util:map>
+				<entry key="expDays" >
+					<bean class="com.s1.bnk.alerts.integration.AchAuthExpParameterFacade">					
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.ACHAuthRuleExpParamFormatter" />
+		</property>
+	</bean>
+		
+	<!-- Evaluator -->
+	<bean id="achAuthRuleExpAlertEvaluator" class="com.s1.bnk.alerts.evaluation.ACHAuthRuleExpirationEvaluator" parent="baseEvaluator" >
+		<property name="mapper" ref="achAuthRuleExpirationMapper" />
+		<property name="accountMapper" ref="accountMapper"/>
+	</bean>
+	
+	<bean id="efdFileStatusAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+ 		<property name="requiredFeaturesAny"> 
+ 			<list> 				
+ 				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.UPLOAD_WITH_WORKFLOW" />
+ 				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.UPLOAD_WITH_WORKFLOW_FTP" />
+ 				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.EFD_REPORTS" />
+ 			</list>
+ 		</property>
+ 		<property name="requiredFunctionalEntitlementsAny" > 
+ 			<list> 
+ 				<util:constant static-field="com.s1.common.entitlement.Operation.UPLOAD_WITH_WORKFLOW_VIEW" />
+ 				<util:constant static-field="com.s1.common.entitlement.Operation.UPLOAD_WITH_WORKFLOW_ADMINISTER" />
+ 				<util:constant static-field="com.s1.common.entitlement.Operation.UPLOAD_WITH_WORKFLOW_UPLOAD" />
+ 				<util:constant static-field="com.s1.common.entitlement.Operation.UPLOAD_WITH_WORKFLOW_TRANSMIT" /> 
+ 			</list> 
+ 		</property> 
+		<property name="parameters">
+			<util:map>
+				<entry key="efdFileStat" >
+					<bean class="com.s1.bnk.alerts.integration.RequiredParameterFacade">
+						<constructor-arg index="0" type="java.lang.String" value="efdFileStat"/>
+						<constructor-arg index="1" type="java.lang.String" value="invalid.expiry.days"/>
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.EFDFileStatusParamFormatter" />
+		</property>
+	</bean>
+		
+	<!-- Evaluator -->
+	<bean id="efdFileStatusAlertEvaluator" class="com.s1.bnk.alerts.evaluation.EFDFileStatusEvaluator" parent="baseEvaluator" >
+		<property name="mapper" ref="efdFileStatusMapper" />
+	</bean>
+	
+	<!-- Personal Reminder alert -->
+	<bean id="personalReminderAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="usesReminderSchedule" value="true" />
+		<property name="reminderEventType" value="rmndrAlertEvent" />
+		<property name="parameters">
+			<util:map>
+				<entry key="name" >
+					<bean class="com.s1.bnk.alerts.integration.RequiredParameterFacade">
+						<constructor-arg index="0" type="java.lang.String" value="name"/>
+						<constructor-arg index="1" type="java.lang.String" value="invalid.name"/>
+					</bean>
+				</entry>
+				<entry key="msg" >
+					<bean class="com.s1.bnk.alerts.integration.RequiredParameterFacade">
+						<constructor-arg index="0" type="java.lang.String" value="msg"/>
+						<constructor-arg index="1" type="java.lang.String" value="invalid.msg"/>
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PersonalReminderAlertParameterFormatter" />
+		</property>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="personalReminderAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PersonalReminderAlertEvaluator" parent="baseEvaluator" />
+	
+	<!-- Periodic Balance alert -->
+	<bean id="periodicBalanceAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="usesReminderSchedule" value="true" />
+		<property name="reminderEventType" value="periodicBalEvent" />
+		<property name="parameters">
+			<util:map>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade" >
+					<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDSUM"/>
+								<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDSUM"/>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="balances">
+					<bean class="com.s1.bnk.alerts.integration.AccountBalaceParameterFacade">
+						<property name="dao" ref="balanceAlertEvaluatorMapper"/>
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACCOUNT_ACTIVITY_DATAOP" />
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_CDSUM"/>
+				<util:constant static-field="com.s1.common.entitlement.Operation.INFORPT_ACCOUNTS_PDSUM"/>
+			</list>
+		</property>
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PeriodicBalanceAlertParameterFormatter" />
+		</property>
+	</bean>
+	<!-- Evaluator -->
+	<bean id="periodicBalanceAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PeriodicBalanceAlertEvaluator" parent="baseEvaluator">
+		<property name="customerAccountMapper" ref="customerAccountMapper"/>
+		<property name="dao" ref="balanceAlertEvaluatorMapper" />
+	</bean>
+	
+	<!-- Positive Pay ACH cut-off reminder alert -->
+	<bean id="posPayAchDecisionAlertFacade" parent="baseAlertTypeFacade">
+		<property name="active" value="true"/>
+		<property name="usesReminderSchedule" value="true" />
+		<property name="reminderEventType" value="rmndrPPayAlrtEvent" />
+		<property name="parameters">
+			<util:map>
+				<entry key="account" >
+					<bean parent="baseAccountParameterFacade">
+						<property name="requiredAccountEntitlements">	
+							<list>
+								<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_ACH_POSITIVE_PAY" />
+							</list>
+						</property>	
+					</bean>
+				</entry>
+			</util:map>
+		</property>
+		<property name="requiredFunctionalEntitlementsAll" >
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.ACH_POSITIVE_PAY_VIEW" />
+			</list>
+		</property>	
+		<property name="requiredFeaturesAll">
+			<list>
+				<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_POSITIVE_PAY" />
+			</list>
+		</property>	
+		<property name="requiredAccountEntitlements">	
+			<list>
+				<util:constant static-field="com.s1.common.entitlement.Operation.DATA_OP_ACH_POSITIVE_PAY" />
+			</list>
+		</property>	
+		<property name="formatter">
+			<bean class="com.s1.bnk.alerts.integration.PosPayAchDecisionAlertParameterFormatter" />
+		</property>
+	</bean>
+	
+	<bean id="posPayAchDecisionReminderAlertEvaluator" class="com.s1.bnk.alerts.evaluation.PosPayAchDecisionRmndrEvaluator" parent="baseEvaluator" >
+		<property name="posPayRmndrMapper" ref="posPayAchDecCutoffRmndrMapper" />
+	</bean>
+	
+    <bean id="alertUtilityMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertUtilMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+	<!-- Action Items widget integration -->
+	<bean id="alertSummaryGroupConfig" class="com.s1.banking.actionitem.ActionItemSummaryGroupConfig">
+		<property name="id" value="alertsGroupId" />
+		<property name="msgCode" value="actionItem.alerts" />
+		<property name="groupProducers">
+			<list>
+				<bean class="com.s1.bnk.alerts.integration.AlertGroupProducer" >
+					<property name="alertInboxService" ref="alertInboxService" />
+					<property name="maxLineItems" value="5" />
+					<property name="nameMsgCode" value="actionItem.alerts" />
+					<property name="messageSource" ref="actionItemMessageSource" />		
+					<property name="url" value="/userServlet/common/inbox/view" />								
+				</bean>
+			</list>
+		</property>
+	</bean>
+	<bean id="alertEmailSetupService" class="com.s1.bnk.alerts.service.impl.AlertUserSetupServiceImpl">
+		<property name="destinationCreators">
+			<list value-type="com.s1.bnk.alerts.service.impl.DefaultAlertDestinationCreator">
+				<bean class="com.s1.bnk.alerts.service.impl.PrimaryEmailDestinationCreator">
+					<property name="deliveryChannelMapper" ref="alertDeliveryChannelDao" />
+					<property name="destinationMapper" ref="alertDestinationDao" />
+					<property name="destinationService" ref="alertDestinationService" />
+					<property name="alertAffiliateService" ref="alertAffiliateService" />
+					<property name="messageSource" ref="alertMessageSource"/>
+					<property name="nicknameMsgCode" value="BNKAlrtPrEmNm" />
+					<property name="channelCode" value="email" />
+				</bean>
+			</list>
+		</property>
+		<property name="subscriptionCreators">
+			<list value-type="com.s1.bnk.alerts.service.impl.DefaultAlertSubscriptionCreator">
+				<!-- Automatically create subscriptions for security-alert alert types -->
+				<bean class="com.s1.bnk.alerts.service.impl.EmailSecurityAlertSubscriptionCreator">
+					<property name="subscriptionService" ref="alertSubscriptionService" />
+					<property name="alertAffiliateService" ref="alertAffiliateService" />
+					<property name="subscriptionDao" ref="alertSubscriptionDao" />
+					<property name="destinationDao" ref="alertDestinationDao" />
+					<property name="deliveryChannelDao" ref="alertDeliveryChannelDao" />
+					<property name="inboxChannelId" value="inbox" />
+					<property name="emailChannelId" value="email" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	<util:constant id="usRcptTpMsgCode" static-field="com.s1.app.Globals.US_RECIPIENT_TYPE_MSG_CDOE"/>
+	<util:constant id="usRcptTpOprn" static-field="com.s1.common.entitlement.Operation.PAYMENT_THIRD_PARTY"/>
+</beans>

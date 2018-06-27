@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio xmlns="http://www.beanio.org/2012/03" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+  
+  <stream name="partial-pending-group-stream" format="xml" xmlType="none" strict="true">
+  	<record name="CorpGroupBlock" class="com.s1.common.dualapproval.user.xml.CorpGroupBlock" minOccurs="1" maxOccurs="1">
+  		<segment xmlName="GroupElement"  name="groupElement" minOccurs="1" maxOccurs="1" class="com.s1.common.dualapproval.user.xml.GroupElement">
+  		   <field name="key" xmlName="Key" minOccurs="0"/>
+  			<field name="groupName" xmlName="groupName" minOccurs="0"/>  			
+  			<field name="principalName" xmlName="principalName" minOccurs="0"/>
+  			<field name="groupDescription" xmlName="groupDescription" minOccurs="0"/>  			
+  			<field name="versionStamp" xmlName="versionStamp" minOccurs="0"/>
+  			<field name="updateUser" xmlName="UpdateUser" minOccurs="0"/>
+  			<field name="isCompanySystemAdministrator" xmlName="IsCompanySystemAdministrator" minOccurs="0"/>
+  			<field name="isConfidentialBatch" xmlName="IsConfidentialBatch" minOccurs="0"/>
+  			<field name="isTradeFinanceEnabled" xmlName="isTradeFinanceEnabled" minOccurs="0"/>
+  			<field name="groupAccessTypeCd" xmlName="groupAccessTypeCd" minOccurs="0"/>
+  			<field name="groupLimitsTypeCd" xmlName="groupLimitsTypeCd" minOccurs="0" />
+  		</segment>  	
+  	    <segment xmlName="GroupApprovalOperations"  name="groupApprovalOperations" minOccurs="0" maxOccurs="1" class="com.s1.common.dualapproval.user.xml.GroupApprovalOperations">  			 			
+  			<segment name="approvalOperationList" xmlName="ApprovalOperation"  minOccurs="0" maxOccurs="unbounded"
+					getter="getApprovalOperation" setter="setApprovalOperation" collection="array"
+					class="com.s1.common.dualapproval.user.xml.ApprovalOperation">					
+						<field  name="name"  xmlName="Name"  minOccurs="0" maxOccurs="1" />											
+			</segment>
+  		</segment>	  	
+  	</record>
+  </stream>
+ </beanio>

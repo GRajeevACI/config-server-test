@@ -1,0 +1,280 @@
+<!--  This file is used by Application Server to configure Services that should service RMI requests.  
+	  These services will be called by the BatchClient.  Look at batch-client-context.xml. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"
+	default-lazy-init="true">
+	
+	<bean id="propertyConfigurer"
+		class="com.s1.arch.spring.beans.factory.config.GrndsPropertyPlaceHolderConfigurer"
+		depends-on="springGrndsBootstrap" lazy-init="false"/>
+
+	<!-- Batch setting -->
+	<bean id="batchService" class="com.s1.arch.batch.core.ConcreteBatchThreadProcessorService" />
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="batchService"/>
+		<property name="serviceName" value="batchService"/>
+		<property name="serviceInterface" value="com.s1.arch.batch.core.BatchThreadProcessorService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="sequenceService"/>
+		<property name="serviceName" value="sequenceService"/>
+		<property name="serviceInterface" value="com.s1.arch.persistence.sequence.SequenceService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="bankingProductService"/>
+		<property name="serviceName" value="bankingProductService"/>
+		<property name="serviceInterface" value="com.s1.common.product.ProductService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="summaryFieldCodeMapService"/>
+		<property name="serviceName" value="summaryFieldCodeMapService"/>
+		<property name="serviceInterface" value="com.s1.common.product.summaryFieldConfiguration.SummaryFieldCodeMapService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="affiliateFIService"/>
+		<property name="serviceName" value="affiliateFIService"/>
+		<property name="serviceInterface" value="com.s1.core.organization.AffiliateFIService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="affiliateService"/>
+		<property name="serviceName" value="affiliateService"/>
+		<property name="serviceInterface" value="com.s1.banking.common.organization.affiliate.AffiliateService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="parametersService"/>
+		<property name="serviceName" value="parametersService"/>
+		<property name="serviceInterface" value="com.s1.common.parameters.ParametersService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="channelService"/>
+		<property name="serviceName" value="channelService"/>
+		<property name="serviceInterface" value="com.s1.arch.channel.ChannelService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="localeService"/>
+		<property name="serviceName" value="localeService"/>
+		<property name="serviceInterface" value="com.s1.arch.i18n.locale.LocaleService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="uploadLogService"/>
+		<property name="serviceName" value="uploadLogService"/>
+		<property name="serviceInterface" value="com.s1.banking.efd.upload.log.UploadLogService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="efdService"/>
+		<property name="serviceName" value="efdService"/>
+		<property name="serviceInterface" value="com.s1.banking.efd.upload.EFDService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="alertSubscriptionService"/>
+		<property name="serviceName" value="alertSubscriptionService"/>
+		<property name="serviceInterface" value="com.s1.alerts.services.AlertSubscriptionService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="samFacadeService"/>
+		<property name="serviceName" value="samFacadeService"/>
+		<property name="serviceInterface" value="com.s1.app.sam.samfacade.SamFacade"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="hcsamFacadeService"/>
+		<property name="serviceName" value="hcsamFacadeService"/>
+		<property name="serviceInterface" value="com.s1.app.sam.hcsamfacade.HoldingCompanyServiceFacade"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="userSecurityService"/>
+		<property name="serviceName" value="userSecurityService"/>
+		<property name="serviceInterface" value="com.s1.arch.security.user.UserSecurityService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="principalManagerService"/>
+		<property name="serviceName" value="principalManagerService"/>
+		<property name="serviceInterface" value="com.s1.arch.principal.PrincipalManagerService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="authorizationService"/>
+		<property name="serviceName" value="authorizationService"/>
+		<property name="serviceInterface" value="com.s1.arch.security.authorization.AuthorizationService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+
+   <bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="importService"/>
+		<property name="serviceName" value="importService"/>
+		<property name="serviceInterface" value="com.s1.banking.common.imprt.ImportService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="enumerationService"/>
+		<property name="serviceName" value="enumerationService"/>
+		<property name="serviceInterface" value="com.s1.arch.enumeration.EnumerationService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="exportFileWrapperService"/>
+		<property name="serviceName" value="exportFileWrapperService"/>
+		<property name="serviceInterface" value="com.s1.export.message.ExportFileWrapperService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="applicationService"/>
+		<property name="serviceName" value="applicationService"/>
+		<property name="serviceInterface" value="com.s1.common.application.ApplicationService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="codesTableService"/>
+		<property name="serviceName" value="codesTableService"/>
+		<property name="serviceInterface" value="com.s1.arch.codestable.CodesTableService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="standardPmtReportService"/>
+		<property name="serviceName" value="standardPmtReportService"/>
+		<property name="serviceInterface" value="com.s1.common.paymentreports.customreports.StandardPmtReportService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="customPmtReportService"/>
+		<property name="serviceName" value="customPmtReportService"/>
+		<property name="serviceInterface" value="com.s1.common.paymentreports.customreports.CustomPmtReportService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="userService"/>
+		<property name="serviceName" value="userService"/>
+		<property name="serviceInterface" value="com.s1.common.user.UserService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="reportUtilService"/>
+		<property name="serviceName" value="reportUtilService"/>
+		<property name="serviceInterface" value="com.s1.common.utils.reports.ReportUtilService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="disclaimerService"/>
+		<property name="serviceName" value="disclaimerService"/>
+		<property name="serviceInterface" value="com.s1.common.disclaimer.DisclaimerService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="transferMessagingService"/>
+		<property name="serviceName" value="transferMessagingService"/>
+		<property name="serviceInterface" value="com.s1.app.disbursements.transfer.messaging.TransferMessagingService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="alertService"/>
+		<property name="serviceName" value="alertService"/>
+		<property name="serviceInterface" value="com.s1.alerts.AlertService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="userAccessScheduleService"/>
+		<property name="serviceName" value="userAccessScheduleService"/>
+		<property name="serviceInterface" value="com.s1.common.accessschedule.UserAccessScheduleService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="mobRptService"/>
+		<property name="serviceName" value="mobRptService"/>
+		<property name="serviceInterface" value="com.s1.app.mobileBanking.batch.persistence.MobRptService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="corpAchTaxService"/>
+		<property name="serviceName" value="corpAchTaxService"/>
+		<property name="serviceInterface" value="com.s1.app.disbursements.corpach.tax.CorpAchTaxService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="corpAchTaxService"/>
+		<property name="serviceName" value="corpAchTaxService"/>
+		<property name="serviceInterface" value="com.s1.app.disbursements.corpach.tax.CorpAchTaxService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="acctAdditionalIdentifierService"/>
+		<property name="serviceName" value="acctAdditionalIdentifierService"/>
+		<property name="serviceInterface" value="com.s1.common.accounts.additional.identifier.AcctAdditionalIdentifierService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="coreAuditService"/>
+		<property name="serviceName" value="coreAuditService"/>
+		<property name="serviceInterface" value="com.s1.arch.auditx.service.CoreAuditService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean> 	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false"> 
+		<property name="service" ref="cutoffTimeService"/> 
+		<property name="serviceName" value="cutoffTimeService"/> 
+		<property name="serviceInterface" value="com.s1.common.schedule.CutoffTimeService"/> 
+		<property name="registryPort" value="${batch_rmi_port}" /> 
+	</bean>	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="coreAuditService"/>
+		<property name="serviceName" value="coreAuditService"/>
+		<property name="serviceInterface" value="com.s1.arch.auditx.service.CoreAuditService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean> 	
+
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="countryAccountBankValueService"/>
+		<property name="serviceName" value="countryAccountBankValueService"/>
+		<property name="serviceInterface" value="com.s1.bnk.account.service.CountryAccountBankValueUtilIfc"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="bankLookupService"/>
+		<property name="serviceName" value="bankLookupService"/>
+		<property name="serviceInterface" value="com.s1.payments.bank.BankLookupService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+	
+	<bean class="org.springframework.remoting.rmi.RmiServiceExporter" lazy-init="false">
+		<property name="service" ref="sepaCreditorIDService"/>
+		<property name="serviceName" value="sepaCreditorIDService"/>
+		<property name="serviceInterface" value="com.s1.payments.service.SepaCreditorIDService"/>
+		<property name="registryPort" value="${batch_rmi_port}" />
+	</bean>	
+</beans>

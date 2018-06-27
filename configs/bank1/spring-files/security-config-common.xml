@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                           http://www.springframework.org/schema/util 
+                           http://www.springframework.org/schema/util/spring-util-2.5.xsd
+                           http://www.springframework.org/schema/security/oauth2 
+                           http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+                           http://www.springframework.org/schema/security 
+                           http://www.springframework.org/schema/security/spring-security-4.2.xsd
+                           http://www.springframework.org/schema/aop 
+                           http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<bean id="attemptAuthProcessor"
+		class="com.s1.spring.security.filters.processor.AttemptAuthProcessor">
+		<property name="holdingCompanyService" ref="holdingCompanyService" />
+	</bean>
+	<bean id="succAuthPostProcessor"
+		class="com.s1.spring.security.filters.processor.SuccAuthPostProcessor">
+		<property name="applicationService" ref="applicationService" />
+		<property name="userSecurityService" ref="userSecurityService" />
+		<property name="lockoutService" ref="lockoutService" />
+	</bean>
+	<bean id="succAuthPreProcessor"
+		class="com.s1.spring.security.filters.processor.SuccAuthPreProcessor">
+		<property name="ssoAdapter" ref="UOBSSOAdapter" />
+	</bean>
+	<bean id="unSuccAuthPreProcessor"
+		class="com.s1.spring.security.filters.processor.UnSuccAuthPreProcessor">
+		<property name="lockoutService" ref="lockoutService" />
+		<property name="affiliateFIService" ref="affiliateFIService" />
+		<property name="logonService" ref="logonAdminService" />
+		<property name="applicationService" ref="applicationService" />
+	</bean>
+
+	<!-- UserDetails related beans -->
+	<bean name="userDetailsService"
+		class="com.s1.spring.security.userdetails.UOBUserDetailsService">
+		<property name="userSecurityService" ref="userSecurityService" />
+		<property name="lockoutService" ref="lockoutService" />
+		<property name="principalManagerService" ref="principalManagerService" />
+		<property name="SAMGroupName" value="SAM" />
+	</bean>
+
+	<!-- AuthenticationProvider related beans -->
+	<bean id="anonymousAuthenticationProvider"
+		class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
+		<constructor-arg type="java.lang.String" value="does not matter" />
+	</bean>
+
+	<!-- UOB SSO related beans -->
+	<bean id="UOBSSOAdapter" class="com.s1.spring.security.sso.SpringCookieSSOAdapter">
+		<property name="ssoService" ref="UOBSSOService" />
+		<property name="sessionRegistry" ref="UOBSessionRegistry" />
+		<!-- Configuration for caching the SSO token on the user session to avoid 
+			database calls per request -->
+		<property name="cacheCredentials" value="false" />
+		<!-- Ping time should be smaller than expiryMinutes below for UOBSSOService. -->
+		<property name="pingTimeIntervalMinutes" value="5" />
+
+		<!-- Configuration for token renewal. We have observed that the AJAX calls 
+			can cause issues if the renew period is set to a low number. Recommendation 
+			is to not enable token renewal. -->
+		<property name="renewCredentials" value="false" />
+		<property name="renewTimeIntervalMinutes" value="0" />
+
+		<!-- Cookie attributes for the SSO Token -->
+		<property name="cookiePath" value="/" />
+		<!-- Should only be set for production -->
+		<property name="cookieDomain">
+			<null />
+		</property>
+		<property name="cookieSecure" value="true" />
+	</bean>
+
+	<bean id="RWDSSOAdapter" class="com.s1.spring.security.sso.SpringCookieSSOAdapter" parent="UOBSSOAdapter">
+		<property name="ssoService" ref="RWDSSOService" />
+	</bean>
+
+	<bean id="UOBSSOService" class="com.s1.spring.security.sso.SSOServiceImpl">
+		<property name="ssoDAO" ref="UOBSSODAO" />
+		<property name="loginPageURL" value="/logon/logonpage" />
+		<property name="cookieName" value="UOB_SSO_TOKEN" />
+		<property name="delimiter" value="~00~" />
+		<property name="expiryMinutes" value="15" />
+		<property name="userContextRoot" value="s1gcb" />
+		<property name="adminContextRoot" value="s1gcb" />
+	</bean>
+
+	<bean id="RWDSSOService" class="com.s1.spring.security.sso.SSOServiceImpl" parent="UOBSSOService">
+		<property name="cookieName" value="RWD_SSO_TOKEN" />
+	</bean>
+	
+	<bean id="UOBSSODAO" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="com.s1.spring.security.sso.dao.SingleSignonMapper" />
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+	</bean>
+	<bean id="simpleRedirectSessionInformationExpiredStrategy"
+		class="org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy">
+		<constructor-arg value="/logon/logoff" />
+	</bean>
+
+	<bean id="concurrentSessionFilter"
+		class="com.s1.spring.security.filters.SpringConcurrentSessionFilter">
+		<constructor-arg ref="sessionRegistry" />
+		<constructor-arg ref="simpleRedirectSessionInformationExpiredStrategy" />
+		<!-- <property name="sessionRegistry" ref="UOBSessionRegistry" /> -->
+		<property name="excludedUrls" value=".gif,.png,.jpg,.css,.js,/sessionTimeCheck" />
+		<property name="refreshIntervalMinutes" value="5" />
+		<property name="UOBSessionRegistry" ref="UOBSessionRegistry" />
+		<property name="logoutHandlers">
+			<bean class="com.s1.spring.security.logout.EmptyLogoutHandler" />
+		</property>
+	</bean>
+
+	<!-- UOB SessionRegistry - cluster-aware -->
+	<bean id="UOBSessionRegistry"
+		class="com.s1.spring.security.sessionregistry.DistributedSessionRegistryImpl">
+		<property name="sessionRegistryDAO" ref="UOBSessionRegistryDAO" />
+		<!-- Self-purge will clean up unexpired sessions that are older than timeToLiveInDays 
+			days -->
+		<property name="timeToLiveInDays" value="1" />
+	</bean>
+	<bean id="UOBSessionRegistryDAO" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="com.s1.spring.security.sessionregistry.dao.SessionRegistryMapper" />
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+	</bean>
+
+	<bean id="logoutFilter" class="com.s1.spring.security.filters.SpringLogoutFilter">
+		<constructor-arg>
+			<bean class="com.s1.spring.security.logout.UOBUrlLogoutSuccessHandler">
+				<property name="defaultTargetUrl" value="/logon/logonpage" />
+			</bean>
+		</constructor-arg>
+		<constructor-arg>
+			<list>
+				<bean class="com.s1.spring.security.logout.DataCleanupLogoutHandler" />
+				<bean
+					class="com.s1.spring.security.logout.SingleSignOnServicesLogoutHandler" />
+				<bean class="com.s1.spring.security.logout.UOBLogoutHandler">
+					<property name="sessionRegistry" ref="UOBSessionRegistry" />
+				</bean>
+				<bean class="com.s1.spring.security.session.SessionNullifierLogoutHandler" />
+				<bean
+					class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler">
+					<property name="invalidateHttpSession" value="false" />
+				</bean>
+				<bean
+					class="com.s1.spring.security.session.SessionInvalidationLogoutHandler">
+					<property name="config">
+						<list>
+							<bean class="com.s1.spring.security.session.SessionInvalidationConfig">
+								<property name="sessionInvalidator" value="webSphereSessionInvalidator" />
+								<property name="applicationServerType" value="WebSphere" />
+							</bean>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</constructor-arg>
+		<property name="filterProcessesUrl" value="/logon/logout" />
+	</bean>
+
+	<!-- Probably not used, remove it after sanity testing -->
+	<!-- Default Spring-provided SessionRegistry - not cluster-aware -->
+	<bean id="sessionRegistry"
+		class="org.springframework.security.core.session.SessionRegistryImpl">
+	</bean>
+	<!-- Service -->
+	<bean id="UOBSessionRegistryService"
+		class="com.s1.spring.security.sessionregistry.SessionRegistryServiceImpl">
+		<property name="sessionRegistryDAO" ref="UOBSessionRegistryDAO" />
+	</bean>
+
+	<security:authentication-manager alias="UOBAuthenticationManager"
+		id="UOBAuthenticationManager">
+		<security:authentication-provider
+			ref="anonymousAuthenticationProvider" />
+		<security:authentication-provider
+			ref="UOBAuthenticationProvider" />
+	</security:authentication-manager>
+
+	<security:authentication-manager alias="servicesAuthenticationManager"
+		id="servicesAuthenticationManager" erase-credentials="false">
+		<security:authentication-provider
+			ref="servicesAuthenticationProvider" />
+	</security:authentication-manager>
+
+	<bean id="UOBAuthenticationProvider"
+		class="com.s1.spring.security.authproviders.UOBAuthenticationProvider">
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="userService" ref="userService" />
+		<property name="preAuthenticationChecks" ref="preAuthenticationChecks" />
+		<property name="postAuthenticationChecks" ref="postAuthenticationChecks" />
+		<property name="hideUserNotFoundExceptions" value="false" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+		<property name="securIDActive" value="true" />
+	</bean>
+	
+	<bean id="servicesAuthenticationProvider"
+		class="com.s1.spring.security.authproviders.ServicesAuthenticationProvider">
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+		<property name="preAuthenticationChecks" ref="preAuthenticationChecks" />
+		<property name="postAuthenticationChecks" ref="servicePostAuthenticationCheck" />
+		<property name="lockoutService" ref="lockoutService" />
+		<property name="applicationService" ref="applicationService" />
+		<property name="userSecurityService" ref="userSecurityService" />
+		<property name="logonService" ref="logonAdminService" />
+	</bean>
+
+	<bean name="preAuthenticationChecks"
+		class="com.s1.spring.security.actions.SpringPreAuthenticationCheck" />
+	<bean name="postAuthenticationChecks"
+		class="com.s1.spring.security.userdetails.UOBPostAuthenticationChecks" />
+		
+	<bean name="servicePostAuthenticationCheck" class="com.s1.spring.security.authentication.ServicePostAuthenticationCheck"/>
+	<bean name="passwordEncoder" class="com.s1.spring.security.password.UOBPasswordEncoder" />
+
+	<bean id="authenticationProcessingFilterEntryPoint"
+		class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<constructor-arg value="/logon/logonpage" />
+		<property name="forceHttps">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="servicesAuthenticationEntryPoint"
+		class="com.s1.spring.security.filters.entrypoints.ServicesAuthenticationEntryPoint">
+	</bean>
+
+	<!-- Custom Filters -->
+	<bean id="authenticationProcessingFilter"
+		class="com.s1.spring.security.filters.UOBAuthenticationProcessingFilter">
+
+		<property name="authenticationManager" ref="UOBAuthenticationManager" />
+		<property name="authenticationDetailsSource" ref="UOBAuthenticationDetailsSource" />
+		<property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+		<property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
+		<property name="filterProcessesUrl" value="/logon/authenticate" />
+		<property name="personClassName" value="com.s1.core.person.Person" />
+		<property name="sessionAuthenticationStrategy" ref="compositeStrategy" />
+		<property name="ssoEnabled" value="true" />
+
+		<property name="attemptAuthProc" ref="attemptAuthProcessor" />
+		<property name="succAuthPostProc" ref="succAuthPostProcessor" />
+		<property name="succAuthPreProc" ref="succAuthPreProcessor" />
+		<property name="unsuccAuthProc" ref="unSuccAuthPreProcessor" />
+		<property name="usernameParameter" value="j_username"/>
+		<property name="passwordParameter" value="j_password"/>
+	</bean>
+
+	<bean id="servicesAuthenticationProcessingFilter"
+		class="com.s1.spring.security.filters.ServicesAuthenticationProcessingFilter">
+		<constructor-arg value="/api/**" />
+		<property name="authenticationManager" ref="servicesAuthenticationManager" />
+		<property name="authenticationSuccessHandler" ref="servicesAuthenticationSuccessHandler" />
+		<property name="authenticationFailureHandler" ref="servicesAuthenticationFailureHandler" />
+		<property name="userSecurityService" ref="userSecurityService" />
+		<property name="lockoutService" ref="lockoutService" />
+		<property name="applicationService" ref="applicationService" />
+		<property name="usernameParameter" value="username" />
+	</bean>
+
+	<bean id="UOBAuthenticationDetailsSource"
+		class="com.s1.spring.security.authproviders.UOBWebAuthenticationDetailsSource">
+	</bean>
+
+	<bean id="compositeStrategy"
+		class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+		<constructor-arg>
+			<list>
+				<ref bean="registerSessionAuthenticationStrategy" />
+				<ref bean="concurrentSessionController" />
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="registerSessionAuthenticationStrategy"
+		class="com.s1.spring.security.session.UOBRegisterSessionAuthenticationStrategy">
+		<constructor-arg ref="UOBSessionRegistry" />
+		<!-- The following 2 properties enable the session fixation protection. 
+			These should -->
+		<!-- always be used to ensure a refreshed HttpSession after a successful 
+			authentication. -->
+		<property name="invalidateSessionOnSuccessfulAuthentication"
+			value="true" />
+		<property name="migrateInvalidatedSessionAttributes" value="true" />
+	</bean>
+
+	<!-- Concurrent Session Control configuration -->
+	<bean id="concurrentSessionController"
+		class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+		<constructor-arg ref="UOBSessionRegistry" />
+		<property name="maximumSessions" value="1" />
+		<property name="exceptionIfMaximumExceeded" value="${exception.If.Maximum.Exceeded}" />
+	</bean>
+
+	<bean id="authenticationSuccessHandler"
+		class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
+		<constructor-arg value="/logon/targeturl" />
+		<property name="alwaysUseDefaultTargetUrl" value="true" />
+	</bean>
+
+	<bean id="authenticationFailureHandler"
+		class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+		<constructor-arg value="/logon/logonpage" />
+		<property name="useForward" value="true" />
+	</bean>
+
+	<bean id="servicesAuthenticationFailureHandler"
+		class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler" />
+	<bean id="servicesAuthenticationSuccessHandler"
+		class="com.s1.spring.security.filters.handlers.ServicesSimpleUrlAuthenticationSuccessHandler" />
+
+	<!-- Mobile -->
+	<bean name="mobileAuthenticationService"
+		class="com.s1.spring.security.authentication.AuthenticationService">
+		<property name="authenticationManager" ref="mobileAuthenticationManager" />
+	</bean>
+
+	<security:authentication-manager alias="mobileAuthenticationManager">
+		<security:authentication-provider ref="mobileAuthenticationProvider"/>		
+	</security:authentication-manager>
+
+	<bean id="daoAuthenticationProvider"
+		class="com.s1.spring.security.authproviders.MobileDaoAuthenticationProvider" >
+			<property name="userDetailsService" ref="userDetailsService" />
+			<property name="passwordEncoder" ref="passwordEncoder"/>
+		</bean>
+
+	<bean id="mobileAuthenticationProvider"
+		class="com.s1.spring.security.authproviders.MobileAuthenticationProvider">
+		<property name="daoAuthenticationProvider" ref="daoAuthenticationProvider" />
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="userService" ref="userService" />
+		<property name="preAuthenticationChecks" ref="preAuthenticationChecks" />
+		<property name="postAuthenticationChecks" ref="postAuthenticationChecks" />
+		<property name="hideUserNotFoundExceptions" value="false" />
+		<property name="passwordEncoder" ref="passwordEncoder"/>
+		<property name="securIDActive" value="true"/>		
+	</bean>
+	<!-- oauth2 related configuration: Start -->
+	<bean id="oboRestAuthenticator" class="com.aciworldwide.security.authn.RestAuthenticator" scope="prototype">
+		<property name="restTemplate" ref="oboRestTemplate" />
+		<property name="isCSR" value="true" />
+		<property name="baseUri" value="${sam.oauth2.endpoint.auth}" />
+	</bean>
+
+	<bean id="oboResourceOwner"
+		class="org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails">
+		<property name="grantType" value="password" />
+		<property name="username" value="NONE_PROVIDED" />
+		<property name="password" value="NONE_PROVIDED" />
+		<property name="clientId" value="${sam.oauth2.clientId}" />
+		<property name="clientSecret" value="${sam.oauth2.clientSecret}" />
+		<property name="accessTokenUri" value="${sam.oauth2.endpoint.token}" />
+		<property name="scope">
+			<list>
+				<value>read</value>
+				<value>write</value>
+				<value>trust</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="oboRestTemplate"
+		class="org.springframework.security.oauth2.client.OAuth2RestTemplate" scope="prototype">
+		<constructor-arg index="0" ref="oboResourceOwner" />
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter" />
+				<bean
+					class="com.aciworldwide.ui.http.converters.CustomFormHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+					<property name="objectMapper">
+						<bean
+							class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+							<property name="serializers">
+								<array>
+									<bean class="com.aciworldwide.ui.common.DateSerializer" />
+									<bean class="com.aciworldwide.ui.common.TimestampSerializer" />
+									<bean class="com.aciworldwide.ui.common.BigDecimalSerializer" />
+								</array>
+							</property>
+							<property name="deserializers">
+								<array>
+									<bean class="com.aciworldwide.ui.common.DateDeserializer" />
+									<bean class="com.aciworldwide.ui.common.TimestampDeserializer" />
+									<bean class="com.aciworldwide.ui.common.BigDecimalDeserializer" />
+								</array>
+							</property>
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- oauth2 related configuration: End -->
+	
+	<bean id="cryptoProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:soa-crypto.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="cloakPropertiesPlaceholder" class="com.s1.spring.CloakPropertyPlaceholderConfigurer">
+		<property name="placeholderPrefix" value="$[" />
+		<property name="placeholderSuffix" value="]" />
+		<property name="config" ref="cryptoProperties" />
+	</bean>
+	
+	<bean id="keyStorePassword" class="java.lang.String">
+		<constructor-arg value="$[soa.services.security.keystore.password]" />
+	</bean>
+	
+	<bean id="keystore"
+		class="com.aciworldwide.spring.security.KeyStoreKeyFactory">
+		<constructor-arg index="0" value="file:$[soa.services.security.keystore.file]" ></constructor-arg>
+		<constructor-arg index="1" value="#[keyStorePassword.toCharArray()]"></constructor-arg>
+	</bean>
+	
+	<bean id="keyStoreWrapper" class="com.aciworldwide.spring.security.KeystoreWrapper">
+		<constructor-arg ref="keystore"></constructor-arg>
+		<constructor-arg value="$[soa.services.security.keystore.alias]"></constructor-arg>
+		<constructor-arg value="$[soa.services.security.keystore.keyPassword]"></constructor-arg>
+	</bean>
+	
+	<bean id="cryptoUtil" class="com.aciworldwide.spring.security.CryptoUtil">
+	    <property name="keystoreWrapper" ref="keyStoreWrapper" />
+	    <property name="cipherAlgModePadding" value="RSA/ECB/PKCS1Padding" /> <!-- should this be coming from cloak -->
+	</bean>
+	
+</beans>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.common.customer.dao.CustomerIdentityMapper">
+
+	<select id="getCountForUnique" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+			FROM CORCustIdentity 
+			WHERE CORCustomerKy != #{custKy}
+				AND CORHostKy = #{hostKy}
+				AND custId = #{custId}
+	</select>
+	
+	<select id="getFisPUID" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT FISPUID
+			FROM BNKCUSTOMER 
+			WHERE BNKCUSTOMERKy = #{custKy}
+	</select>
+	
+	<select id="checkIfFisPUIDPresent" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+			FROM BNKCUSTOMER 
+			WHERE FISPUID = #{fisPUID}
+	</select>
+	
+	<update id="updateFisPUID" parameterType="map" >
+	    UPDATE BNKCUSTOMER
+	      SET FISPUID = #{fisPUID,jdbcType=VARCHAR}
+	    WHERE FISPUID is NULL 
+	    	AND BNKCUSTOMERKY = #{custKy,jdbcType=VARCHAR}
+	</update>
+  
+</mapper>

@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+	<bean id="affiliateService"
+		class="com.s1.banking.common.organization.affiliate.ConcreteAffiliateService" />
+	<bean id="applicationService"
+		class="com.s1.common.application.ConcreteApplicationService" />
+	<bean id="processingScheduleService"
+		class="com.s1.app.disbursements.common.ProcessingScheduleServiceBean" />
+	<bean id="uploadProfileService"
+		class="com.s1.banking.common.upload.profile.UploadProfileServiceBean" />
+	<bean id="reportUtilService"
+		class="com.s1.common.utils.reports.ReportUtilServiceBean" />
+	<bean id="imageService" class="com.s1.common.image.ImageServiceBean" />
+	<bean id="loanInfoService"
+		class="com.s1.app.bank.accountInfoReport.loan.LoanInfoServiceBean" />
+	<bean id="issueService" class="com.s1.app.smallbiz.issue.IssueServiceBean" />
+	<bean id="userService" class="com.s1.common.user.UserServiceBean" />
+	
+	<bean id="disclaimerService"
+		class="com.s1.common.disclaimer.DisclaimerServiceBean" />
+	
+		
+	<bean id="sbbService"
+		class="com.s1.app.disbursements.common.SbbServiceBean" />
+	<bean id="navigationService"
+		class="com.s1.common.navigation.NavigationServiceBean" />
+	
+		
+	
+	<!--bean id="externalAccountService" class="com.s1.common.accounts.external.ExternalAccountServiceBean" / -->	
+
+	
+
+	
+	<bean id="authorizationCategory"
+		class="com.s1.common.authorization.AuthorizationCategoryServiceBean" />
+	
+	
+	
+	<bean id="errorLogService"
+		class="com.s1.banking.common.imprt.ErrorLogServiceBean" />
+	
+	<bean id="CosParamMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.entitlement.dao.CosParamMapper" />
+	</bean>
+	
+	<bean id="actionItemCountMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.banking.actionitem.dao.ActionItemCountMapper" />
+	</bean>
+	
+	<bean id="featureMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.classofservice.dao.FeatureMapper" />
+	</bean>
+	
+	<bean id="functionalOperationMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.entitlement.dao.FunctionalOperationMapper" />
+	</bean>		
+	
+	<bean id="classOfServiceService"
+		class="com.s1.common.classofservice.ClassOfServiceServiceBean" />
+	
+	<bean id="companyService" class="com.s1.common.company.CompanyServiceBean" />
+	
+	<bean id="corpRetainPeriodService"
+		class="com.s1.common.corp.purgeConfig.service.CorpRetainPeriodServiceBean" />
+	
+	<bean id="userAndGrpEntlService"
+		class="com.s1.common.utils.reports.userandgrpentl.UserAndGrpEntlServiceBean" >
+		<property name="userAndGrpEntlMapper" ref="userAndGrpEntlMapper" />	
+	</bean>
+		
+	<bean id="loanNoteBalanceService"
+		class="com.s1.app.bank.accountInfoReport.loan.LoanNoteBalanceServiceBean" >
+		<property name="loanNoteBalanceMapper" ref="loanNoteBalanceMapper" />	
+	</bean>		
+	
+	<bean id="entitlementService"
+		class="com.s1.common.entitlement.EntitlementServiceBean" />
+	
+	<bean id="procSchdDevService"
+		class="com.s1.common.schedule.ProcSchdDevServiceBean" />
+	<bean id="processScheduleService"
+		class="com.s1.common.schedule.ProcessScheduleServiceBean" />
+		
+	<bean id="cutoffTimeValueMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.common.schedule.dao.CutoffTimeValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+	<bean id="codesTableService"
+		class="com.s1.arch.codestable.ConcreteCodesTableService" />
+	<bean id="bankingProductService"
+		class="com.s1.common.product.ProductServiceBean" />
+	
+	<bean id="bankingCustomerService"
+		class="com.s1.common.customer.CustomerServiceBean" />
+	 
+		
+	<!-- <bean id="disbursementService"
+		class="com.s1.emea.disbursement.common.service.DisbursementServiceBean" 
+	/> -->
+	
+	
+	
+	<!-- END --> 
+	
+	<bean id="subsidiaryService"
+      	class="com.s1.banking.common.organization.ConcreteSubsidiaryService"/>
+	
+		
+	<bean id="corpGroupEntitlementsDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.common.entitlement.dao.CorpGroupEntitlementsMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+	<bean id="corpGroupEntitlementsService" class="com.s1.common.entitlement.dao.CorpGroupEntitlementsServiceImpl">
+		<property name="corpGroupMapper" ref="corpGroupEntitlementsDao" />
+	</bean>
+	
+	
+	<bean id="operationFeatureMapDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.core.paymentcenter.dao.OperationFeatureValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>		
+	
+	
+	<bean id="timeZoneDateOutPutFormat"
+		class="com.s1.arch.i18n.formatting.TimeZoneDateOutPutFormat" />
+		
+	<bean id="corpEntitlementGroupService" class="com.s1.app.corp.groups.CorpGroupServiceImpl" />
+	
+	
+	<bean id="entitlementsUtilService" class="com.s1.common.entitlement.user.EntitlementsUtilityImpl" />
+	
+
+	<bean id="userAccessScheduleDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.common.user.dao.UserAccessScheduleMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	<bean id="userAccessScheduleService" class="com.s1.common.accessschedule.UserAccessScheduleImpl">
+		<property name="mapper" ref="userAccessScheduleDao"/>
+	</bean>	
+	
+	<bean id="externalAcctDisclmrHistDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.common.disclaimer.eaov.dao.ExternalAcctDisclmrHistMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	<bean id="externalAcctDisclmrHistService" class="com.s1.common.disclaimer.eaov.ExternalAcctDisclmrHistServiceImpl">
+		<property name="mapper" ref="externalAcctDisclmrHistDao"/>
+	</bean>
+	
+	<bean id="featureOperationMappingService" class="com.s1.common.entitlement.extension.FeatureOperationMapping" />
+	
+	<bean id="cgqMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.common.customergroup.dao.CustomerGroupQueryMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="CosChangeMessagePublishServiceBean" class="com.s1.mq.CosChangeMessagePublishServiceBean">
+		<property name="cosParamMapper" ref="CosParamMapper" />		
+	</bean>	
+		
+	<bean id="userAndGrpEntlMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />		
+		<property name="sequenceService" ref="sequenceService" />
+		<property name="mapperInterface" value="com.s1.common.utils.reports.userandgrpentl.dao.UserAndGrpEntlMapper" />
+	</bean>
+
+	<bean id="loanNoteBalanceMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />		
+		<property name="sequenceService" ref="sequenceService" />
+		<property name="mapperInterface" value="com.s1.app.bank.accountInfoReport.loan.dao.LoanNoteBalanceMapper" />
+	</bean>
+
+	<bean id="compSysAdminGrpOperationList" class="org.springframework.beans.factory.config.ListFactoryBean">
+	<property name="sourceList">		
+		<list value-type="java.lang.String">
+			<value>/customer/payee/add</value>
+			<value>/company/user/entitlements/manage</value>
+			<value>/company/admin/prefs/manage</value>
+			<value>/company/admin/contact/manage</value>
+			<value>/system/holiday</value>
+		</list>		
+	</property>
+	</bean>
+
+	<bean id="ibanPlusService"
+		class="com.aci.payments.bank.ConcreteIBANPlusService" />	
+	<bean id="positivePayService"
+		class="com.s1.app.smallbiz.positivepay.PositivePayServiceBean" />
+</beans>

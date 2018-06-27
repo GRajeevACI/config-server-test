@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.arch.security.authorization.dao.UserEntitlementsUsersGroupsMapper" >
+
+	<cache size="7000" eviction="LRU" flushInterval="60000" />
+	
+  	<resultMap id="selectUserAccessType" type="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsValue" >
+		<result property="userAccessTypeCd"				column="UserAccessTypeCd"		jdbcType="INTEGER" />
+		<result property="customerOid"					column="BNKCustomerKy"			jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="principalOid"					column="ARCPrincipalKy"			jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="objectId"					    column="BNKUserKy"			    jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	</resultMap>
+	
+	<!-- The following select takes in corcustomerky, principalky for a user and a list of operations.
+	     The purpose of this select is to determine all the accounts for which this user has full acess to and then
+	     further filter these full access accounts based on which passed in operations match the operations
+	     enabled for that account at the customer account level (BNKCustAcctOprtn table).
+	-->
+	<select id="selectFullAccessAccountsByCustomerAccountOperations" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+			resultType="java.lang.String" useCache="false">
+		SELECT DISTINCT ARCTarget.name as "tgtName" 
+		FROM ARCGrant 
+		<if test="checkAgainstUserPrincipalGroups">
+			INNER JOIN BNKUserGrpVw ON ARCGrant.ARCPrincipalKy = BNKUserGrpVw.BNKCustUserGrpKy
+		</if>
+		, ARCTarget, ARCTargetType, BNKCustAcct, ARCOperation, BNKCustAcctOprtn
+        WHERE BNKCustAcct.BNKCustAcctKy = BNKCustAcctOprtn.BNKCustAcctKy
+            AND BNKCustAcct.CorCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+            AND <choose>
+	            	<when test="!checkAgainstUserPrincipalGroups">
+	            		ARCGrant.ARCPrincipalKy = #{principalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	            	</when>
+	            	<otherwise>
+	            		BNKUserGrpVw.UserPrincipalKy = #{principalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	            	</otherwise>
+            	</choose> 
+            AND ARCGrant.ARCTargetKy = ARCTarget.ARCTargetKy
+            AND ARCOperation.ARCOperationKy = ARCGrant.ARCOperationKy
+            AND ARCGrant.ARCOperationKy = #{operationOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+            AND CAST(BNKCustAcct.BNKAcctKy AS VARCHAR(64)) = ARCTarget.name
+            AND ARCTarget.ARCTargetTypeKy = ARCTargetType.ARCTargetTypeKy
+            AND BNKCustAcct.isAccountClosed=0
+			AND isSelected='1'
+			<if test="operationNames != null"> 
+			AND (
+				oprtnName IN
+				<foreach collection="operationNames" open="(" close=")" separator="," item="item">
+					#{item}
+				</foreach>
+				)
+			</if>
+	</select>
+
+	<!-- For "user a" who is fully entitled (Full - Provides the user grants to all entitlements plus future additions and removals)
+		 the application needs to determine all the accounts which are enabled at the customer-account level (BNKCustAcctOprtn table)
+		 for the passed in operations. 	 
+	-->
+	<select id="selectAccountsByCustomerAccountOperations" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+			resultType="java.lang.String" useCache="true">
+		SELECT BNKAcctKy
+        FROM BNKCustAcct, BNKCustAcctOprtn
+        WHERE BNKCustAcct.CorCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+            AND BNKCustAcct.BNKCustAcctKy = BNKCustAcctOprtn.BNKCustAcctKy
+            AND isSelected = 1
+            AND isAccountClosed=0
+            <if test="operationNames != null"> 
+            AND (
+				 oprtnName IN
+				<foreach collection="operationNames" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			)	
+			</if>
+	</select>
+
+	<!-- The following select takes in corcustomerky, principalky for a user and a list of operations.
+	     The purpose of this select is to determine all the accounts for which this user has full or 
+	     custom access to and then further filter these accounts based on which passed in operations 
+	     match the operations enabled for that account at the customer account level (BNKCustAcctOprtn table).
+	-->
+	<select id="selectEntitledAccountOidsByOperationsForCustomAccessUser" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+			resultType="java.lang.String" useCache="false">
+		SELECT DISTINCT BNKCustAcct.BNKAcctKy 
+		FROM ARCGrant 
+		<if test="checkAgainstUserPrincipalGroups">
+			INNER JOIN BNKUserGrpVw ON ARCGrant.ARCPrincipalKy = BNKUserGrpVw.BNKCustUserGrpKy
+		</if>
+		, ARCTarget, ARCTargetType, BNKCustAcct, ARCOperation, BNKCustAcctOprtn
+        WHERE BNKCustAcct.BNKCustAcctKy = BNKCustAcctOprtn.BNKCustAcctKy
+            AND BNKCustAcct.CorCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+            AND <choose>
+	            	<when test="!checkAgainstUserPrincipalGroups">
+	            		ARCGrant.ARCPrincipalKy = #{principalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	            	</when>
+	            	<otherwise>
+	            		BNKUserGrpVw.UserPrincipalKy = #{principalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	            	</otherwise>
+            	</choose> 
+            AND ARCGrant.ARCTargetKy = ARCTarget.ARCTargetKy
+            AND ARCOperation.ARCOperationKy = ARCGrant.ARCOperationKy
+            AND (ARCOperation.NAME = BNKCustAcctOprtn.OPRTNNAME or ARCOperation.NAME = '/dataop/user/account/full')
+            AND CAST(BNKCustAcct.BNKAcctKy AS VARCHAR(64)) = ARCTarget.name
+            AND ARCTarget.ARCTargetTypeKy = ARCTargetType.ARCTargetTypeKy
+            AND BNKCustAcct.isAccountClosed=0
+			AND isSelected='1'
+			<if test="operationNames != null"> 
+			AND (
+				oprtnName IN
+				<foreach collection="operationNames" open="(" close=")" separator="," item="item">
+					#{item}
+				</foreach>
+				)
+			</if>
+	</select>
+	
+	<!-- Checks GSSO services enablement in the product, product sub-type level. Returns accounts which are enabled for services-->
+	<select id="selectAccountsByGSSOEnablement" parameterType="map" 
+			resultType="java.lang.String" useCache="false">
+		SELECT a.BNKAcctKy FROM
+			(SELECT DISTINCT BNKAcct.BNKAcctKy as BNKAcctKy FROM BNKAcct, BNKGSSOProdCfg WHERE 
+				BNKAcct.BNKAcctKy IN 
+					<foreach collection="ACCTKYS" item="item" separator="," open="(" close=")">
+						#{item,jdbcType=INTEGER}
+					</foreach>
+				AND BNKAcct.BNKProductKy = BNKGSSOProdCfg.bnkproductky
+				AND BNKGSSOProdCfg.bnkgssocfgky	= (SELECT BNKGSSOCFGKY FROM BNKGSSOCFG WHERE SSOId = #{SSOID})
+				AND BNKGSSOProdCfg.ISPROVIDERSELECTED = 1) a
+		INNER JOIN
+			(SELECT DISTINCT BNKAcct.BNKAcctKy as BNKAcctKy FROM BNKAcct, BNKGSSOProdCfg, BNKProduct WHERE 
+				BNKAcct.BNKAcctKy IN 
+					<foreach collection="ACCTKYS" item="item" separator="," open="(" close=")">
+						#{item,jdbcType=INTEGER}
+					</foreach>
+				AND BNKAcct.BNKProductKy = BNKProduct.bnkproductky
+				AND BNKProduct.BNKProdSubTypeKy = BNKGSSOProdCfg.vfmProdSubTypeKy
+				AND BNKGSSOProdCfg.bnkgssocfgky	= (SELECT BNKGSSOCFGKY FROM BNKGSSOCFG WHERE SSOId = #{SSOID})
+				AND BNKGSSOProdCfg.ISPROVIDERSELECTED = 1 
+				AND BNKGSSOProdCfg.bnkproductky IS null) b
+		ON a.BNKAcctKy = b.BNKAcctKy
+	</select>
+		
+	<select id="isUserAuthorizedForOperations" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+			resultType="java.lang.String" useCache="false">
+		SELECT CASE WHEN COUNT(DISTINCT ARCGrant.ARCOperationKy)&gt;=
+		<choose>
+			<when test="!requireAll">1 </when>
+			<otherwise>#{operationsCount} </otherwise> 
+		</choose> 
+         THEN 1 ELSE 0 END
+        FROM ARCGRANT, ARCOPERATION
+        WHERE ARCPrincipalKy IN (SELECT ARCIDENTITY.ARCPRINCIPALKY
+                                 FROM ARCIDENTITY
+                                 WHERE ARCIDENTITY.userid = #{userId}
+                                 UNION
+                                 SELECT ARCPrincipalKyGrp
+                                    FROM ARCPRINCIPALGRP,ARCIDENTITY
+                                    WHERE ARCPRINCIPALGRP.ARCPRINCIPALKY = ARCIDENTITY.ARCPRINCIPALKY
+                                    AND ARCIDENTITY.userid = #{userId}
+                                 <if test="checkAgainstUserPrincipalGroups">   
+                                 UNION
+                                 SELECT userGrpsGrps.ARCPrincipalKyGrp
+                                    FROM ARCPRINCIPALGRP userGrpsGrps, ARCPRINCIPALGRP userGrp,ARCIDENTITY
+                                    WHERE userGrp.ARCPRINCIPALKY = ARCIDENTITY.ARCPRINCIPALKY
+                                    AND userGrp.ARCPrincipalKyGrp = userGrpsGrps.ARCPrincipalKy
+                                    AND ARCIDENTITY.userid = #{userId}  
+                                 </if>  
+                                 )
+            AND ARCGRANT.ARCOperationKy = ARCOPERATION.ARCOperationKy
+            AND ARCOPERATION.NAME IN
+            <foreach collection="operationsList" item="item" open="(" close=")" separator=",">
+            	#{item}
+            </foreach>
+            AND ISPOSITIVE = '1'
+	</select>
+
+	<select id="selectArcPrincipalKyGrpByPrincipal" parameterType="long" resultType="java.lang.String" useCache="false">
+		SELECT ARCPrincipalKyGrp 
+		FROM ARCPRINCIPALGRP 
+		WHERE ARCPrincipalKy = #{value}
+	</select>
+	
+	<select id="selectUserByPrincipal" parameterType="java.lang.String" resultMap="selectUserAccessType" useCache="false">
+		SELECT ARCIDENTITY.ARCPrincipalKy as ARCPrincipalKy, BNKCustomerKy, BNKUserKy, UserAccessTypeCd 
+		FROM BNKUSER, ARCIDENTITY 
+		WHERE ARCIDENTITY.ARCPrincipalKy = BNKUSER.ARCPrincipalKy 
+			AND userId = #{value}
+	</select>
+
+	<select id="selectUserAccessTypeByPrincipalOid" parameterType="long" resultType="java.lang.String" useCache="false">
+		SELECT UserAccessTypeCd FROM BNKUSER WHERE ARCPrincipalKy = #{value}
+	</select>
+	
+	<select id="selectCustomerAccountOperations" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+			resultType="java.lang.String" useCache="false">
+		SELECT BNKCustAcctOprtn.OprtnName 
+		FROM BNKCustAcctOprtn, BNKCustAcct
+		WHERE BNKCustAcctOprtn.BNKCustAcctKy = BNKCustAcct.BNKCustAcctKy
+			AND BNKCustAcct.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND BNKCustAcct.BNKAcctKy = #{accountOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND isSelected = 1
+	</select>
+	
+	<select id="isClassOfServiceCustomizedForThisCustomer" parameterType="com.s1.arch.utilities.ObjectId" resultType="java.lang.String" useCache="false">
+		SELECT ISCOSCUSTOMIZED FROM BNKCUSTOMER WHERE BNKCustomerKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+	
+	<select id="selectAuthorizedOperationsForThisCustomer" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+		resultType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsValue" useCache="false">
+		SELECT BNKFUNCOPRTN.operationName as operationName, BNKFUNCOPRTN.featCd as featCd
+		FROM BNKSVCFEATURE, BNKFEATURE, BNKFUNCOPRTN, BNKCUSTOMER
+		WHERE BNKCUSTOMER.BNKClassOfSvcKy = BNKSVCFEATURE.BNKClassOfSvcKy
+			AND BNKCUSTOMER.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND <if test="classOfServiceCustomized"> BNKCUSTOMER.BNKCustomerKy = BNKSVCFEATURE.BNKCustomerKy </if> 
+				<if test="!classOfServiceCustomized"> BNKSVCFEATURE.BNKCustomerKy IS NULL </if>				
+			AND BNKSVCFEATURE.BNKFeatureKy = BNKFEATURE.BNKFeatureKy
+			AND BNKSVCFEATURE.isActive = 1
+			AND BNKFEATURE.featCd = BNKFUNCOPRTN.featCd			
+			AND ( 
+				 BNKFEATURE.featCd = '61' OR  BNKSVCFEATURE.CRDRTYPECD IS NULL OR BNKSVCFEATURE.CRDRTYPECD='B' 
+				 OR (
+					 	(BNKSVCFEATURE.CRDRTYPECD='C' AND BNKFUNCOPRTN.GROUPNAME like '%/credits') 
+					 	OR	(BNKSVCFEATURE.CRDRTYPECD='D' AND BNKFUNCOPRTN.GROUPNAME like '%/debits') 
+					 )
+				)
+		<if test="principalOid != null" >
+			UNION ALL
+			SELECT DISTINCT D.NAME as operationName, 999 as featcd 
+			FROM  ARCPRINCIPALGRP a 
+			<if test="checkAgainstUserPrincipalGroups">
+				, ARCPRINCIPALGRP b
+			</if>
+			, ARCGRANT c, ARCOPERATION  d
+			WHERE a.arcprincipalky = #{principalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			<choose>
+	            <when test="checkAgainstUserPrincipalGroups">
+					AND a.arcprincipalkygrp = b.arcprincipalky
+					AND b.arcprincipalkygrp = c.arcprincipalky
+				</when>
+				<otherwise>
+					AND a.arcprincipalkygrp = c.arcprincipalky
+				</otherwise>
+			</choose>	
+				AND c.arcoperationky = d.arcoperationky
+		</if>	
+			
+	</select>
+	<select id="selectValOfParmWhichDriveEnttlmntForThisCust" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm"
+	resultType="java.lang.String" useCache="false">
+		SELECT BNKCOSPARMTYPE.fieldname
+		FROM BNKCOSPARM  , BNKCOSPARMTYPE 
+		WHERE BNKCOSPARM.BNKCOSPARMTYPEKY = BNKCOSPARMTYPE.BNKCOSPARMTYPEKY 
+		AND BNKCOSPARMTYPE.FIELDNAME IN  
+		<foreach collection="operationsList" item="item" open="(" close=")" separator=",">
+            	#{item}
+        </foreach>
+		<if test="classOfServiceCustomized">AND  BNKCOSPARM.BNKCUSTOMERKY=#{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}</if>
+		<if test="!classOfServiceCustomized">
+		AND BNKCOSPARM.BNKCLASSOFSVCKY = (
+				SELECT BNKCLASSOFSVCKY 
+				FROM BNKCUSTOMER 
+				WHERE BNKCUSTOMERKY=#{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			)
+		AND BNKCOSPARM.BNKCUSTOMERKY is NULL
+		</if>
+		and BNKCOSPARM.parmvalue='true'
+	</select>
+	<!-- <select id="selectAuthorizedOperationsForThisCustomerTest" parameterType="com.s1.arch.utilities.ObjectId" 
+		resultType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsValue" useCache="false">	
+         SELECT  operationName, BNKCUSTOMERKY, OperationRank FROM (
+	            SELECT BNKFUNCOPRTN.operationName, BNKCUSTOMER.BNKCUSTOMERKY, row_number() over(PARTITION BY BNKFUNCOPRTN.operationName Order by BNKSVCFEATURE.BNKCUSTOMERKY ) as OperationRank
+	            FROM
+	                BNKCUSTOMER
+	                INNER JOIN BNKSVCFEATURE ON BNKCUSTOMER.BNKCLASSOFSVCKY=BNKSVCFEATURE.BNKCLASSOFSVCKY
+	                INNER JOIN BNKFEATURE ON BNKSVCFEATURE.BNKFEATUREKY = BNKFEATURE.BNKFEATUREKY
+	                INNER JOIN BNKFUNCOPRTN ON BNKFEATURE.FEATCD = BNKFUNCOPRTN.FEATCD
+	            WHERE
+	                BNKCUSTOMER.BNKCustomerKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	                AND BNKSVCFEATURE.isActive = 1 )
+            WHERE OperationRank = 1
+	</select> -->
+	
+	<select id="selectGrantsCountByTargetType" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" 
+			resultType="java.lang.String" useCache="false">
+		SELECT COUNT(ARCGrantKy) FROM ARCGRANT, ARCPRINCIPAL, ARCTARGET, ARCTARGETTYPE
+		WHERE ARCPRINCIPAL.ARCPrincipalKy = ARCGRANT.ARCPrincipalKy
+			AND ARCGRANT.ARCTargetKy = ARCTARGET.ARCTargetKy 
+			AND ARCTARGET.ARCTargetTypeKy = ARCTARGETTYPE.ARCTargetTypeKy
+			AND ARCTARGETTYPE.ARCTargetTypeKy = #{targetTypeOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND ARCPRINCIPAL.name = #{userId}
+	</select>
+	
+	<select id="selectApprovalGrantsCountByPrincipal" parameterType="java.lang.String" resultType="java.lang.String" useCache="false">
+		SELECT COUNT(ARCGrantKy) FROM ARCGRANT, ARCPRINCIPAL, ARCTARGET, ARCOPERATION, BNKFUNCOPRTN
+		WHERE ARCPRINCIPAL.ARCPrincipalKy = ARCGRANT.ARCPrincipalKy
+			AND ARCGRANT.ARCTargetKy = ARCTARGET.ARCTargetKy 
+			AND ARCPRINCIPAL.name = #{userId} 
+			AND ARCTARGET.ARCTargetTypeKy IN (SELECT ARCTargetTypeKy FROM ARCTARGETTYPE WHERE Name = 'ApprovalType' OR Name = '20040723154236:113745e2:fdec6b0d6f:S1:PLAT:NoneTargetType')
+			AND ARCGRANT.ARCOperationKy = ARCOPERATION.ARCOperationKy
+			AND ARCOPERATION.name &lt;&gt; BNKFUNCOPRTN.operationName
+	</select>
+	
+	<select id="getPendingUsersFromUserOids" parameterType="java.util.List" resultType="com.s1.arch.utilities.ObjectId">
+		SELECT DISTINCT BNKUSERKY
+		FROM BNKPENDINGUSER
+		WHERE ISUSERGROUP='1' AND BNKUSERKY IN
+		<foreach collection="list" item="item" separator="," open="(" close=")">
+			#{item,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		</foreach>		
+	</select>
+
+		 
+	<select id="getUsersByCosOid" parameterType="map" resultMap="selectUserAccessType" useCache="false">
+		SELECT distinct a.BNKCUSTOMERKY as BNKCustomerKy, c.BNKUSERKY as BNKUserKy,c.arcprincipalky as principalOid
+		FROM BNKCUSTOMER a, BNKCLASSOFSVC b, BNKUSER c 
+		
+		WHERE c.BNKCUSTOMERKY=a.BNKCUSTOMERKY
+		<if test="BNKCLASSOFSVCKY != null">
+			AND b.BNKCLASSOFSVCKY = #{BNKCLASSOFSVCKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND a.BNKCLASSOFSVCKY = b.BNKCLASSOFSVCKY
+		</if>
+			<choose>
+				<when test="null != BNKCUSTOMERKY"> 
+					AND a.BNKCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 			
+				</when>
+				<otherwise>
+					AND a.ISCOSCUSTOMIZED='0'
+				</otherwise>
+			</choose> 			
+	</select>
+	 <update id="deleteIndividualUserSetupGrants" statementType="CALLABLE" parameterType="map">
+        { call BNKRmIndvlEntlSp(#{v_BNKCustomerKy}, #{v_PrincipalKy}) }
+    </update>
+    <select id="getFeatureCount" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT count(*)
+		FROM BNKSVCFEATURE, BNKFEATURE, BNKFUNCOPRTN, BNKCUSTOMER
+		WHERE BNKCUSTOMER.BNKClassOfSvcKy = BNKSVCFEATURE.BNKClassOfSvcKy
+		AND BNKCUSTOMER.BNKCustomerKy = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND <if test="ISCOSCUSTOMIZED"> BNKCUSTOMER.BNKCustomerKy = BNKSVCFEATURE.BNKCustomerKy </if> 
+		<if test="!ISCOSCUSTOMIZED"> BNKSVCFEATURE.BNKCustomerKy IS NULL </if>				
+		AND BNKSVCFEATURE.BNKFeatureKy = BNKFEATURE.BNKFeatureKy
+		AND BNKSVCFEATURE.isActive = 1
+		AND BNKFEATURE.featCd = BNKFUNCOPRTN.featCd
+		AND BNKFUNCOPRTN.featCd IN
+		<foreach collection="FEATCDS" item="item" separator="," open="(" close=")">
+			#{item,jdbcType=INTEGER}
+		</foreach> 
+	</select>
+	
+	<select id="getUsersEmailAddress" parameterType="com.s1.arch.utilities.ObjectId" resultType="java.lang.String" useCache="false">
+		select emailAddress from BNKUser where BNKUserKy = #{id}
+	</select>
+			
+</mapper>

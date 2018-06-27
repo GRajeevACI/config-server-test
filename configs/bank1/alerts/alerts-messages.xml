@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="pwdChgAlrtHtm"><![CDATA[<html><head></head><body><p>Your password has been changed or reset for your online banking profile. If you did not initiate this change, please contact {0} at {1} immediately.</p></body></html>]]></entry>
+	<entry key="newUsrAlrtHtm"><![CDATA[<html><head></head><body><p>A new user has been added to your online banking profile. If you did not initiate this change, please contact {0} at {1} immediately.</p></body></html>]]></entry>
+	<entry key="secMsgNtHtm"><![CDATA[<html><head></head><body><p>You have received a new secure message in your online banking message inbox. Please log into your online banking to view this important message from {0}.</p></body></html>]]></entry>
+</properties>

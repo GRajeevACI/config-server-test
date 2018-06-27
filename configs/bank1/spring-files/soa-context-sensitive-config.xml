@@ -1,0 +1,2047 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<util:map id="contextSensitiveConfigMap">
+		<entry key="GLOBAL">
+			<map>
+				<entry key="currencyDisplay" value-ref="currencyDisplayRule"></entry>
+				<entry key="accountDisplay" value-ref="accountDisplaySetting"></entry>
+				<entry key="shortTimezoneDisplay" value-ref="shortTimeZoneLabel"></entry>
+				<entry key="longTimezoneDisplay" value-ref="longTimeZoneLabel"></entry>
+				<entry key="negativeAmountDisplay" value-ref="negativeAmountDisplayRule"></entry>
+				<entry key="negativeAmountColorDisplay" value-ref="negativeAmountColorRule"></entry>
+				<entry key="exitUrl" value-ref="exitUrlRule"></entry>
+		   </map>
+		</entry>
+		<entry key="Password">
+			<map>
+				<entry key="manualEntry" value-ref="manualPasswordEntryRule"></entry>
+				<entry key="displayPassword" value-ref="passwordDisplayRule"></entry>
+		   </map>
+		</entry>
+		<entry key="CCDPayment">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PPDPayment">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="RCKPayment">
+			<map>
+				<entry key="isRckFeeAllowed" value-ref="isRckFeeAllowed"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="WEBPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="TELPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="IATPayment">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="DOMIATPayment">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="CHILDPayment">
+			<map>
+				<entry key="isCredit" value="true" />
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="CTXPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="TAXPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="DIRDEPPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYINDPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLINDWRPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYBUSPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLBUSPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYCHILDPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLRETCHPayment">
+			<map>
+				<entry key="isRckFeeAllowed" value-ref="isRckFeeAllowed"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYTAXPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLINDTELPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLINDWEBPayment">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="DIRDEPTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYINDTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLINDWRTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYBUSTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLBUSTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYCHILDTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLRETCHTemplate">
+			<map>
+				<entry key="isRckFeeAllowed" value-ref="isRckFeeAllowed"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PAYTAXTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLINDTELTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="COLLINDWEBTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="CCDTemplate">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PPDTemplate">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="RCKTemplate">
+			<map>
+				<entry key="isRckFeeAllowed" value-ref="isRckFeeAllowed"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="WEBTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="TELTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="IATTemplate">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="DOMIATTemplate">
+			<map>
+				<entry key="isCredit" value-ref="isCreditFieldAvailableRule"></entry>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="CHILDTemplate">
+			<map>
+				<entry key="isCredit" value="true" />
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="CTXTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="TAXTemplate">
+			<map>
+				<entry key="achPaymentContext" value-ref="achPaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="INTTransfer">
+			<map>
+				<entry key="transferContext" value-ref="transferContext">
+				</entry>
+			</map>
+		</entry>
+		 
+		<entry key="XFERRULETransfer">
+			<map>
+				<entry key="transferRuleContext" value-ref="transferRuleContext">
+				</entry>
+			</map>
+		</entry>		
+		 
+		<entry key="INTTransferTemplate">
+			<map>
+				<entry key="transferTemplateContext" value-ref="transferTemplateContext">
+				</entry>
+			</map>
+		</entry>
+		<entry key="USWIREPayment">
+			<map>
+				<entry key="isRemittanceEnabled" value-ref="isRemittanceEnabled"></entry>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="INTLWIREPayment">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="BOOKWIREPayment">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="DRAWDOWNPayment">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="FEDTAXPayment">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="MULTIBANKPayment">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="USWIRETemplate">
+			<map>
+				<entry key="isRemittanceEnabled" value-ref="isRemittanceEnabled"></entry>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="INTLWIRETemplate">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="BOOKWIRETemplate">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="DRAWDOWNTemplate">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="FEDTAXTemplate">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		<entry key="MULTIBANKTemplate">
+			<map>
+				<entry key="wirePaymentContext" value-ref="wirePaymentContextMap">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="PaymentCenterAll">
+			<map>
+				<entry key="paymentCenterAllContext" value-ref="paymentCenterAllContext">
+				</entry>
+			</map>
+		</entry>
+		<entry key="PaymentCenterPending">
+			<map>
+				<entry key="paymentCenterPendingContext" value-ref="paymentCenterPendingContext">
+				</entry>
+			</map>
+		</entry>
+				
+		<entry key="AcctBalanceWidget">
+			<map>
+				<entry key="maximumAccounts" value-ref="acctBalMaximumAccountsFieldAvailableRule"></entry>
+				<entry key="userAccountCount" value-ref="dashboardEligibalAcctFieldAvailableRule"></entry>
+				<entry key="hasAllAccountsView" value-ref="allAccountsViewFieldAvailableRule"></entry>
+				<entry key="defaultView" value-ref="defaultViewFieldAvailableRule"></entry>				
+			</map>
+		</entry>		
+		
+		<entry key="ImportProfiles">
+			<map>
+				<entry key="achImportEnabled" value-ref="isACHImportEnabled"></entry>
+				<entry key="wireImportEnabled" value-ref="isWireImportEnabled"></entry>
+				<entry key="isEntitledPaymentExecute" value-ref="isEntitledPaymentExecute"></entry>
+				<entry key="isEntitledTemplateExecute" value-ref="isEntitledTemplateExecute"></entry>
+				<entry key="isEntitledManageTemplate" value-ref="isEntitledManageTemplate"></entry>
+				<entry key="isEntitledManagePayment" value-ref="isEntitledManagePayment"></entry>
+				<entry key="isEntitledManageRecipient" value-ref="isEntitledManageRecipient"></entry>
+				<entry key="isBasicAchEnabled" value-ref="isBasicAchEnabled"></entry>
+				<entry key="isRemittanceEnabled" value-ref="isRemittanceEnabled"></entry>
+			</map>
+		</entry>	
+		
+		<entry key="ImportHistory">
+			<map>
+				<entry key="shortTimezoneLabel" value-ref="shortTimeZoneLabel"></entry>
+				<entry key="longTimeZoneLabel" value-ref="longTimeZoneLabel"></entry>
+			</map>
+		</entry>
+		
+ 		<entry key="ExportProfiles">
+			<map>
+				<entry key="isEntitledPaymentExecuteExport" value-ref="isEntitledPaymentExecuteExport"></entry>
+				<entry key="isEntitledTemplateExecuteExport" value-ref="isEntitledTemplateExecuteExport"></entry>
+				<entry key="isEntitledManageTemplateExport" value-ref="isEntitledManageTemplateExport"></entry>
+				<entry key="isEntitledManagePaymentExport" value-ref="isEntitledManagePaymentExport"></entry>
+				<entry key="isEntitledManageRecipientExport" value-ref="isEntitledManageRecipientExport"></entry>
+				<entry key="isEntitledRecipientExecuteExport" value-ref="isEntitledRecipientExecuteExport"></entry>
+				<entry key="isBasicAchEnabled" value-ref="isBasicAchEnabled"></entry>
+			</map>
+		</entry> 
+		
+		<entry key="EXTACCTTransfer">
+			<map>
+				<entry key="isEntitledToCreateExternalAccount" value-ref="isUserCreateExternalAccounts"></entry>
+				<entry key="isEntitledToDeleteExternalAccount" value-ref="isUserDeleteExternalAccounts"></entry>
+				<entry key="isEntitledToViewExternalAccount" value-ref="isUserViewExternalAccounts"></entry>
+			</map>
+		</entry>
+		
+		<entry key="WIRETemplateGroup">
+			<map>
+				<entry key="isWireTemplateEnabled" value-ref="isWireTemplateAvailableRule"></entry>
+			</map>
+		</entry>
+		
+		
+		<entry key="BalanceChartWidget">
+			<map>
+				<entry key="currentDayFunctional" value-ref="balChartCdayFieldAvailableRule"></entry>
+				<entry key="priorDayFunctional" value-ref="balChartPdayFieldAvailableRule"></entry>						
+			</map>
+		</entry>
+		
+		<entry key="AccountActivity">
+			<map>
+				<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+				<entry key="defaultSortOrder" value-ref="acctActivitySortOrderFieldAvailableRule"></entry>
+				<entry key="columnFormat" value-ref="acctActivityColumnFormatFieldAvailableRule"></entry>
+				<entry key="runningBalance" value-ref="acctActivityRunningBalanceFieldAvailableRule"></entry>							
+			</map>
+		</entry>
+		
+		<entry key="USWIRERECPADDRESS">
+			<map>
+				<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"/>
+			</map>
+		</entry>
+		
+		<entry key="INTLWIRERECPADDRESS">
+			<map>
+				<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"/>
+			</map>
+		</entry>
+		
+		<entry key="MULTIBANKRECPADDRESS">
+			<map>
+				<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"/>
+			</map>
+		</entry>
+		
+		<entry key="BOOKWIRERECPADDRESS">
+			<map>
+				<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"/>
+			</map>
+		</entry>
+				
+		<entry key="AccountStatements">
+			<map>
+				<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>											
+			</map>
+		</entry>
+		
+		<entry key="Users">
+		    <map>
+		    	<entry key="isUserGroupEnabled" value-ref="userGroupRule" ></entry>
+				<entry key="userDualApproval" value-ref="userDualApprovalRule"></entry>
+				<entry key="functionalType" value-ref="functionalTypeRule"></entry>
+				<entry key="achType" value-ref="achTypeRule"></entry>
+				<entry key="isDisplayExternalAuthID" value-ref="isDisplayExternalAuthID"></entry>				
+				<entry key="isDisplayEnabledForSecurityQuestion" value-ref="SecurityQuestionConfiguration"/>
+				<entry key="isDisplayEnabledForDateOfBirth" value-ref="DateOfBirthConfiguration"/>
+				<entry key="isDisplayEnabledForTaxId" value-ref="TaxIdConfiguration"/>
+				<entry key="isDisplayBillingAccount" value-ref="BillingAccountConfiguration"/>
+			</map>
+		</entry>
+		
+		<entry key="UserGroups">
+		    <map>
+				<entry key="userDualApproval" value-ref="userDualApprovalRule"></entry>
+				<entry key="functionalType" value-ref="functionalTypeRule"></entry>
+				<entry key="achType" value-ref="achTypeRule"></entry>				
+			</map>
+		</entry>	
+		<entry key="PanelAuth">
+		    <map>
+				<entry key="panelDualApprovalRule" value-ref="panelDualApprovalRule"></entry>
+			</map>
+		</entry>
+		
+		<entry key="SecureMessage">
+			<map>
+				<entry key="attachmentEnabled" value-ref="attachmentEnabled"></entry>
+				<entry key="expiryDate" value-ref="expiryDate"></entry>						
+			</map>
+		</entry>	
+		<entry key="MasterRecipient">
+			<map>
+				<entry key="isDualApproval" value-ref="masterRecipientDualApproveRule"></entry>	
+				<entry key="approveOnSubmit" value-ref="masterRecipientApproveOnSubmitRule"></entry>
+				<entry key="canManageMasterList" value-ref="manageThirdPartyAvailableRule"></entry>								
+				<entry key="isBasicACHEnabled" value-ref="basicACHEnabledAvailableRule"></entry>
+				<entry key="isIATEnabled" value-ref="achIATInternationalEnabledAvailableRule"></entry>								
+			</map>
+		</entry>
+		<entry key="SyncAccountsAtLogin">
+			<map>
+				<entry key="syncAccountsAtLogin" value-ref="syncAccountsAtLoginFieldAvailableRule"></entry>										
+			</map>
+		</entry>
+		
+		<entry key="StopPay">
+			<map>
+				<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+				<entry key="confirmationConfig" value-ref="confirmationConfig"></entry>			
+				<entry key="isAmountRequired" value-ref="isAmountRequired"></entry>
+				<entry key="isReasonRequired" value-ref="isReasonRequired"></entry>
+				<entry key="authReq" value-ref="authorizationRequired"></entry>
+				<entry key="viewEntitledStopPay" value-ref="viewEntitledStopPay"></entry>
+				<entry key="modifiedEntitledStopPay" value-ref="modifiedEntitledStopPay"></entry>
+				<entry key="isAmountRequiredCancelStopPay" value-ref="isAmountRequiredCancelStopPay"></entry>
+			</map>
+		</entry>
+
+		<entry key="issueMaintenance">
+			<map>
+				<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+				<entry key="issueMaintenanceContext" value-ref="issueMaintenanceContext">
+				</entry>
+				<entry key="isIssueAddAmountRequired" value-ref="isIssueAddAmountRequired"></entry>
+				<entry key="isIssueDeleteAmountRequired" value-ref="isIssueDeleteAmountRequired"></entry>
+				<entry key="isVoidAddAmountRequired" value-ref="isVoidAddAmountRequired"></entry>
+				<entry key="isVoidDeleteAmountRequired" value-ref="isVoidDeleteAmountRequired"></entry>
+				<entry key="viewIssueEntitled" value-ref="viewIssueEntitled"></entry>
+				<entry key="viewVoidEntitled" value-ref="viewVoidEntitled"></entry>
+				<entry key="issueModifyEntitled" value-ref="issueModifyEntitled"></entry>				
+				<entry key="voidModifyEntitled" value-ref="voidModifyEntitled"></entry>
+				<entry key="issueDeleteEntitled" value-ref="issueDeleteEntitled"></entry>	
+				<entry key="voidDeleteEntitled" value-ref="voidDeleteEntitled"></entry>				
+				<entry key="issueMaintenanceContext" value-ref="issueMaintenanceContext">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="achAuthorization">
+			<map>
+				<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+				<entry key="isPepPlusEnabled" value-ref="isPepPlusEnabled"></entry>
+				<entry key="achAuthCreateEntitled" value-ref="achAuthCreateEntitled"></entry>
+				<entry key="achAuthViewEntitled" value-ref="achAuthViewEntitled"></entry>
+				<entry key="achAuthDeleteEntitled" value-ref="achAuthDeleteEntitled"></entry>
+			</map>
+		</entry>
+		
+		<entry key="fileUpload">
+			<map>
+				<entry key="isAuthorizedToUpload" value-ref="isAuthorizedToUpload"></entry>
+				<entry key="isAuthorizedToTransmit" value-ref="isAuthorizedToTransmit"></entry>
+				<entry key="isAuthorizedToApprove" value-ref="isAuthorizedToApprove"></entry>				
+			</map>
+		</entry>
+		
+		<entry key="uploadProfile">
+			<map>
+				<entry key="isIssueAddAmountRequired" value-ref="isIssueAddAmountRequired"></entry>
+				<entry key="isIssueDeleteAmountRequired" value-ref="isIssueDeleteAmountRequired"></entry>
+				<entry key="isVoidAddAmountRequired" value-ref="isVoidAddAmountRequired"></entry>
+				<entry key="isVoidDeleteAmountRequired" value-ref="isVoidDeleteAmountRequired"></entry>
+				<entry key="isIssueAddDateRequired" value-ref="isIssueAddDateRequired"></entry>
+				<entry key="isIssueDeleteDateRequired" value-ref="isIssueDeleteDateRequired"></entry>
+				<entry key="isVoidAddDateRequired" value-ref="isVoidAddDateRequired"></entry>
+				<entry key="isVoidDeleteDateRequired" value-ref="isVoidDeleteDateRequired"></entry>
+				<entry key="showNotesContent" value-ref="showNotesContent"></entry>
+				<entry key="uploadProfileCondFieldSymbol" value-ref="uploadProfileCondFieldSymbol"></entry>				
+			</map>
+		</entry>
+		
+		<entry key="positivePay">
+			<map>
+				<entry key="positivePayContext" value-ref="positivePayContext">
+				</entry>
+			</map>
+		</entry>
+		
+		<entry key="reportDelivery">
+			<map>
+				<entry key="isCreateReportDeliveryEntitled" value-ref="isCreateReportDeliveryEntitled" />
+				<entry key="isEditEmailReportDeliveryEntitled" value-ref="isEditEmailReportDeliveryEntitled" />
+				<entry key="isEditFaxReportDeliveryEntitled" value-ref="isEditFaxReportDeliveryEntitled" />
+				<entry key="isDeleteEmailReportDeliveryEntitled" value-ref="isDeleteEmailReportDeliveryEntitled" />
+				<entry key="isDeleteFaxReportDeliveryEntitled" value-ref="isDeleteFaxReportDeliveryEntitled" />
+			</map>
+		</entry>		
+		
+		<entry key="SessionTimeout">
+			<map>
+				<entry key="sessionTimeOut" value-ref="sessionTimeOut"/>
+			</map>
+		</entry>
+		
+		<entry key="defaultScreenContext">
+			<map>
+				<entry key="defaultScreenContext" value-ref="defaultScreenContextMap"/>
+			</map>
+		</entry>
+		
+		<entry key="COLLINDPayment">
+		<map>
+			<entry key="COLLINDPaymentContext" value-ref="COLLINDPaymentContextMap">
+			</entry>
+		</map>
+	</entry>
+	
+	<entry key="COLLINDTemplate">
+		<map>
+			<entry key="COLLINDTemplateContext" value-ref="COLLINDTemplateContextMap">
+			</entry>
+		</map>
+	</entry>
+	
+	<entry key="priorCurrentDay">
+		<map>
+			<entry key="isElrEntitled" value-ref="isElrEntitled" />
+			<entry key="isCurrentDayRefreshDataOn" value-ref="isCurrentDayRefreshDataOn" />
+		</map>
+	</entry>
+	
+	<entry key="currentDayRefreshData">
+		<map>
+			<entry key="isCurrentDayRefreshDataOn" value-ref="isCurrentDayRefreshDataOn" />
+		</map>
+	</entry>
+	
+	<entry key="alertDestinationConfirmationCodeNeeded">
+		<map>
+			<entry key="confirmationCodeNeeded" value-ref="confirmationCodeNeeded"></entry>
+		</map>
+	</entry>
+	
+	<entry key="USWireDualWorkFlows">
+		<map>
+			<entry key="USWireDualWorkFlow" value-ref="USWireDualWorkFlowEnabled"></entry>
+			<entry key="USWireRecievingCheckbox" value-ref="USWireRecievingCheckboxEnabled"></entry>
+			<entry key="USIntlWireRecieving" value-ref="USIntlWireRecievingSectionEnabled"></entry>
+			<entry key="USIntlWireIntermediary" value-ref="USIntlWireIntermediarySectionEnabled"></entry>
+			<entry key="USIntlWireCorrespondentIntermediary" value-ref="USIntlWireCorrespondentIntermediarySectionEnabled"></entry>
+			<entry key="USIntlWireCorrespondentRecieving" value-ref="USIntlWireCorrespondentRecievingSectionEnabled"></entry>
+		</map>
+	</entry>
+			
+	</util:map>
+
+	<util:map id="achPaymentContextMap">
+		<entry key="isDebit" value-ref="isDebitFieldAvailableRule"></entry>
+		<entry key="approveOnSubmit" value-ref="isApproveOnSubmitFieldAvailableRule"></entry>
+		<entry key="approveOnSubmitRepPmt" value-ref="isApproveOnSubmitRepPmtRule"></entry>
+		<entry key="saveAsTemplate" value-ref="isSaveAsTemplateFieldAvailableRule"></entry>
+		<entry key="prenote" value-ref="isPrenoteFieldAvailableRule"></entry>
+		<entry key="prenoteExpiryDate" value-ref="prenoteExpiryDateFieldAvailableRule"></entry>
+		<entry key="isUserConfidential" value-ref="isUserMangeConfidentialRule"></entry>
+		<entry key="recipientApproveOnSubmit" value-ref="isRecipientApproveOnSubmitRule"></entry>
+		<entry key="templateApproveOnSubmit" value-ref="templateApproveOnSubmitRule"></entry>
+		<entry key="offsetValue" value-ref="offsetValueRule"></entry>
+		<entry key="nextScheduledDate" value-ref="scheduledDateRule"></entry>
+		<entry key="canUserDeletePayment" value-ref="canUserDeletePaymentRule"></entry>
+		<entry key="canUserModifyPayment" value-ref="canUserModifyPaymentRule"></entry>
+		<entry key="isRecipientImport" value-ref="isRecipientImport"></entry>
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+		<entry key="allowOverideApproval" value-ref="allowOverideApproval"/>
+		<entry key="shortTimezoneLabel" value-ref="shortTimeZoneLabel"></entry>	
+		<entry key="longTimeZoneLabel" value-ref="longTimeZoneLabel"></entry>	
+	</util:map>
+	
+	<util:map id="wirePaymentContextMap">
+		<entry key="approveOnSubmit" value-ref="isApproveOnSubmitFieldAvailableRule"></entry>
+		<entry key="saveAsTemplate" value-ref="isSaveAsTemplateFieldAvailableRule"></entry>
+		<entry key="approveOnSubmitRepPmt" value-ref="isApproveOnSubmitRepPmtRule"></entry>
+		<entry key="templateApproveOnSubmit" value-ref="templateApproveOnSubmitRule"></entry>
+		<entry key="recipientApproveOnSubmit" value-ref="isRecipientApproveOnSubmitRule"></entry>
+		<entry key="nextScheduledDate" value-ref="scheduledDateRule"></entry>
+		<entry key="canUserDeletePayment" value-ref="canUserDeletePaymentRule"></entry>
+		<entry key="canUserModifyPayment" value-ref="canUserModifyPaymentRule"></entry>
+		<entry key="isRecipientImport" value-ref="isRecipientImport"></entry>
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+		<entry key="allowOverideApproval" value-ref="allowOverideApproval"/>
+		<entry key="mustBeStandardBank" value-ref="mustBeStandardBank"></entry>
+	</util:map>
+	
+	
+	<util:map id="COLLINDPaymentContextMap">
+		<entry key="COLLINDWRPaymentEnabled" value-ref="COLLINDWRPaymentEnabledRule"></entry>
+		<entry key="COLLINDTELPaymentEnabled" value-ref="COLLINDTELPaymentEnabledRule"></entry>
+		<entry key="COLLINDWEBPaymentEnabled" value-ref="COLLINDWEBPaymentEnabledRule"></entry>
+	</util:map>
+	
+	<util:map id="COLLINDTemplateContextMap">
+		<entry key="COLLINDWRTemplateEnabled" value-ref="COLLINDWRTemplateEnabledRule"></entry>
+		<entry key="COLLINDTELTemplateEnabled" value-ref="COLLINDTELTemplateEnabledRule"></entry>
+		<entry key="COLLINDWEBTemplateEnabled" value-ref="COLLINDWEBTemplateEnabledRule"></entry>
+	</util:map>
+	
+	<util:map id="transferContext">
+		<entry key="nextScheduledDate" value-ref="scheduledDateRule"></entry>
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>		
+		<entry key="centerFromDate" value-ref="transferFromDateRule"/>
+		<entry key="centerToDate" value-ref="transferToDateRule"/>
+		<entry key="currencyEnabled" value-ref="transferCenterCurrencyEnabledRule"/>
+		<entry key="approveOnSubmit" value-ref="transferApproveOnsubmitRule"></entry>
+		<entry key="createTemplate" value-ref="transferTemplateCreateRule"></entry>
+		<entry key="repetitiveApproveOnSubmit" value-ref="repetitiveTransferApproveOnsubmitRule"></entry>
+		<entry key="isScheduleTimeHidden" value-ref="isScheduleTimeHidden"></entry>
+	</util:map>
+    	<util:map id="transferRuleContext">
+		<entry key="nextScheduledDate" value-ref="scheduledDateRule"></entry>
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+		<entry key="approveOnSubmit" value-ref="transferRuleApproveOnsubmitRule"></entry>
+		<entry key="userCanDelete" value-ref="isUserCanDeleteTransferRule"></entry>
+	</util:map>
+	
+	<util:map id="USWIRERECPADDRESS">
+		<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"></entry>
+	</util:map>
+	
+	<util:map id="INTLWIRERECPADDRESS">
+		<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"></entry>
+	</util:map>
+	
+	<util:map id="MULTIBANKRECPADDRESS">
+		<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"></entry>
+	</util:map>
+	
+	<util:map id="BOOKWIRERECPADDRESS">
+		<entry key="recpAddressMandatoryConfig" value-ref="recpAddressMandatoryConfig"></entry>
+	</util:map>
+	
+	<util:map id="transferTemplateContext">
+		<entry key="nextScheduledDate" value-ref="scheduledDateRule"></entry>
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>		
+		<entry key="centerFromDate" value-ref="transferFromDateRule"/>
+		<entry key="centerToDate" value-ref="transferToDateRule"/>
+		<entry key="currencyEnabled" value-ref="transferCenterCurrencyEnabledRule"/>
+		<entry key="transferTemplateApproveOnsubmitRule" value-ref="transferTemplateApproveOnsubmitRule"></entry>
+		<entry key="allowOverideApproval" value-ref="allowOverideApproval"></entry>
+		<entry key="isUserApprover" value-ref="isUserApproverTransferTemplates"></entry>
+		<entry key="userCanDelete" value-ref="isUserCanDeleteTransferTemplates"></entry>
+	</util:map>
+	
+	<util:map id="paymentCenterAllContext">
+		<entry key="fromDate" value-ref="fromDateRule"></entry>
+		<entry key="toDate" value-ref="toDateRule"></entry>	
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+		<entry key="canUserReverse" value-ref="canUserReverseRule"></entry>
+		<entry key="isEntitledPaymentExecuteExport" value-ref="isEntitledPaymentExecuteExport"></entry>
+		<entry key="isEntitledTemplateExecuteExport" value-ref="isEntitledTemplateExecuteExport"></entry>
+		<entry key="isEntitledManageTemplateExport" value-ref="isEntitledManageTemplateExport"></entry>
+		<entry key="isEntitledManagePaymentExport" value-ref="isEntitledManagePaymentExport"></entry>
+		<entry key="isEntitledManageRecipientExport" value-ref="isEntitledManageRecipientExport"></entry>
+		<entry key="isEntitledRecipientExecuteExport" value-ref="isEntitledRecipientExecuteExport"></entry>
+	</util:map>
+	
+	<util:map id="paymentCenterPendingContext">
+		<entry key="fromDate" value-ref="fromDateRule"></entry>
+		<entry key="toDate" value-ref="toDateRule"></entry>		
+		<entry key="accountDisplaySetting" value-ref="accountDisplaySetting"/>
+		<entry key="isEntitledPaymentExecuteExport" value-ref="isEntitledPaymentExecuteExport"></entry>
+		<entry key="isEntitledTemplateExecuteExport" value-ref="isEntitledTemplateExecuteExport"></entry>
+		<entry key="isEntitledManageTemplateExport" value-ref="isEntitledManageTemplateExport"></entry>
+		<entry key="isEntitledManagePaymentExport" value-ref="isEntitledManagePaymentExport"></entry>
+		<entry key="isEntitledManageRecipientExport" value-ref="isEntitledManageRecipientExport"></entry>
+		<entry key="isEntitledRecipientExecuteExport" value-ref="isEntitledRecipientExecuteExport"></entry>
+	</util:map>
+	
+	<util:map id="defaultScreenContextMap">
+		<entry key="isPaymentCenterAll" value-ref="dsPaymentAllRule" />
+		<entry key="isPaymentCenterPending" value-ref="dsPaymentPendingRule" />		
+		<entry key="isCurrentDay" value-ref="dsCurrentDayRule" />
+		<entry key="isPriorDay" value-ref="dsPriorRule" />
+	</util:map>	
+	
+	<util:map id="issueMaintenanceContext">
+		<entry key="fromDate" value-ref="issueMaintenanceFromDateRule"/>
+	</util:map>
+	
+	<util:map id="positivePayContext">
+		<entry key="standardDualAuthEnabled" value-ref="isStandardDualAuthEnabled"></entry>
+		<entry key="achDualAuthEnabled" value-ref="isACHDualAuthEnabled"></entry>
+		<entry key="reverseDualAuthEnabled" value-ref="isReverseDualAuthEnabled"></entry>
+		<entry key="reversePosPayFromDate" value-ref="reversePosPayFromDateRule"></entry>
+	</util:map>
+	
+	<bean id="passwordDisplayRule" class="com.aciworldwide.common.configuration.PasswordDisplayRule"/>
+	<bean id="manualPasswordEntryRule" class="com.aciworldwide.common.configuration.ManualPasswordEntryRule"/>
+	
+	<bean id="exitUrlRule" class="com.aciworldwide.common.configuration.ExitUrlRule"/>
+	<bean id="allowOverideApproval" class="com.aciworldwide.common.configuration.TemplateOverrideApprovalsRule"/>
+	
+	<bean id="isEntitledManageTemplate" class="com.aciworldwide.common.imprt.configuration.ImportManagePaymentAvailabilityRule">				
+	</bean>
+	
+	<bean id="isEntitledManagePayment" class="com.aciworldwide.common.imprt.configuration.ImportManageTemplateAvailabilityRule">		
+	</bean>
+	
+	<bean id="isBasicAchEnabled" class="com.aciworldwide.common.imprt.configuration.BasicAchAvailabilityRule">		
+	</bean>
+	
+	<bean id="isEntitledManageRecipient" class="com.aciworldwide.common.imprt.configuration.ImportManageRecipientAvailabilityRule">		
+	</bean>
+	
+	<bean id="isEntitledPaymentExecute" class="com.aciworldwide.common.imprt.configuration.ImportPaymentAvailabilityRule">				
+	</bean>
+	
+	<bean id="isEntitledTemplateExecute" class="com.aciworldwide.common.imprt.configuration.ImportTemplateAvailabilityRule">		
+	</bean>
+	
+	<bean id="isEntitledManagePaymentExport" class="com.aciworldwide.common.exprt.configuration.ExportManagePaymentAvailabilityRule">				
+	</bean>
+	
+	<bean id="isEntitledManageTemplateExport" class="com.aciworldwide.common.exprt.configuration.ExportManageTemplateAvailabilityRule">		
+	</bean>
+	
+	<bean id="isEntitledManageRecipientExport" class="com.aciworldwide.common.exprt.configuration.ExportManageRecipientAvailabilityRule">		
+	</bean>
+	
+	<bean id="isEntitledPaymentExecuteExport" class="com.aciworldwide.common.exprt.configuration.ExportPaymentAvailabilityRule">				
+	</bean>
+	
+	<bean id="isEntitledTemplateExecuteExport" class="com.aciworldwide.common.exprt.configuration.ExportTemplateAvailabilityRule">		
+	</bean>
+	
+	<bean id="isEntitledRecipientExecuteExport" class="com.aciworldwide.common.exprt.configuration.ExportRecipientAvailabilityRule">		
+	</bean>
+	
+	<bean id="isACHImportEnabled" class="com.aciworldwide.common.imprt.configuration.ImportAvailabilityRule">	
+		<property name="paymentGrp" value="1"/>	
+	</bean>
+	
+	<bean id="isWireImportEnabled" class="com.aciworldwide.common.imprt.configuration.ImportAvailabilityRule">		
+		<property name="paymentGrp" value="3"/>
+	</bean>
+	
+	<bean id="shortTimeZoneLabel" class="com.aciworldwide.common.configuration.TimeZoneLabelConfig">
+		<property name="display" value="short"/>
+	</bean>
+	
+	<bean id="longTimeZoneLabel" class="com.aciworldwide.common.configuration.TimeZoneLabelConfig">
+	</bean>
+		
+	<bean id="attachmentEnabled" class="com.aciworldwide.securemessage.service.SecureMessageAttachmentEnabled">
+	</bean>
+	
+	<bean id="expiryDate" class="com.aciworldwide.securemessage.service.SecureMessageExpiryDate">
+	</bean>
+	
+	<bean id="confirmationConfig" class="com.aciworldwide.pim.messages.management.service.check.StopPayConfirmationConfiguration">	
+	</bean>
+	
+	<bean id="isAmountRequired" class="com.aciworldwide.pim.messages.management.service.check.StopPayAmountConfiguration">	
+	</bean>
+		
+	<bean id="isReasonRequired" class="com.aciworldwide.pim.messages.management.service.check.StopPayReasonConfiguration">	
+	</bean>
+	
+	<bean id="isAmountRequiredCancelStopPay" class="com.aciworldwide.pim.messages.management.service.check.CancelStopPayAmountConfiguration">	
+	</bean>
+	
+	<bean id="authorizationRequired" class="com.aciworldwide.pim.messages.management.service.check.StopPayAuthorizationConfiguration">	
+	</bean>
+	
+	<bean id="modifiedEntitledStopPay" class="com.aciworldwide.pim.messages.management.service.check.StopPayModifiedConfiguration">	
+	</bean>
+	
+	<bean id="viewEntitledStopPay" class="com.aciworldwide.pim.messages.management.service.check.StopPayViewConfiguration">	
+	</bean>
+	
+	<bean id="acctBalMaximumAccountsFieldAvailableRule"
+		class="com.aciworldwide.dashboard.common.configuration.MaximumAccountsFieldAvailabilityRule">		
+	</bean>
+	<bean id="dashboardEligibalAcctFieldAvailableRule"
+		class="com.aciworldwide.dashboard.common.configuration.UserEligibleAccountCountFieldAvailabilityRule">		
+	</bean>
+	<bean id="allAccountsViewFieldAvailableRule"
+		class="com.aciworldwide.dashboard.common.configuration.AllAccountsViewFieldAvailabilityRule">		
+	</bean>
+	<bean id="defaultViewFieldAvailableRule"
+		class="com.aciworldwide.dashboard.common.configuration.DefaultViewFieldAvailabilityRule">		
+	</bean>
+	
+	<bean id="balChartCdayFieldAvailableRule"
+		class="com.aciworldwide.dashboard.common.configuration.BalanceChartCurrentDayFieldAvailabilityRule">
+		<property name="dashboardUIUtility" ref="dashboardUIUtility"/>	
+	</bean>
+	
+	<bean id="balChartPdayFieldAvailableRule"
+		class="com.aciworldwide.dashboard.common.configuration.BalanceChartPriorDayFieldAvailabilityRule">
+		<property name="dashboardUIUtility" ref="dashboardUIUtility"/>	
+	</bean>	
+	
+	<bean id="userDualApprovalRule" class="com.aciworldwide.common.configuration.UserDualApprovalRule"></bean>
+	<bean id="functionalTypeRule" class="com.aciworldwide.common.configuration.FunctionalTypeRule"></bean>
+	<bean id="achTypeRule" class="com.aciworldwide.common.configuration.ACHTypeRule"></bean>	
+	<bean id="isDisplayExternalAuthID" class="com.aciworldwide.common.admin.DisplayExternalAuthIDRule"/>
+	
+	<bean id="userGroupRule" class="com.aciworldwide.common.admin.UserGroupRule"></bean>
+	
+	<bean id="panelDualApprovalRule" class="com.aciworldwide.common.admin.PanelDualApprovalRule"></bean>
+	
+	<bean id="masterRecipientDualApproveRule"
+		class="com.aciworldwide.common.configuration.MasterRecipientDualApproveRule">		
+	</bean>
+	
+	<bean id="syncAccountsAtLoginFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.SyncAccountsAtLoginRule">		
+	</bean>
+	
+	<bean id="masterRecipientApproveOnSubmitRule"
+		class="com.aciworldwide.common.configuration.MasterRecipientApproveOnSubmitRule">		
+	</bean>
+	<bean id="manageThirdPartyAvailableRule"
+		class="com.aciworldwide.common.configuration.ManageThirdPartyAvailableRule">		
+	</bean>
+	
+	<bean id="basicACHEnabledAvailableRule"
+		class="com.aciworldwide.common.configuration.BasicACHEnabledAvailableRule">		
+	</bean>
+	
+	<bean id="achIATInternationalEnabledAvailableRule"
+		class="com.aciworldwide.common.configuration.IATIntenationalEnabledAvailableRule">		
+	</bean>
+	
+	<!-- For Account Activity -->
+	<bean id="acctActivityColumnFormatFieldAvailableRule"
+		class="com.aciworldwide.common.account.activity.AcctActivityColumnFormatFieldAvailabilityRule">		
+	</bean>	
+	<bean id="acctActivitySortOrderFieldAvailableRule"
+		class="com.aciworldwide.common.account.activity.AcctActivityDefaultSortOrderFieldAvailabilityRule">		
+	</bean>
+	<bean id="acctActivityRunningBalanceFieldAvailableRule"
+		class="com.aciworldwide.common.account.activity.AcctActivityRunningBalanceFieldAvailabilityRule">		
+	</bean>	
+	
+	<bean id="fromDateRule" class="com.aciworldwide.common.configuration.PaymentCenterDefaultDateFromRule">	
+	</bean>
+	
+	<bean id="toDateRule" class="com.aciworldwide.common.configuration.PaymentCenterDefaultToDateRule">	
+	</bean>
+	
+	<bean id="canUserReverseRule" class="com.aciworldwide.common.configuration.UserCanReverseRule">	
+	</bean>
+	
+	<bean id="transferFromDateRule" class="com.aciworldwide.common.configuration.TransferCenterDefaultDateFromRule">	
+	</bean>
+	
+	<bean id="transferToDateRule" class="com.aciworldwide.common.configuration.TransferCenterDefaultDateToRule">	
+	</bean>
+	
+	<bean id="transferCenterCurrencyEnabledRule" class="com.aciworldwide.common.configuration.TransferCenterCurrencyEnabledRule">	
+	</bean>
+	
+	<bean id="transferApproveOnsubmitRule" class="com.aciworldwide.common.configuration.SingleTransferApproveOnSubmitRule">	
+	</bean>
+	<bean id="repetitiveTransferApproveOnsubmitRule" class="com.aciworldwide.common.configuration.RepetitiveTransferApproveOnSubmitRule">	
+	</bean>
+	
+	<bean id="transferTemplateCreateRule" class="com.aciworldwide.common.configuration.TransferTemplateCreateRule">	
+	</bean>
+	
+	<bean id="transferTemplateApproveOnsubmitRule" class="com.aciworldwide.common.configuration.TransferTemplateApproveOnSubmitRule">	
+	</bean>
+	<bean id="issueMaintenanceFromDateRule" class="com.aciworldwide.common.configuration.IssueMaintenanceDefaultDateFromRule">	
+		<property name="accountService" ref="accountService"></property>	
+	</bean>
+	
+	<bean id="isUserApproverTransferTemplates" class="com.aciworldwide.common.configuration.TransferTemplateUserIsApproverRule">	
+	</bean>
+	<bean id="isIssueAddAmountRequired" class="com.aciworldwide.pim.messages.service.issuemaintenance.IssueAddAmountConfiguration">	
+	</bean>
+	
+	<bean id="isIssueAddDateRequired" class="com.aciworldwide.common.configuration.IssueAddDateConfiguration">	
+	</bean>	
+	<bean id="isIssueDeleteDateRequired" class="com.aciworldwide.common.configuration.IssueDeleteDateConfiguration">	
+	</bean>	
+	<bean id="isVoidAddDateRequired" class="com.aciworldwide.common.configuration.VoidAddDateConfiguration">	
+	</bean>	
+	<bean id="isVoidDeleteDateRequired" class="com.aciworldwide.common.configuration.VoidDeleteDateConfiguration">	
+	</bean>
+	<bean id="showNotesContent" class="com.aciworldwide.common.configuration.ShowNotesContentConfiguration">	
+	</bean>
+	<bean id="uploadProfileCondFieldSymbol" class="com.aciworldwide.common.configuration.GetUploadProfileCondFieldSymbol">	
+	</bean>
+	
+	<bean id="isUserCanDeleteTransferTemplates" class="com.aciworldwide.common.configuration.TransferTemplateUserCanDeleteRule">	
+	</bean>
+	
+	<bean id="isUserCanDeleteTransferRule" class="com.aciworldwide.pim.messages.service.transferrule.TransferRuleUserCanDeleteRule">	
+	</bean>
+	<bean id="recpAddressMandatoryConfig" class="com.aciworldwide.common.configuration.RecipientAddressMandatoryRule">	
+	</bean>
+			
+	<bean id="isUserCreateExternalAccounts" class="com.aciworldwide.common.configuration.ExternalAccountUserCanCreateRule"></bean>
+	<bean id="isWireTemplateAvailableRule" class="com.aciworldwide.common.configuration.WireTemplateAvailableRule"></bean>
+	
+	
+	<bean id="isUserDeleteExternalAccounts" class="com.aciworldwide.common.configuration.ExternalAccountUserCanDeleteRule"></bean>
+	<bean id="isUserViewExternalAccounts" class="com.aciworldwide.common.configuration.ExternalAccountUserCanViewRule"></bean>
+	
+	
+	<bean id="isIssueDeleteAmountRequired" class="com.aciworldwide.pim.messages.service.issuemaintenance.IssueDeleteAmountConfiguration">
+	</bean>	
+	<bean id="isStandardDualAuthEnabled" class="com.aciworldwide.common.configuration.PositivePayDualAuthAvailabilityRule">	
+		<property name="positivePayType" value="standard"/>
+	</bean>
+	
+	<bean id="isACHDualAuthEnabled" class="com.aciworldwide.common.configuration.PositivePayDualAuthAvailabilityRule">	
+		<property name="positivePayType" value="ach"></property>
+	</bean>
+	
+	<bean id="isReverseDualAuthEnabled" class="com.aciworldwide.common.configuration.PositivePayDualAuthAvailabilityRule">	
+		<property name="positivePayType" value="reverse"></property>
+	</bean>
+	
+	<bean id="reversePosPayFromDateRule" class="com.aciworldwide.common.configuration.ReversePosPayFromDateRule">	
+		<property name="positivePayType" value="reverse"></property>
+	</bean>
+	
+	<bean id="isVoidAddAmountRequired" class="com.aciworldwide.pim.messages.service.issuemaintenance.VoidAddAmountConfiguration">	
+	</bean>
+	
+	<bean id="isVoidDeleteAmountRequired" class="com.aciworldwide.pim.messages.service.issuemaintenance.VoidDeleteAmountConfiguration">	
+	</bean>
+	
+	<bean id="viewIssueEntitled" class="com.aciworldwide.pim.messages.service.issuemaintenance.IssueViewConfiguration">	
+	</bean>
+	
+	<bean id="viewVoidEntitled" class="com.aciworldwide.pim.messages.service.issuemaintenance.VoidViewConfiguration">	
+	</bean>
+	
+	<bean id="issueModifyEntitled" class="com.aciworldwide.pim.messages.service.issuemaintenance.IssueModifyConfiguration">	
+	</bean>
+	
+	<bean id="voidModifyEntitled" class="com.aciworldwide.pim.messages.service.issuemaintenance.VoidModifyConfiguration">	
+	</bean>
+	
+	<bean id="issueDeleteEntitled" class="com.aciworldwide.pim.messages.service.issuemaintenance.IssueDeleteConfiguration">	
+	</bean>
+	
+	<bean id="voidDeleteEntitled" class="com.aciworldwide.pim.messages.service.issuemaintenance.VoidDeleteConfiguration">	
+	</bean>
+	
+	<bean id="isPepPlusEnabled" class="com.aciworldwide.pim.messages.service.achauthorization.ACHAuthPepPlusConfiguration">	
+	</bean>
+	
+	<bean id="achAuthViewEntitled" class="com.aciworldwide.pim.messages.service.achauthorization.ACHAuthViewConfiguration">	
+	</bean>
+	
+	<bean id="achAuthCreateEntitled" class="com.aciworldwide.pim.messages.service.achauthorization.ACHAuthCreateConfiguration">	
+	</bean>	
+	
+	<bean id="achAuthDeleteEntitled" class="com.aciworldwide.pim.messages.service.achauthorization.ACHAuthDeleteConfiguration">	
+	</bean>		
+	
+	<bean id="isAuthorizedToUpload" class="com.aciworldwide.pim.messages.service.fileservices.uploads.FileUploadConfiguration">	
+	</bean>
+	
+	<bean id="isAuthorizedToTransmit" class="com.aciworldwide.pim.messages.service.fileservices.uploads.FileUploadTransmitConfiguration">	
+	</bean>
+	
+	<bean id="isAuthorizedToApprove" class="com.aciworldwide.pim.messages.service.fileservices.uploads.FileUploadApproveConfiguration">	
+	</bean>
+		
+	<bean id="isCreditFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.CreditFieldAvailabilityRule">
+		<property name="featureCodeMap" ref="contextFeatureCodeMap"></property>
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+	</bean>
+
+	<bean id="isDebitFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.DebitFieldAvailabilityRule">
+		<property name="featureCodeMap" ref="contextFeatureCodeMap"></property>
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+	</bean>
+		
+	<bean id="isSaveAsTemplateFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.SaveAsTemplateFieldAvailabilityRule">
+		<property name="executor" ref="functionalAuthCheckExecutor"></property>
+		<property name="operationsMap" ref="contextOperationsMap"></property>
+	</bean>
+	
+	
+	<bean id="isApproveOnSubmitFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.ApproveOnSubmitFieldRule">
+		<property name="deciders" ref="deciders"></property>
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+	</bean>
+	
+	<bean id="isApproveOnSubmitRepPmtRule" class="com.aciworldwide.common.configuration.ApproveOnSubmitRepPmtFieldRule">
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+	</bean>
+	
+	<bean id="isPrenoteFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.PrenoteFieldAvailabilityRule">
+		<property name="transactionTypes" ref="transactionTypesMap"></property>			
+	</bean>
+	
+	<bean id="prenoteExpiryDateFieldAvailableRule"
+		class="com.aciworldwide.common.configuration.PrenoteExpiryDateFieldAvailabilityRule">
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+		<property name="corpAchService" ref="corpAchService"/>		
+	</bean>
+	
+	<bean id="scheduledDateRule" class="com.aciworldwide.common.configuration.ScheduledExecutionDateRule">
+		<property name="transactionTypes" ref="transactionTypesMap"></property>	
+		<property name="corpAchService" ref="corpAchService"/>		
+	</bean>
+	
+	<bean id="canUserModifyPaymentRule" class="com.aciworldwide.common.configuration.UpdatePaymentRule">
+		<property name="operationsMap" ref="contextOperationsMap"></property>
+	</bean>
+	
+	<bean id="canUserDeletePaymentRule" class="com.aciworldwide.common.configuration.DeletePaymentRule">
+		<property name="transactionTypes" ref="transactionTypesMap"/>		
+	</bean>
+	
+	<bean id="isRckFeeAllowed" class="com.aciworldwide.common.configuration.RCKFeeAllowedRule">	
+	</bean>
+	
+	<bean id="isScheduleTimeHidden" class="com.aciworldwide.common.configuration.ScheduleTimeRule">	
+	</bean>	
+	
+	<bean id="isRemittanceEnabled" class="com.aciworldwide.common.configuration.RemittanceFeatureEnabledRule">
+		<property name="transactionTypes" ref="transactionTypesMap"/>
+	</bean>
+	
+	<bean id="accountDisplaySetting" class="com.aciworldwide.common.configuration.AccountDisplayRule">	
+	</bean>
+	
+	<bean id="currencyDisplayRule" class="com.aciworldwide.common.configuration.CurrencyDisplayRule"></bean>
+	<bean id="negativeAmountDisplayRule" class="com.aciworldwide.common.configuration.NegativeAmountDisplayRule"></bean>
+	<bean id="negativeAmountColorRule" class="com.aciworldwide.common.configuration.NegativeAmountColorRule"></bean>
+	
+	<bean id="isRecipientImport" class="com.aciworldwide.common.configuration.RecipientImportRule">
+		<property name="accountService" ref="accountService"></property>	
+	</bean>
+	<bean id="mustBeStandardBank" class="com.aciworldwide.common.configuration.MustBeStandardBankRule">
+	</bean>
+	<bean id="transferRuleApproveOnsubmitRule" class="com.aciworldwide.common.configuration.TransferRuleApproveOnSubmitRule">
+	</bean>
+	
+
+	<bean id="sessionTimeOut"
+		class="com.aciworldwide.common.configuration.SessionTimeoutRule">
+	</bean>
+	
+	<bean id="dsPaymentAllRule" class="com.aciworldwide.common.configuration.DefaultScreenRule">
+		<property name="screenContext" value="PaymentCenterAll" />
+	</bean>
+	
+	<bean id="dsPaymentPendingRule" class="com.aciworldwide.common.configuration.DefaultScreenRule">
+		<property name="screenContext" value="PaymentCenterPending" />
+	</bean>
+	
+	<bean id="dsCurrentDayRule" class="com.aciworldwide.common.configuration.DefaultScreenRule">
+		<property name="screenContext" value="CurrentDay" />
+	</bean>
+	
+	<bean id="dsPriorRule" class="com.aciworldwide.common.configuration.DefaultScreenRule">
+		<property name="screenContext" value="PriorDay" />
+	</bean>
+	
+	<bean id="isUserMangeConfidentialRule" class="com.aciworldwide.common.configuration.UserConfidentialFlagRule"/>						
+	<bean id="isRecipientApproveOnSubmitRule" class="com.aciworldwide.common.configuration.RecipientApproveOnSubmitAvailabilityRule"/>
+	<bean id="templateApproveOnSubmitRule" class="com.aciworldwide.common.configuration.TemplateApproveOnSubmitRule">
+		<property name="transactionTypes" ref="transactionTypesMap"></property>
+	</bean>
+	<bean id="offsetValueRule" class="com.aciworldwide.common.configuration.OffsetValueRule"/>	
+	
+	<bean id="isCreateReportDeliveryEntitled" class="com.aciworldwide.reports.configuration.CreateReportDeliveryRule" />	
+	<bean id="isEditEmailReportDeliveryEntitled" class="com.aciworldwide.reports.configuration.EditEmailReportDeliveryRule" />
+	<bean id="isEditFaxReportDeliveryEntitled" class="com.aciworldwide.reports.configuration.EditFaxReportDeliveryRule" />
+	<bean id="isDeleteEmailReportDeliveryEntitled" class="com.aciworldwide.reports.configuration.DeleteEmailReportDeliveryRule" />
+	<bean id="isDeleteFaxReportDeliveryEntitled" class="com.aciworldwide.reports.configuration.DeleteFaxReportDeliveryRule" />
+	<bean id="COLLINDWRPaymentEnabledRule" class="com.aciworldwide.common.configuration.COLLINDWRPaymentEnabledRule"/>
+	<bean id="COLLINDTELPaymentEnabledRule" class="com.aciworldwide.common.configuration.COLLINDTELPaymentEnabledRule"/>
+	<bean id="COLLINDWEBPaymentEnabledRule" class="com.aciworldwide.common.configuration.COLLINDWEBPaymentEnabledRule"/>
+	<bean id="COLLINDWRTemplateEnabledRule" class="com.aciworldwide.common.configuration.COLLINDWRTemplateEnabledRule"/>
+	<bean id="COLLINDTELTemplateEnabledRule" class="com.aciworldwide.common.configuration.COLLINDTELTemplateEnabledRule"/>
+	<bean id="COLLINDWEBTemplateEnabledRule" class="com.aciworldwide.common.configuration.COLLINDWEBTemplateEnabledRule"/>
+	<bean id="BillingAccountConfiguration" class="com.aciworldwide.common.configuration.BillingAccountConfiguration"/>
+	<bean id="TaxIdConfiguration" class="com.aciworldwide.common.configuration.TaxIdConfiguration"/>
+	<bean id="DateOfBirthConfiguration" class="com.aciworldwide.common.configuration.DateOfBirthConfiguration"/>
+	<bean id="SecurityQuestionConfiguration" class="com.aciworldwide.common.configuration.SecurityQuestionConfiguration"/>
+	<bean id="isElrEntitled" class="com.aciworldwide.pim.messages.service.account.configuration.PriorDayCurrentDayRule"/>
+	<bean id="isCurrentDayRefreshDataOn" class="com.aciworldwide.pim.messages.service.account.configuration.RefreshDataRule"/>
+	<bean id="confirmationCodeNeeded" class="com.aciworldwide.common.configuration.AlertDestinationConfirmationCodeRule"/>	
+	
+	<context:property-placeholder
+		properties-ref="nestedContexts" />
+
+	<util:properties id="nestedContexts">
+		<prop key="achPaymentContext">achPaymentContext</prop>
+	</util:properties>
+	
+	<util:map id="contextFeatureCodeMap" value-type="java.lang.Integer">
+		<entry key="CCDPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+		</entry>
+		<entry key="PPDPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="RCKPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_RCK" />
+		</entry>
+		<entry key="WEBPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_WEB" />
+		</entry>
+		<entry key="TELPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TEL" />
+		</entry>
+		<entry key="CHILDPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CHILD" />
+		</entry>
+		<entry key="CTXPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CTX" />
+		</entry>
+		<entry key="TAXPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TAX" />
+		</entry>
+		<entry key="IATPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_IAT" />
+		</entry>
+		<entry key="DOMIATPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_DOM_IAT" />
+		</entry>
+		<entry key="USWIREPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS" />
+		</entry>
+		<entry key="INTLWIREPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNATIONAL_WIRE" />
+		</entry>
+		<entry key="BOOKWIREPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.BOOKWIRE" />
+		</entry>
+		<entry key="DRAWDOWNPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAWDOWN" />
+		</entry>
+		<entry key="FEDTAXPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.USFEDERALTAX" />
+		</entry>
+		<entry key="MULTIBANKPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.MULTIBANK" />
+		</entry>
+		<entry key="DIRDEPPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="PAYINDPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="COLLINDWRPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="PAYBUSPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+		</entry>
+		<entry key="COLLBUSPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+		</entry>
+		<entry key="PAYCHILDPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CHILD" />
+		</entry>
+		<entry key="COLLRETCHPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_RCK" />
+		</entry>
+		<entry key="PAYTAXPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TAX" />
+		</entry>
+		<entry key="COLLINDTELPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TEL" />
+		</entry>
+		<entry key="COLLINDWEBPayment">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_WEB" />
+		</entry>
+		
+		<entry key="DIRDEPTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="PAYINDTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="COLLINDWRTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="PAYBUSTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+		</entry>
+		<entry key="COLLBUSTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+		</entry>
+		<entry key="PAYCHILDTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CHILD" />
+		</entry>
+		<entry key="COLLRETCHTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_RCK" />
+		</entry>
+		<entry key="PAYTAXTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TAX" />
+		</entry>
+		<entry key="COLLINDTELTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TEL" />
+		</entry>
+		<entry key="COLLINDWEBTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_WEB" />
+		</entry>
+		<entry key="CCDTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CCD" />
+		</entry>
+		<entry key="PPDTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_PPD" />
+		</entry>
+		<entry key="RCKTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_RCK" />
+		</entry>
+		<entry key="WEBTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_WEB" />
+		</entry>
+		<entry key="TELTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TEL" />
+		</entry>
+		<entry key="IATTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_IAT" />
+		</entry>
+		<entry key="DOMIATTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_DOM_IAT" />
+		</entry>
+		<entry key="CHILDTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CHILD" />
+		</entry>
+		<entry key="CTXTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_CTX" />
+		</entry>
+		<entry key="TAXTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_TAX" />
+		</entry>
+		<entry key="USWIRETemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.WIRETRANSFERS" />
+		</entry>
+		<entry key="INTLWIRETemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNATIONAL_WIRE" />
+		</entry>
+		<entry key="BOOKWIRETemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.BOOKWIRE" />
+		</entry>
+		<entry key="DRAWDOWNTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.DRAWDOWN" />
+		</entry>
+		<entry key="FEDTAXTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.USFEDERALTAX" />
+		</entry>
+		<entry key="MULTIBANKTemplate">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.MULTIBANK" />
+		</entry>
+        	<entry key="XFERRULETransfer" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_RULES" />
+		</entry>
+	</util:map>
+	
+	<util:map id="contextOperationsMap">
+		<entry key="CCDPayment">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="PPDPayment">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="RCKPayment">
+			<util:list>
+				<value>/payment/ach/rck/debits/non_repetitive/create_modify</value>				
+			</util:list>
+		</entry>
+		<entry key="WEBPayment">
+			<util:list>
+				<value>/payment/ach/web/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="TELPayment">
+			<util:list>
+				<value>/payment/ach/tel/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="CHILDPayment">
+			<util:list>
+				<value>/payment/ach/child_support/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="CTXPayment">
+			<util:list>
+				<value>/payment/ach/ctx/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="TAXPayment">
+			<util:list>
+				<value>/payment/ach/tax/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="IATPayment">
+			<util:list>
+				<value>/payment/ach/iat/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="DOMIATPayment">
+			<util:list>
+				<value>/payment/ach/domIat/credits/template/create_modify</value>
+				<value>/payment/ach/domIat/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="DIRDEPPayment">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="DPAYINDPayment">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="COLLINDWRPayment">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="PAYBUSPayment">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="COLLBUSPayment">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="COLLRETCHPayment">
+			<util:list>
+				<value>/payment/ach/rck/debits/non_repetitive/create_modify</value>				
+			</util:list>
+		</entry>
+		<entry key="COLLINDWEBPayment">
+			<util:list>
+				<value>/payment/ach/web/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="COLLINDTELPayment">
+			<util:list>
+				<value>/payment/ach/tel/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="PAYCHILDPayment">
+			<util:list>
+				<value>/payment/ach/child_support/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="PAYTAXPayment">
+			<util:list>
+				<value>/payment/ach/tax/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="USWIREPayment">
+			<util:list>
+				<value>/payment/wire/repetitive/create_modify</value>		
+				<value>/payment/wire/non_repetitive/create_modify</value>		
+			</util:list>
+		</entry>
+		<entry key="INTLWIREPayment">
+			<util:list>
+				<value>/payment/international/wire/non_repetitive/create_modify</value>
+				<value>/payment/international/wire/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="BOOKWIREPayment">
+			<util:list>
+				<value>/payment/bookwire/non_repetitive/create_modify</value>
+				<value>/payment/bookwire/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="DRAWDOWNPayment">
+			<util:list>
+				<value>/payment/drawdown/non_repetitive/create_modify</value>
+				<value>/payment/drawdown/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="FEDTAXPayment">
+			<util:list>
+				<value>/payment/USFederalTax/non_repetitive/create_modify</value>
+				<value>/payment/USFederalTax/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="MULTIBANKPayment">
+			<util:list>
+				<value>/payment/multiBank/nonrepetitive/create_modify</value>
+				<value>/payment/multiBank/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		
+		
+		<entry key="CCDTemplate">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="PPDTemplate">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="RCKTemplate">
+			<util:list>
+				<value>/payment/ach/rck/debits/non_repetitive/create_modify</value>				
+			</util:list>
+		</entry>
+		<entry key="WEBTemplate">
+			<util:list>
+				<value>/payment/ach/web/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="TELTemplate">
+			<util:list>
+				<value>/payment/ach/tel/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="IATTemplate">
+			<util:list>
+				<value>/payment/ach/iat/credits/template/create_modify</value>
+				<value>/payment/ach/iat/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="DOMIATTemplate">
+			<util:list>
+				<value>/payment/ach/domIat/credits/template/create_modify</value>
+				<value>/payment/ach/domIat/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="CHILDTemplate">
+			<util:list>
+				<value>/payment/ach/child_support/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="CTXTemplate">
+			<util:list>
+				<value>/payment/ach/ctx/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="TAXTemplate">
+			<util:list>
+				<value>/payment/ach/tax/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="DIRDEPTemplate">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="DPAYINDTemplate">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="COLLINDWRTemplate">
+			<util:list>
+				<value>/payment/ach/ppd/debits/template/create_modify</value>
+				<value>/payment/ach/ppd/credits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="PAYBUSTemplate">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="COLLBUSTemplate">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+		<entry key="COLLRETCHTemplate">
+			<util:list>
+				<value>/payment/ach/rck/debits/non_repetitive/create_modify</value>				
+			</util:list>
+		</entry>
+		<entry key="COLLINDWEBTemplate">
+			<util:list>
+				<value>/payment/ach/web/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="COLLINDTELTemplate">
+			<util:list>
+				<value>/payment/ach/tel/debits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="PAYCHILDTemplate">
+			<util:list>
+				<value>/payment/ach/child_support/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="PAYTAXTemplate">
+			<util:list>
+				<value>/payment/ach/tax/credits/template/create_modify</value>						
+			</util:list>
+		</entry>
+		<entry key="USWIRETemplate">
+			<util:list>
+				<value>/payment/wire/repetitive/create_modify</value>		
+				<value>/payment/wire/non_repetitive/create_modify</value>		
+			</util:list>
+		</entry>
+		<entry key="INTLWIRETemplate">
+			<util:list>
+				<value>/payment/international/wire/non_repetitive/create_modify</value>
+				<value>/payment/international/wire/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="BOOKWIRETemplate">
+			<util:list>
+				<value>/payment/bookwire/non_repetitive/create_modify</value>
+				<value>/payment/bookwire/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="DRAWDOWNTemplate">
+			<util:list>
+				<value>/payment/drawdown/non_repetitive/create_modify</value>
+				<value>/payment/drawdown/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="FEDTAXTemplate">
+			<util:list>
+				<value>/payment/USFederalTax/non_repetitive/create_modify</value>
+				<value>/payment/USFederalTax/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="MULTIBANKTemplate">
+			<util:list>
+				<value>/payment/multiBank/nonrepetitive/create_modify</value>
+				<value>/payment/multiBank/repetitive/create_modify</value>			
+			</util:list>
+		</entry>
+		<entry key="XFERRULETransfer" >
+			<value>/payment/transfer/rules/create_modify</value>
+		</entry>
+		
+	</util:map>
+	
+	<util:map id="deciders">
+		<entry key="CCDPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PPDPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="RCKPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="WEBPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="TELPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="CHILDPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="CTXPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="TAXPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="IATPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="DOMIATPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="DIRDEPPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYINDPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLINDWRPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYBUSPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLBUSPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYCHILDPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLRETCHPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYTAXPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLINDTELPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLINDWEBPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="USWIREPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="INTLWIREPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="BOOKWIREPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="DRAWDOWNPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="FEDTAXPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="MULTIBANKPayment" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		
+		<entry key="CCDTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PPDTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="RCKTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="WEBTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="TELTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="IATTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="DOMIATTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="CHILDTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="CTXTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="TAXTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="DIRDEPTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYINDTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLINDWRTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYBUSTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLBUSTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYCHILDTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLRETCHTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="PAYTAXTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLINDTELTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="COLLINDWEBTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="USWIRETemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="INTLWIRETemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="BOOKWIRETemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="DRAWDOWNTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="FEDTAXTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		<entry key="MULTIBANKTemplate" >
+			<bean class="com.aciworldwide.common.configuration.NonRepetitiveDecider"></bean>
+		</entry>
+		
+		
+	</util:map>
+		
+	<util:map id="transactionTypesMap">
+		<entry key="CCDPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="PPDPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="RCKPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_RCK" />
+		</entry>
+		<entry key="WEBPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_WEB" />
+		</entry>
+		<entry key="TELPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TEL" />
+		</entry>
+		<entry key="CHILDPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CHILD" />
+		</entry>
+		<entry key="CTXPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CTX" />
+		</entry>
+		<entry key="TAXPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TAX" />
+		</entry>
+		<entry key="IATPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_IAT" />
+		</entry>
+		<entry key="DOMIATPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_DOMIAT" />
+		</entry>
+		<entry key="DIRDEPPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="PAYINDPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="COLLINDWRPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="PAYBUSPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="COLLBUSPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="PAYCHILDPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CHILD" />
+		</entry>
+		<entry key="COLLRETCHPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_RCK" />
+		</entry>
+		<entry key="PAYTAXPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TAX" />
+		</entry>
+		<entry key="COLLINDTELPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TEL" />
+		</entry>
+		<entry key="COLLINDWEBPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_WEB" />
+		</entry>
+		<entry key="INTTransfer" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_INT_TO_INT" />
+		</entry>
+		<entry key="INTTransferTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_ONE_TO_MANY" />
+		</entry>
+		<entry key="USWIREPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DOMESTIC_WIRE" />
+		</entry>
+		<entry key="INTLWIREPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_CROSS_BORDER_WIRE" />
+		</entry>
+		<entry key="BOOKWIREPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_BOOK_WIRE" />
+		</entry>
+		<entry key="DRAWDOWNPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DRAWDOWN" />
+		</entry>
+		<entry key="FEDTAXPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_FED_TAX" />
+		</entry>
+		<entry key="MULTIBANKPayment" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_MULTIBANK" />
+		</entry>
+		
+		
+		<entry key="CCDTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="PPDTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="RCKTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_RCK" />
+		</entry>
+		<entry key="WEBTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_WEB" />
+		</entry>
+		<entry key="TELTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TEL" />
+		</entry>
+		<entry key="IATTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_IAT" />
+		</entry>
+		<entry key="DOMIATTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_DOMIAT" />
+		</entry>
+		<entry key="CHILDTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CHILD" />
+		</entry>
+		<entry key="CTXTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CTX" />
+		</entry>
+		<entry key="TAXTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TAX" />
+		</entry>
+		<entry key="DIRDEPTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="PAYINDTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="COLLINDWRTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_PPD" />
+		</entry>
+		<entry key="PAYBUSTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="COLLBUSTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CCD" />
+		</entry>
+		<entry key="PAYCHILDTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_CHILD" />
+		</entry>
+		<entry key="COLLRETCHTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_RCK" />
+		</entry>
+		<entry key="PAYTAXTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TAX" />
+		</entry>
+		<entry key="COLLINDTELTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_TEL" />
+		</entry>
+		<entry key="COLLINDWEBTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_ACH_WEB" />
+		</entry>
+		<entry key="USWIRETemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DOMESTIC_WIRE" />
+		</entry>
+		<entry key="INTLWIRETemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_CROSS_BORDER_WIRE" />
+		</entry>
+		<entry key="BOOKWIRETemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_BOOK_WIRE" />
+		</entry>
+		<entry key="DRAWDOWNTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_DRAWDOWN" />
+		</entry>
+		<entry key="FEDTAXTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_FED_TAX" />
+		</entry>
+		<entry key="MULTIBANKTemplate" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_MULTIBANK" />
+		</entry>
+         	<entry key="XFERRULETransfer" >
+			<util:constant static-field="com.s1.app.disbursements.TransactionTypes.CB_TRANSFER_RULES" />
+		</entry>
+		
+		
+	</util:map>
+
+	<util:map id="USWireDualWorkFlows">
+		<entry key="USWireDualWorkFlow" value-ref="USWireDualWorkFlowEnabled"></entry>
+		<entry key="USWireRecievingCheckbox" value-ref="USWireRecievingCheckboxEnabled"></entry>
+		<entry key="USIntlWireRecieving" value-ref="USIntlWireRecievingSectionEnabled"></entry>
+		<entry key="USIntlWireIntermediary" value-ref="USIntlWireIntermediarySectionEnabled"></entry>
+		<entry key="USIntlWireCorrespondentIntermediary" value-ref="USIntlWireCorrespondentIntermediarySectionEnabled"></entry>
+		<entry key="USIntlWireCorrespondentRecieving" value-ref="USIntlWireCorrespondentRecievingSectionEnabled"></entry>
+	</util:map>
+	
+	<bean id="USWireDualWorkFlowEnabled" class="com.aciworldwide.common.configuration.USWireDualWorkFlowEnabledRule" />
+	<bean id="USWireRecievingCheckboxEnabled" class="com.aciworldwide.common.configuration.USWireRecievingCheckBoxEnabledRule" />
+	<bean id="USIntlWireRecievingSectionEnabled" class="com.aciworldwide.common.configuration.USIntlWireRecievingSectionEnabledRule" />
+	<bean id="USIntlWireIntermediarySectionEnabled" class="com.aciworldwide.common.configuration.USIntlWireIntermediarySectionEnabledRule" />
+	<bean id="USIntlWireCorrespondentIntermediarySectionEnabled" class="com.aciworldwide.common.configuration.USIntlWireCorrespondentIntermediarySectionEnabledRule" />
+	<bean id="USIntlWireCorrespondentRecievingSectionEnabled" class="com.aciworldwide.common.configuration.USIntlWireCorrespondentRecievingSectionEnabledRule" />
+	
+</beans>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.payments.bank.dao.BankLookupServiceMapper">
+
+    <resultMap id="DestinationResultMap" type="com.s1.payments.bank.DestinationBank">
+        <result column="BNKBANKCONTACTKY" property="objectId" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+        <result column="BANKNAME" property="bankName" jdbcType="VARCHAR" />
+        <result column="BANKIDFR" property="bankId1" jdbcType="VARCHAR"/>
+        <result column="ADDRESS1" property="address1" jdbcType="VARCHAR"/>
+        <result column="ADDRESS2" property="address2" jdbcType="VARCHAR"/>
+        <result column="CITY" property="city" jdbcType="VARCHAR"/>
+        <result column="POSTALCODE" property="postalCode" jdbcType="VARCHAR"/>
+        <result column="BNKBANKIDFRKY" property="id" jdbcType="VARCHAR" />
+        <result column="MSTRBANKIDFRTYPECD" property="bankIdType" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    </resultMap>
+    
+    <select id="selectBankListForCountryCode" resultMap="DestinationResultMap" parameterType="com.s1.payments.bank.dao.BankLookupDataCriteria" >
+		select b.BNKBANKCONTACTKY,
+        b.BANKNAME,
+        c.BANKIDFR,
+        c.BNKBANKIDFRKY
+        from ARCCOUNTRYCD a, BNKBANKCONTACT b, BNKBANKIDFR c
+        where a.ARCCOUNTRYCDKY = b.ARCCOUNTRYCDKY and b.BNKBANKCONTACTKY = c.BNKBANKCONTACTKY and b.ISACTIVE = '1'
+        <if test="countryCode != null">
+        and a.ISOALPHA2CD = #{countryCode} 
+        </if>
+        <if test="idType != null">
+        and c.MSTRBANKIDFRTYPECD = #{idType}
+        </if>
+        <if test="bankIdTypes != null">
+        	and c.MSTRBANKIDFRTYPECD in 
+        	<foreach item="idType" collection="bankIdTypes" open="(" close=")" separator=",">
+        		#{idType}
+        	</foreach>
+        </if>
+    </select>
+    
+    <select id="selectBankDetails" resultMap="DestinationResultMap" parameterType="com.s1.payments.bank.dao.BankLookupDataCriteria" >
+		select b.BNKBANKCONTACTKY,
+        b.BANKNAME,
+        c.BANKIDFR,
+        c.BNKBANKIDFRKY,
+        c.MSTRBANKIDFRTYPECD,
+        b.ADDRESS1,
+        b.ADDRESS2,
+        b.CITY,
+        b.POSTALCODE 
+        from BNKBANKCONTACT b, BNKBANKIDFR c
+        where b.BNKBANKCONTACTKY = c.BNKBANKCONTACTKY
+        <if test="id != null">
+        and c.BNKBANKIDFRKY = #{id}
+        </if>
+    </select>
+    
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.bnk.alerts.model.AlertInbox</typeA>
+		<typeB>com.aciworldwide.pim.messages.management.alert.component.AlertType</typeB>	
+		<fields>
+ 			<field>
+				<fieldA>soaInstructionId</fieldA>
+				<fieldB>ident</fieldB>
+			</field>
+			<field>
+				<fieldA>subject</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field>
+				<fieldA>message</fieldA>
+				<fieldB>message</fieldB>
+			</field>
+			<field>
+				<fieldA>triggerDateTime</fieldA>
+				<fieldB>dateTime</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	
+</mappings>

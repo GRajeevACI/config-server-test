@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean id="baseActionItemGroupProducer" class="com.s1.banking.actionitem.BaseActionItemGroupProducer" abstract="true" >
+		<property name="actionItemCountService" ref="actionItemCountService" />
+	</bean>
+
+	<bean id="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.ApprovalsGroupProducer" abstract="true" parent="baseActionItemGroupProducer">
+		<property name="companyService" ref="companyService" />
+		<property name="authorizationService" ref="authorizationService" />
+		<property name="maxLineItems" value="0" />
+		<property name="messageSource" ref="actionItemMessageSource" />
+	</bean>
+
+	<bean id="itlPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.itlPay" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.INTL_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+
+	<bean id="canadaPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.cndPay" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.CANADA_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+
+	<bean id="colPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.colPay" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.COLOMBIA_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	<bean id="singaporePaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.sgpPay" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.SINGAPORE_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	<bean id="sepaPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.sepaPay" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.SEPA_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	<bean id="achPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.ach" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="approvalOpNamePrefix" value="/payment/ach" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.ACH_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="paymentTemplatesApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentTemplatesApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.paymentTemplates" />
+		<property name="url" value="/sbb/app/smallbiz/user/payments?fwd=TmplCenterNew" />
+	</bean>
+	<!-- 
+	<bean id="transferApprovalsGroupProducer" class="com.s1.banking.actionitem.approval.TransferApprovalsGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />			
+		</property>
+		<property name="featureRequiresDualAuth" value="false" />
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_VIEW" />
+			</list>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE_OWN_REPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE_OWN_NONREPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE_OWN_NONREPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE_OWN_NONREPETITIVE" />
+			</list>
+		</property>
+		
+		<property name="nameMsgCode" value="actionItem.transfers" />
+		<property name="url" value="/disb/common/transact/user/transferViewPrimaryCorporate?transferType=pending" />
+		<property name="countCacheable" value="true" />
+	</bean>
+	-->
+	
+	<bean id="transferGroupProducer" class="com.s1.banking.actionitem.approval.TransferGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />			
+		</property>
+		<property name="featureRequiresDualAuth" value="false" />
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_VIEW" />
+			</list>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_SAVE_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_SAVE_APPROVE_FROM_TEMPLATE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE_OWN_REPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE_OWN_NONREPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE_OWN_REPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE_OWN_NONREPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE_OWN_REPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE_OWN_NONREPETITIVE" />
+			</list>
+		</property>
+		
+		<property name="allTransferService" ref="allTransferService" />
+		<property name="nameMsgCode" value="actionItem.transfers" />
+		<property name="url" value="/disb/common/transact/user/transferViewPrimaryCorporate?transferType=pending&amp;fromActionItemWidget=transfer" />	
+		<property name="countCacheable" value="true" />		
+	</bean>
+		
+	<bean id="usRecipientGroupProducer" class="com.s1.banking.actionitem.approval.UsRecipientGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="nameMsgCode" value="actionItem.usRecipientApprovals" />
+		<property name="url" value="/sbb/common/transact/user/thirdPartyList?alertWidget=true" />	
+		<property name="countCacheable" value="true" />		
+	</bean>
+
+	<bean id="itlRecipientGroupProducer" class="com.s1.banking.actionitem.approval.ItlRecipientGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="nameMsgCode" value="actionItem.itlRecipientApprovals" />
+		<property name="url" value="/sbb/payments?go=/tplist/all/list&amp;startWorkflow=true&amp;alertWidget=true" />	
+		<property name="countCacheable" value="true" />		
+	</bean>
+	
+	<bean id="checkBookRequestGroupProducer" class="com.s1.banking.actionitem.approval.CheckBookRequestGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="nameMsgCode" value="actionItem.chbkrqstApprovals" />
+		<property name="url" value="/userServlet/app/bank/user/manageCheckBookRequests?alertWidget=true" />	
+		<property name="countCacheable" value="true" />		
+	</bean>
+	
+	<!-- TODO: If this is used, move it to a more appropriate file.  Otherwise, remove it. -->
+	<bean id="headlessUserCacheFactory" class="com.s1.common.userCache.HeadlessUserCacheFactory" >
+		<property name="companyService" ref="companyService" />
+		<property name="appService" ref="applicationService" />
+	</bean>
+	
+	<bean id="wirePaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.wires" />
+		<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+	    <property name="approvalOpNamePrefix" value="/payment/wire" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.WIRE_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+
+	<bean id="issueApprovalsGroupProducer" class="com.s1.banking.actionitem.approval.IssuesGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ISSUE_MAINTENANCE" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.FRAUD_CONTROL_ISSUE_MAINTENANCE_APPROVE" />
+			</list>
+		</property>
+
+		<property name="nameMsgCode" value="actionItem.issues" />
+		<property name="url" value="/sbb/app/bank/user/manageIssues?status=1" />
+		<property name="issueService" ref="issueService" />
+		<property name="fromPastDays" value="5" />
+	</bean>
+	
+	<bean id="achAuthApprovalsGroupProducer" class="com.s1.banking.actionitem.approval.AchAuthGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_AUTHORIZATION" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.FRAUD_CONTROL_ACH_AUTH_APPROVE" />
+			</list>
+		</property>
+
+		<property name="nameMsgCode" value="actionItem.achAuth" />
+		<property name="url" value="/sbb/app/achauth/user/achAuthList?accessway=menu" />
+		<property name="messageSource" ref="actionItemMessageSource" />		
+		<property name="achAuthService" ref="achAuthService" />
+	</bean>
+
+	<bean id="efdUploadApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.EfdApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.efd" />
+		<property name="url" value="/efd/banking/efd/upload/user/batchList?refresh=true" />
+		<property name="efdService" ref="efdService" />
+	</bean>
+
+	<bean id="posPayApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.PosPayApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.posPay" />
+		<property name="url" value="/sbb/app/smallbiz/user/positivePayList" />
+	</bean>
+
+	<bean id="stopPayApprovalsGroupProducer" class="com.s1.banking.actionitem.approval.StopPayApprovalsGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="nameMsgCode" value="actionItem.stopPay" />
+		<property name="url" value="/userServlet/app/bank/user/manageStopPayment?fromActionItemWidget=stopPmt" />
+
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.STOP_PAYMENTS" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.SERVICE_CHK_STOP_PAYMENT_APPROVE" />
+			</list>
+		</property>
+		
+		<property name="stopPaymentService" ref="stopPaymentService" />
+	</bean>
+	
+	<bean id="uploadFilesApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.UploadFilesApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.uploadFiles" />
+		<property name="url" value="/bank/banking/common/upload/user/batchList?refresh=true&amp;fromMenu=false" />
+		<property name="uploadBatchService" ref="uploadBatchService" />
+	</bean>
+
+	<bean id="userApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.UserApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.user" />
+		<property name="url" value="/sbb/app/corp/user/entitlement?isCalledFromDashboard=1" />
+	</bean>
+
+	<bean id="transferTemplatesApprovalsGroupProducer" parent="approvalsGroupProducerBase" class="com.s1.banking.actionitem.approval.TransferTemplatesApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.transferTemplate" />
+		<property name="url" value="/disb/common/transact/user/bulkTransferTemplateViewAll?fromActionItemWidget=transferTemplate" />
+		<property name="bulkTransferService" ref="bulkTransferService" />
+
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />			
+		</property>
+		<property name="featureRequiresDualAuth" value="false" />
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_TEMPLATE_VIEW" />
+			</list>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_TEMPLATE_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_TEMPLATE_APPROVE_OWN" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="transferRuleApprovalsGroupProducer" class="com.s1.banking.actionitem.approval.TransferRuleApprovalsGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="nameMsgCode" value="actionItem.transferRules" />
+		<property name="url" value="/disb/common/transact/user/transfer/rules/list?fromActionItemWidget=transferRules" />
+
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.TRANSFER_RULES" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list />
+		</property>
+	</bean>
+	
+	<bean id="actionItemCountService" class="com.s1.banking.actionitem.ActionItemCountServiceImpl" >
+		<property name="actionItemCountMapper" ref="actionItemCountMapper" />
+	</bean>
+	
+	<bean id="actionItemsService" class="com.s1.banking.actionitem.ActionItemsServiceImpl" >
+		<property name="messageSource" ref="actionItemMessageSource" />
+		<property name="companyService" ref="companyService" />
+		<property name="actionItemRuntimeService" ref="actionItemRuntimeService" />
+		<property name="summaryGroupConfigs">
+			<list>
+				<ref bean="alertSummaryGroupConfig" />
+
+				<bean class="com.s1.banking.actionitem.ActionItemSummaryGroupConfig">
+					<property name="id" value="approvalsGroupId" />
+					<property name="msgCode" value="actionItem.approvals" />
+					<property name="groupProducers">
+						<list>
+							<!-- ACH Payments Approvals -->
+							<ref bean="achPaymentApprovalsGroupProducer" />
+
+							<!-- ACH Authorizations -->
+							<ref bean="achAuthApprovalsGroupProducer" />
+
+							<!-- Canada Payment Approvals -->
+							<ref bean="canadaPaymentApprovalsGroupProducer" />
+							
+							<!-- Colombia Payment Approvals -->
+							<ref bean="colPaymentApprovalsGroupProducer" />
+							
+							<!-- Singapore Payment Approvals -->
+							<ref bean="singaporePaymentApprovalsGroupProducer" />
+							
+							<!-- Sepa Payment Approvals -->
+                            <ref bean="sepaPaymentApprovalsGroupProducer" />
+
+							<!-- EFD Approvals -->
+							<ref bean="efdUploadApprovalsGroupProducer" />
+							
+							<!-- International Payment Approvals -->
+							<ref bean="itlPaymentApprovalsGroupProducer" />
+							
+							<!-- Issues -->
+							<ref bean="issueApprovalsGroupProducer" />
+							
+							<!-- Positive Pay Approvals -->
+							<ref bean="posPayApprovalsGroupProducer" />
+							
+							<!-- Stop Pay Approvals -->
+							<ref bean="stopPayApprovalsGroupProducer" />
+							
+							<!-- Transfers Approvals -->
+							<!-- Temporarily keep 2 of these around for comparison during refactoring: -->
+							<!-- <ref bean="transferApprovalsGroupProducer" />-->
+							<ref bean="transferGroupProducer" />
+							
+							<!-- Templates Approvals -->
+							<ref bean="paymentTemplatesApprovalsGroupProducer" />
+							
+							<!-- Transfer Templates approvals -->
+							<ref bean="transferTemplatesApprovalsGroupProducer" />
+							
+							<!-- Sweeps -->
+							<ref bean="transferRuleApprovalsGroupProducer" />
+							
+							<!-- Upload Files -->
+							<ref bean="uploadFilesApprovalsGroupProducer" />
+							
+							<!-- User Approvals -->
+							<ref bean="userApprovalsGroupProducer" />
+							
+							<!-- Wire Payments Approvals -->
+							<ref bean="wirePaymentApprovalsGroupProducer" />
+							
+							<!-- US Recipients Approvals -->
+							<ref bean="usRecipientGroupProducer" />
+														
+							<!-- International Recipients Approvals -->
+							<ref bean="itlRecipientGroupProducer" />
+							
+							<!-- Check Book Request Approvals -->
+							<ref bean="checkBookRequestGroupProducer" />													
+						</list>
+					</property>
+				</bean>
+
+				<bean class="com.s1.banking.actionitem.ActionItemSummaryGroupConfig">
+					<property name="id" value="messagesGroupId" />
+					<property name="msgCode" value="actionItem.messages" />
+					<property name="groupProducers">
+						<list>
+							<bean class="com.s1.banking.actionitem.MessagesGroupProducer" parent="baseActionItemGroupProducer">
+								<property name="maxLineItems" value="5" />
+								<property name="nameMsgCode" value="actionItem.messages" />
+								<property name="messageSource" ref="actionItemMessageSource" />		
+								<property name="url" value="/userServlet/common/inbox/view?tab=1" />
+								<property name="secureMessageService" ref="secureMessageService" />
+								<property name="maxSubjectLineChars" value="32" />
+							</bean>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="actionItemMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<!-- From the web-resources jar -->
+				<value>com/s1/banking/actionitem/action-item-messages-ext-Resources</value>
+				<value>com/s1/banking/actionitem/action-item-messages-Resources</value>
+			</list>
+		</property>
+		<property name="useCodeAsDefaultMessage" value="true"></property>
+	</bean>
+	
+	<bean id="actionItemRuntimeService" class="com.s1.banking.actionitem.runtime.ActionItemRuntimeServiceImpl">
+		<property name="template" ref="actionItemNotifyTemplate" />
+	</bean>
+
+	<jee:jndi-lookup id="actionItemNotifyTopicConnectionFactory"
+		jndi-name="jms/ActionItemNotifyTopicConnectionFactory" />
+
+	<jee:jndi-lookup id="actionItemNotifyTopic"
+		jndi-name="jms/ActionItemNotifyTopic" />
+
+	<bean id="actionItemNotifyMessageListener" class="com.s1.banking.actionitem.runtime.ActionItemRuntimeListenerBean" >
+		<property name="service" ref="actionItemRuntimeService" />
+		<property name="maxFailedDeliveryAttempts" value="2" />
+    </bean>
+
+    <bean id="actionItemCacheSessionListener" class="com.s1.banking.actionitem.ActionItemCacheSessionListener">
+			<property name="actionItemRuntimeService" ref="actionItemRuntimeService" />
+	</bean>
+
+	<bean id="actionItemNotifyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="actionItemNotifyTopicConnectionFactory" />
+		<property name="destination" ref="actionItemNotifyTopic" />
+		<property name="messageListener" ref="actionItemNotifyMessageListener" />
+		<property name="taskExecutor" ref="actionItemNotifyTaskExecutor" />	
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="1" />
+	</bean>
+
+	<bean id="actionItemNotifyTaskExecutor" class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+ 	<bean id="actionItemNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="actionItemNotifyTopicConnectionFactory"/>
+		<property name="defaultDestination" ref="actionItemNotifyTopic"/>		
+		<property name="pubSubDomain" value="true"/>		
+	</bean>		
+	<bean id="achPaymentMessage" class="com.s1.banking.actionitem.runtime.ACHPaymentItemMessage" lazy-init="true" scope="prototype">
+	</bean>		
+	<bean id="transferMessage" class="com.s1.banking.actionitem.runtime.TransferMessage" lazy-init="true" scope="prototype">		 
+	</bean>	
+</beans>

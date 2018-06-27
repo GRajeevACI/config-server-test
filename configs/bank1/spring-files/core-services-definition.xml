@@ -1,0 +1,388 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+
+	<bean id="accountDeleteBillingHelperImpl" class="com.s1.common.accounts.csr.deactivatedelete.AccountDeleteBillingHelperImpl" scope="singleton"/>
+
+	<bean id="removeTransferTemplatesImpl" class="com.s1.common.accounts.csr.deactivatedelete.RemoveTransferTemplatesImpl" scope="singleton"/>
+	
+	<bean id="removeReportsImpl" class="com.s1.common.accounts.csr.deactivatedelete.RemoveReportsImpl" scope="singleton"/>
+	
+	<bean id="removeAlertSubcriptionsImpl" class="com.s1.common.accounts.csr.deactivatedelete.RemoveAlertSubcriptionsImpl" scope="singleton"/>
+	
+	<bean id="removeACHAuthRulesImpl" class="com.s1.common.accounts.csr.deactivatedelete.RemoveACHAuthRulesImpl" scope="singleton"/>
+	
+	<!-- Extension to allow Account class to be replaced -->
+	<bean id="commonAccount" class="com.s1.banking.common.Account"/>
+	
+	<!-- Extension to allow StatusCodes class -->
+	<bean id="statusCodesImpl" class="com.s1.banking.common.StatusCodesImpl" scope="singleton"/>
+	
+	<bean id="commonStatusCodes" class="com.s1.app.disbursements.StatusCodes">
+		<property name="statusCodesImpl" ref="statusCodesImpl"></property>
+	</bean>
+	
+	<!-- Extension to allow Panel Approval Profile -->
+	<bean id="panelApprovalProfile" class="com.s1.app.disbursements.panelauth.ApprovalProfileImpl"/>
+	
+	<bean id="accountPendingTransaction" class="com.s1.banking.common.AccountPendingTransactionImpl" scope="singleton"/>
+	
+	<!-- Extension to allow frequencyConstants class -->
+	<bean id="frequencyConstantsImpl" class="com.s1.app.disbursements.recurrence.FrequencyConstantsImpl" scope="singleton"/>
+	
+	<bean id="commonFrequencyConstants" class="com.s1.app.disbursements.recurrence.FrequencyConstants">
+		<property name="frequencyConstantsImpl" ref="frequencyConstantsImpl"></property>
+	</bean>
+	
+	<!-- Extension to allow ExportFieldConstants class -->
+	<bean id="exportFieldConstantsImpl" class="com.s1.banking.common.export.execute.ExportFieldConstantsImpl" scope="singleton"/>
+	<bean id="commonExportFieldConstants" class="com.s1.banking.common.export.execute.ExportFieldConstants">
+		<!-- <property name="exportFieldConstantsImpl" ref="exportFieldConstantsImpl"></property> -->
+	</bean>
+	
+	<!-- Extension to allow ExportConstants class -->
+	<bean id="exportConstantsImpl" class="com.s1.banking.common.export.ExportConstantsImpl" scope="singleton"/>
+	<bean id="commonExportConstants" class="com.s1.banking.common.export.ExportConstants">
+		<property name="exportConstantsImpl" ref="exportConstantsImpl"></property>
+	</bean>
+
+    <!-- Extension to allow Recurrence class (regular) -->
+	<bean id="recurrenceImpl" class="com.s1.app.disbursements.recurrence.RecurrenceImpl" scope="singleton"/>
+	
+	<!-- Extension to allow Recurrence class (holiday) -->
+	<bean id="recurrenceHolidayImpl" class="com.s1.app.disbursements.recurrence.countryholiday.RecurrenceImpl" scope="singleton"/>
+    
+	
+	<!-- Extension point of com.s1.banking.common.export.user.Utility class -->
+	<bean id="utilityImpl" class="com.s1.banking.common.export.user.extension.Utility" scope="singleton"/>
+	
+	<bean id="exportUserUtility" class="com.s1.banking.common.export.user.Utility">
+		<property name="utilityImpl" ref="utilityImpl"></property>
+	</bean>
+	
+	<!-- Extension point of com.s1.app.disbursements.common.user.Utility class -->
+	<bean id="extnUtilityImpl" class="com.s1.app.disbursements.common.user.extension.TransferUtility" scope="singleton"/>
+	
+	<!-- Extension to allow SessionUtility class -->
+	<bean id="sessionUtilityImpl" class="com.s1.app.disbursements.corpach.common.ui.SessionUtilityImpl" scope="singleton"/>
+	<bean id="commonSessionUtility" class="com.s1.app.disbursements.corpach.common.ui.SessionUtility">
+		<property name="sessionUtilityImpl" ref="sessionUtilityImpl"></property>
+	</bean>
+	
+	<!-- Extension to allow Utility class -->
+	<bean id="bulkTransferUtility" class="com.s1.app.disbursements.bulktransfer.user.BulkTransferUtility" scope="singleton"/>
+	<bean id="commonBulkTransferUtility" class="com.s1.app.disbursements.bulktransfer.user.Utility">
+		<property name="bulkTransferUtility" ref="bulkTransferUtility"></property>
+	</bean>
+	
+	<!-- Extension to allow Utility class -->
+	<bean id="drawdownUtility" class="com.s1.app.disbursements.drawdown.user.DrawdownUtility" scope="singleton"/>
+	<bean id="commonDrawdownUtility" class="com.s1.app.disbursements.drawdown.user.Utility">
+		<property name="drawdownUtility" ref="drawdownUtility"></property>
+	</bean>
+	
+		<!-- Extension to allow Utility class -->
+	<bean id="xferUtility" class="com.s1.app.disbursements.transfer.user.TransferUtility" scope="singleton"/>
+	<bean id="commonTransferUtility" class="com.s1.app.disbursements.transfer.user.Utility">
+		<property name="transferUtility" ref="xferUtility"></property>
+	</bean>
+	
+	<!--  	<bean id="workflowRegistryService"-->
+	<!--		class="com.s1.arch.workflow.ConcreteWorkflowRegistryService" />-->
+	<!--	<bean id="provisionalGrantService"-->
+	<!--		class="com.s1.arch.security.authorization.provisional.ConcreteProvisionalGrantService" />-->
+	<!--	<bean id="campaignOfferService"-->
+	<!--		class="com.s1.core.campaignOffer.ConcreteCampaignOfferService" />-->
+	<!--	<bean id="reportService"-->
+	<!--		class="com.s1.core.report.ConcreteReportService" />-->
+	<!--	<bean id="noteService" class="com.s1.core.note.ConcreteNoteService" />-->
+	<!--	<bean id="campaignService"-->
+	<!--		class="com.s1.core.campaign.ConcreteCampaignService" />-->
+	<!--	<bean id="incidentService"-->
+	<!--		class="com.s1.core.incident.ConcreteIncidentService" />-->
+	<!--	<bean id="behaviorService"-->
+	<!--		class="com.s1.core.behavior.ConcreteBehaviorService" />-->
+	<bean id="customerService"
+		class="com.s1.core.customer.ConcreteCustomerService" />
+	<bean id="employeeService"
+		class="com.s1.core.employee.ConcreteEmployeeService" />
+	<bean id="custSgmtService"
+		class="com.s1.core.custSgmt.ConcreteCustSgmtService" />
+	<bean id="channelService"
+		class="com.s1.arch.channel.ConcreteChannelService" />
+	<bean id="productService"
+		class="com.s1.core.product.ConcreteProductService" />
+	<bean id="messageService"
+		class="com.s1.arch.i18n.message.ConcreteMessageService" />
+	<bean id="businessContactService"
+		class="com.s1.core.businesscontact.ConcreteBusinessContactService" />
+	<bean id="genericDispatcherService"
+		class="com.s1.arch.lcf.ConcreteGenericDispatcherService" />
+	<bean id="challengeQuestionAdminService"
+		class="com.s1.arch.security.challenge.ConcreteChallengeQuestionAdminService" />
+	<bean id="enumerationService"
+		class="com.s1.arch.enumeration.ConcreteEnumerationService" />
+
+	<bean id="localeService"
+		class="com.s1.arch.i18n.locale.ConcreteLocaleService" />
+	<bean id="dynamicAttributeService"
+		class="com.s1.arch.dynamicattribute.ConcreteDynamicAttributeService" />
+
+	<bean id="contextSharingService"
+		class="com.s1.arch.contextsharing.ConcreteContextSharingService" />
+	<bean id="auditService"
+		class="com.s1.arch.auditx.ConcreteAuditService" />
+		
+	<bean id="applicationRegistryService"
+		class="com.s1.core.applicationregistry.ConcreteApplicationRegistryService" />
+	<bean id="affiliateFIService"
+		class="com.s1.core.organization.ConcreteAffiliateFIService" />
+	<bean id="affiliateService"
+		class="com.s1.banking.common.organization.affiliate.ConcreteAffiliateService" />	
+	<bean id="parametersService"
+		class="com.s1.common.parameters.ParametersServiceBean" />
+	
+	<bean id="personService"
+		class="com.s1.core.person.ConcretePersonService" />
+	<bean id="organizationService"
+		class="com.s1.core.organization.ConcreteOrganizationService" />
+	<bean id="aggregationService"
+		class="com.s1.core.aggregation.ConcreteAggregationService" />
+	<bean id="custSgmtDetService"
+		class="com.s1.core.custSgmtDet.ConcreteCustSgmtDetService" />
+	<bean id="navigationDescriptorService"
+		class="com.s1.core.navigation.ConcreteNavigationDescriptorService" />
+	<bean id="offerTypeService"
+		class="com.s1.core.offertype.ConcreteOfferTypeService" />
+	<bean id="authenticationService"
+		class="com.s1.arch.security.authentication.ConcreteAuthenticationService" />
+		<bean id="authenticationServiceExtn"
+		class="com.s1.arch.security.authentication.ConcreteAuthenticationServiceExtn" parent="authenticationService"/>
+	<bean id="identityService"
+		class="com.s1.arch.security.identity.ConcreteIdentityService" />
+	<bean id="pagedCollectionService"
+		class="com.s1.arch.pagedcollection.ConcretePagedCollectionService" />
+	<bean id="logonAdminService"
+		class="com.s1.arch.security.logonadmin.ConcreteLogonAdminService" />
+	<bean id="userSecurityService"
+		class="com.s1.arch.security.user.ConcreteLocalUserSecurityService" />
+	<bean id="lockoutService"
+		class="com.s1.arch.security.lockout.ConcreteLockoutService" />
+	<bean id="passwdAdminService"
+		class="com.s1.arch.security.passwdadmin.ConcretePasswdAdminService" />
+	<bean id="principalManagerService" class="com.s1.arch.principal.ConcretePrincipalManagerService" >
+		<property name="supportGroupMapper" ref="samSupportGroupMapper"/>
+	</bean>
+	<bean id="samSupportGroupMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.arch.security.authoriz.dao.SupportGroupMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+
+	<!-- For Common DB handling -->
+	<bean id="dbUtil"
+		class="com.s1.arch.persistence.util.DBUtilImpl" init-method="initialize"/>
+
+	<bean id="authorizationBridgeService"
+		class="com.s1.arch.security.authoriz.ConcreteAuthorizationService" />
+
+	<bean id="sequenceGeneratorService"
+		class="com.s1.arch.persistence.sequence.ConcreteSequenceGeneratorSupportService" />
+	<bean id="sequenceService"
+		class="com.s1.arch.persistence.sequence.LocalDatabaseSequenceService">
+		<property name="sequenceGenerator"
+			ref="sequenceGeneratorService" />
+		<property name="invokeRetries" value="3"/>
+		<property name="msecSleepBetweenRetries" value="20"/>
+	</bean>
+	
+	
+
+
+
+	<bean id="springBeanFactoryBridge"
+		class="com.s1.arch.spring.SpringBeanFactoryBridge" lazy-init="false" />
+	<bean id="springBootstrap"
+		class="com.s1.arch.bootstrap.SpringS1Bootstrap" lazy-init="false" depends-on="springGrndsBootstrap" />
+	<bean id="propertyConfigurer"
+		class="com.s1.arch.spring.beans.factory.config.GrndsPropertyPlaceHolderConfigurer"
+		depends-on="springGrndsBootstrap" lazy-init="false"/> 
+	<bean id="springGrndsBootstrap"
+		class="com.s1.arch.common.bootstrap.SpringGrndsBootstrap" lazy-init="false" depends-on="springBeanFactoryBridge"/>	
+		
+	<!-- use this xa-capable data source for WebSphere	-->
+	 <bean id="epDataSourceXa" class="org.springframework.jdbc.datasource.WebSphereDataSourceAdapter">
+	   <property name="targetDataSource" >
+	   	 <bean 	class="org.springframework.jndi.JndiObjectFactoryBean">
+		   <property name="jndiName" value="${grnds.factory.env.target.EP_DB_Interposed_XA.javax.naming.name.j2ee}"/>
+		</bean>
+	   </property>
+	 </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/config/ibatis/Mybatis-SqlMapConfig.xml" />
+        <property name="dataSource" ref="epDataSource" />
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory" />
+    </bean>
+
+	<bean id="BaseMybatisDAO" abstract="true" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+    <bean id="BaseMybatisBatchDAO" abstract="true" class="com.s1.arch.mybatis.BatchExecutionMapperFactoryBean">
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+    </bean>
+    
+    <bean id="sqlSessionFactoryXA" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/config/ibatis/Mybatis-SqlMapConfig.xml" />
+        <property name="dataSource" ref="epDataSourceXA" />
+    </bean>
+
+    <bean id="sqlSessionTemplateXA" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactoryXA" />
+    </bean>
+
+	<bean id="BaseMybatisDAOXA" abstract="true" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplateXA" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+
+    <bean id="authorizationMapper" parent="BaseMybatisBatchDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.AuthorizationGrantMapper" />
+	</bean>
+	
+	<bean id="authorizationTargetMapper" parent="BaseMybatisDAO">
+        <property name="mapperInterface" value="com.s1.arch.security.authorization.dao.AuthorizationTargetMapper" />
+    </bean>
+     
+    
+	
+	
+	<bean id="userEntitlementsOpsTargetsMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.UserEntitlementsOpsTargetsMapper" />
+	</bean>
+	
+	<bean id="userEntitlementsUsersGroupsMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.UserEntitlementsUsersGroupsMapper" />
+	</bean>
+	
+	<bean id="userEntitlementsDao" class="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsDaoImpl" >
+		<property name="opsTargetsMapper" ref="userEntitlementsOpsTargetsMapper" />
+		<property name="usersGroupsMapper" ref="userEntitlementsUsersGroupsMapper" />
+		<property name="properties">
+			<props>
+				<prop key="allPaymentFeatCodes">3,6,7,10,18,35,39,40,41,42,46,48,49,51,52,53,54,57,58,59,200,201,202,205,210,211</prop>
+				<prop key="allPaymentDerivedOperations">
+				/payment/reports,/payment/template_groups/manage,/payment/import/manageImportProfiles,/payment/import/execute,/template/import/manageImportProfiles,/template/import/execute,/recipient/import/manageImportProfiles,/recipient/import/execute,/payment/export/manageExportProfiles,/payment/export/execute,/template/export/manageExportProfiles,/template/export/execute,/recipient/export/manageExportProfiles,/recipient/export/execute				
+				</prop>
+				
+				<prop key="USPaymentsFeatCodes">3,6,10,18,35,39,40,41,42,46,48,49,51,52,53,54,57,58,59</prop>
+				<prop key="USPaymentsDerivedOperations">/payment/thirdparty/manage</prop>
+				
+				<prop key="CrossBorderPaymentFeatCodes">7,211</prop>
+				<prop key="CrossBorderPaymentDerivedOperations">/thirdparty/international/create_modify</prop>
+				
+				<prop key="UKPaymentFeatCodes">200,201,202,205</prop>
+				<prop key="">/thirdparty/domestic/create_modify</prop>
+			</props>
+		</property>
+	</bean>		
+		 
+	<!-- use this data source for JBoss 
+        <bean id="jbossJndiEPTemplate" class="org.springframework.jndi.JndiTemplate">
+          <property name="environment">
+          <props>
+                <prop key="java.naming.factory.initial">org.jnp.interfaces.NamingContextFactory</prop>
+          </props>
+          </property>
+         </bean>
+ 
+	 <bean id="epDataSource" class="org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter">
+	   <property name="targetDataSource" >
+	   	 <bean 	class="org.springframework.jndi.JndiObjectFactoryBean">
+		   <property name="jndiName" value="${grnds.factory.env.target.EP_DB_Interposed.javax.naming.subcontext}/${grnds.factory.env.target.EP_DB_Interposed.javax.naming.name.j2ee}"/>
+            	      <property name="jndiTemplate">
+                         <ref local="jbossJndiEPTemplate"/>
+                      </property>
+		</bean>
+	   </property>
+	 </bean>
+         -->
+
+	<bean id="adaptiveAuthenticationService" class="${com.s1.app.adaptiveauth.rsa}"/>
+	
+    <!--  <bean id="sequenceService" class="org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean" scope="prototype">
+		<property name="jndiName" value="ejb/com/s1/arch/sequence/SequenceServiceHome"/>
+		<property name="businessInterface" value="com.s1.arch.persistence.sequence.SequenceService"/>
+		<property name="jndiTemplate">
+			<ref local="jndiTemplate"/>
+		</property>
+		<property name="cacheHome" value="false"/>
+		<property name="lookupHomeOnStartup" value="false"/>
+		<property name="resourceRef" value="false"/>
+		<property name="homeInterface" value="com.s1.arch.persistence.sequence.SequenceServiceHome"/>
+    </bean>  -->
+	 <import resource="core-services-definition-appserver-specific.xml" />
+	 
+	 <!-- Changes related to Topic created for entitlements-->
+	<bean id="entitlementMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<!-- From the web-resources jar -->
+				<value>com/s1/arch/security/authorization/entitlement-messages-ext-Resources</value>
+				<value>com/s1/arch/security/authorization/entitlement-messages-Resources</value>
+			</list>
+		</property>
+		<property name="useCodeAsDefaultMessage" value="true"></property>
+	</bean>
+	
+	<bean id="entitlementRuntimeService" class="com.s1.arch.security.authorization.runtime.EntitlementRuntimeServiceImpl">
+		<property name="template" ref="entitlementNotifyTemplate" />
+	</bean>
+
+	<jee:jndi-lookup id="entitlementNotifyTopicConnectionFactory"
+		jndi-name="jms/EntitlementNotifyTopicConnectionFactory" />
+
+	<jee:jndi-lookup id="entitlementNotifyTopic"
+		jndi-name="jms/EntitlementNotifyTopic" />
+
+	<bean id="entitlementNotifyMessageListener" class="com.s1.arch.security.authorization.runtime.EntitlementRuntimeListenerBean" >
+		<property name="service" ref="entitlementRuntimeService" />
+		<property name="maxFailedDeliveryAttempts" value="2" />
+		<property name="cache" ref="authorizationCache" />		
+    </bean>
+
+	<bean id="entitlementNotifyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="entitlementNotifyTopicConnectionFactory" />
+		<property name="destination" ref="entitlementNotifyTopic" />
+		<property name="messageListener" ref="entitlementNotifyMessageListener" />
+		<property name="taskExecutor" ref="entitlementNotifyTaskExecutor" />	
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="1" />
+	</bean>
+
+	<bean id="entitlementNotifyTaskExecutor" class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+ 	<bean id="entitlementNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="entitlementNotifyTopicConnectionFactory"/>
+		<property name="defaultDestination" ref="entitlementNotifyTopic"/>		
+		<property name="pubSubDomain" value="true"/>		
+	</bean>
+	<bean id="uploadcorefilebatchgen" class="com.s1.banking.common.upload.parser.issue.UploadFileBatchFormatgenerator">
+	</bean>
+	<bean id="uploadcustomfilebatchgen" class="com.s1.banking.common.upload.parser.issue.UploadFileCustomBatchFormatGenerator">
+	<property name="header" value="H|SBBK|ISSUEXEC|1|TD eTreasury|" />
+	<property name="trailer" value="T|" />
+	</bean>
+</beans>

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.bnk.alerts.dao.AlertAffiliateUtilMapper" >
+
+	<!-- Give it a flush interval of 5 minutes -->
+	<cache eviction="LRU" flushInterval="300000" size="500" readOnly="true" />
+
+	<resultMap type="com.s1.bnk.alerts.model.AlertOptionView" id="AlertOptionResultMap">
+		<result column="BNKALRTTYPEKY" jdbcType="INTEGER" property="alertTypeOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="CORORGKYFI" jdbcType="INTEGER" property="affiliateOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="NAMEMSGCD" jdbcType="VARCHAR" property="nameMessageCode" />
+		<result column="ISENABLED" jdbcType="SMALLINT" property="isEnabled" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	</resultMap>
+
+	<select id="getAlertOptionViews" parameterType="java.lang.Long" resultMap="AlertOptionResultMap">
+    	SELECT
+    		BNKAlrtTypeKy,
+    		COROrgKyFI,
+    		nameMsgCd,
+    		isEnabled
+    	FROM
+    		BNKAlrtType a,
+    		BNKAlrtAffltOptn o
+    	WHERE
+    		a.BNKAlrtTypeKy = o.BNKAlrtTypeKy
+    		AND o.COROrgKyFI = #{value}
+	</select>
+
+	<resultMap type="com.s1.bnk.alerts.model.AlertTypeListElement" id="AlertTypeListResultMap">
+		<result column="BNKALRTTYPEKY" jdbcType="INTEGER" property="oid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="ALERTNAME" jdbcType="VARCHAR" property="typeCode"/>
+		<result column="NAMEMSGCD" jdbcType="VARCHAR" property="nameCode"/>
+		<result column="ISENABLED" jdbcType="SMALLINT" property="enabled" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result column="MESSAGECD" jdbcType="VARCHAR" property="messageCode"/>
+	</resultMap>
+	
+	<select id="getAlertTypeListElements" parameterType="long" resultMap="AlertTypeListResultMap">
+		SELECT 
+			DISTINCT a.BNKALRTTYPEKY,
+			t.ALERTNAME,
+			t.NAMEMSGCD,
+			COALESCE(m2.SUBJECTMSGCD , m1.SUBJECTMSGCD)AS MESSAGECD,
+			a.ISENABLED
+		FROM 
+			BNKAlrtType t
+			INNER JOIN BNKALRTAFFLTOPTN a ON t.BNKALRTTYPEKY = a.BNKALRTTYPEKY
+			INNER JOIN BNKALRTMESSAGE m1 ON a.BNKALRTTYPEKY = m1.BNKALRTTYPEKY AND m1.BNKALRTAFFLTOPTNKY IS NULL 
+			INNER JOIN BNKALRTDLVRYCHN dc1 ON m1.BNKALRTDLVRYCHNKY = dc1.BNKALRTDLVRYCHNKY AND dc1.CHANNELNAME = 'inbox'	
+			LEFT OUTER JOIN BNKALRTMESSAGE m2 ON a.BNKALRTTYPEKY = m2.BNKALRTTYPEKY AND m2.BNKALRTAFFLTOPTNKY = a.BNKALRTAFFLTOPTNKY AND m2.BNKALRTAFFLTOPTNKY IS NOT NULL AND
+       m2.BNKALRTDLVRYCHNKY = dc1.BNKALRTDLVRYCHNKY AND dc1.CHANNELNAME = 'inbox'	
+		WHERE 
+			t.ISENABLED = 1 
+			AND a.CORORGKYFI =  #{affiliateOid}
+	</select>
+	
+	<select id="getAlertAffiliateChannels" parameterType="map" resultMap="com.s1.bnk.alerts.dao.AlertAffiliateChannelMapper.BaseResultMap">
+		SELECT 
+			a.BNKALRTAFFLTCHNKY,
+			a.BNKALRTAFFLTOPTNKY,
+			a.BNKALRTDLVRYCHNKY,
+			a.ISENABLED, 
+		    a.UPDATEUSER,
+		    a.UPDATEDTTM,
+		    a.VERSIONSTAMP
+		FROM 
+			BNKALRTAFFLTCHN a
+			INNER JOIN BNKALRTAFFLTOPTN b ON a.BNKALRTAFFLTOPTNKY = b.BNKALRTAFFLTOPTNKY
+		WHERE 
+			b.BNKALRTTYPEKY = #{alertTypeOid} 
+			AND b.CORORGKYFI = #{affiliateOid}
+	</select>
+	
+	<select id="isAlertAffiliateChannelEnabled" parameterType="map" resultType="java.lang.Boolean">
+		SELECT
+			aac.IsEnabled
+		FROM
+			BNKALRTAFFLTCHN aac
+			INNER JOIN BNKALRTAFFLTOPTN aao ON aac.BNKALRTAFFLTOPTNKY = aao.BNKALRTAFFLTOPTNKY 
+		WHERE
+			aao.CORORGKYFI = #{affiliateOid}
+			AND aao.BNKALRTTYPEKY = #{alertTypeOid}
+			AND aac.BNKALRTDLVRYCHNKY = #{channelOid}
+			
+	</select>
+	
+	<resultMap type="com.s1.bnk.alerts.model.AlertTypeMessageView" id="AlertTypeMessageViewResultMap">
+		<result column="BNKALRTDLVRYCHNKY" jdbcType="INTEGER" property="alertDeliveryChannelOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="BNKALRTMESSAGEKY" jdbcType="INTEGER" property="alertMessageOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="BNKALRTAFFLTOPTNKY" jdbcType="INTEGER" property="alertAffiliateOptionOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="AFFILIATEOPTVERSION" jdbcType="INTEGER" property="affiliateOptionVersion" />
+		<result column="SUBJECTMSGCD" jdbcType="VARCHAR" property="subjectCode"/>
+		<result column="ALERTBODYMSGCD" jdbcType="VARCHAR" property="messageCode" />
+		<result column="IsEnabled" jdbcType="SMALLINT" property="enabled" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result column="EMAILMSGENABLED" jdbcType="SMALLINT" property="emailMsgEnabled" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	</resultMap>
+	
+	<select id="getAlertTypeMessageViews" parameterType="map" resultMap="AlertTypeMessageViewResultMap">
+	
+		SELECT
+	distinct 		a.BNKALRTTYPEKY,
+			b.ISENABLED,
+			b.BNKALRTAFFLTOPTNKY,
+			b.VERSIONSTAMP AS AffiliateOptVersion,
+			COALESCE(d.BNKALRTDLVRYCHNKY, c.BNKALRTDLVRYCHNKY) AS BNKALRTDLVRYCHNKY,
+			COALESCE(d.BNKALRTMESSAGEKY, c.BNKALRTMESSAGEKY) AS BNKALRTMESSAGEKY,
+			COALESCE(d.SUBJECTMSGCD, c.SUBJECTMSGCD) AS SUBJECTMSGCD, 
+			COALESCE(d.ALERTBODYMSGCD, c.ALERTBODYMSGCD) AS ALERTBODYMSGCD,
+			COALESCE(d.ISENABLED, c.ISENABLED) AS EMAILMSGENABLED
+		FROM BNKAlrtType a
+			INNER JOIN BNKAlrtAffltOptn b ON a.BNKALRTTYPEKY = b.BNKALRTTYPEKY
+			INNER JOIN 
+		    	(SELECT aa.BNKALRTTYPEKY, aa.BNKALRTMESSAGEKY, aa.SUBJECTMSGCD, aa.ALERTBODYMSGCD,aa.ISENABLED, bb.BNKALRTDLVRYCHNKY
+		    		FROM BNKAlrtMessage aa
+			    	INNER JOIN BNKALRTDLVRYCHN bb ON aa.BNKALRTDLVRYCHNKY = bb.BNKALRTDLVRYCHNKY
+			    	WHERE BNKALRTAFFLTOPTNKY IS NULL) c ON a.BNKALRTTYPEKY = c.BNKALRTTYPEKY
+			LEFT OUTER JOIN 
+		    	(SELECT aa.BNKALRTTYPEKY, aa.BNKALRTMESSAGEKY, aa.SUBJECTMSGCD, aa.ALERTBODYMSGCD, BNKALRTAFFLTOPTNKY, aa.ISENABLED,bb.BNKALRTDLVRYCHNKY
+			    	FROM BNKAlrtMessage aa
+		    		INNER JOIN BNKALRTDLVRYCHN bb ON aa.BNKALRTDLVRYCHNKY = bb.BNKALRTDLVRYCHNKY
+			    	) d ON a.BNKALRTTYPEKY = d.BNKALRTTYPEKY AND b.BNKALRTAFFLTOPTNKY = d.BNKALRTAFFLTOPTNKY and d.BNKALRTAFFLTOPTNKY is not  null
+		WHERE 
+			b.CORORGKYFI = #{affiliateOid}
+			AND a.BNKALRTTYPEKY =  #{alertTypeOid} 
+			AND a.ISENABLED = 1
+	</select>
+	
+	<select id="getLocaleByUser" parameterType="java.lang.Long" resultType="java.lang.Long">
+		SELECT
+			a.ARCLocaleCdKy 
+		FROM
+			BNKUser a
+		WHERE
+			a.BNKUserKy= #{value}
+	</select>
+
+	<select id="getUserLoginId" parameterType="java.lang.Long" resultType="java.lang.String">
+		SELECT
+			i.UserId 
+		FROM
+			ARCChannel c,
+			ARCIdentity i,
+			BNKUser u
+		WHERE
+			u.BNKUserKy = #{value} AND
+			c.ChannelNameMsgCd = 'ARCChnNmWeb' AND
+			i.ARCChannelKy = c.ARCChannelKy AND
+			i.ARCPrincipalKy = u.ARCPrincipalKy 
+	</select>
+
+	<select id="getUserEmailAddress" parameterType="java.lang.Long" resultType="java.lang.String">
+		SELECT
+			a.EmailAddress
+		FROM
+			BNKUser a
+		WHERE
+			a.BNKUserKy= #{value}
+	</select>
+
+	<resultMap type="com.s1.bnk.alerts.model.BnkUserFlags" id="BnkUserFlagsMap">
+		<result column="ApprovalStatus"	jdbcType="SMALLINT" property="approvalStatus" />
+		<result column="IsBankUser" 	jdbcType="CHAR" property="bankUser" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result column="IsActive" 		jdbcType="CHAR" property="active" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result column="IsCmpSysAdmin"	jdbcType="CHAR" property="csa" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	</resultMap>
+	
+	<select id="getBnkUserFlags" parameterType="java.lang.String" resultMap="BnkUserFlagsMap" useCache="true">
+		SELECT
+			u.ApprovalStatus,
+			u.IsBankUser,
+			u.IsActive,
+			u.IsCmpSysAdmin
+		FROM
+			ARCChannel c,
+			ARCIdentity i,
+			BNKUser u
+		WHERE
+			i.UserId = #{value} AND
+			c.ChannelNameMsgCd = 'ARCChnNmWeb' AND
+			i.ARCChannelKy = c.ARCChannelKy AND
+			i.ARCPrincipalKy = u.ARCPrincipalKy
+	</select>
+	
+	<select id="getBnkUserFlagsForUserGroups" parameterType="java.lang.String" resultMap="BnkUserFlagsMap" useCache="true">
+		SELECT DISTINCT
+			u.ApprovalStatus,
+			u.IsBankUser,
+			u.IsActive,
+			uv.ISGrpSysAdmin as IsCmpSysAdmin
+		FROM
+			ARCChannel c,
+			ARCIdentity i,
+			BNKUser u,
+			BNKUSERGRPVW uv
+		WHERE
+			i.UserId = #{value} AND
+			c.ChannelNameMsgCd = 'ARCChnNmWeb' AND
+			i.ARCChannelKy = c.ARCChannelKy AND
+			i.ARCPrincipalKy = u.ARCPrincipalKy AND
+			uv.BNKUserKy = u.BNKUserKy AND
+			uv.ISGROUPDELETED = 0
+	</select>
+	
+	<resultMap type="com.s1.arch.utilities.AffiliateInfo" id="AffiliateInfoMap">
+		<result column="COROrgKy" jdbcType="INTEGER" property="affiliateOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>
+		<result column="AffiliateId" jdbcType="VARCHAR" property="affiliateId" />
+		<result column="Name" jdbcType="VARCHAR" property="affiliateName" />
+	</resultMap>
+
+	<select id="getAffiliateOidByUserOid" parameterType="java.lang.Long" resultType="java.lang.Long">
+		SELECT
+			affiliate.COROrgKy
+		FROM
+			BNKUser u,
+			BNKAffiliateFI affiliate,
+			BNKCustomer customer
+		WHERE
+			u.BNKUserKy = #{value} AND 
+			u.BNKCustomerKy = customer.BNKCustomerKy AND
+			customer.COROrgKyFI = affiliate.COROrgKy
+	</select>
+
+	<select id="getAffiliateInfoByUserOid" parameterType="java.lang.Long" resultMap="AffiliateInfoMap">
+		SELECT
+			affiliate.COROrgKy,
+			affiliate.AffiliateId,
+			org.Name
+		FROM
+			BNKUser u,
+			BNKAffiliateFI affiliate,
+			BNKCustomer customer,
+			COROrg org
+		WHERE
+			u.BNKUserKy = #{value} AND 
+			u.BNKCustomerKy = customer.BNKCustomerKy AND
+			customer.COROrgKyFI = affiliate.COROrgKy AND
+			org.COROrgKy = affiliate.COROrgKy
+	</select>
+
+	<select id="getAffiliateInfoByAffiliateOid" parameterType="java.lang.Long" resultMap="AffiliateInfoMap">
+		SELECT
+			affiliate.COROrgKy,
+			affiliate.AffiliateId,
+			org.Name
+		FROM
+			BNKAffiliateFI affiliate,
+			COROrg org
+		WHERE
+			affiliate.COROrgKy = #{value} AND
+			org.COROrgKy = affiliate.COROrgKy
+	</select>
+</mapper>

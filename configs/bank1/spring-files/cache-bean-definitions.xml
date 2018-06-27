@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans						
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	
+	<util:constant id="customerCacheRegion"
+		static-field="com.aciworldwide.common.cache.Constant.CUSTOMER_CACHE_REGION" />
+		
+			
+	<util:constant id="userCacheRegion"
+		static-field="com.aciworldwide.common.cache.Constant.PERSON_CACHE_REGION" />
+		
+		
+		<util:constant id="custAcctCacheRegion"
+		static-field="com.aciworldwide.common.cache.Constant.CUSTOMER_VISIBLE_ACCOUNTS_CACHE_REGION" />
+
+	<bean name="custVisibleAccountCache" class="com.aciworldwide.common.cache.CacheFactory"
+		factory-method="getCacheRegion">		
+		<constructor-arg ref="custAcctCacheRegion" />
+		<constructor-arg value="java.lang.String" />
+		<constructor-arg value="com.s1.common.accounts.AccountHoldingValue[]" />
+		<constructor-arg value="false" />
+		<constructor-arg value="false" />
+	</bean>
+	
+
+	<bean name="userCache" class="com.aciworldwide.common.cache.CacheFactory"
+		factory-method="getCacheRegion">		
+		<constructor-arg ref="userCacheRegion" />
+		<constructor-arg value="java.lang.String" />
+		<constructor-arg value="com.s1.common.user.UserValue" />
+		<constructor-arg value="false" />
+		<constructor-arg value="false" />
+	</bean>
+	
+	
+	<bean name="customerCache" class="com.aciworldwide.common.cache.CacheFactory"
+		factory-method="getCacheRegion">		
+		<constructor-arg ref="customerCacheRegion" />
+		<constructor-arg value="java.lang.String" />
+		<constructor-arg value="com.s1.common.customer.CustomerValue" />
+		<constructor-arg value="false" />
+		<constructor-arg value="false" />
+	</bean>
+	
+	
+	<util:constant id="identityCacheRegion"
+		static-field="com.aciworldwide.common.cache.Constant.IDENTITY_CACHE_REGION" />
+	
+		
+	<bean name="identityCache" class="com.aciworldwide.common.cache.CacheFactory"
+		factory-method="getCacheRegion">		
+		<constructor-arg ref="identityCacheRegion" />
+		<constructor-arg value="java.lang.String" />
+		<constructor-arg value="com.s1.arch.security.identity.IdentityValue" />
+		<constructor-arg value="false" />
+		<constructor-arg value="false" />
+	</bean>
+</beans>

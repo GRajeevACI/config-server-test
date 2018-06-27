@@ -1,0 +1,93 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:drools="http://drools.org/schema/drools-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+	http://drools.org/schema/drools-spring 
+       					http://drools.org/schema/drools-spring.xsd">
+
+
+	<!--Spring declarations for user facing create flow-->
+	<drools:resource id="recurringPaymentCommonKnowledgeResource" type="DRL"
+		source="classpath:rules/disbursements/payments/recurring-common-knowledge.drl" />
+	<drools:resource id="recurringPaymentSeqSchedRulesResource" type="DRL"
+		source="classpath:rules/disbursements/payments/recurring-sequence-schedule-rules.drl" />
+	<drools:resource id="recurringPaymentRuleResource" type="DRL"
+		source="classpath:rules/disbursements/payments/recurring-base-rules.drl" />
+
+	<drools:kbase id="paymentsKbase">
+		<drools:resources>
+			<drools:resource ref="recurringPaymentCommonKnowledgeResource" />
+			<drools:resource ref="recurringPaymentSeqSchedRulesResource" />
+			<drools:resource ref="recurringPaymentRuleResource" />
+		</drools:resources>
+
+		<drools:configuration>
+			<drools:mbeans enabled="false" />
+			<drools:event-processing-mode mode="STREAM" />
+		</drools:configuration>
+	</drools:kbase>
+	
+	<drools:ksession id="statefulPaymentsKSession" type="stateful" kbase="paymentsKbase"/> 
+	
+	<bean id="paymentsRulesDAOImpl" class="com.s1.frameworks.payments.rules.PaymentsRulesDAOImpl">
+        <property name="ksession" ref="statefulPaymentsKSession" />
+        <property name="kbase" ref="paymentsKbase" />
+    </bean>
+    
+    <bean id="statefulSessionFactory" class="org.drools.container.spring.beans.StatefulKnowledgeSessionBeanFactory">
+    	<property name="kbase" ref="paymentsKbase" />
+    </bean>
+	
+	
+	<!--Spring declarations for automated/asynchronous payment stream maintenance-->
+	<drools:resource id="recurringPaymentMaintenanceRuleResource" type="DRL"
+		source="classpath:rules/disbursements/payments/recurring-maintenance-base-rules.drl" />
+		
+	<drools:kbase id="maintenanceKbase">
+		<drools:resources>
+			<drools:resource ref="recurringPaymentCommonKnowledgeResource" />
+			<drools:resource ref="recurringPaymentSeqSchedRulesResource" />
+			<drools:resource ref="recurringPaymentMaintenanceRuleResource" />
+		</drools:resources>
+
+		<drools:configuration>
+			<drools:mbeans enabled="false" />
+			<drools:event-processing-mode mode="STREAM" />
+		</drools:configuration>
+	</drools:kbase>
+	
+	<drools:ksession id="statefulMaintenanceKSession" type="stateful" kbase="maintenanceKbase"/> 
+
+	<bean id="maintenanceRulesDAOImpl" class="com.s1.frameworks.payments.rules.PaymentsRulesDAOImpl">
+        <property name="ksession" ref="statefulMaintenanceKSession" />
+        <property name="kbase" ref="maintenanceKbase" />
+    </bean>
+	
+	<!--Spring declarations for changes and cancellation of a payment stream-->
+	<drools:resource id="recurringPaymentModifyRuleResource" type="DRL"
+		source="classpath:rules/disbursements/payments/recurring-modify-base-rules.drl" />
+	<drools:resource id="recurringPaymentModifyNonScheduleRuleResource" type="DRL"
+		source="classpath:rules/disbursements/payments/recurring-modify-non-schedule-data-rules.drl" />
+		
+	<drools:kbase id="modifyKbase">
+		<drools:resources>
+			<drools:resource ref="recurringPaymentCommonKnowledgeResource" />
+			<drools:resource ref="recurringPaymentSeqSchedRulesResource" />
+			<drools:resource ref="recurringPaymentModifyRuleResource" />
+			<drools:resource ref="recurringPaymentModifyNonScheduleRuleResource" />
+		</drools:resources>
+
+		<drools:configuration>
+			<drools:mbeans enabled="false" />
+			<drools:event-processing-mode mode="STREAM" />
+		</drools:configuration>
+	</drools:kbase>
+	
+	<drools:ksession id="statefulModifyKSession" type="stateful" kbase="modifyKbase"/> 
+
+	<bean id="modifyPaymentStreamRulesDAOImpl" class="com.s1.frameworks.payments.rules.PaymentsRulesDAOImpl">
+        <property name="ksession" ref="statefulModifyKSession" />
+        <property name="kbase" ref="modifyKbase" />
+    </bean>
+
+</beans>

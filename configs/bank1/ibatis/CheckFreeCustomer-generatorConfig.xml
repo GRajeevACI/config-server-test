@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+  <context id="context1">
+  	<property name="overwrite" value="true"/>
+  	<plugin type="com.s1.arch.mybatis.plugins.MybatisDAOPlugin"></plugin>
+	<plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
+    <jdbcConnection driverClass="com.ibm.db2.jcc.DB2Driver" connectionURL="jdbc:db2://localhost:50000/W5139GA:currentFunctionPath=SONEDBA;" userId="devuser" password="1234Hjkl" />
+    <javaModelGenerator targetPackage="com.aci.gsso.model" targetProject="MyBatisGenerator" />
+    <sqlMapGenerator targetPackage="config.mybatis" targetProject="MyBatisGenerator" />
+    <javaClientGenerator targetPackage="com.aci.gsso.mapper" targetProject="MyBatisGenerator" implementationPackage="com.aci.gsso.mapper.mybatis" type="XMLMAPPER" />
+
+      <!-- GSSO Check free Customer Bill Pay Information -->
+	<table tableName="BNKCHKFrCustBilPay" domainObjectName="GssoCheckFreeCustBillPay" schema="SONEDBA">
+         <property name="ignoreQualifiersAtRuntime" value="true"/>
+         <columnOverride column="BNKCHKFRCUSTBILPAYKY" jdbcType="INTEGER" property="oid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+         <columnOverride column="CHKFREECUSTOMERKY"  jdbcType="INTEGER" property="customerOid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+         <columnOverride column="CORORGKYFI"  jdbcType="INTEGER" property="affiliateOid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />         
+         <columnOverride column="COMPANYNAME" jdbcType="VARCHAR" property="companyName" />
+         <columnOverride column="COMPANYID" jdbcType="VARCHAR" property="companyIdentifier" />  
+         <columnOverride column="CMPENROLLSTATUSCD" jdbcType="SMALLINT" property="status"  />
+         <columnOverride column="CHKFREEADDR1" jdbcType="VARCHAR" property="addressLine1" />                   
+         <columnOverride column="CHKFREEADDR2" jdbcType="VARCHAR" property="addressLine2" />
+         <columnOverride column="CHKFREECITY" jdbcType="VARCHAR" property="city" />
+         <columnOverride column="CHKFREESTATE" jdbcType="VARCHAR" property="stateProvince" />
+         <columnOverride column="CHKFREEPOSTALCD" jdbcType="VARCHAR"  property="postalCode" />
+         <columnOverride column="ARCCOUNTRYCDKY" jdbcType="INTEGER"  property="countryOid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />    
+         <columnOverride column="PRIMARYPHONECTRYCD" jdbcType="VARCHAR"  property="phoneNumberCountryCd"  />
+         <columnOverride column="PRIMARYPHONENBR" jdbcType="VARCHAR"  property="phoneNumber"  />
+         <columnOverride column="COMPANYTAXID" jdbcType="VARCHAR"  property="companyTaxId"  />            
+         <columnOverride column="BNKUSERKY"  jdbcType="INTEGER" property="userOid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />    
+         <columnOverride column="USERID" jdbcType="VARCHAR" property="userIdentifier" />
+		 <columnOverride column="CHKFRUSRPWD" jdbcType="VARCHAR" property="userPassword" />
+         <columnOverride column="BIRTHDT" jdbcType="DATE" property="dataOfBirth" />
+         <columnOverride column="SECURITYQUESTION" jdbcType="VARCHAR" property="securityQuestion" />
+		 <columnOverride column="BNKCUSTACCTKYPREF" jdbcType="INTEGER" property="preferredAcctOid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		 <columnOverride column="BNKCUSTACCTKYBILLNG" jdbcType="INTEGER" property="billingAcctOid" javaType="com.s1.arch.utilities.ObjectId" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		 <columnOverride column="UPDATEDTTM" jdbcType="TIMESTAMP" property="updateDateTime" />
+		 <columnOverride column="UPDATEUSER" jdbcType="VARCHAR" property="updateUser" />
+		 <columnOverride column="VERSIONSTAMP" jdbcType="SMALLINT" property="versionStamp" javaType="java.lang.Integer" />
+
+     </table>
+		 
+  </context>
+</generatorConfiguration>

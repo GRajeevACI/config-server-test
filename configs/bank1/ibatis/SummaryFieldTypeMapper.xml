@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.common.product.summaryFieldConfiguration.dao.SummaryFieldTypeMapper" >
+
+	<resultMap id="summaryFieldTypeMap" type="com.s1.common.product.summaryFieldConfiguration.SummaryFieldTypeValue">
+		<result column="BNKAPPFLDTYPEKY" property="summaryFieldTypeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKAPPFLDTYPEENUM" property="summaryTypeEnum" />
+	</resultMap>
+
+	<select id="getSummaryFieldTypes" resultMap="summaryFieldTypeMap">
+		SELECT a.BNKAPPFLDTYPEKY, a.BNKAPPFLDTYPEENUM
+		FROM BNKAppFldType  a
+		INNER JOIN BNKProdTyAppFld b ON a.BNKAPPFLDDEFKY = b.BNKAPPFLDDEFKY
+		WHERE b.BNKPRODTYAPPFLDKY = #{value}
+	</select> 
+
+</mapper>

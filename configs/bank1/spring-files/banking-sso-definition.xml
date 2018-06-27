@@ -1,0 +1,12 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<import resource="banking-sso-services.xml"/>
+	<import resource="banking-sso-mapper.xml"/>
+	<!-- <import resource="banking-sso-jndi-lookup.xml"/> -->
+	<!-- <import resource="banking-sso-websphere.xml"/> -->
+	<import resource="banking-sso-transaction.xml"/>
+
+</beans>

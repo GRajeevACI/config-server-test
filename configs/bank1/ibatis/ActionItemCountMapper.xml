@@ -1,0 +1,1507 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.banking.actionitem.dao.ActionItemCountMapper">
+ 	<resultMap id="ActionItemResult" type="com.s1.banking.actionitem.ActionItemCount">
+        <result column="customerKy" property="customerKy" jdbcType="INTEGER"  />
+        <result column="numberOfItems" property="count" jdbcType="INTEGER"  />
+	</resultMap>
+	
+	<select id="getAchAuthActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT  count(DISTINCT a.BNKAchAuthKy) AS numberOfItems   
+		FROM bnkachauth a, bnkachauthacct b, bnkuser d, arcidentity i, session.BNKDshbrdAchAuthUsrEntlDgtt aa 
+		WHERE  a.bnkcustomerky =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND a.bnkachauthky=b.bnkachauthky AND a.statusmsgcd = 'CBKAAuthWApp' AND i.arcprincipalky = d.arcprincipalky 
+		AND i.userid <![CDATA[ <> ]]> a.updateuser AND d.arcprincipalky= #{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		AND d.bnkcustomerky = a.bnkcustomerky AND aa.ISAPPROVER = '1' AND a.BNKAchAuthKy not in ( select distinct e1.BNKAchAuthKy from bnkachauthacct e1 where e1.bnkcustacctky in ( 		
+		SELECT distinct BNKACCTKY from session.BNKDshbrdAchAuthActEntDgtt where BNKCUSTOMERKY =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND ARCPRINCIPALKY = #{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} ) )
+				
+	</select>
+	<select id="getAchAuthActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT  count(DISTINCT a.BNKAchAuthKy) AS numberOfItems   
+		FROM bnkachauth a, bnkachauthacct b, bnkuser d, arcidentity i, BNKDshbrdAchAuthUsrEntlDgtt aa 
+		WHERE  a.bnkcustomerky =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND a.bnkachauthky=b.bnkachauthky AND a.statusmsgcd = 'CBKAAuthWApp' AND i.arcprincipalky = d.arcprincipalky 
+		AND i.userid <![CDATA[ <> ]]> a.updateuser AND d.arcprincipalky= #{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		AND d.bnkcustomerky = a.bnkcustomerky AND aa.ISAPPROVER = '1' AND a.BNKAchAuthKy not in ( select distinct e1.BNKAchAuthKy from bnkachauthacct e1 where e1.bnkcustacctky in ( 		
+		SELECT distinct BNKACCTKY from BNKDshbrdAchAuthActEntDgtt where BNKCUSTOMERKY =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND ARCPRINCIPALKY = #{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} ) )
+				
+	</select>
+    
+	<update id="callAchAuthUserPrep" statementType="CALLABLE" >
+        { call BNKDshbrdAchAuthUsrPrepSp() }
+    </update>
+	<update id="callAchAuthUserEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdAchAuthEntlSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>
+    
+    <select id="getXferTmplActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT  count(distinct d.BNKINSTRTMPLKY)- count(distinct (case when ee.BNKAcctKy is NULL or  ff.BNKAcctKy is NULL then d.BNKINSTRTMPLKY end)) AS numberOfItems   
+		FROM session.BNKDshbrdXferTUsrEntlDgtt hh, bnkcustomer f, BNKINSTRTMPL d, VXFINSTRTMPL e
+		LEFT OUTER JOIN  session.BNKDshbrdXferTmplDgtt ee on (e.BNKACCTKYSRC = ee.BNKACCTKY)
+		LEFT OUTER JOIN  session.BNKDshbrdXferTmplDgtt ff on (e.BNKACCTKYTGT = ff.BNKACCTKY) 
+		WHERE d.corcustomerky =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND e.BNKINSTRTMPLKY = d.BNKINSTRTMPLKY
+		AND f.bnkcustomerky = d.CORCUSTOMERKY
+		AND hh.BNKcustomerky = d.corcustomerky		
+		AND d.INSTRSTSCD IN ( 27, 6, 8 ) AND d.INSTRTYPECD IN ( 62, 63 )
+		AND hh.ISAPPROVER = '1' AND ((  hh.ISOWNAPPROVE = '1' and d.updateuser = hh.USERID)  or ( d.updateuser <![CDATA[ <> ]]> hh.USERID))
+				
+	</select>
+    <select id="getXferTmplActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT  count(distinct d.BNKINSTRTMPLKY)- count(distinct (case when ee.BNKAcctKy is NULL or  ff.BNKAcctKy is NULL then d.BNKINSTRTMPLKY end)) AS numberOfItems   
+		FROM BNKDshbrdXferTUsrEntlDgtt hh, bnkcustomer f, BNKINSTRTMPL d, VXFINSTRTMPL e
+		LEFT OUTER JOIN  BNKDshbrdXferTmplDgtt ee on (e.BNKACCTKYSRC = ee.BNKACCTKY)
+		LEFT OUTER JOIN  BNKDshbrdXferTmplDgtt ff on (e.BNKACCTKYTGT = ff.BNKACCTKY) 
+		WHERE d.corcustomerky =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND e.BNKINSTRTMPLKY = d.BNKINSTRTMPLKY		 
+		AND f.bnkcustomerky = d.CORCUSTOMERKY
+		AND hh.BNKcustomerky = d.corcustomerky
+		AND d.INSTRSTSCD IN ( 27, 6, 8 ) AND d.INSTRTYPECD IN ( 62, 63 )
+		AND hh.ISAPPROVER = '1' AND ((  hh.ISOWNAPPROVE = '1' and d.updateuser = hh.USERID)  or ( d.updateuser <![CDATA[ <> ]]> hh.USERID))
+				
+	</select>    
+    <update id="callXferTmplUserPrep" statementType="CALLABLE" >
+        { call BNKDshbrdXferTmplPrepSp() }
+    </update>
+	<update id="callXferTmplUserEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdXferTmplSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>
+ 
+    <!-- ACH Payment Template Approval -->
+	    <select id="getAchTmplActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+         	SELECT COUNT(bnkinstrtmplky) AS numberOfItems 
+  			from (select c.bnkinstrtmplky , a.corcustomerky
+  			FROM BNKACHINSTRTMPL c, BNKInstrTmpl a, session.BNKDshbrdACHTUsrEntlDgtt hh, session.BNKDshbrdACHTmplDgtt ee 
+         	WHERE a.corcustomerky = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+          	AND a.instrtypecd IN (90, 91, 93, 94, 95, 96, 98, 99, 100, 101) 
+           	AND a.instrstscd IN (27) 
+           	AND ee.PaymentTypCd = a.instrtypecd
+           	AND c.BNKInstrTmplKy = a.BNKInstrTmplKy	
+           	AND hh.PaymentTypCd = a.instrtypecd 
+           	AND c.BNKAcctKy = ee.BNKAcctKy 
+           	<if test="isAchCompanyID">
+				AND c.BNKACHCompanyKy IN 
+				(select BNKACHCompanyKy from BNKACHCompanyIDEntl g where g.ARCPrincipalKy=#{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+           	</if>
+           	AND ((hh.CreditDebitMixed ='M' and c.paymentTypeCd in ('C', 'D', 'M')) or (hh.CreditDebitMixed = c.paymentTypeCd)) 
+           	AND ((hh.ISOWNNONREPAPPROVE = '1' and a.updateuser = hh.userId) or (a.updateuser <![CDATA[ <> ]]> hh.userId)) 
+        union all 
+        	select a.bnkinstrtmplky, a.corcustomerky 
+         	FROM BNKInstrTmpl a, PMTDSBMT d, session.BNKDshbrdACHTUsrEntlDgtt hh, session.BNKDshbrdACHTmplDgtt ee 
+         	WHERE a.corcustomerky = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+           	and d.BNKDSBMTKY = a.BNKInstrTmplKy	
+           	and d.istemplate = '1' 
+           	AND a.instrtypecd IN (314, 315, 316, 700, 701, 702, 703, 706, 713, 276, 410) 
+           	AND a.instrstscd IN (27) 
+           	AND d.BNKAcctKySource = ee.BNKAcctKy
+           	AND ee.PaymentTypCd = a.instrtypecd 
+           	AND hh.PaymentTypCd = a.instrtypecd 
+           	AND ((hh.ISOWNNONREPAPPROVE = '1' and a.updateuser = hh.userId) or (a.updateuser <![CDATA[ <> ]]> hh.userId)) 
+         ) 
+	</select>
+	
+    <select id="getAchTmplActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+         	SELECT COUNT(bnkinstrtmplky) AS numberOfItems 
+  			from (select c.bnkinstrtmplky , a.corcustomerky
+  			FROM BNKACHINSTRTMPL c, BNKInstrTmpl a, BNKDshbrdACHTUsrEntlDgtt hh, BNKDshbrdACHTmplDgtt ee 
+         	WHERE a.corcustomerky = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+          	AND a.instrtypecd IN (90, 91, 93, 94, 95, 96, 98, 99, 100, 101) 
+           	AND a.instrstscd IN (27) 
+           	AND ee.PaymentTypCd = a.instrtypecd
+           	AND c.BNKInstrTmplKy = a.BNKInstrTmplKy	
+           	AND hh.PaymentTypCd = a.instrtypecd 
+           	AND c.BNKAcctKy = ee.BNKAcctKy 
+           	<if test="isAchCompanyID">
+				AND c.BNKACHCompanyKy IN 
+				(select BNKACHCompanyKy from BNKACHCompanyIDEntl g where g.ARCPrincipalKy=#{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+           	</if>
+           	AND ((hh.CreditDebitMixed ='M' and c.paymentTypeCd in ('C', 'D', 'M')) or (hh.CreditDebitMixed = c.paymentTypeCd)) 
+           	AND ((hh.ISOWNNONREPAPPROVE = '1' and a.updateuser = hh.userId) or (a.updateuser <![CDATA[ <> ]]> hh.userId)) 
+        union all 
+        	select a.bnkinstrtmplky, a.corcustomerky 
+         	FROM BNKInstrTmpl a, PMTDSBMT d, BNKDshbrdACHTUsrEntlDgtt hh, BNKDshbrdACHTmplDgtt ee 
+         	WHERE a.corcustomerky = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+           	and d.BNKDSBMTKY = a.BNKInstrTmplKy	
+           	and d.istemplate = '1' 
+           	AND a.instrtypecd IN (314, 315, 316, 700, 701, 702, 703, 706, 713, 276, 410) 
+           	AND a.instrstscd IN (27) 
+           	AND d.BNKAcctKySource = ee.BNKAcctKy
+           	AND ee.PaymentTypCd = a.instrtypecd 
+           	AND hh.PaymentTypCd = a.instrtypecd 
+           	AND ((hh.ISOWNNONREPAPPROVE = '1' and a.updateuser = hh.userId) or (a.updateuser <![CDATA[ <> ]]> hh.userId)) 
+         ) 	         
+	</select>
+    <update id="callAchTmplUserPrep" statementType="CALLABLE" >
+        { call BNKDshBrdAchTmplPrepSp() }
+    </update>
+	<update id="callAchTmplUserEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdACHTmplSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAccessTypeCd}, #{v_UserGroupEnabled}, #{v_AchCmpIDEnabled}) }
+    </update>
+    
+    <!-- Wire Payment Template Approval -->
+    <select id="getWireTmplActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT COUNT(a.bnkinstrtmplky) AS numberOfItems 
+		FROM session.BNKDshbrdWireTusrEntlDgtt aa, session.BNKDshbrdWireTmplDgtt bb, BNKInstrTmpl a  
+			LEFT OUTER JOIN BNKADRINSTRTMPL k ON (a.BNKINSTRTMPLKY = k.BNKINSTRTMPLKY) LEFT OUTER JOIN BNKDRFTINSTRTMPL l ON (a.BNKINSTRTMPLKY = l.BNKINSTRTMPLKY)  
+			LEFT OUTER JOIN BNKWIREINSTRTMPL m ON (a.BNKINSTRTMPLKY = m.BNKINSTRTMPLKY) LEFT OUTER JOIN BNKDWDINSTRTMPL n ON (a.BNKINSTRTMPLKY = n.BNKINSTRTMPLKY)  
+			LEFT OUTER JOIN BNKFDTXINSTRTMPL o ON (a.BNKINSTRTMPLKY = o.BNKINSTRTMPLKY) 
+		WHERE a.CORCUSTOMERKY =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND aa.PaymentTypcd = a.INSTRTYPECD AND aa.CREDITDEBITMIXED = 'C' AND bb.PaymentTypcd = a.INSTRTYPECD 
+			AND a.INSTRTYPECD IN (77, 78, 79, 80, 81, 82, 83, 85) AND a.instrstscd IN (27)  
+			AND ((aa.ISOWNNONREPAPPROVE = '1' and a.updateuser = aa.userId) or  ( a.updateuser <![CDATA[ <> ]]> aa.userId))  
+			AND ((k.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 80) or (l.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 79) 
+			OR (m.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd in ( 77, 78, 82, 85 )) or (n.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 81) 
+			OR (o.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 83)) 
+	</select>
+  	<select id="getWireTmplActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT COUNT(a.bnkinstrtmplky) AS numberOfItems 
+		FROM BNKDshbrdWireTusrEntlDgtt aa, BNKDshbrdWireTmplDgtt bb, BNKInstrTmpl a  
+			LEFT OUTER JOIN BNKADRINSTRTMPL k ON (a.BNKINSTRTMPLKY = k.BNKINSTRTMPLKY) LEFT OUTER JOIN BNKDRFTINSTRTMPL l ON (a.BNKINSTRTMPLKY = l.BNKINSTRTMPLKY)  
+			LEFT OUTER JOIN BNKWIREINSTRTMPL m ON (a.BNKINSTRTMPLKY = m.BNKINSTRTMPLKY) LEFT OUTER JOIN BNKDWDINSTRTMPL n ON (a.BNKINSTRTMPLKY = n.BNKINSTRTMPLKY)  
+			LEFT OUTER JOIN BNKFDTXINSTRTMPL o ON (a.BNKINSTRTMPLKY = o.BNKINSTRTMPLKY) 
+		WHERE a.CORCUSTOMERKY =  #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND aa.PaymentTypcd = a.INSTRTYPECD AND aa.CREDITDEBITMIXED = 'C' AND bb.PaymentTypcd = a.INSTRTYPECD 
+			AND a.INSTRTYPECD IN (77, 78, 79, 80, 81, 82, 83, 85) AND a.instrstscd IN (27)  
+			AND ((aa.ISOWNNONREPAPPROVE = '1' and a.updateuser = aa.userId) or  ( a.updateuser <![CDATA[ <> ]]> aa.userId))  
+			AND ((k.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 80) or (l.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 79) 
+			OR (m.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd in ( 77, 78, 82, 85 )) or (n.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 81) 
+			OR (o.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 83)) 
+	</select>    
+    <update id="callWireTmplUserPrep" statementType="CALLABLE" >
+        { call BNKDshbrdWireTmplPrepSp() }
+    </update>
+	<update id="callWireTmplUserEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdWireTmplSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>  
+	
+    <select id="getSecureMessageCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    
+    	SELECT COUNT(VFMUserKy) AS numberOfItems  FROM VFMSecMsgUser VFMSecMsgUser, BNKSecureMsg BNKSecureMsg 
+        WHERE VFMSecMsgUser.VFMSecureMsgKy = BNKSecureMsg.BNKSecureMsgKy 
+        AND  VFMSecMsgUser.VFMUserKy = #{bnkUserOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+        AND (days(CURRENT TIMESTAMP) - days(SENTDTTM)) &lt;= #{numberOfdays}
+        AND isMsgViewed = 0
+          
+    </select>
+	
+	<select id="getSecureMessageCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    
+    	SELECT COUNT(VFMUserKy) AS numberOfItems  FROM VFMSecMsgUser VFMSecMsgUser, BNKSecureMsg BNKSecureMsg 
+        WHERE VFMSecMsgUser.VFMSecureMsgKy = BNKSecureMsg.BNKSecureMsgKy 
+        AND  VFMSecMsgUser.VFMUserKy = #{bnkUserOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+        AND TRUNC(SYSTIMESTAMP) - TRUNC(SENTDTTM) &lt;= #{numberOfdays}
+        AND isMsgViewed = 0
+        
+    </select>
+    
+    <select id="getPendingUserApprovalsUserGroupsEnabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		select 
+			count(*) as numberofitems 
+		from 
+			BNKPENDINGUSER a, 
+			BNKUser b
+		where 
+			a.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and b.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and a.updateuser NOT IN (
+				select 
+					NAME 
+				from 
+					arcprincipal 
+				where 
+					arcprincipalky = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			)
+			and b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and a.isusergroup = '1'
+			and exists(
+				select 
+					1 
+				from 
+					BNKCustUserGrp g, 
+					ARCPrincipalGrp h 
+				where
+					g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp 
+					and g.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+					and h.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+					and g.isDeleted = '0'
+					and g.iscmpsysAdmin = '1'
+			)
+    </select>
+    
+    <select id="getPendingUserApprovalsUserGroupsDisabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+			select 
+				count(*) as numberofitems 
+			from 
+				BNKPENDINGUSER a, 
+				BNKUser b
+			where
+				b.ISCMPSYSADMIN = '1'
+				and a.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and b.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and a.updateuser NOT IN (
+					select 
+						NAME 
+					from 
+						arcprincipal 
+					where 
+						arcprincipalky = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				)
+				and b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and a.isusergroup <![CDATA[ <> ]]> '1'
+    </select>
+    
+    <select id="getPositivePayApprovalsCountFullUser" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(DISTINCT s.BNKFraudSuspectKy) AS numberOfItems
+    	FROM 
+    		BNKFraudSuspect s,
+    		BNKCustAcct ca, 
+    		bnkuser b, 
+    		arcidentity i
+		WHERE 
+			s.statusCd = 1    		
+			AND s.BNKAcctKy = ca.BNKAcctKy
+    		AND b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND i.ARCPrincipalKy = b.ARCPrincipalKy
+    		AND i.userid <![CDATA[ <> ]]> s.updateuser
+    		AND b.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND ca.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND s.pospaytypecd in 
+    		<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+    		AND date(s.creationDttm) = Current Date
+    		AND exists
+    			( 
+    				select 1 from BNKCustAcctOprtn 
+    				WHERE ( 
+    						(s.pospaytypecd = 0	AND    oprtnName='/dataop/check/positive_pay' )  
+    						or ( s.pospaytypecd = 2	AND    oprtnName='/dataop/fraud/ach_pos_pay' ) 
+    						or ( s.pospaytypecd = 1	AND    oprtnName='/dataop/check/reverse_positive_pay' ) 
+    					  )
+    			 	AND isSelected = '1'  and ca.bnkcustacctky=bnkcustacctky  and ca.corcustomerky = b.bnkcustomerky  
+    			 )
+    		
+    		
+    </select>
+	<select id="getPositivePayApprovalsCountFullUser-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+	    	SELECT Count(DISTINCT s.BNKFraudSuspectKy) AS numberOfItems
+	    	FROM 
+	    		BNKFraudSuspect s,
+	    		BNKCustAcct ca, 
+	    		bnkuser b, 
+	    		arcidentity i
+			WHERE 
+				s.statusCd = 1    		
+				AND s.BNKAcctKy = ca.BNKAcctKy
+	    		AND b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	    		AND i.ARCPrincipalKy = b.ARCPrincipalKy
+	    		AND i.userid <![CDATA[ <> ]]> s.updateuser
+	    		AND b.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	    		AND ca.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	    		AND s.pospaytypecd in 
+	    		<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+	 	        	 #{item}
+	 	    	</foreach>
+	    		AND trunc(s.creationDttm) = trunc(systimestamp)
+	    		AND exists
+	    			( 
+	    				select 1 from BNKCustAcctOprtn 
+	    				WHERE ( 
+	    						(s.pospaytypecd = 0	AND    oprtnName='/dataop/check/positive_pay' )  
+	    						or ( s.pospaytypecd = 2	AND    oprtnName='/dataop/fraud/ach_pos_pay' ) 
+	    						or ( s.pospaytypecd = 1	AND    oprtnName='/dataop/check/reverse_positive_pay' ) 
+	    					  )
+	    			 	AND isSelected = '1'  and ca.bnkcustacctky=bnkcustacctky  and ca.corcustomerky = b.bnkcustomerky  
+	    			 )
+	    		
+	    		
+	</select>    
+	<select id="getPositivePayApprovalsCountUserGroupsEnabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(s.BNKFraudSuspectKy) AS numberOfItems
+    	FROM 
+    		BNKFraudSuspect s,
+    		BNKCustAcct ca,
+    		bnkuser b, 
+    		arcidentity i,
+    		BNKCustUserGrp g, 
+    		ARCPrincipalGrp h
+		WHERE 
+			s.statusCd = 1    		
+			AND s.BNKAcctKy = ca.BNKAcctKy
+    		AND b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND i.ARCPrincipalKy = b.ARCPrincipalKy
+    		AND i.userid <![CDATA[ <> ]]> s.updateuser
+    		AND b.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND ca.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}    		
+    		AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+    		AND h.ARCPrincipalKy = b.arcprincipalky 
+    		AND g.bnkcustomerky = b.bnkcustomerky  
+    		and g.isDeleted = '0' 
+    		AND s.pospaytypecd in 
+    		<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+    		AND date(s.creationDttm) = Current Date
+    		AND exists
+    			( 
+    				select 1 from BNKCustAcctOprtn 
+    				WHERE ( 
+    						(s.pospaytypecd = 0	AND    oprtnName='/dataop/check/positive_pay' )  
+    						or ( s.pospaytypecd = 2	AND    oprtnName='/dataop/fraud/ach_pos_pay' ) 
+    						or ( s.pospaytypecd = 1	AND    oprtnName='/dataop/check/reverse_positive_pay' ) 
+    					  )
+    			 	AND isSelected = '1'  and ca.bnkcustacctky=bnkcustacctky  and ca.corcustomerky = b.bnkcustomerky  
+    			 )
+    		
+    		AND (
+    				exists
+    				( SELECT  1 FROM arcgrant, arctarget, arcoperation WHERE arcgrant.arcprincipalky = h.ARCPrinciPalKyGrp
+    				  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky AND arcoperation.name='/dataop/user/account/full'
+    				  AND arcgrant.ispositive= '1' AND arctarget.name=char(ca.bnkacctky)  
+    				)
+    				or exists
+    					( SELECT 1 FROM arcgrant, arctarget, arcoperation  WHERE arcgrant.arcprincipalky = h.ARCPrinciPalKyGrp
+    					  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky  
+    					  AND ( 
+    					  		(s.pospaytypecd = 0	AND    arcoperation.name='/dataop/check/positive_pay')
+    							or (s.pospaytypecd = 2	AND    arcoperation.name='/dataop/fraud/ach_pos_pay' ) 
+    							or ( s.pospaytypecd = 1	AND    arcoperation.name='/dataop/check/reverse_positive_pay' ) 
+    						 )
+    					 AND arcgrant.ispositive= '1' AND arctarget.name= char(ca.bnkacctky) 
+    					) 
+    			) 
+    		
+	</select>
+	<select id="getPositivePayApprovalsCountUserGroupsEnabled-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(s.BNKFraudSuspectKy) AS numberOfItems
+    	FROM 
+    		BNKFraudSuspect s,
+    		BNKCustAcct ca,
+    		bnkuser b, 
+    		arcidentity i,
+    		BNKCustUserGrp g, 
+    		ARCPrincipalGrp h
+		WHERE 
+			s.statusCd = 1    		
+			AND s.BNKAcctKy = ca.BNKAcctKy
+    		AND b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND i.ARCPrincipalKy = b.ARCPrincipalKy
+    		AND i.userid <![CDATA[ <> ]]> s.updateuser
+    		AND b.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND ca.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}    		
+    		AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+    		AND h.ARCPrincipalKy = b.arcprincipalky 
+    		AND g.bnkcustomerky = b.bnkcustomerky  
+    		and g.isDeleted = '0' 
+    		AND s.pospaytypecd in 
+    		<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+    		AND trunc(s.creationDttm) = trunc(systimestamp)
+    		AND exists
+    			( 
+    				select 1 from BNKCustAcctOprtn 
+    				WHERE ( 
+    						(s.pospaytypecd = 0	AND    oprtnName='/dataop/check/positive_pay' )  
+    						or ( s.pospaytypecd = 2	AND    oprtnName='/dataop/fraud/ach_pos_pay' ) 
+    						or ( s.pospaytypecd = 1	AND    oprtnName='/dataop/check/reverse_positive_pay' ) 
+    					  )
+    			 	AND isSelected = '1'  and ca.bnkcustacctky=bnkcustacctky  and ca.corcustomerky = b.bnkcustomerky  
+    			 )
+    		
+    		AND (
+    				exists
+    				( SELECT  1 FROM arcgrant, arctarget, arcoperation WHERE arcgrant.arcprincipalky = h.ARCPrinciPalKyGrp
+    				  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky AND arcoperation.name='/dataop/user/account/full'
+    				  AND arcgrant.ispositive= '1' AND arctarget.name=to_char(ca.bnkacctky)  
+    				)
+    				or exists
+    					( SELECT 1 FROM arcgrant, arctarget, arcoperation  WHERE arcgrant.arcprincipalky = h.ARCPrinciPalKyGrp
+    					  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky  
+    					  AND ( 
+    					  		(s.pospaytypecd = 0	AND    arcoperation.name='/dataop/check/positive_pay')
+    							or (s.pospaytypecd = 2	AND    arcoperation.name='/dataop/fraud/ach_pos_pay' ) 
+    							or ( s.pospaytypecd = 1	AND    arcoperation.name='/dataop/check/reverse_positive_pay' ) 
+    						 )
+    					 AND arcgrant.ispositive= '1' AND arctarget.name= to_char(ca.bnkacctky) 
+    					) 
+    			) 
+    		
+	</select>	
+    <select id="getPositivePayApprovalsCountUserGroupsDisabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(s.BNKFraudSuspectKy) AS numberOfItems
+    	FROM 
+    		BNKFraudSuspect s,
+    		BNKCustAcct ca, 
+    		bnkuser b, 
+    		arcidentity i
+		WHERE 
+			s.statusCd = 1    		
+			AND s.BNKAcctKy = ca.BNKAcctKy
+    		AND b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND i.ARCPrincipalKy = b.ARCPrincipalKy
+    		AND i.userid <![CDATA[ <> ]]> s.updateuser
+    		AND b.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND ca.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND s.pospaytypecd in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>    		
+    		AND date(s.creationDttm) = Current Date
+    		AND exists
+    			( 
+    				select 1 from BNKCustAcctOprtn 
+    				WHERE ( 
+    						(s.pospaytypecd = 0	AND    oprtnName='/dataop/check/positive_pay' )  
+    						or ( s.pospaytypecd = 2	AND    oprtnName='/dataop/fraud/ach_pos_pay' ) 
+    						or ( s.pospaytypecd = 1	AND    oprtnName='/dataop/check/reverse_positive_pay' ) 
+    					  )
+    			 	AND isSelected = '1'  and ca.bnkcustacctky=bnkcustacctky  and ca.corcustomerky = b.bnkcustomerky  
+    			 )
+    		
+    		AND (
+    				exists
+    				( SELECT  1 FROM arcgrant, arctarget, arcoperation WHERE arcgrant.arcprincipalky = b.arcprincipalky
+    				  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky AND arcoperation.name='/dataop/user/account/full'
+    				  AND arcgrant.ispositive= '1' AND arctarget.name=char(ca.bnkacctky)  
+    				)
+    				or exists
+    					( SELECT 1 FROM arcgrant, arctarget, arcoperation  WHERE arcgrant.arcprincipalky = b.arcprincipalky
+    					  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky  
+    					  AND ( 
+    					  		(s.pospaytypecd = 0	AND    arcoperation.name='/dataop/check/positive_pay')
+    							or (s.pospaytypecd = 2	AND    arcoperation.name='/dataop/fraud/ach_pos_pay' ) 
+    							or ( s.pospaytypecd = 1	AND    arcoperation.name='/dataop/check/reverse_positive_pay' ) 
+    						 )
+    					 AND arcgrant.ispositive= '1' AND arctarget.name= char(ca.bnkacctky) 
+    					) 
+    			) 	
+    </select>
+    <select id="getPositivePayApprovalsCountUserGroupsDisabled-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(s.BNKFraudSuspectKy) AS numberOfItems
+    	FROM 
+    		BNKFraudSuspect s,
+    		BNKCustAcct ca, 
+    		bnkuser b, 
+    		arcidentity i
+		WHERE 
+			s.statusCd = 1    		
+			AND s.BNKAcctKy = ca.BNKAcctKy
+    		AND b.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND i.ARCPrincipalKy = b.ARCPrincipalKy
+    		AND i.userid <![CDATA[ <> ]]> s.updateuser
+    		AND b.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND ca.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    		AND s.pospaytypecd in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>    		
+    		AND trunc(s.creationDttm) = trunc(systimestamp)
+    		AND exists
+    			( 
+    				select 1 from BNKCustAcctOprtn 
+    				WHERE ( 
+    						(s.pospaytypecd = 0	AND    oprtnName='/dataop/check/positive_pay' )  
+    						or ( s.pospaytypecd = 2	AND    oprtnName='/dataop/fraud/ach_pos_pay' ) 
+    						or ( s.pospaytypecd = 1	AND    oprtnName='/dataop/check/reverse_positive_pay' ) 
+    					  )
+    			 	AND isSelected = '1'  and ca.bnkcustacctky=bnkcustacctky  and ca.corcustomerky = b.bnkcustomerky  
+    			 )
+    		
+    		AND (
+    				exists
+    				( SELECT  1 FROM arcgrant, arctarget, arcoperation WHERE arcgrant.arcprincipalky = b.arcprincipalky
+    				  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky AND arcoperation.name='/dataop/user/account/full'
+    				  AND arcgrant.ispositive= '1' AND arctarget.name=to_char(ca.bnkacctky)  
+    				)
+    				or exists
+    					( SELECT 1 FROM arcgrant, arctarget, arcoperation  WHERE arcgrant.arcprincipalky = b.arcprincipalky
+    					  AND arctarget.arctargetky = arcgrant.arctargetky  AND arcgrant.arcoperationky = arcoperation.arcoperationky  
+    					  AND ( 
+    					  		(s.pospaytypecd = 0	AND    arcoperation.name='/dataop/check/positive_pay')
+    							or (s.pospaytypecd = 2	AND    arcoperation.name='/dataop/fraud/ach_pos_pay' ) 
+    							or ( s.pospaytypecd = 1	AND    arcoperation.name='/dataop/check/reverse_positive_pay' ) 
+    						 )
+    					 AND arcgrant.ispositive= '1' AND arctarget.name= to_char(ca.bnkacctky) 
+    					) 
+    			) 	
+    </select>
+	<select id="getXferActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT 
+			count(distinct d.INSTRUCTIONID) - count(distinct (case when ee.BNKAcctKy is NULL or  ff.BNKAcctKy is NULL then d.INSTRUCTIONID end)) AS numberOfItems
+		FROM 
+			session.BNKDshbrdXferUsrEntlDgtt hh, 
+			bnkcustomer f, 
+			vfminstr d, 
+			VXFINSTR e
+			left outer join session.BNKDshbrdXferPmtDgtt ee on (e.VFMSRCACCTKY = ee.BNKACCTKY)
+			left outer join session.BNKDshbrdXferPmtDgtt ff on (e.VFMTGTACCTKY = ff.BNKACCTKY)
+		WHERE 
+			d.vfmcustomerky = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND e.VFMINSTRKY = d.VFMINSTRKY
+			AND f.bnkcustomerky = d.vfmcustomerky
+			AND d.vfminstrstscdky IN ( 1, 21, 30, 31 )
+			AND d.VFMINSTRTYPECDKY IN ( 60, 61, 62, 63, 64 )
+			AND (
+					(
+						d.BNKINSTRTMPLKY IS NULL 
+						AND hh.ISOWNNONREPAPPROVE = '1' 
+						and d.updateuser = hh.USERID
+					) 
+					or 
+					(
+						d.BNKINSTRTMPLKY IS NOT NULL 
+						AND	hh.ISOWNREPEAPPROVE = '1' 
+						and d.updateuser = hh.USERID
+					) 
+					or 
+					( 
+						d.updateuser <![CDATA[ <> ]]> hh.USERID
+					)
+				)
+	</select>
+	<select id="getXferActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT 
+			count(distinct d.INSTRUCTIONID) - count(distinct (case when ee.BNKAcctKy is NULL or  ff.BNKAcctKy is NULL then d.INSTRUCTIONID end)) AS numberOfItems
+		FROM 
+			BNKDshbrdXferUsrEntlDgtt hh, 
+			bnkcustomer f, 
+			vfminstr d, 
+			VXFINSTR e
+			left outer join BNKDshbrdXferPmtDgtt ee on (e.VFMSRCACCTKY = ee.BNKACCTKY)
+			left outer join BNKDshbrdXferPmtDgtt ff on (e.VFMTGTACCTKY = ff.BNKACCTKY)
+		WHERE 
+			d.vfmcustomerky = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND e.VFMINSTRKY = d.VFMINSTRKY
+			AND f.bnkcustomerky = d.vfmcustomerky
+			AND d.vfminstrstscdky IN ( 1, 21, 30, 31 )
+			AND d.VFMINSTRTYPECDKY IN ( 60, 61, 62, 63, 64 )
+			AND (
+					(
+						d.BNKINSTRTMPLKY IS NULL 
+						AND hh.ISOWNNONREPAPPROVE = '1' 
+						and d.updateuser = hh.USERID
+					) 
+					or 
+					(
+						d.BNKINSTRTMPLKY IS NOT NULL 
+						AND	hh.ISOWNREPEAPPROVE = '1' 
+						and d.updateuser = hh.USERID
+					) 
+					or 
+					( 
+						d.updateuser <![CDATA[ <> ]]> hh.USERID
+					)
+				)
+		
+	</select>    
+	<update id="callXferUserPrep" statementType="CALLABLE" >
+        { call BNKDshbrdXferUsrPrepSp() }
+    </update>
+	<update id="callXferUserEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdXferEntlSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>
+ 	
+ 	<select id="getIssueApprovalsCountFullUser" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(*) AS numberOfItems
+    	FROM 
+    		bnkissue a, 
+    		bnkcustacct b,
+    		arcidentity i,
+    		BNKCustAcctOprtn j
+		WHERE 
+			a.STATUSCDKY=1
+			AND a.BNKCUSTOMERKY= #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND TRANTYPECDKY in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+			AND a.bnkacctky = b.bnkacctky
+			AND a.BNKCUSTOMERKY=b.CORCUSTOMERKY
+			AND j.oprtnName='/dataop/check/issue_maintenance'
+			AND j.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY			
+			AND i.ARCPRINCIPALKY = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND i.userid <![CDATA[ <> ]]> a.updateuser
+    </select>
+	<select id="getIssueApprovalsCountUserGroupsEnabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(*) AS numberOfItems
+    	FROM 
+    		bnkissue a, 
+    		bnkcustacct b,
+    		arcidentity i,
+    		BNKCustUserGrp g, 
+    		ARCPrincipalGrp h,
+    		BNKCustAcctOprtn j,
+    		arcgrant, 
+    		arctarget, 
+    		arcoperation
+    		
+		WHERE 
+			a.STATUSCDKY=1
+			AND a.BNKCUSTOMERKY= #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND TRANTYPECDKY in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+			AND a.bnkacctky = b.bnkacctky
+			AND a.BNKCUSTOMERKY=b.CORCUSTOMERKY
+    		AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+    		AND h.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			AND g.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}	
+			AND g.isDeleted = '0'		
+			AND j.oprtnName='/dataop/check/issue_maintenance'
+			AND j.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky =h.ARCPrinciPalKyGrp
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky
+			AND arcoperation.name in ( '/dataop/user/account/full','/dataop/check/issue_maintenance' )
+			AND arcgrant.ispositive= '1'
+			AND arctarget.name=char(a.bnkacctky)						
+			AND i.ARCPRINCIPALKY = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND i.userid <![CDATA[ <> ]]> a.updateuser
+
+	</select>
+	<select id="getIssueApprovalsCountUserGroupsEnabled-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(*) AS numberOfItems
+    	FROM 
+    		bnkissue a, 
+    		bnkcustacct b,
+    		arcidentity i,
+    		BNKCustUserGrp g, 
+    		ARCPrincipalGrp h,
+    		BNKCustAcctOprtn j,
+    		arcgrant, 
+    		arctarget, 
+    		arcoperation
+    		
+		WHERE 
+			a.STATUSCDKY=1
+			AND a.BNKCUSTOMERKY= #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND TRANTYPECDKY in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+			AND a.bnkacctky = b.bnkacctky
+			AND a.BNKCUSTOMERKY=b.CORCUSTOMERKY
+    		AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+    		AND h.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			AND g.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}	
+			AND g.isDeleted = '0'		
+			AND j.oprtnName='/dataop/check/issue_maintenance'
+			AND j.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky =h.ARCPrinciPalKyGrp
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky
+			AND arcoperation.name in ( '/dataop/user/account/full','/dataop/check/issue_maintenance' )
+			AND arcgrant.ispositive= '1'
+			AND arctarget.name=to_char(a.bnkacctky)						
+			AND i.ARCPRINCIPALKY = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND i.userid <![CDATA[ <> ]]> a.updateuser
+	</select>
+    <select id="getIssueApprovalsCountUserGroupsDisabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(*) AS numberOfItems
+    	FROM 
+    		bnkissue a, 
+    		bnkcustacct b,
+    		arcidentity i,
+    		BNKCustAcctOprtn j,
+    		arcgrant,
+    		arctarget, 
+    		arcoperation
+		WHERE 
+			a.STATUSCDKY=1
+			AND a.BNKCUSTOMERKY= #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND TRANTYPECDKY in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+			AND a.bnkacctky = b.bnkacctky
+			AND a.BNKCUSTOMERKY=b.CORCUSTOMERKY
+			AND j.oprtnName='/dataop/check/issue_maintenance'
+			AND j.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky =#{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky
+			AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/issue_maintenance' )
+			AND arcgrant.ispositive= '1'
+			AND arctarget.name=char(a.bnkacctky)
+			AND i.ARCPRINCIPALKY = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND i.userid <![CDATA[ <> ]]> a.updateuser
+    </select>
+    <select id="getIssueApprovalsCountUserGroupsDisabled-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+    	SELECT Count(*) AS numberOfItems
+    	FROM 
+    		bnkissue a, 
+    		bnkcustacct b,
+    		arcidentity i,
+    		BNKCustAcctOprtn j,
+    		arcgrant,
+    		arctarget, 
+    		arcoperation
+		WHERE 
+			a.STATUSCDKY=1
+			AND a.BNKCUSTOMERKY= #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND TRANTYPECDKY in 
+			<foreach collection="grantedTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	</foreach>
+			AND a.bnkacctky = b.bnkacctky
+			AND a.BNKCUSTOMERKY=b.CORCUSTOMERKY
+			AND j.oprtnName='/dataop/check/issue_maintenance'
+			AND j.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky =#{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky
+			AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/issue_maintenance' )
+			AND arcgrant.ispositive= '1'
+			AND arctarget.name=to_char(a.bnkacctky)
+			AND i.ARCPRINCIPALKY = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND i.userid <![CDATA[ <> ]]> a.updateuser
+			
+    </select>    
+    <update id="callXferRulePrep" statementType="CALLABLE" >
+        { call BNKDshbrdXferRulePrepSp() }
+    </update>
+	<update id="callXferRuleEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdXferRuleSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>
+    
+     <!-- Transfer Rule Approval for Internal to Internal transfer -->
+    <select id="getXferRuleApprCountInternalOnly" parameterType="map" resultType="java.lang.Integer" useCache="false">	
+		 select 
+			count(*)
+		from session.BNKDshbrdXferRUsrEntlDgtt a, bnksweeprule b , arcidentity i, session.BNKDshbrdXferRuleDgtt src, session.BNKDshbrdXferRuleDgtt dest
+			where 
+			    b.approvalstscd in (1, 4, 21)
+			and a.BNKCustomerKy = b.BNKCustomerKy 
+			and b.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			and a.isApprover = 1
+			and ((b.lastupduserid <![CDATA[ <> ]]> i.userid) or (b.lastupduserid = i.userid  and a.isownapprove='1'))
+			and a.ARCPrincipalKy = i.ARCPrincipalKy 
+			and i.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and b.INTRNLTGTACCTKY is not null and b.INTRNLSCNDRYACCTKY is not null
+			and a.ARCPrincipalKy = src.ARCPrincipalKy
+			and a.BNKCustomerKy = src.BNKCustomerKy
+			and a.ARCPrincipalKy = dest.ARCPrincipalKy
+			and a.BNKCustomerKy = dest.BNKCustomerKy
+			and ((b.TRIGGERTYPE = 'above' and src.bnkacctky = b.INTRNLTGTACCTKY and dest.bnkacctky = b.INTRNLSCNDRYACCTKY)
+				or (b.TRIGGERTYPE = 'below' and dest.bnkacctky = b.INTRNLTGTACCTKY and src.bnkacctky = b.INTRNLSCNDRYACCTKY))
+			and src.opertnName = '/dataop/transfer/from'
+			and dest.opertnName = '/dataop/transfer/to'
+	</select>
+    <select id="getXferRuleApprCountInternalOnly-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">	
+		 select 
+			count(*)
+		from BNKDshbrdXferRUsrEntlDgtt a, bnksweeprule b , arcidentity i, BNKDshbrdXferRuleDgtt src, BNKDshbrdXferRuleDgtt dest
+			where 
+			    b.approvalstscd in (1, 4, 21)
+			and a.BNKCustomerKy = b.BNKCustomerKy 
+			and b.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			and a.isApprover = 1
+			and ((b.lastupduserid <![CDATA[ <> ]]> i.userid) or (b.lastupduserid = i.userid  and a.isownapprove='1'))
+			and a.ARCPrincipalKy = i.ARCPrincipalKy 
+			and i.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and b.INTRNLTGTACCTKY is not null and b.INTRNLSCNDRYACCTKY is not null
+			and a.ARCPrincipalKy = src.ARCPrincipalKy
+			and a.BNKCustomerKy = src.BNKCustomerKy
+			and a.ARCPrincipalKy = dest.ARCPrincipalKy
+			and a.BNKCustomerKy = dest.BNKCustomerKy
+			and ((b.TRIGGERTYPE = 'above' and src.bnkacctky = b.INTRNLTGTACCTKY and dest.bnkacctky = b.INTRNLSCNDRYACCTKY)
+				or (b.TRIGGERTYPE = 'below' and dest.bnkacctky = b.INTRNLTGTACCTKY and src.bnkacctky = b.INTRNLSCNDRYACCTKY))
+			and src.opertnName = '/dataop/transfer/from'
+			and dest.opertnName = '/dataop/transfer/to'
+	</select>
+	
+     <!-- Transfer Rule Approval for Internal to External transfer or External to Internal transfer -->
+    <select id="getXferRuleApprCountExternalAlso" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		select 
+			count(*)
+		from session.BNKDshbrdXferRUsrEntlDgtt a, bnksweeprule b , arcidentity i, session.BNKDshbrdXferRuleDgtt src, VXFTPACCT dest
+			where 
+			    b.approvalstscd in (1, 4, 21)
+			and a.BNKCustomerKy = b.BNKCustomerKy 
+			and b.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}  
+			and a.isApprover = 1
+			and ((b.lastupduserid <![CDATA[ <> ]]> i.userid) or (b.lastupduserid = i.userid  and a.isownapprove='1'))
+			and a.ARCPrincipalKy = i.ARCPrincipalKy 
+			and i.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and b.INTRNLTGTACCTKY is not null and b.XTRNLSCNDRYACCTKY is not null
+			and a.ARCPrincipalKy = src.ARCPrincipalKy
+			and a.BNKCustomerKy = src.BNKCustomerKy
+			and a.BNKCustomerKy = dest.VFMCustomerKy
+			and ((b.TRIGGERTYPE = 'above' and src.bnkacctky = b.INTRNLTGTACCTKY and dest.VXFTPACCTKY = b.XTRNLSCNDRYACCTKY and src.opertnName = '/dataop/transfer/external/outbound' and dest.ISDESTXFERENABLED = 1)
+			     OR (b.TRIGGERTYPE = 'below' and src.bnkacctky = b.INTRNLTGTACCTKY and dest.VXFTPACCTKY = b.XTRNLSCNDRYACCTKY and src.opertnName = '/dataop/transfer/external/inbound' and dest.ISSRCXFERENABLED = 1))
+	</select>
+    <select id="getXferRuleApprCountExternalAlso-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		select 
+			count(*)
+		from BNKDshbrdXferRUsrEntlDgtt a, bnksweeprule b , arcidentity i, BNKDshbrdXferRuleDgtt src, VXFTPACCT dest
+			where 
+			    b.approvalstscd in (1, 4, 21)
+			and a.BNKCustomerKy = b.BNKCustomerKy 
+			and b.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}  
+			and a.isApprover = 1
+			and ((b.lastupduserid <![CDATA[ <> ]]> i.userid) or (b.lastupduserid = i.userid  and a.isownapprove='1'))
+			and a.ARCPrincipalKy = i.ARCPrincipalKy 
+			and i.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			and b.INTRNLTGTACCTKY is not null and b.XTRNLSCNDRYACCTKY is not null
+			and a.ARCPrincipalKy = src.ARCPrincipalKy
+			and a.BNKCustomerKy = src.BNKCustomerKy
+			and a.BNKCustomerKy = dest.VFMCustomerKy
+			and ((b.TRIGGERTYPE = 'above' and src.bnkacctky = b.INTRNLTGTACCTKY and dest.VXFTPACCTKY = b.XTRNLSCNDRYACCTKY and src.opertnName = '/dataop/transfer/external/outbound' and dest.ISDESTXFERENABLED = 1)
+			     OR (b.TRIGGERTYPE = 'below' and src.bnkacctky = b.INTRNLTGTACCTKY and dest.VXFTPACCTKY = b.XTRNLSCNDRYACCTKY and src.opertnName = '/dataop/transfer/external/inbound' and dest.ISSRCXFERENABLED = 1))
+	</select>
+	
+    <update id="callBNKDshBrdAchPmtPrepSp" statementType="CALLABLE" >
+        { call BNKDshBrdAchPmtPrepSp() }
+    </update>
+	<update id="callBNKDshBrdAchPmtSp" statementType="CALLABLE" parameterType="map">
+        { call BNKDshBrdAchPmtSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAccessTypeCd}, #{v_UserGroupEnabled, jdbcType=BOOLEAN, typeHandler=com.s1.arch.ibatis.TrueFalseBooleanTypeHandler}, #{v_AchCmpIDEnabled, jdbcType=BOOLEAN, typeHandler=com.s1.arch.ibatis.TrueFalseBooleanTypeHandler}) }
+    </update>
+    
+    <select id="getAchPmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(a.VFMINSTRKY) AS numberOfItems
+    	FROM BNKACHINSTR c, VFMINSTR a,	session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKINSTRKY 
+		     AND a.VFMINSTRTYPECDKY IN 
+		     <foreach collection="achPmtTranTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	 </foreach>
+ 	    	 <if test="isAchCompanyID">
+				AND c.BNKACHCompanyKy IN 
+				(select BNKACHCompanyKy from BNKACHCompanyIDEntl g where g.ARCPrincipalKy=#{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+ 	    	 </if>
+			 AND a.VFMINSTRSTSCDKY IN ( 27,28) AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY  AND c.BNKAcctKy = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId) OR
+			(a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId) OR ( a.updateuser <![CDATA[ <> ]]> hh.userId))
+			
+	</select>
+    <select id="getAchPmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(a.VFMINSTRKY) AS numberOfItems 
+    	FROM BNKACHINSTR c, VFMINSTR a,	BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKINSTRKY 
+		     AND a.VFMINSTRTYPECDKY IN 
+		     <foreach collection="achPmtTranTypeCds" item="item" open="(" close=")" separator=",">
+ 	        	 #{item}
+ 	    	 </foreach>
+			 <if test="isAchCompanyID">
+				AND c.BNKACHCompanyKy IN 
+				(select BNKACHCompanyKy from BNKACHCompanyIDEntl g where g.ARCPrincipalKy=#{ARCPRINCIPALKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler})
+ 	    	 </if>
+			 AND a.VFMINSTRSTSCDKY IN ( 27, 28) AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY  AND c.BNKAcctKy = ee.BNKAcctKy
+			 AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId) OR
+			(a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId) OR ( a.updateuser <![CDATA[ <> ]]> hh.userId))
+			
+	</select>
+
+    <update id="callBNKDshBrdWirePmtPrepSp" statementType="CALLABLE" >
+        { call BNKDshbrdWirePmtPrepSp() }
+    </update>
+	<update id="callBNKDshBrdWirePmtSp" statementType="CALLABLE" parameterType="map">
+        { call BNKDshBrdWirePmtSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>
+    
+    <select id="getWirePmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+        SELECT COUNT(DISTINCT a.VFMINSTRKY) AS numberOfItems
+    	FROM session.BNKDshbrdWireUsrEntlDgtt aa, session.BNKDshbrdWirePmtDgtt bb, VFMINSTR a 
+    	    LEFT OUTER JOIN BNKADRINSTR k ON (a.VFMINSTRKY = k.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKDRAFTINSTR l ON (a.VFMINSTRKY = l.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKWIREINSTR m ON (a.VFMINSTRKY = m.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKDWDINSTR n ON (a.VFMINSTRKY = n.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKFEDTAXINSTR o ON (a.VFMINSTRKY = o.BNKINSTRKY) 
+		WHERE a.VFMCUSTOMERKY =  #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			AND bb.PaymentTypcd = a.VFMINSTRTYPECDKY  
+			AND aa.PaymentTypcd = a.VFMINSTRTYPECDKY 
+			AND aa.CREDITDEBITMIXED = 'C' 
+			AND a.VFMINSTRTYPECDKY IN
+			<foreach collection="wirePmtTranTypeCds" item="item" open="(" close=")" separator=",">
+			    #{item}
+			</foreach>
+			AND a.VFMINSTRSTSCDKY IN ( 27, 28 )
+			AND ((a.BNKINSTRTMPLKY IS NULL AND aa.ISOWNNONREPAPPROVE = '1' and a.updateuser = aa.userId) OR
+			(a.BNKINSTRTMPLKY IS NOT NULL AND aa.ISOWNREPEAPPROVE = '1' and a.updateuser = aa.userId) OR ( a.updateuser <![CDATA[ <> ]]> aa.userId))
+			AND ((k.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 80) or (m.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd in (77,78,82,85)) or
+			(l.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 79) or (n.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 81)
+			or (o.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 83)) 
+    </select>
+ 	<select id="getWirePmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+        SELECT COUNT(a.VFMINSTRKY) AS numberOfItems
+    	FROM BNKDshbrdWireUsrEntlDgtt aa, BNKDshbrdWirePmtDgtt bb, VFMINSTR a 
+    	    LEFT OUTER JOIN BNKADRINSTR k ON (a.VFMINSTRKY = k.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKDRAFTINSTR l ON (a.VFMINSTRKY = l.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKWIREINSTR m ON (a.VFMINSTRKY = m.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKDWDINSTR n ON (a.VFMINSTRKY = n.BNKINSTRKY) 
+			LEFT OUTER JOIN BNKFEDTAXINSTR o ON (a.VFMINSTRKY = o.BNKINSTRKY) 
+		WHERE a.VFMCUSTOMERKY =  #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+			AND bb.PaymentTypcd = a.VFMINSTRTYPECDKY  
+			AND aa.PaymentTypcd = a.VFMINSTRTYPECDKY 
+			AND aa.CREDITDEBITMIXED = 'C' 
+			AND a.VFMINSTRTYPECDKY IN
+			<foreach collection="wirePmtTranTypeCds" item="item" open="(" close=")" separator=",">
+			    #{item}
+			</foreach>
+			AND a.VFMINSTRSTSCDKY IN ( 27, 28 )
+			AND ((a.BNKINSTRTMPLKY IS NULL AND aa.ISOWNNONREPAPPROVE = '1' and a.updateuser = aa.userId) OR
+			(a.BNKINSTRTMPLKY IS NOT NULL AND aa.ISOWNREPEAPPROVE = '1' and a.updateuser = aa.userId) OR ( a.updateuser <![CDATA[ <> ]]> aa.userId))
+			AND ((k.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 80) or (m.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd in (77,78,82,85)) or
+			(l.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 79) or (n.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 81)
+			or (o.BNKACCTKY = bb.BNKACCTKY  AND bb.paymenttypCd = 83))  
+    </select>    
+	<select id="getStopPaymentCountFullUser" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT Count(distinct a.VFMSTOPPAYMENTKY) AS numberOfItems
+    	FROM 
+    		VFMSTOPPAYMENT a, 
+    		bnkcustacct b,    		
+    		BNKCustAcctOprtn j,
+    		BNKCustAcctOprtn k
+		WHERE 
+			a.RESPONSESTATUSCODE=0
+			AND (a.stopPaymentType = 0 OR a.stopPaymentType = 1)
+			AND a.VFMCUSTOMERKY= #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND a.VFMACCTKY = b.bnkacctky
+			AND a.VFMCUSTOMERKY = b.CORCUSTOMERKY
+			AND j.oprtnName='/dataop/check/stop_payment'			
+			AND k.isSelected = '1'
+			AND j.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY			
+			AND k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND	a.updateDttm <![CDATA[ >=  ]]> #{startDateTime,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+			AND a.updateDttm <![CDATA[ <=  ]]> #{endDateTime,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+			AND a.updateuser <![CDATA[ <> ]]>   #{userPrincipalName}
+	</select>
+		
+	<select id="getStopPaymentEntitledAccountListUserGroupsDisabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT distinct b.bnkacctky
+		FROM
+			bnkcustacct b,
+			BNKCustAcctOprtn j,
+			BNKCustAcctOprtn k,
+			arcgrant,
+			arctarget,
+			arcoperation,
+			arcgrant cpdaygrant,
+			arcoperation cpdayoprtn
+		WHERE 
+			b.CORCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}		
+			AND j.oprtnName='/dataop/check/stop_payment'			
+			AND j.isSelected = '1'
+			AND k.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND cpdaygrant.arcprincipalky = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND arctarget.arctargetky = cpdaygrant.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky			
+			AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+			AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/stop_payment' )						
+			AND arcgrant.ispositive= '1'
+			AND cpdaygrant.ispositive= '1'
+			AND arctarget.name=char(b.bnkacctky)
+	</select>    	
+	<select id="getStopPaymentEntitledAccountListUserGroupsDisabled-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT distinct b.bnkacctky
+		FROM
+			bnkcustacct b,
+			BNKCustAcctOprtn j,
+			BNKCustAcctOprtn k,
+			arcgrant,
+			arctarget,
+			arcoperation,
+			arcgrant cpdaygrant,
+			arcoperation cpdayoprtn
+		WHERE 
+			b.CORCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}		
+			AND j.oprtnName='/dataop/check/stop_payment'			
+			AND j.isSelected = '1'
+			AND k.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND cpdaygrant.arcprincipalky = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND arctarget.arctargetky = cpdaygrant.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky			
+			AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+			AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/stop_payment' )						
+			AND arcgrant.ispositive= '1'
+			AND cpdaygrant.ispositive= '1'
+			AND arctarget.name=to_char(b.bnkacctky)
+	</select>  	
+	<select id="getStopPaymentEntitledAccountListUserGroupsEnabled" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT distinct b.bnkacctky
+    	FROM 
+    		bnkcustacct b,
+			BNKCustAcctOprtn j,
+			BNKCustAcctOprtn k,
+			BNKCustUserGrp g,
+			BNKCustUserGrp g1,
+			ARCPrincipalGrp h,
+			ARCPrincipalGrp h1,
+			arcgrant,
+			arctarget,
+			arcoperation,
+			arcgrant cpdaygrant,
+			arcoperation cpdayoprtn
+		WHERE 
+			b.CORCUSTOMERKY =  #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}			
+			AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+			AND g1.BNKCustUserGrpKy = h1.ARCPrinciPalKyGrp  
+			AND g.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND g1.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND g.isDeleted = '0'		
+			AND g1.isDeleted = '0'		
+			AND h.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND h1.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND j.oprtnName='/dataop/check/stop_payment'			
+			AND j.isSelected = '1'
+			AND k.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky in ( h.ARCPrinciPalKyGrp)
+			AND cpdaygrant.arcprincipalky in ( h1.ARCPrinciPalKyGrp)
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND  cpdaygrant.arctargetky =arctarget.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky			
+			AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+			AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/stop_payment' )						
+			AND arcgrant.ispositive= '1'
+			AND cpdaygrant.ispositive= '1'
+			AND arctarget.name=char(b.bnkacctky)
+	</select>    	
+	<select id="getStopPaymentEntitledAccountListUserGroupsEnabled-Oracle" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT distinct b.bnkacctky
+    	FROM 
+    		bnkcustacct b,
+			BNKCustAcctOprtn j,
+			BNKCustAcctOprtn k,
+			BNKCustUserGrp g,
+			BNKCustUserGrp g1,
+			ARCPrincipalGrp h,
+			ARCPrincipalGrp h1,
+			arcgrant,
+			arctarget,
+			arcoperation,
+			arcgrant cpdaygrant,
+			arcoperation cpdayoprtn
+		WHERE 
+			b.CORCUSTOMERKY =  #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}			
+			AND g.BNKCustUserGrpKy = h.ARCPrinciPalKyGrp  
+			AND g1.BNKCustUserGrpKy = h1.ARCPrinciPalKyGrp  
+			AND g.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND g1.bnkcustomerky = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND g.isDeleted = '0'		
+			AND g1.isDeleted = '0'		
+			AND h.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND h1.ARCPrincipalKy = #{userPrincipalOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND j.oprtnName='/dataop/check/stop_payment'			
+			AND j.isSelected = '1'
+			AND k.isSelected = '1'
+			AND j.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND k.BNKCUSTACCTKY = b.BNKCUSTACCTKY
+			AND arcgrant.arcprincipalky in ( h.ARCPrinciPalKyGrp)
+			AND cpdaygrant.arcprincipalky in ( h1.ARCPrinciPalKyGrp)
+			AND arctarget.arctargetky = arcgrant.arctargetky
+			AND  cpdaygrant.arctargetky =arctarget.arctargetky
+			AND arcgrant.arcoperationky = arcoperation.arcoperationky			
+			AND cpdaygrant.arcoperationky = cpdayoprtn.arcoperationky
+			AND arcoperation.name in  ( '/dataop/user/account/full','/dataop/check/stop_payment' )						
+			AND arcgrant.ispositive= '1'
+			AND cpdaygrant.ispositive= '1'
+			AND arctarget.name=to_char(b.bnkacctky)
+	</select>   	
+	<select id="getStopPaymentCount" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT COUNT(DISTINCT a.VFMSTOPPAYMENTKY) AS numberOfItems
+		FROM 
+			VFMSTOPPAYMENT a
+		WHERE 
+			a.RESPONSESTATUSCODE=0
+			AND (a.stopPaymentType = 0 OR a.stopPaymentType = 1)
+			AND a.VFMCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND	a.updateDttm <![CDATA[ >=  ]]> #{startDateTime,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+			AND a.updateDttm <![CDATA[ <=  ]]> #{endDateTime,jdbcType=TIMESTAMP,typeHandler=com.s1.arch.ibatis.S1DateTypeHandler}
+			AND a.updateuser <![CDATA[ <> ]]>   #{userPrincipalName}
+			AND a.VFMACCTKY in 
+			<foreach collection="entitledAccounts" item="item" open="(" close=")" separator=",">
+         		#{item}
+    		</foreach>
+	</select>
+
+	<select id="getUploadFilesPendingCount" parameterType="map" resultType="java.lang.Integer" useCache="false">
+		SELECT count(distinct B.BNKUpldBatchKy) - count(distinct (case when #{userPrincipalName} = C.updateuser then B.BNKUPLDBATCHky end))
+		FROM 
+			BNKUpldBatch B, BNKUPLDBATCHHIST C		
+		WHERE  B.CORCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND  B.statusEnum = '5'
+		<choose >
+            <when test="true == isEditable" >
+             	AND B.isEditable = '1'
+            </when>
+            <otherwise>
+              	AND B.isEditable = '0'
+            </otherwise>
+        </choose>
+		AND C.BNKUPLDBATCHky = B.BNKUPLDBATCHky
+	</select>
+	
+	<resultMap id="CompanyDataServiceViewResultMap" type="com.s1.banking.actionitem.CompanyDataServiceView">
+		<result column="BNKCmpDataSvcKy" property="companyDataServiceOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKDataSvcSbTypeKy" property="dataServiceSubTypeOid" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="dataSvcSbTypeMsgCd" property="dataServiceSubTypeMessageCode" />
+		<result column="dataKey" property="dataKey" />
+	</resultMap>
+	
+	<select id="getAvailableEfdFileTypeCodes" parameterType="java.lang.String" resultMap="CompanyDataServiceViewResultMap">
+		SELECT a.BNKCmpDataSvcKy, b.BNKDataSvcSbTypeKy, c.dataSvcSbTypeMsgCd, b.dataKey
+		FROM ARCPrincipal prin
+		INNER JOIN BNKUser u ON prin.ARCPrincipalKy = u.ARCPrincipalKy
+		INNER JOIN BNKEmpDataSvc a ON u.BNKPersonKy = a.CORPersonKy
+		INNER JOIN BNKCmpDataSvc b ON a.BNKCmpDataSvcKy = b.BNKCmpDataSvcKy
+		INNER JOIN BNKDataSvcSbType c ON b.BNKDataSvcSbTypeKy = c.BNKDataSvcSbTypeKy
+		WHERE a.BNKEmpDataSvcKy &gt;= 0 AND prin.NAME = #{value}
+	</select>
+	
+	<select id="getEfdApprovalCount" parameterType="map" resultType="java.lang.Integer">
+		SELECT COUNT(*) AS NumFiles
+		FROM BNKEFDBatch B 
+		LEFT OUTER JOIN BNKEFDBatchHist hist ON b.BNKEFDBatchKy = hist.BNKEFDBatchKy AND hist.ActionEnum = '0' 
+		LEFT OUTER JOIN BNKEFDFile F on (B.BNKEFDBatchKy = F.BNKEFDBatchKy)
+
+		<!-- 		
+		<if test="isSupportCompany">
+		, BNKCustomer BC
+		</if>
+		-->
+		
+		WHERE B.CORCustomerKy = #{customerOid} 
+			AND B.lastUpdateDttm &gt;= #{startDateTime} 
+			AND B.lastUpdateDttm &lt;= #{endDateTime} 
+			AND statusEnum = #{statusCode}
+			AND (hist.loginId IS NULL OR hist.loginId &lt;&gt; #{principal})
+		
+		<!-- 	
+		<if test="isSupportCompany">
+			AND BC.BNKCUSTOMERKY = B.CORCustomerKy
+		</if>
+		-->
+
+		<if test="isEditable != null">
+			AND B.isEditable = 
+			<if test="isEditable">'1'</if>
+			<if test="!isEditable">'0'</if>
+		</if>
+			
+		<if test="!isSupportCompany">
+			AND ( #{principal} = (case when F.UPDATEUSER is null then B.UPDATEUSER else F.updateuser end) OR (B.ISCONFIDENTIAL = '0'				
+			<if test="confidentialFileTypes != null">
+				OR  (B.ISCONFIDENTIAL='1' AND B.typeEnum IN
+				<foreach item="confidentialFileType" index="cftIndex" collection="confidentialFileTypes" open="(" close=")" separator=",">
+					#{confidentialFileType}
+				</foreach>
+				) 
+			</if>
+			))
+		</if>
+		
+		<if test="fileTypes != null and fileTypes.size() &gt; 0">
+			<foreach item="fileType" index="index" collection="fileTypes" open=" AND (" close=")" separator=" OR ">
+				(typeEnum = #{fileType.fileType}
+				<!-- As per UploadBatchViewDao.getFileTypeCriteria(), we ignore senders if it's NACHA -->
+				<if test="!fileType.ignoreSenders and fileType.fileType != 'NACHA'">
+					AND senderId IN 
+					<foreach item="senderId" index="senderIndex" collection="fileType.senderIds" open="(" close=")" separator=",">
+						#{senderId}
+					</foreach>
+				</if>
+				)
+			</foreach>
+		</if>
+	</select>
+	<select id="getEfdApprovalCount-Oracle" parameterType="map" resultType="java.lang.Integer">
+		SELECT COUNT(*) AS NumFiles
+		FROM BNKEFDBatch B 
+		LEFT OUTER JOIN BNKEFDBatchHist hist ON b.BNKEFDBatchKy = hist.BNKEFDBatchKy AND hist.ActionEnum = '0' 
+		LEFT OUTER JOIN BNKEFDFile F on (B.BNKEFDBatchKy = F.BNKEFDBatchKy)
+
+		<!-- 		
+		<if test="isSupportCompany">
+		, BNKCustomer BC
+		</if>
+		-->
+		
+		WHERE B.CORCustomerKy = #{customerOid} 
+			AND B.lastUpdateDttm &gt;= #{startDateTime ,jdbcType=TIMESTAMP} 
+			AND B.lastUpdateDttm &lt;= #{endDateTime,jdbcType=TIMESTAMP} 
+			AND statusEnum = #{statusCode}
+			AND (hist.loginId IS NULL OR hist.loginId &lt;&gt; #{principal})
+		
+		<!-- 	
+		<if test="isSupportCompany">
+			AND BC.BNKCUSTOMERKY = B.CORCustomerKy
+		</if>
+		-->
+
+		<if test="isEditable != null">
+			AND B.isEditable = 
+			<if test="isEditable">'1'</if>
+			<if test="!isEditable">'0'</if>
+		</if>
+			
+		<if test="!isSupportCompany">
+			AND ( #{principal} = (case when F.UPDATEUSER is null then B.UPDATEUSER else F.updateuser end) OR (B.ISCONFIDENTIAL = '0'				
+			<if test="confidentialFileTypes != null">
+				OR  (B.ISCONFIDENTIAL='1' AND B.typeEnum IN
+				<foreach item="confidentialFileType" index="cftIndex" collection="confidentialFileTypes" open="(" close=")" separator=",">
+					#{confidentialFileType}
+				</foreach>
+				) 
+			</if>
+			)) 
+		</if>
+		
+		<if test="fileTypes != null and fileTypes.size() &gt; 0">
+			<foreach item="fileType" index="index" collection="fileTypes" open=" AND (" close=")" separator=" OR ">
+				(typeEnum = #{fileType.fileType}
+				<!-- As per UploadBatchViewDao.getFileTypeCriteria(), we ignore senders if it's NACHA -->
+				<if test="!fileType.ignoreSenders and fileType.fileType != 'NACHA'">
+					AND senderId IN 
+					<foreach item="senderId" index="senderIndex" collection="fileType.senderIds" open="(" close=")" separator=",">
+						#{senderId}
+					</foreach>
+				</if>
+				)
+			</foreach>
+		</if>
+	</select>
+		
+	<!--International Payments - ILV and Sepa-->
+ 		<select id="getINTLPmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(DISTINCT a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a,	session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (314)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>  
+	    <select id="getINTLPmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a,	BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (314)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>
+
+		<!--Canada payments-->
+   	 	<select id="getCndPmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(DISTINCT a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a,	session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (316)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>   
+	    <select id="getCndPmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a, BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (316)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>
+		
+		<!--Colombia payments-->
+   	 	<select id="getColPmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(DISTINCT a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a,	session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (700,701,702,703,713)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>
+	    <select id="getColPmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a,	BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (700,701,702,703,713)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>
+	<!--GBS-34913 End--> 
+			<!--Singapore payments-->
+   	 	<select id="getSgPmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT(DISTINCT a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a,	session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (276)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>   
+	    <select id="getSgPmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+    	SELECT COUNT( a.VFMINSTRKY) AS numberOfItems 
+    	FROM PMTDSBMT c, VFMINSTR a, BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+		WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		     AND a.VFMInstrKy = c.BNKDSBMTKY 
+		     AND a.VFMINSTRTYPECDKY IN (276)
+			 AND a.VFMINSTRSTSCDKY IN (27,28)
+			 AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+			 AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+			 AND c.BNKAcctKySource = ee.BNKAcctKy
+		     AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+			 (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+			 ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+			 AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+			 (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+			 (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+		</select>
+		  <!--Sepa International -->
+        <select id="getSPPmtActionItemCount" parameterType="map" resultMap="ActionItemResult" useCache="false">
+        SELECT COUNT(DISTINCT a.VFMINSTRKY) AS numberOfItems 
+        FROM PMTDSBMT c, VFMINSTR a,    session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+        WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+             AND a.VFMInstrKy = c.BNKDSBMTKY 
+             AND a.VFMINSTRTYPECDKY IN (315,410)
+             AND a.VFMINSTRSTSCDKY IN (27,28)
+             AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+             AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+             AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+             AND c.BNKAcctKySource = ee.BNKAcctKy
+             AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+             (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+             ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+             AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+             (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+             (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+        </select>  
+        <select id="getSPPmtActionItemCount-Oracle" parameterType="map" resultMap="ActionItemResult" useCache="false">
+        SELECT COUNT(a.VFMINSTRKY) AS numberOfItems 
+        FROM PMTDSBMT c, VFMINSTR a,    BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+        WHERE a.VFMCustomerKy = #{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+             AND a.VFMInstrKy = c.BNKDSBMTKY 
+             AND a.VFMINSTRTYPECDKY IN (315,410)
+             AND a.VFMINSTRSTSCDKY IN (27,28)
+             AND ((c.ISTEMPLATE = 0) OR (c.ISTEMPLATE = 1 AND c.BNKDSBMTKYSRCTMPL IS NOT NULL))
+             AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY
+             AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY
+             AND c.BNKAcctKySource = ee.BNKAcctKy
+             AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR
+             (a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId AND c.ISPAYMENTSPECIFICATION=0 AND a.VFMINSTRSTSCDKY IN (27)) OR 
+             ((a.updateuser <![CDATA[ <> ]]> hh.userId AND c.ISPAYMENTSPECIFICATION=0) 
+             AND ((a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1') OR
+             (a.CREATORID = hh.userId AND a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1') OR
+             (a.CREATORID <![CDATA[ <> ]]> hh.userId))) )
+        </select>
+		
+      <select id="getUsRecipientCountByStatus" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT COUNT(DISTINCT TP.BNKTHIRDPARTYKY) AS numberOfItems   
+		FROM BNKTHIRDPARTY TP 
+		JOIN BNKTPPAYMENTTYPE TPTYPE ON TP.BNKTHIRDPARTYKY = TPTYPE.BNKTHIRDPARTYKY			 
+		WHERE TP.CORCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND TP.BNKTPSTSCD = #{STATUS}
+		AND TPTYPE.PAYMENTTYPECD IN 
+		<foreach item="paymentType" index="i" collection="PAYMENT_TYPES" open="(" close=")" separator=",">
+			#{paymentType,jdbcType=INTEGER}
+		</foreach>
+	</select>
+	
+	<select id="getItlRecipientCountByStatus" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT COUNT(DISTINCT TP.VFMTHIRDPARTYKY) AS numberOfItems   
+		FROM CBITHIRDPARTY TP 					
+		WHERE TP.VFMCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		AND TP.CBITHIRDPTYSTSCDKY = #{STATUS}
+		AND TP.ISDEPENDENT = '0' 
+		<if test="RECIPIENT_TYPES != null and RECIPIENT_TYPES.size() &gt; 0">
+		AND TP.TYPECDKY IN 
+		<foreach item="type" index="i" collection="RECIPIENT_TYPES" open="(" close=")" separator=",">
+			#{type,jdbcType=INTEGER}
+		</foreach>
+		</if>
+	</select>
+	
+	<select id="getCheckbookCountByStatus" parameterType="map" resultMap="ActionItemResult" useCache="false">	
+		SELECT COUNT(*) AS numberOfItems 		
+		FROM BNKCHECKBOOKRQST R JOIN BNKACCT A ON R.BNKACCTKY = A.BNKACCTKY
+		WHERE R.CHKBKRQSTSTSCD = #{STATUS} AND R.BNKUSERKY!= #{USERID}
+	</select>
+		
+</mapper>

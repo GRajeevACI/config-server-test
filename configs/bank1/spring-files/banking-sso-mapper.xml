@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/util
+						http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+					
+	<bean id="gssoUserInfoMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoUserInfoMapper" />
+	</bean>
+	
+	<bean id="gssoProviderAffiliateMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoProviderAffiliateMapper" />
+	</bean>
+	
+	<bean id="gssoProviderConfigMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoProviderConfigMapper" />
+	</bean>
+	
+	<bean id="gssoCustomFieldDefMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoCustomFieldDefMapper" />
+	</bean>
+	
+	<bean id="gssoCustomFieldValueMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoCustomFieldValueMapper" />
+	</bean>
+	
+	<bean id="gssoUrlMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoUrlMapper" />
+	</bean>
+	
+	<bean id="gssoCustomerMapper" parent="BaseMybatisBatchDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoCustomerMapper" />
+	</bean>
+	
+	<bean id="gssoUserMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoUserMapper" />
+	</bean>
+
+	<bean id="gssoProductConfigMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoProductConfigMapper" />
+	</bean>
+	
+	<bean id="gssoProviderViewMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoProviderViewMapper" />
+	</bean>	
+		
+	<bean id="userEntitlementsUsersGroupsMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.UserEntitlementsUsersGroupsMapper" />
+	</bean>		
+	
+    <bean id="billingSvcCdMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.bank.billing.mapper.BillingSvcCdMapper" />
+	</bean>	
+
+	<bean id="gssoDBLevelSyncMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoDBLevelSyncMapper" />
+	</bean>
+	<bean id="gssoCheckFreeCustomerMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoCheckFreeCustBillPayMapper" />
+	</bean>
+	
+	<bean id="gssoCheckFreeAccountMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoCheckFreeCustAcctMapper" />
+	</bean>
+	
+	<bean id="gssoCheckFreeUserMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.aci.gsso.mapper.GssoCheckFreeUserMapper" />
+	</bean>
+    
+</beans>

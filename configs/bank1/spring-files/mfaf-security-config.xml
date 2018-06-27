@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+
+	<bean id="httpRequestProcessor" class="com.aciworldwide.mfaf.entry.HTTPRequestProcessor" >
+		<property name="metaDataService" ref="authenticationMetaDataService"></property>
+		<property name="helper" ref="mfafHelper"></property>
+	</bean>	
+	
+	<bean id="genericRequestProcessor" class="com.aciworldwide.mfaf.entry.GenericRequestProcessor" >
+		<property name="metaDataService" ref="authenticationMetaDataService"></property>
+		<property name="helper" ref="mfafHelper"></property>
+	</bean>
+		
+	<bean id="httpStatusHandler" class="com.aciworldwide.mfaf.status.handler.HttpStatusHandler" >
+		<property name="helper" ref="mfafHelper"></property>
+	</bean>	
+
+	
+	<bean id="mfafHelper" class="com.aciworldwide.mfaf.profile.MFAFHelper" init-method="initialize">
+		<property name="mapper" ref="mapper"></property>
+		<property name="secureRandomGenerator" ref="secureRandomGenerator"></property>
+	</bean>	
+		
+	<bean id="secureRandomGenerator" class="com.aciworldwide.mfaf.securerandom.DefaultSecureRandomGenerator" init-method="init">
+		<property name="algorithm" value="SHA1PRNG"></property>
+	</bean>
+		
+	<bean id="defaultAuthenticationService" class="com.aciworldwide.mfaf.service.DefaultAuthenticationService" >
+		<property name="processor" ref="genericRequestProcessor"></property>
+	</bean>
+			
+	<bean id="defaultSenderStrategy" class="com.aciworldwide.mfaf.service.DefaultSenderStrategy"/>
+			
+	<bean id="authenticationMetaDataService"
+		class="com.aciworldwide.mfaf.profile.ConcreteAuthenticationMetaDataService">
+		<property name="delegator" ref="delegator"></property>
+		<property name="cacheController" ref="cacheController"></property>
+		<property name="markupGenerator" ref="markupGenerator"></property>
+		<property name="mapper" ref="mapper"></property>
+		<property name="sender" ref="defaultSenderStrategy"></property>
+	</bean>
+
+
+	<bean id="delegator" class="com.aciworldwide.mfaf.profile.JiBXBinder">
+		<constructor-arg
+			value="com.aciworldwide.auth.profile.definition.AuthenticationProfileType">
+		</constructor-arg>
+		<property name="profileDirectory" ref="profileDirectory"></property>
+	</bean>
+
+	<bean id="cacheController" class="com.aciworlwide.cache.LRUCacheController">
+	</bean>
+
+	<bean id="OTPFieldAvailabilityRule" class="com.aciworldwide.mfaf.fields.rule.OTPFieldAvailabilityRule">
+	</bean>
+
+	<bean id="nextOTPFieldAvailabilityRule" class="com.aciworldwide.mfaf.fields.rule.NextOTPFieldAvailabilityRule">
+	</bean>
+
+	<bean id="newPINFieldAvailabilityRule" class="com.aciworldwide.mfaf.fields.rule.NewPINFieldAvailabilityRule">
+	</bean>
+
+	<bean id="tokenActiveAvailabilityRule" class="com.aciworldwide.mfaf.fields.rule.TokenActiveAvailabilityRule">
+	</bean>
+	
+	<bean id="markupGenerator"
+		class="com.aciworldwide.dynamicattributes.markup.DefaultMarkupGenerator">
+		<property name="inputFieldFactory" ref="inputFieldFactory"></property>
+	</bean>
+	
+	<bean id="inputFieldFactory" class="com.aciworldwide.dynamicattributes.field.InputFieldFactory">
+	</bean>
+	
+	<bean id="profileDirectory" class="org.springframework.core.io.ClassPathResource">
+		<constructor-arg value="config/mfaf-providers/" />
+	</bean>
+
+	<bean id="mapper" class="com.aciworldwide.mfaf.mapping.DefaultMapper" init-method="initialize">
+	</bean>
+	
+	<bean id="rsaPINLabelRetriever" class="com.aciworldwide.dynamicattributes.field.rule.RSAPINLabelRetrievalRule">
+	</bean>
+		
+	<bean id="rsaPINResetAttributesHandler" class="com.aciworldwide.mfaf.additional.attributes.PINAdditionalAttributesHandler">
+	</bean>
+	
+	<bean id="rsaDirectAuthenticationProcessor" class="com.aciworldwide.mfaf.RSADirectAuthenticationProcessor">
+	</bean>
+	
+	<bean id="challengeQuestionAttributesHandler" class="com.aciworldwide.mfaf.additional.attributes.ChallengeQuestionAttributesHandler">
+	</bean>
+			
+	<bean id="mfafFieldValidator" class="com.aciworldwide.mfaf.validator.DefaultValidator" >
+	</bean>	
+	
+	<bean id="rsaPINValidator" class="com.aciworldwide.mfaf.validator.RSAPINValidator" >
+	</bean>
+	
+	<bean id="TEXT_INPUT" class="com.aciworldwide.dynamicattributes.field.TextInputField"
+		scope="prototype" lazy-init="true">
+	</bean>
+	
+	<bean id="STATIC_INPUT" class="com.aciworldwide.dynamicattributes.field.StaticField"
+		scope="prototype" lazy-init="true">
+	</bean>		
+	<bean id="FORM" class="com.aciworldwide.dynamicattributes.field.FormField"
+		scope="prototype" lazy-init="true">
+	</bean>
+	<bean id="CONTAINER" class="com.aciworldwide.dynamicattributes.field.ContainerField"
+		scope="prototype" lazy-init="true">
+	</bean>
+
+	<bean id="SIMPLE_CONTAINER" class="com.aciworldwide.dynamicattributes.field.SimpleContainerField"
+		scope="prototype" lazy-init="true">
+	</bean>
+		
+</beans>

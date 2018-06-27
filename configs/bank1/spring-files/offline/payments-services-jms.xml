@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  			    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+	<!--  ========== Message definitions ========== -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="config/locale/async-process-log-messages"/>
+	</bean>
+	
+	<bean id="messages" class="com.s1.payments.process.async.logging.MessageSource">
+	</bean>
+	
+	<bean id="messagesPostProcessor" class="com.s1.payments.process.async.logging.MessageSourceBeanPostProcessor" depends-on="messages">
+	</bean>
+	
+	<!--  ========== Queue definitions ========== -->
+	
+   	<jee:jndi-lookup id="asyncProcessQueueConnectionFactory"
+		jndi-name="jms/AsyncProcessQueueConnectionFactory" />
+ 
+  	<jee:jndi-lookup id="asyncRetryQueueConnectionFactory"
+		jndi-name="jms/AsyncRetryQueueConnectionFactory" />
+ 
+  	<jee:jndi-lookup id="asyncFatalQueueConnectionFactory"
+		jndi-name="jms/AsyncFatalQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="asyncProcessQueue"
+		jndi-name="jms/AsyncProcessQueue" />
+		
+	<jee:jndi-lookup id="asyncRetryQueue"
+		jndi-name="jms/AsyncRetryQueue" />
+		
+	<jee:jndi-lookup id="asyncFatalQueue"
+		jndi-name="jms/AsyncFatalQueue" />
+
+	<!--  ========== Async Process Queue Listener ========== -->
+	
+	<bean id="asyncProcessQueueProcessor" class="com.s1.payments.process.async.DelegateMethodTaskProcessor">
+		<property name="processService" ref="asyncProcessService"/>
+		<property name="processQueue" ref="asyncProcessQueue"/>
+		<property name="retryQueue" ref="asyncRetryQueue"/>
+		<property name="fatalQueue" ref="asyncFatalQueue"/>
+	</bean>	
+		
+	<bean id="asyncProcessMessageListener"
+		class="com.s1.payments.process.async.queue.JMSProcessQueueListener">
+		<constructor-arg ref="asyncProcessQueueProcessor" index="0"/>
+	</bean>
+
+	<bean id="asyncProcessTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="asyncProcessMessageListenerContainer"
+		class="com.s1.payments.process.async.queue.JMSProcessListenerContainer">
+		<property name="connectionFactory"
+			ref="asyncProcessQueueConnectionFactory" />
+		<property name="destination" ref="asyncProcessQueue" />
+		<property name="messageListener"
+			ref="asyncProcessMessageListener" />
+		<property name="taskExecutor" ref="asyncProcessTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name ="concurrency" value="1-2"/>
+		<property name ="idleTaskExecutionLimit" value="1"/>
+		<property name ="recoveryInterval" value="10000"/>
+	</bean>
+	
+	<!--  ========== Async Process Message Sender ========== -->
+	
+ 	<bean id="asyncProcessTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncProcessQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncProcessQueue"/>
+	</bean>
+
+	<bean id="asyncProcessQueueSender" class="com.s1.payments.process.async.queue.JMSProcessQueueImpl">
+ 		<constructor-arg type="java.lang.String" value="asyncProcessType"/>
+		<property name="template" ref="asyncProcessTemplate"/>
+	</bean>
+	 
+	<bean id="asyncProcessRetryTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncRetryQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncRetryQueue"/>
+	</bean>
+
+	<bean id="asyncProcessRetryQueueHandler" class="com.s1.payments.process.async.queue.JMSProcessQueueImpl">
+ 		<constructor-arg type="java.lang.String" value="asyncRetryType"/>
+		<property name="template" ref="asyncProcessRetryTemplate"/>
+	</bean>
+	 
+	<bean id="asyncProcessFatalTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncFatalQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncFatalQueue"/>
+	</bean>
+	
+	<bean id="asyncProcessFatalQueueHandler" class="com.s1.payments.process.async.queue.JMSProcessQueueImpl">
+ 		<constructor-arg type="java.lang.String" value="asyncFatalType"/>
+		<property name="template" ref="asyncProcessFatalTemplate"/>
+	</bean>
+</beans>

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio
+	xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.beanio.org/2012/03">
+
+	<!-- List of type handlers used by this configuration to parse file -->
+
+	<typeHandler name="objectIdHandler"
+		class="com.s1.frameworks.payments.imports.handlers.ObjectIdTypeHandler" />
+
+
+	<typeHandler name="s1dateHandler"
+		class="com.s1.frameworks.payments.imports.handlers.S1DateTypeHandler">
+		<property name="dateFormat" value="yyyy-MM-dd" />
+	</typeHandler>
+
+	<typeHandler name="currencyValueHandler"
+		class="com.s1.frameworks.payments.imports.handlers.CurrencyValueHandler" />
+		
+
+	<typeHandler name="patternHandler"
+		class="com.s1.frameworks.payments.imports.handlers.PatternHandler" />
+
+	<stream name="Document" format="xml"
+		resourceBundle="com.s1.banking.common.imprt.user.Import-Resources"
+		strict="true" occurs="1">
+
+
+		<group name="CstmrCdtTrfInitn" occurs="1">
+
+			<!-- Header Record Mapping -->
+			<record name="GrpHdr"
+				class="com.s1.intl.imprt.sepacr.SepaCrImportHeaderValue" occurs="1">
+				<field name="grpHdrMsgId" xmlName="MsgId" getter="getMsgId" setter="setMsgId" maxLength="35" required="true" minOccurs="1"  regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+				<field name="grpHdrCreDtTm" xmlName="CreDtTm" getter="getCreationDateTime" setter="setCreationDateTime" required="true"  minOccurs="1" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+				<field name="grpHdrNbOfTxs" xmlName="NbOfTxs" getter="getNumOfTxns" setter="setNumOfTxns"
+					type="int" maxLength="15" required="true"  minOccurs="1"/>
+				<field name="grpHdrCtrlSum" xmlName="CtrlSum" getter="getControlSum" setter="setControlSum"
+					type="bigdecimal" maxLength="18" required="true"  minOccurs="1" regex="\d{1,18}+(\.\d{1,2})?"/> 
+				<segment name="InitgPty" occurs="1">
+					<field name="grpHdrInitgPtyNm" xmlName="Nm" getter="getBankName" setter="setBankName" maxLength="70" required="true"  minOccurs="1" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+					<segment name="Id" occurs="1">
+						<segment name="OrgId" occurs="1">
+							<segment name="Othr" occurs="1">
+								<field name="grpHdrInitgPtyId" xmlName="Id" getter="getBankIdFr" setter="setBankIdFr" regex="([A-Z0-9]){1,35}" required="true"  minOccurs="1"/>
+							</segment>
+						</segment>
+					</segment>
+				</segment>
+			</record>
+		<group name="instruction" class="com.s1.payments.instruction.InstructionValue" xmlType="none" occurs="1+" >
+			<!-- Instruction Value Mapping -->
+			<record name="PmtInf" occurs="1">
+				<field name="pmtInfPmtInfId" xmlName="PmtInfId" minOccurs="1" maxOccurs="1"
+					setter="setCustomerReference" getter="getCustomerReference"  required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>	
+				<field name="pmtInfPmtMtd" xmlName="PmtMtd" maxOccurs="1" minOccurs="1" ignore="true" literal="TRF" required="true"/>
+				<field name="pmtInfBtchBookg" xmlName="BtchBookg" occurs="0-1" setter="setPostingIndicator"
+					getter="getPostingIndicator"  regex="(true|false|TRUE|FALSE|True|False){1}"/>
+				<field name="pmtInfNbOfTxs" xmlName="NbOfTxs" maxOccurs="1" minOccurs="1"  type="java.lang.Integer"
+					setter="setLastSavedNumberOfLineItems" getter="getLastSavedNumberOfLineItems" required="true"/>
+				<segment name="PmtTpInf"  occurs="0-1">
+					<segment name="LclInstrm" occurs="0-1">
+						<field name="Prtry"	required="true" regex="[0-9]+" occurs="1" ignore="true"/>
+					</segment>
+					<segment name="CtgyPurp" occurs="0-1">
+						<field name="pmtInfCtgyPurpCd" xmlName="Cd" setter="setCategoryPurpose" getter="getCategoryPurpose"
+							maxOccurs="1" minOccurs="1" required="true" regex="(BONU|CASH|CBLK|CCRD|CORT|DCRD|DIVI|EPAY|FCOL|GOVT|HEDG|ICCP|IDCP|INTC|INTE|LOAN|OTHR|PENS|SALA|SECU|SSBE|SUPP|TAXS|TRAD|TREA|VATX|WHLD){1}"/>	
+					</segment>
+				</segment>
+				<field name="pmtInfReqdExctnDt" xmlName="ReqdExctnDt" setter="setValuedate" getter="getValuedate"
+					maxOccurs="1" typeHandler="s1dateHandler" required="true" minOccurs="1"/>
+
+				<!-- From Account Mapping (Debit Account Information) -->
+
+				<segment name="customerAccount" setter="setCustomerAccount"
+					getter="getCustomerAccount" class="com.s1.common.accounts.AccountHoldingValue"
+					minOccurs="1" xmlType="none">
+					<segment name="Dbtr"  occurs="1">
+						<field name="dbtrNm" xmlName="Nm" maxOccurs="1" minOccurs="1" ignore="true" maxLength="35" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+					
+						<segment name="Id" occurs="1">
+							<segment name="OrgId"  occurs="1">
+							<segment name="Othr"  occurs="1">
+							<!-- Here setting account Id in account display label due to objects structure for accountHolding and tag structure of ISO file
+							This will be validated in listener class against the account id fetched from DB using IBAN 
+							This mapping here is just for to store the value 
+									of account id to validate and to put into the criteria. Will not be used in 
+									actual payment creation.-->
+							<field name="dbtrAcctIBAN" xmlName="Id" occurs="1" setter="setAccountDisplayLabel"
+								getter="getAccountDisplayLabel" regex="[0-9a-zA-Z\/\-\,\+]{1,35}" required="true"/>
+								</segment>
+								</segment>
+						</segment>
+						</segment>
+					<segment name="DbtrAcct"  occurs="1">
+						<segment name="Id" occurs="1"
+							class="com.s1.common.accounts.additional.identifier.dao.AccountsAddIdentifier"
+							setter="setAccountAddIds" getter="getAccountAddIds">
+							<field name="dbtrAcctIBAN" xmlName="IBAN" occurs="1" setter="setIdentifier1"
+								getter="getIdentifier1" regex="([A-Z]{2}[\s]*)([0-9]{2}[\s]*)([A-Z0-9\s]+)" required="true"/>
+						</segment>
+						<segment name="accountValue" class="com.s1.common.accounts.AccountData"
+							setter="setAccountValue" getter="getAccountValue" xmlType="none"  occurs="1">
+							<field name="dbtrAcctCcy" xmlName="Ccy" regex="[A-Z]{3}" setter="setIsoCurrency"
+								getter="getIsoCurrency" required="true" occurs="1"/>
+						</segment>
+						</segment>
+					<segment name="DbtrAgt"  occurs="1">
+						<segment name="FinInstnId"  occurs="1">
+						<!-- Setting this field into the nickname due the structure of the 
+									tags for debit account fields Inside the afterRead method of listener the 
+									account will be fetched depending on the IBAN so the account value will be 
+									the one fetched from DB. this mapping here is just for to store the value 
+									of bank id to validate and to put into the criteria. Will not be used in 
+									actual payment creation. -->
+							<field name="acctNumber" xmlName="BIC" setter="setNickname"
+									getter="getNickname"  required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" occurs="0-1"/>
+							<segment name="Othr"  occurs="0-1">
+								<field name="dbtrAgtId" xmlName="Id" occurs="1" setter="setNickname"
+									getter="getNickname" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							</segment>
+						</segment>
+					</segment>
+				</segment>
+
+				<!-- Ordering Customer -->
+
+				<segment name="UltmtDbtr" setter="setOrderingCustomerValue"
+					getter="getOrderingCustomerValue" class="com.s1.payments.OrderingCustomerValue"
+					occurs="0-1">
+					<field name="ultmtDbtrNm" xmlName="Nm" occurs="1" setter="setName" getter="getName" maxLength="70" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+					<segment name="PstlAdr" setter="setAddress" getter="getAddress"
+						class="com.s1.common.Address" occurs="0-1">
+						<field name="ultmtDbtrCtry" xmlName="Ctry" setter="setCountryCode" getter="getCountryCode"
+							occurs="0-1"   regex="[A-Za-z]{2}"/>
+						<field name="ultmtDbtrAdrLine" xmlName="AdrLine" setter="setStreetAddressLines" getter="getStreetAddressLines"
+							occurs="0-3" collection="List" maxLength="70" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+					</segment>
+					<segment name="Id" occurs="0-1">
+						<segment name="OrgId" occurs="0-1">
+							<field name="ultmtDbtrAnyBIC" xmlName="AnyBIC" setter="setRecipientId" getter="getRecipientId"
+								occurs="0-1" maxLength="35" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							<field name="customerIdType" setter="setCustomerIdType"
+								getter="getCustomerIdType" xmlType="text" default="BNKCBIC" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							<segment name="Othr" occurs="0-1">
+								<field name="ultmtDbtrBNKCOTHId" xmlName="Id" setter="setRecipientId" getter="getRecipientId"
+									required="false" occurs="0-1" regex="\d{1,35}" />
+								<field name="customerIdType" setter="setCustomerIdType"
+									getter="getCustomerIdType" xmlType="text" default="BNKCOTH" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							</segment>
+						</segment>
+						<segment name="PrvtId" occurs="0-1">
+							<segment name="Othr" occurs="0-1">
+								<field name="ultmtDbtrBNKINDOTHId" xmlName="Id" setter="setRecipientId" getter="getRecipientId"
+									required="false" occurs="0-1" regex="\d{1,35}"/>
+								<field name="customerIdType" setter="setCustomerIdType"
+									getter="getCustomerIdType" xmlType="text" default="BNKINDOTH" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							</segment>
+							<segment name="DtAndPlcOfBirth" occurs="0-1">
+								<field name="ultmtDbtrBirthDt" xmlName="BirthDt" setter="setDateOfBirth" getter="getDateOfBirth"
+									typeHandler="s1dateHandler" occurs="1" required="true"/>
+								<field name="ultmtDbtrPrvcOfBirth" xmlName="PrvcOfBirth" setter="setProvinceOfBirth"
+									getter="getProvinceOfBirth" occurs="0-1"  maxLength="35" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								<field name="ultmtDbtrCityOfBirth" xmlName="CityOfBirth" setter="setCityOfBirth" getter="getCityOfBirth"
+									occurs="1"  maxLength="35" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								<field name="ultmtDbtrCtryOfBirth" xmlName="CtryOfBirth" setter="setNationalityStatus" occurs="1"
+									getter="getNationalityStatus"  regex="[A-Za-z]{2}" required="true"/>
+								<field name="customerIdType" setter="setCustomerIdType"
+									getter="getCustomerIdType" xmlType="text" default="BNKINDPB" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							</segment>
+						</segment>
+					</segment>
+				</segment>
+				<!--No need to map this field as will not be populated on UI and is not used in the payment creation process. -->
+				<field name="ChrgBr" ignore="true" occurs="0-1" regex="(CRED|DEBT|SHAR|SLEV){1}" />
+
+
+				<!-- Default Values - Start -->
+				<property name="isEditableDetails" setter="setIsEditableDetails"
+					getter="getIsEditableDetails" value="0" />
+				<property name="isCustomerReferenceEditable" setter="setIsCustomerReferenceEditable"
+					getter="getIsCustomerReferenceEditable" value="0" />
+				<property name="postingIndicatorEditable" setter="setPostingIndicatorEditable"
+					getter="getPostingIndicatorEditable" value="0" />
+				<property name="subType" setter="setSubType"
+					getter="getSubType" value="credit" />
+				<!-- Default Values - End -->
+
+
+				<!-- LineItemValue mapping -->
+
+				<segment name="CdtTrfTxInf" minOccurs="1" maxOccurs="unbounded"
+					getter="getLineItems" setter="setLineItems" collection="list"
+					class="com.s1.payments.instruction.LineItemValue">
+					<segment name="PmtId">
+						<field name="cdtTrfTxInfInstrId" xmlName="InstrId" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" required="true" setter="setBeneficiaryReference"
+							getter="getBeneficiaryCrossReference"  minOccurs="1"/>
+						<field name="cdtTrfTxInfEndToEndId" xmlName="EndToEndId" maxLength="35" occurs="0-1" setter="setExtraReference"
+							getter="getExtraReference" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" />
+					</segment>
+
+					<!-- Amount Mapping -->
+
+					<segment name="Amt" occurs="1">
+						<segment name="InstdAmt" occurs="1"
+							class="com.s1.arch.i18n.currency.Money" setter="setAmount"
+							getter="getAmount">
+							<field name="cdtTrfTxInfInstdAmtCcy" xmlName="Ccy" setter="setType" getter="getType" 
+								xmlType="attribute" typeHandler="currencyValueHandler" required="true" occurs="1"/>
+							<field name="cdtTrfTxInfInstdAmt" xmlName="InstdAmt" regex="\d{1,9}+(\.\d{1,2})?" type="bigdecimal" setter="setValue"
+								getter="getValue" xmlType="text" required="true"/>
+						</segment>
+					</segment>
+
+
+					<!-- ThirdPartyValue Mapping (Recipient Information) -->
+
+					<segment name="target" class="com.s1.payments.target.ThirdPartyValue"
+						xmlType="none">
+
+						<!-- Default Values - Start -->
+						<property name="accountType" type="string" value="IBAN"
+							setter="setAccountType" getter="getAccountType" />
+						<property name="isIBAN" type="boolean" value="true"
+							setter="setIBAN" getter="isIBAN" />
+						<property name="type" type="int" value="17" setter="setType"
+							getter="getType" />
+						<property name="isDependent" value="true" setter="setDependent"
+							getter="isDependent" />
+						<property name="electronicPayee" setter="setElectronicPayee"
+							getter="isElectronicPayee" type="boolean" value="true" />
+						<property name="accountVerificationStatus" setter="setAccountVerificationStatus"
+							getter="getAccountVerificationStatus" type="Integer" value="0" />
+						<property name="bankIdTypeOid" setter="setBankIdTypeOid"
+							getter="getBankIdTypeOid" typeHandler="objectIdHandler" value="1" />
+						<property name="destBankDetailsType" setter="setDestBankDetailsType"
+							getter="getDestBankDetailsType" value="P" />
+						<!-- Default Values - End -->
+
+						<segment name="CdtrAgt" occurs="1">
+							<segment name="FinInstnId" occurs="1">
+								<field name="cdtrAgtBIC" xmlName="BIC" minLength="8" maxLength="11" setter="setBankIdentifier"
+										getter="getBankIdentifier" occurs="1"/>
+							</segment>
+						</segment>
+						<segment name="Cdtr">
+							<field name="recipientName" xmlName="Nm" maxLength="70" setter="setName" getter="getName" required="true" occurs="1" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+							<segment name="PstlAdr" setter="setAddress" getter="getAddress" 
+								class="com.s1.common.Address" occurs="0-1">
+								<field name="cdtrCtry" xmlName="Ctry" setter="setCountryCode" getter="getCountryCode"
+									occurs="0-1" regex="[A-Z]{2}"/>
+								<field name="cdtrAdrLine" xmlName="AdrLine" maxLength="35" setter="setStreetAddressLines"
+									getter="getStreetAddressLines" occurs="0-2" collection="List" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" />
+							</segment>
+							<segment name="Id" occurs="0-1">
+								<segment name="OrgId" occurs="0-1">
+									<field name="cdtrAnyBIC" xmlName="AnyBIC" setter="setRecipientId" getter="getRecipientId"
+										occurs="0-1" maxLength="35" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									<field name="customerIdType" setter="setCustomerIdType"
+										getter="getCustomerIdType" xmlType="text" default="BNKCBIC" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									<segment name="Othr" occurs="0-1">
+										<field name="cdtrBNKCOTHId" xmlName="Id" setter="setRecipientId" getter="getRecipientId" regex="\d{1,35}"/>
+										<field name="customerIdType" setter="setCustomerIdType"
+											getter="getCustomerIdType" xmlType="text" default="BNKCOTH" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									</segment>
+
+								</segment>
+								<segment name="PrvtId" occurs="0-1">
+									<segment name="Othr" occurs="0-1">
+										<field name="cdtrBNKINDOTHId" xmlName="Id" regex="\d{1,35}" setter="setRecipientId" getter="getRecipientId"
+											required="false" occurs="0-1" />
+										<field name="customerIdType" setter="setCustomerIdType"
+											getter="getCustomerIdType" xmlType="text" default="BNKINDOTH" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									</segment>
+									<segment name="DtAndPlcOfBirth" occurs="0-1">
+										<field name="cdtrBirthDt" xmlName="BirthDt" setter="setDateOfBirth" getter="getDateOfBirth"
+											typeHandler="s1dateHandler" required="true"/>
+										<field name="cdtrPrvcOfBirth" xmlName="PrvcOfBirth" maxLength="35" setter="setProvinceOfBirth"
+											getter="getProvinceOfBirth" occurs="0-1" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" />
+										<field name="cdtrCityOfBirth" xmlName="CityOfBirth" maxLength="35" setter="setCityOfBirth"
+											getter="getCityOfBirth" occurs="1" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+										<field name="cdtrCtryOfBirth" xmlName="CtryOfBirth" regex="[A-Z]{2}" setter="setNationalityStatus"
+											getter="getNationalityStatus" required="true"/>
+										<field name="customerIdType" setter="setCustomerIdType"
+											getter="getCustomerIdType" xmlType="text" default="BNKINDPB" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									</segment>
+								</segment>
+							</segment>
+						</segment>
+						<segment name="CdtrAcct" occurs="1">
+							<segment name="Id" occurs="1">
+								<field name="cdtrAcctIBAN" xmlName="IBAN" regex="([A-Z]{2}[\s]*)([0-9]{2}[\s]*)([A-Z0-9\s]+)" setter="setAccountNumber" getter="getAccountNumber" required="true"/>
+							</segment>
+						</segment>
+					</segment>
+
+					<!-- Final Recipient -->
+
+					<segment name="UltmtCdtr" class="com.s1.payments.target.ThirdPartyValue"
+						occurs="0-1" setter="setFinalRecipient" getter="getFinalRecipient">
+						<field name="ultmtCdtrNm" xmlName="Nm" setter="setName" getter="getName" occurs="1"  maxLength="70" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+						<segment name="PstlAdr" setter="setAddress" getter="getAddress" 
+							class="com.s1.common.Address" occurs="0-1">
+							<field name="ultmtCdtrAdrLine" xmlName="AdrLine" maxLength="35" setter="setStreetAddressLines"
+								getter="getStreetAddressLines" occurs="0-3" collection="List" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" />
+						</segment>
+						<segment name="Id" occurs="1">
+							<segment name="OrgId" occurs="0-1">
+								<field name="ultmtCdtrAnyBIC" xmlName="AnyBIC" setter="setRecipientId" getter="getRecipientId"
+									occurs="0-1"  maxLength="35" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								<field name="customerIdType" setter="setCustomerIdType"
+									getter="getCustomerIdType" xmlType="text" default="BNKCBIC" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								<segment name="Othr" occurs="0-1">
+									<field name="ultmtCdtrBNKCOTHId" xmlName="Id" setter="setRecipientId" getter="getRecipientId" regex="\d{1,35}"/>
+									<field name="customerIdType" setter="setCustomerIdType"
+										getter="getCustomerIdType" xmlType="text" default="BNKCOTH" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								</segment>
+							</segment>
+							<segment name="PrvtId" occurs="0-1">
+								<segment name="Othr" occurs="0-1">
+									<field name="ultmtCdtrBNKINDOTHId" xmlName="Id" regex="\d{1,35}" setter="setRecipientId" getter="getRecipientId"
+										required="false" occurs="0-1" />
+									<field name="customerIdType" setter="setCustomerIdType"
+										getter="getCustomerIdType" xmlType="text" default="BNKINDOTH" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								</segment>
+								<segment name="DtAndPlcOfBirth" occurs="0-1">
+									<field name="ultmtCdtrBirthDt" xmlName="BirthDt" setter="setDateOfBirth" getter="getDateOfBirth"
+										typeHandler="s1dateHandler" required="true" />
+									<field name="ultmtCdtrPrvcOfBirth" xmlName="PrvcOfBirth" maxLength="35" setter="setProvinceOfBirth"
+										getter="getProvinceOfBirth" occurs="0-1" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" />
+									<field name="ultmtCdtrCityOfBirth" xmlName="CityOfBirth" maxLength="35" setter="setCityOfBirth" getter="getCityOfBirth"
+										occurs="1" required="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									<field name="ultmtCdtrCtryOfBirth" xmlName="CtryOfBirth" regex="[A-Z]{2}" setter="setNationalityStatus"
+										getter="getNationalityStatus" required="true"/>
+									<field name="customerIdType" setter="setCustomerIdType"
+										getter="getCustomerIdType" xmlType="text" default="BNKINDPB" trim="true" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+								</segment>
+							</segment>
+
+						</segment>
+					</segment>
+
+					<!-- Receiver Information -->
+
+					<segment name="receiverAdvice"
+						class="com.s1.payments.advice.ReceiverRemittanceValue" setter="setReceiverAdvice"
+						getter="getReceiverAdvice" xmlType="none">
+
+						<segment name="Purp" occurs="0-1">
+							<field name="cdtTrfTxInfPurpCd" xmlName="Cd" regex="(CBLK|CDCB|CDCD|CDCS|CDDP|CDOC|CDQC|ETUP|FCOL|MTUP|ACCT|CASH|COLL|CSDB|DEPT|INTC|LIMA|NETT|AGRT|AREN|BEXP|BOCE|COMC|CPYR|GDDS|GDSV|GSCB|LICF|POPE|ROYA|SCVE|SUBS|SUPP|TRAD|CHAR|COMT|CLPR|DBTC|GOVI|HLRP|INPC|INSU|INTE|LBRI|LIFI|LOAN|LOAR|PENO|PPTI|RINP|TRFD|ADMG|ADVA|BLDM|CBFF|CCRD|CDBL|CFEE|COST|CPKC|DCRD|EDUC|FAND|FCPM|GOVT|ICCP|IDCP|IHRP|INSM|IVPT|MSVC|NOWS|OFEE|OTHR|PADD|PTSP|RCKE|RCPT|REBT|REFU|RENT|STDY|TBIL|TCSC|TELI|WEBI|ANNI|CAFI|CFDI|CMDT|DERI|DIVD|FREX|HEDG|INVS|PRME|SAVG|SECU|SEPI|TREA|ANTS|CVCF|DMEQ|DNTS|HLTC|HLTI|HSPC|ICRF|LTCF|MDCS|VIEW|ALLW|ALMY|BBSC|BECH|BENE|BONU|COMM|CSLP|GVEA|GVEB|GVEC|GVED|PAYR|PENS|PRCP|SALA|SSBE|AEMP|GFRP|GWLT|RHBS|ESTX|FWLV|GSTX|HSTX|INTX|NITX|PTXP|RDTX|TAXS|VATX|WHLD|TAXR|AIRB|BUSB|FERB|RLWY|TRPT|CBTV|ELEC|ENRG|GASB|NWCH|NWCM|OTLC|PHON|UBIL|WTER){1}" setter="setPaymentPurpose" getter="getPaymentPurpose" />
+						</segment>
+
+						<segment name="RmtInf" occurs="0-1">
+							<field name="cdtTrfTxInfRmtInfUstrd" xmlName="Ustrd" minLength="1" maxLength="140" setter="setContent" getter="getContent"
+								occurs="0-1" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler" />
+							<segment name="Strd" occurs="0-1">
+								<segment name="CdtrRefInf" occurs="1">
+									<segment name="Tp" occurs="1">
+										<segment name="CdOrPrtry" occurs="1">
+											<field name="Cd" literal="SCOR" ignore="true" />
+										</segment>
+										<field name="cdtTrfTxInfRmtInfStrdIssr" xmlName="Issr" setter="setIssuer" getter="getIssuer"  maxLength="35" regex="[0-9a-zA-Z\ \/\-\?\:\(\)\.\,\'\+]+" typeHandler="patternHandler"/>
+									</segment>
+									<field name="cdtTrfTxInfRmtInfStrdRef" xmlName="Ref" regex="[0-9]{2}[A-Z0-9]{0,21}" setter="setCreditorReference" getter="getCreditorReference" required="true"/>
+									<!-- Default Values for structured receiver information -->
+									<property name="identifier" setter="setIdentifier" getter="getIdentifier" value="RF"/>
+									<property name="showRemittanceInfo" setter="setShowRemittanceInfo"
+										getter="isShowRemittanceInfo" value="true" type="boolean" />
+									<property name="checkDigitMethod" setter="setCheckDigitMethod"
+										getter="getCheckDigitMethod" value="EDIT" />
+								</segment>
+							</segment>
+						</segment>
+					</segment>
+				</segment>
+			</record>
+				<record name="SplmtryData" occurs="0-1">
+					<field name="PlcAndNm" xmlName="PlcAndNm" ignore="true" literal="RateInf"/>
+					<segment name="Envlp">
+						<segment name="Cnts" occurs="0-1">
+							<segment name="XchgRateInf" occurs="0-1" class="map"
+								setter="setTunneledData" getter="getTunneledData">
+								<field name="UnitCcy" xmlName="UnitCcy" occurs="0-1" type="java.lang.String" />
+								<field name="XchgRate" xmlName="XchgRate" occurs="0-1" type="bigdecimal" />
+								<field name="CtrctId" xmlName="CtrctId" maxLength="10"
+									type="java.lang.String" occurs="0-1" />
+							</segment>
+						</segment>
+					</segment>
+				</record>
+			</group>
+		</group>
+	</stream>
+</beanio>

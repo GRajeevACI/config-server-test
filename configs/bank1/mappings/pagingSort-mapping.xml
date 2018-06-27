@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.online.common.services.BaseListRqType
+		</typeA>
+		<typeB>com.aciworldwide.common.pagination.PagingSortingValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>offset</fieldA>
+				<fieldB>offset</fieldB>
+			</field>
+			<field>
+				<fieldA>limit</fieldA>
+				<fieldB>limit</fieldB>
+			</field>
+			<field>
+				<fieldA>sort</fieldA>
+				<fieldB>sortBy</fieldB>
+			</field>
+			<field>
+				<fieldA>sortOrder</fieldA>
+				<fieldB>sortOrder</fieldB>
+			</field>
+		</fields>
+	</mapping>
+</mappings>

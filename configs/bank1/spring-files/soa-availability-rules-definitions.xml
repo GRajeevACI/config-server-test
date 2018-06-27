@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">	
+	
+	<util:map id="availabilityRulesMap">
+		<entry key="approveOnSubmit" value-ref="approveOnSubmitRule"></entry>
+		<entry key="saveAsTemplate" value-ref="saveAsTemplateRule"></entry>
+		<entry key="isConfidential" value-ref="confidentialRule"></entry>
+	</util:map>
+	
+	<bean id="approveOnSubmitRule" class="com.aciworldwide.common.rules.impl.ApproveOnSubmitRule"></bean>
+	
+	<bean id="saveAsTemplateRule" class="com.aciworldwide.common.rules.impl.SaveAsTemplateRule">
+		<property name="executor" ref="functionalAuthCheckExecutor"></property>
+		<property name="operationsMap" ref="rulesContextOperationsMap"></property>
+	</bean>
+	
+	<bean id="confidentialRule" class="com.aciworldwide.common.rules.impl.ConfidentionalRule"/>	
+	
+	<util:map id="rulesContextOperationsMap">
+		<entry key="CCD">
+			<util:list>
+				<value>/payment/ach/ccd/credits/template/create_modify</value>
+				<value>/payment/ach/ccd/debits/template/create_modify</value>
+			</util:list>
+		</entry>
+	</util:map>
+						
+</beans>						

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!-- WebSphere specific section -->
+	<bean id="adminService" class="com.ibm.websphere.management.AdminServiceFactory" factory-method="getAdminService"/>
+
+	<bean id="grndsMBeanExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="assembler" ref="assembler"/>
+        <property name="namingStrategy" ref="namingStrategy"/>
+        <property name="autodetect" value="true"/>
+        <property name="notificationListeners">
+        	<list>
+            	<bean class="org.springframework.jmx.export.NotificationListenerBean" lazy-init="true">
+                	<constructor-arg>
+                    	<bean class="com.s1.app.disbursements.process.DisbursementPropertyChangeNotificationListener"/>
+                	</constructor-arg>
+            	    <property name="mappedObjectNames">
+                    	<list>
+                        	<value>bean:cell=#{adminService.cellName},name=grndsConfiguration,node=#{adminService.nodeName},process=#{adminService.processName}</value>
+                    	</list>
+               	 	</property>
+            	</bean>
+        	</list>
+    	</property>
+	</bean>
+	
+	<bean id="jmxAttributeSource"
+          class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+
+    <!-- will create management interface using annotation metadata -->
+    <bean id="assembler"
+          class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+        <property name="attributeSource" ref="jmxAttributeSource"/>
+    </bean>
+
+    <!-- will pick up the ObjectName from the annotation -->
+    <bean id="namingStrategy"
+          class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+        <property name="attributeSource" ref="jmxAttributeSource"/>
+    </bean>
+	
+	<bean id="grndsConfigurationMBean" class="com.s1.arch.config.management.GrndsConfigurationMBeanImpl" lazy-init="true"/>
+</beans>

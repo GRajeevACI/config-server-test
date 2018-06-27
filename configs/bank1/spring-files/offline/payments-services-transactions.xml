@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<aop:config>
+
+		<!-- Pointcut configuration -->
+
+		<aop:pointcut id="paymentTypeDeployerServiceOps"
+			expression="execution(public * com.s1.payments.type.deploy.*Service.*(..))" />
+			
+		<aop:pointcut id="cbiServiceOps"
+			expression="execution(public * com.s1.emea..*Service.*(..))" />
+						
+		<!-- Advisor configuraiton -->
+
+        <aop:advisor id="paymentTypeDeployerServiceAdvisor" pointcut-ref="paymentTypeDeployerServiceOps"
+			advice-ref="txPaymentsServiceAdvice" />
+		
+        <aop:advisor id="cbiServiceAdvisor" pointcut-ref="cbiServiceOps"
+			advice-ref="txBankingServiceAdvice" />
+
+	</aop:config>
+
+	<!-- Transaction Advice configurations -->
+
+	<tx:advice id="txPaymentsServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- Read  Methods -->
+			<tx:method name="get*" read-only="true" propagation="REQUIRED"
+				isolation="READ_COMMITTED" />
+			<!-- All other Methods -->
+			<tx:method name="*" propagation="REQUIRED"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="validate" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="linkToAllClassOfService" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="clearDeployed" propagation="REQUIRED"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+
+</beans>

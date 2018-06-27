@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.mobileBanking.approvals.provider.template.MobileApprovalTemplateMapper">
+
+    <resultMap id="BaseResultMap" type="com.s1.app.mobileBanking.approvals.provider.template.MobileApprovalTemplateData">
+	
+		<result column="BNKInstrTmplKy" property="objectId" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="dsbmtTypeCd" property="pmtTypeCode" jdbcType="INTEGER" />
+		<result column="paymentType" property="pmtTypeText" jdbcType="VARCHAR" />
+		<result column="instrStsCd" property="statusCode" jdbcType="INTEGER" />
+		<result column="paymentStatus" property="statusText" jdbcType="VARCHAR" />
+		<result column="nameRef" property="templateName" jdbcType="VARCHAR" />
+		<result column="batchName" property="batchName" jdbcType="VARCHAR" />
+		<result column="fromAcct" property="accountId" jdbcType="VARCHAR" />
+		<result column="BNKAcctKyCmp" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="cmpAcctIdfr" property="achCompanyId" jdbcType="VARCHAR" />
+		<result column="debitAmount" property="totalDebitAmt" jdbcType="DECIMAL" />
+		<result column="ARCISOCrncyCdKyDebit" property="debitAmountCcyOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="debitCnt" property="debitCount" jdbcType="INTEGER" />
+		<result column="creditAmount" property="totalCreditAmt" jdbcType="DECIMAL" />
+		<result column="ARCISOCrncyCdKyCredit" property="creditAmountCcyOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="creditCnt" property="creditCount" jdbcType="INTEGER" />
+		<result column="rcpntName" property="rcpntName" jdbcType="VARCHAR" />
+		<result column="rcpntBank" property="rcpntBank" jdbcType="VARCHAR" />
+		<result column="rcpntAcctNbr" property="rcpntAcctNbr" jdbcType="VARCHAR" />
+		<result column="isConfidential" property="confidential" jdbcType="BOOLEAN" />
+		<result column="createUser" property="creator" jdbcType="VARCHAR" />
+		<result column="activeDttm" property="activeDttm" jdbcType="TIMESTAMP" />
+		<result column="updateDttm" property="lastUpdateTimestamp" jdbcType="TIMESTAMP" />
+		<result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+		<result column="versionStamp" property="lockValue" jdbcType="SMALLINT" />
+		<result column="instrSubTypCd" property="pmtSubTypeCode" jdbcType="INTEGER" />
+		<result column="row_number" property="rowno" jdbcType="SMALLINT" />
+		<result column="cnt" property="count" jdbcType="SMALLINT" />
+		<collection property="recipients" javaType="ArrayList" column="{tmplInstrKy=BNKInstrTmplKy,pmtTypeCd=dsbmtTypeCd}" ofType="com.s1.app.mobileBanking.approvals.provider.template.MobileApprovalTmplRecipientData" select="getTemplatesRecipient"/>
+     </resultMap>
+      
+     <resultMap id="RecipientResultMap" type="com.s1.app.mobileBanking.approvals.provider.template.MobileApprovalTmplRecipientData">
+		 <id column="TMPLINSTRKY" property="tmplInstrKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="TMPLRCPNTKY" property="recipientOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>		
+		<result column="ARCCountryCdKy" property="countryCdKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="thirdPartyName" property="thirdPartyName" jdbcType="VARCHAR" />		
+		<result column="isCredit" property="isCredit" jdbcType="BOOLEAN" />		
+		<result column="amount" property="amount" jdbcType="DECIMAL" />		
+		<result column="recipientId" property="recipientId" jdbcType="VARCHAR" />		
+		<result column="recipientTypeCd" property="recipientType" jdbcType="SMALLINT" />		
+		<result column="addendaTypeCd" property="addendaType" jdbcType="SMALLINT" />		
+		<result column="shortAddenda" property="shortAddenda" jdbcType="VARCHAR" />		
+		<result column="ARCCountry" property="country" jdbcType="VARCHAR" />
+		<result column="BNKTaxAuthCd" property="taxAuthCode" jdbcType="VARCHAR" />
+		<result column="SrcAcctky" property="srcAcctky" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="SrcAcctId" property="srcAcctId" jdbcType="VARCHAR" />		
+		<result column="DstAcctky" property="dstAcctky" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="DstAcctId" property="dstAcctId" jdbcType="VARCHAR" />		
+		<result column="CURRENCYCDKY" property="accountCurrencyKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />	
+		<result column="AcctCurrency" property="accountCurrency" jdbcType="VARCHAR" />		
+		<result column="ISOCurrencyCdKyRcpnt" property="recipienttCurrencyky" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />	
+		<result column="RcpntCurrency" property="recipienttCurrency" jdbcType="VARCHAR" />
+      </resultMap>
+      
+    
+    <sql id="Base_Column_List" >
+		SELECT  row_number() over( order by updateDttm Asc ) as row_number,  BNKInstrTmplKy, BNKCustomerKy , dsbmtTypeCd, paymentType, instrStsCd, paymentStatus, nameRef,
+		batchName, fromAcct, BNKAcctKyCmp, cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+		ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential, createUser, activeDttm, updateDttm, updateUser, versionStamp, instrSubTypCd
+	</sql>
+	
+	<!--ACH Templates-->
+	<update id="callBNKDshBrdAchTmplPrepSproc" statementType="CALLABLE" >
+		{ call BNKDshBrdAchTmplPrepSp() }
+	</update>
+	<update id="callBNKDshbrdACHTmplSproc" statementType="CALLABLE" parameterType="map">
+		{ call BNKDshbrdACHTmplSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+	</update>
+
+	<!--Wire Templates-->
+	<update id="callBNKDshbrdWireTmplPrepSproc" statementType="CALLABLE" >
+		{ call BNKDshbrdWireTmplPrepSp() }
+	</update>
+	<update id="callBNKDshbrdWireTmplSproc" statementType="CALLABLE" parameterType="map">
+		{ call BNKDshbrdWireTmplSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+	</update>
+
+	<!--Transfers Templates-->
+	<update id="callBNKDshbrdXferTmplPrepSproc" statementType="CALLABLE" >
+		{ call BNKDshbrdXferTmplPrepSp() }
+	</update>
+	<update id="callBNKDshbrdXferTmplSproc" statementType="CALLABLE" parameterType="map">
+		{ call BNKDshbrdXferTmplSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled})}
+	</update>
+	
+
+	<select id="getTemplatesRecipient" resultMap="RecipientResultMap" parameterType="map" >
+		<if test="pmtTypeCd == 90 or pmtTypeCd == 91 or pmtTypeCd == 93 or pmtTypeCd == 94 or pmtTypeCd == 95 or pmtTypeCd == 96 or pmtTypeCd == 98 or pmtTypeCd == 99 or pmtTypeCd == 100 or pmtTypeCd == 101"> 
+			SELECT BNKACHTMPLRCPNTKY TMPLRCPNTKY,BNKACHINSTRTMPLKY TMPLINSTRKY,thirdPartyName, isCredit, paymentAmount amount, recipientId, recipientTypeCd,addendaTypeCd 
+				,shortAddenda,a.ARCCountryCdKy,ct.DESCRIPTION ARCCountry 
+				,ISOCurrencyCdKyAcct CURRENCYCDKY,b.TEXTCURRCD AcctCurrency,ISOCurrencyCdKyRcpnt,c.TEXTCURRCD RcpntCurrency	
+				,BNKTaxAuthCd,cast(null as integer) SrcAcctky,ACCTID SrcAcctId,cast(null as integer) DstAcctky,cast(null as varchar(10)) DstAcctId
+			FROM BNKACHTmplRcpnt a 
+				left outer join ARCCountryCd ct on ( a.ARCCountryCdKy=ct.ARCCountryCdKy ) 
+				left outer join ARCISOCurrencyCd b on ( a.ISOCurrencyCdKyAcct=b.ARCISOCURRENCYCDKY )
+				left outer join ARCISOCurrencyCd c on ( a.ISOCurrencyCdKyRcpnt=c.ARCISOCURRENCYCDKY )
+			WHERE  BNKACHInstrTmplKy = #{tmplInstrKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		</if>	
+		<if test="pmtTypeCd == 62 or pmtTypeCd == 63 "> 
+			SELECT VXFINSTRTMPLKY TMPLRCPNTKY,BNKINSTRTMPLKY TMPLINSTRKY, cast(null as varchar(10)) thirdPartyName, cast(null as char) isCredit, INSTRAMT amount, 
+				cast(null as varchar(10)) recipientId, cast(null as integer) recipientTypeCd,  cast(null as integer) addendaTypeCd 
+				,'' shortAddenda,cast(null as integer) ARCCountryCdKy,cast(null as varchar(10)) ARCCountry 
+				,a.ISOCURRENCYCDKY CURRENCYCDKY, b.TEXTCURRCD AcctCurrency,cast(null as integer) ISOCurrencyCdKyRcpnt,cast(null as varchar(3)) RcpntCurrency	
+				,cast(null as char) BNKTaxAuthCd, BNKACCTKYSRC SrcAcctky ,src.Acctid SrcAcctId, BNKACCTKYTGT DstAcctky,dst.Acctid DstAcctId
+			FROM VXFINSTRTMPL a 
+				left outer join bnkacct src on ( a.BNKACCTKYSRC = src.BNKACCTKY )
+				left outer join bnkacct dst on ( a.BNKACCTKYTGT = dst.BNKACCTKY )                               
+				left outer join ARCISOCurrencyCd b on ( a.ISOCURRENCYCDKY=b.ARCISOCURRENCYCDKY )
+			WHERE BNKINSTRTMPLKY = #{tmplInstrKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+		</if>
+		<!--   This Query is NO use.... Just keeping that to make Mybatis working. -->
+		<if test="pmtTypeCd == 77 or pmtTypeCd == 78 or pmtTypeCd == 79 or pmtTypeCd == 80 or pmtTypeCd == 81 or pmtTypeCd == 82 or pmtTypeCd == 83 or pmtTypeCd == 85 "> 
+			SELECT cast(null as integer) TMPLRCPNTKY,cast(null as integer) TMPLINSTRKY,'' thirdPartyName, '0' isCredit, 0  amount, '' recipientId, '0' recipientTypeCd, '0' addendaTypeCd 
+			,'' shortAddenda,cast(null as integer) ARCCountryCdKy,'' ARCCountry 
+			,cast(null as integer) CURRENCYCDKY,'' AcctCurrency, cast(null as integer) ISOCurrencyCdKyRcpnt,'' RcpntCurrency	
+			,'' BNKTaxAuthCd,cast(null as integer) SrcAcctky,'' SrcAcctId,cast(null as integer) DstAcctky,cast(null as varchar(10)) DstAcctId
+			FROM BNKACHTmplRcpnt where 1 = 2 and 3 = 4
+		</if>
+	
+	</select>
+
+	<select id="getTemplatesForMobileApprovals" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" useCache="false" >
+		with a1 (row_number, BNKInstrTmplKy,BNKCustomerKy, dsbmtTypeCd, paymentType,instrStsCd, paymentStatus, nameRef, batchName, fromAcct, BNKAcctKyCmp,
+			cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+			ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+			createUser, activeDttm, updateDttm, updateUser, versionStamp, instrSubTypCd) 
+		as ( 
+        	<include refid="Base_Column_List" />
+			FROM  ( 
+				SELECT  b.BNKInstrTmplKy,a.BNKCustomerKy, dsbmtTypeCd, msg2.translation paymentType,  b.instrStsCd, msg1.translation paymentStatus, nameRef, 
+						c.companyEntryDesc batchName, fromAcct, BNKAcctKyCmp,
+						cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+						ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+						createUser, activeDttm, b.updateDttm, b.updateUser, b.versionStamp, b.instrSubTypCd
+				FROM  BNKDSBMTTMPLSUMM a, BNKInstrTmpl b, BNKACHINSTRTMPL c
+					, session.BNKDshbrdACHTUsrEntlDgtt hh, session.BNKDshbrdACHTmplDgtt ee 
+					,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE a.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="achTmplPmtTypeCd != null"> 
+					AND a.dsbmtTypeCd IN
+						<foreach collection="achTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>			
+					<if test="accountIds != null"> 
+					AND a.BNKACCTKYCMP in
+						<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+							#{acctId}
+						</foreach>
+					</if> 
+					and a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+					<if test="pmtSubtypeCodes != null"> 
+					AND b.instrSubTypCd in
+						<foreach collection="pmtSubtypeCodes" item="item1" open="(" close=")" separator=",">
+							#{item1}
+						</foreach> 
+					</if>
+					<if test="statusCodes != null"> 
+					AND b.instrstscd IN 
+						<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+							#{code}
+						</foreach>
+					</if>
+					AND b.bnkinstrtmplky = c.bnkinstrtmplky 
+					AND ee.PaymentTypCd = b.instrtypecd AND a.BNKAcctKyCmp = ee.BNKAcctKy AND hh.PaymentTypCd = b.instrtypecd 
+					AND ((hh.CreditDebitMixed = 'M' and c.paymentTypeCd in ('C','D','M')) or (hh.CreditDebitMixed = c.paymentTypeCd)) 
+					AND ((hh.ISOWNNONREPAPPROVE = '1' and b.updateuser = hh.userId) or  ( b.updateuser <![CDATA[ <> ]]> hh.userId)) 
+					AND msg2.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = msg2.enumValue AND msg2.ARCLocaleCdKy =  #{localeOid} 
+					AND msg1.fetchId='statusCodeEnum' and b.instrstscd = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+					
+				Union all
+				
+				SELECT  b.BNKInstrTmplKy,a.BNKCustomerKy, dsbmtTypeCd, msg2.translation paymentType, b.instrStsCd, msg1.translation paymentStatus, nameRef, 
+						cast(null as varchar(1)) batchName,fromAcct, BNKAcctKyCmp,
+						cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+						ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+						createUser, activeDttm, b.updateDttm, b.updateUser, b.versionStamp, b.instrSubTypCd
+				FROM  BNKDSBMTTMPLSUMM a, BNKInstrTmpl b
+					,session.BNKDshbrdWireTusrEntlDgtt aa, session.BNKDshbrdWireTmplDgtt bb
+					,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE a.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="wireTmplPmtTypeCd != null"> 
+					AND a.dsbmtTypeCd IN
+						<foreach collection="wireTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>			
+					<if test="accountIds != null"> 
+					and a.BNKACCTKYCMP in
+						<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+							#{acctId}
+						</foreach>
+					</if> 
+					and a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+					<if test="statusCodes != null"> 
+					AND b.instrstscd IN 
+						<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+							#{code}
+						</foreach>
+					</if>					          
+					<if test="wireTmplPmtTypeCd != null"> 
+					AND b.instrTypeCd IN
+						<foreach collection="wireTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>	
+					AND aa.PaymentTypcd = a.dsbmtTypeCd AND aa.CREDITDEBITMIXED = 'C' AND bb.PaymentTypcd = a.dsbmtTypeCd 
+					AND a.BNKAcctKyCmp = bb.BNKACCTKY
+					AND msg2.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = msg2.enumValue AND msg2.ARCLocaleCdKy =  #{localeOid} 
+					AND msg1.fetchId='statusCodeEnum' and b.instrstscd = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+					AND ((aa.ISOWNNONREPAPPROVE = '1' and b.updateuser = aa.userId) or  ( b.updateuser <![CDATA[ <> ]]> aa.userId))  
+					
+				Union all
+
+				SELECT  distinct b.BNKInstrTmplKy,b.CORCUSTOMERKY as BNKCustomerKy, INSTRTYPECD as dsbmtTypeCd, msg2.translation paymentType, b.instrStsCd, 
+						msg1.translation as paymentStatus, Name as nameRef,cast(null as varchar(1)) batchName,
+						cast(null as varchar(1)) fromAcct, (case when b.INSTRTYPECD=62 then a.BNKAcctKySrc else a.BNKAcctKyTgt end) as BNKAcctKyCmp,
+						cast(null as varchar(1)) cmpAcctIdfr, cast(null as varchar(1)) rcpntName, 0 debitAmount, cast(null as integer) ARCISOCrncyCdKyDebit,
+						cast(null as integer) debitCnt, 0 creditAmount, 
+						cast(null as integer) ARCISOCrncyCdKyCredit, 
+						cast(null as integer) creditCnt, cast(null as varchar(1)) rcpntBank, 
+						cast(null as varchar(1)) rcpntAcctNbr, cast(null as varchar(1)) isConfidential,
+						'' createUser, cast(null as timestamp) activeDttm, b.updateDttm, b.updateUser, b.versionStamp, cast(null as integer) instrSubTypCd
+				FROM BNKInstrTmpl b,  VXFINSTRTMPL a
+					LEFT OUTER JOIN  session.BNKDshbrdXferTmplDgtt ee on (a.BNKACCTKYSRC = ee.BNKACCTKY 
+							<if test="accountIds != null"> 
+								and a.BNKAcctKySrc in
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+							)
+					LEFT OUTER JOIN  session.BNKDshbrdXferTmplDgtt ff on (a.BNKACCTKYTGT = ff.BNKACCTKY 
+							<if test="accountIds != null"> 
+								and a.BNKAcctKyTgt in
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if>
+							)
+					,session.BNKDshbrdXferTUsrEntlDgtt hh, BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE b.CORCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="xferTmplPmtTypeCd != null"> 
+					AND b.INSTRTYPECD IN
+						<foreach collection="xferTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>			
+					<if test="xferstatusCodes != null"> 
+					AND b.instrstscd IN 
+						<foreach collection="xferstatusCodes" item="code" open="(" close=")" separator=",">
+							#{code} 
+						</foreach>
+					</if>
+					and a.BNKINSTRTMPLKY = b.BNKInstrTmplKy
+					AND a.ISBANKMANAGED='0'
+					AND hh.ISAPPROVER = '1' AND ((  hh.ISOWNAPPROVE = '1' and b.updateuser = hh.USERID)  or ( b.updateuser  <![CDATA[ <> ]]> hh.USERID))
+					AND msg2.fetchId='paymentTypesEnum' and b.INSTRTYPECD = msg2.enumValue and msg2.ARCLocaleCdKy = #{localeOid} 						
+					AND msg1.fetchId='statusCodeEnum' and b.instrstscd = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid}
+	
+				) tmp
+			) select b.cnt , a.* from a1 as a, (select count(*) as cnt from a1) as b
+			<if test="noOfRows > 0">
+				where a.row_number between 1 and #{noOfRows}
+			</if>
+	</select>
+
+	<select id="getTemplatesForMobileApprovals-Oracle" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" useCache="false" >
+		with a1 (row_number, BNKInstrTmplKy,BNKCustomerKy, dsbmtTypeCd, paymentType,instrStsCd, paymentStatus, nameRef, batchName, fromAcct, BNKAcctKyCmp,
+			cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+			ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+			createUser, activeDttm, updateDttm, updateUser, versionStamp, instrSubTypCd) 
+		as ( 
+        	<include refid="Base_Column_List" />
+			FROM  ( 
+				SELECT  b.BNKInstrTmplKy,a.BNKCustomerKy, dsbmtTypeCd, msg2.translation paymentType,  b.instrStsCd, msg1.translation paymentStatus, nameRef, 
+						c.companyEntryDesc batchName, fromAcct, BNKAcctKyCmp,
+						cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+						ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+						createUser, activeDttm, b.updateDttm, b.updateUser, b.versionStamp, b.instrSubTypCd
+				FROM  BNKDSBMTTMPLSUMM a, BNKInstrTmpl b, BNKACHINSTRTMPL c
+					, BNKDshbrdACHTUsrEntlDgtt hh, BNKDshbrdACHTmplDgtt ee 
+					,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE a.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="achTmplPmtTypeCd != null"> 
+					AND a.dsbmtTypeCd IN
+						<foreach collection="achTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>			
+					<if test="accountIds != null"> 
+					AND a.BNKACCTKYCMP in
+						<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+							#{acctId}
+						</foreach>
+					</if> 
+					and a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+					<if test="pmtSubtypeCodes != null"> 
+					AND b.instrSubTypCd in
+						<foreach collection="pmtSubtypeCodes" item="item1" open="(" close=")" separator=",">
+							#{item1}
+						</foreach> 
+					</if>
+					<if test="statusCodes != null"> 
+					AND b.instrstscd IN 
+						<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+							#{code}
+						</foreach>
+					</if>
+					AND b.bnkinstrtmplky = c.bnkinstrtmplky 
+					AND ee.PaymentTypCd = b.instrtypecd AND a.BNKAcctKyCmp = ee.BNKAcctKy AND hh.PaymentTypCd = b.instrtypecd 
+					AND ((hh.CreditDebitMixed = 'M' and c.paymentTypeCd in ('C','D','M')) or (hh.CreditDebitMixed = c.paymentTypeCd)) 
+					AND ((hh.ISOWNNONREPAPPROVE = '1' and b.updateuser = hh.userId) or  ( b.updateuser <![CDATA[ <> ]]> hh.userId)) 
+					AND msg2.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = msg2.enumValue AND msg2.ARCLocaleCdKy =  #{localeOid} 
+					AND msg1.fetchId='statusCodeEnum' and b.instrstscd = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+					
+				Union all
+				
+				SELECT  b.BNKInstrTmplKy,a.BNKCustomerKy, dsbmtTypeCd, msg2.translation paymentType, b.instrStsCd, msg1.translation paymentStatus, nameRef, 
+						cast(null as varchar(1)) batchName,fromAcct, BNKAcctKyCmp,
+						cmpAcctIdfr, rcpntName, debitAmount, ARCISOCrncyCdKyDebit, debitCnt, creditAmount, 
+						ARCISOCrncyCdKyCredit, creditCnt, rcpntBank, rcpntAcctNbr, isConfidential,
+						createUser, activeDttm, b.updateDttm, b.updateUser, b.versionStamp, b.instrSubTypCd
+				FROM  BNKDSBMTTMPLSUMM a, BNKInstrTmpl b
+					,BNKDshbrdWireTusrEntlDgtt aa, BNKDshbrdWireTmplDgtt bb
+					,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE a.BNKCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="wireTmplPmtTypeCd != null"> 
+					AND a.dsbmtTypeCd IN
+						<foreach collection="wireTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>			
+					<if test="accountIds != null"> 
+					and a.BNKACCTKYCMP in
+						<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+							#{acctId}
+						</foreach>
+					</if> 
+					and a.BNKDsbmtTmplKy = b.BNKInstrTmplKy
+					<if test="statusCodes != null"> 
+					AND b.instrstscd IN 
+						<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+							#{code}
+						</foreach>
+					</if>					          
+					<if test="wireTmplPmtTypeCd != null"> 
+					AND b.instrTypeCd IN
+						<foreach collection="wireTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>	
+					AND aa.PaymentTypcd = a.dsbmtTypeCd AND aa.CREDITDEBITMIXED = 'C' AND bb.PaymentTypcd = a.dsbmtTypeCd 
+					AND a.BNKAcctKyCmp = bb.BNKACCTKY
+					AND msg2.fetchId='paymentTypesEnum' and a.dsbmtTypeCd = msg2.enumValue AND msg2.ARCLocaleCdKy =  #{localeOid} 
+					AND msg1.fetchId='statusCodeEnum' and b.instrstscd = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+					AND ((aa.ISOWNNONREPAPPROVE = '1' and b.updateuser = aa.userId) or  ( b.updateuser <![CDATA[ <> ]]> aa.userId))  
+					
+				Union all
+
+				SELECT  distinct b.BNKInstrTmplKy,b.CORCUSTOMERKY as BNKCustomerKy, INSTRTYPECD as dsbmtTypeCd, msg2.translation paymentType, b.instrStsCd, 
+						msg1.translation as paymentStatus, Name as nameRef,cast(null as varchar(1)) batchName,
+						cast(null as varchar(1)) fromAcct, (case when b.INSTRTYPECD=62 then a.BNKAcctKySrc else a.BNKAcctKyTgt end) as BNKAcctKyCmp,
+						cast(null as varchar(1)) cmpAcctIdfr, cast(null as varchar(1)) rcpntName, 0 debitAmount, cast(null as integer) ARCISOCrncyCdKyDebit,
+						cast(null as integer) debitCnt, 0 creditAmount, 
+						cast(null as integer) ARCISOCrncyCdKyCredit, 
+						cast(null as integer) creditCnt, cast(null as varchar(1)) rcpntBank, 
+						cast(null as varchar(1)) rcpntAcctNbr, cast(null as varchar(1)) isConfidential,
+						'' createUser, cast(null as timestamp) activeDttm, b.updateDttm, b.updateUser, b.versionStamp, cast(null as integer) instrSubTypCd
+				FROM BNKInstrTmpl b,  VXFINSTRTMPL a
+					LEFT OUTER JOIN  BNKDshbrdXferTmplDgtt ee on (a.BNKACCTKYSRC = ee.BNKACCTKY 
+							<if test="accountIds != null"> 
+								and a.BNKAcctKySrc in
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+							)
+					LEFT OUTER JOIN  BNKDshbrdXferTmplDgtt ff on (a.BNKACCTKYTGT = ff.BNKACCTKY 
+							<if test="accountIds != null"> 
+								and a.BNKAcctKyTgt in
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if>
+							)
+					,BNKDshbrdXferTUsrEntlDgtt hh, BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE b.CORCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="xferTmplPmtTypeCd != null"> 
+					AND b.INSTRTYPECD IN
+						<foreach collection="xferTmplPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>			
+					<if test="xferstatusCodes != null"> 
+					AND b.instrstscd IN 
+						<foreach collection="xferstatusCodes" item="code" open="(" close=")" separator=",">
+							#{code} 
+						</foreach>
+					</if>
+					and a.BNKINSTRTMPLKY = b.BNKInstrTmplKy
+					AND a.ISBANKMANAGED='0'
+					AND hh.ISAPPROVER = '1' AND ((  hh.ISOWNAPPROVE = '1' and b.updateuser = hh.USERID)  or ( b.updateuser  <![CDATA[ <> ]]> hh.USERID))
+					AND msg2.fetchId='paymentTypesEnum' and b.INSTRTYPECD = msg2.enumValue and msg2.ARCLocaleCdKy = #{localeOid} 						
+					AND msg1.fetchId='statusCodeEnum' and b.instrstscd = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid}
+	
+				) tmp
+			) select b.cnt , a.* from a1  a, (select count(*) as cnt from a1)  b
+			<if test="noOfRows > 0">
+				where a.row_number between 1 and #{noOfRows}
+			</if>
+	</select>	
+	
+</mapper>

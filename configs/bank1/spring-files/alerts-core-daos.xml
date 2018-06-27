@@ -1,0 +1,96 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/util
+						http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+					
+	<bean id="alertDestinationDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertDestinationMapper" />
+	</bean>	
+
+	<bean id="alertSubscriptionDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertSubscriptionMapper" />
+	</bean>	
+
+	<bean id="alertParameterValueDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertParameterValueMapper" />
+	</bean>	
+
+	<bean id="alertDestinationSubscriptionDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertDestinationSubscriptionMapper" />
+	</bean>	
+
+	<bean id="alertTypeDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertTypeMapper" />
+	</bean>	
+
+	<bean id="alertTypeParameterDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertTypeParameterMapper" />
+	</bean>	
+
+	<bean id="alertUtilDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertUtilMapper" />
+	</bean>	
+	
+	<bean id="alertDeliveryChannelDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertDeliveryChannelMapper" />
+	</bean>	
+
+	<bean id="alertInstanceHistoryDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertInstanceHistoryMapper" />
+	</bean>	
+	
+	<bean id="deferredAlertDao" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.DeferredAlertMapper" />
+	</bean>	
+
+	<!-- The following are DAO instances that use an XA compliant JDBC Provider -->
+	<!-- Use these ONLY if you require 2PC for your workflow -->
+	
+	<bean id="alertSubscriptionDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertSubscriptionMapper" />
+	</bean>	
+
+	<bean id="alertTypeDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertTypeMapper" />
+	</bean>	
+	
+	<bean id="alertDestinationDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertDestinationMapper" />
+	</bean>	
+
+	<bean id="alertTypeParameterDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertTypeParameterMapper" />
+	</bean>	
+
+	<bean id="alertUtilDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertUtilMapper" />
+	</bean>	
+
+	<bean id="alertDeliveryChannelDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertDeliveryChannelMapper" />
+	</bean>	
+	
+	<bean id="alertInstanceHistoryDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertInstanceHistoryMapper" />
+	</bean>	
+
+	<bean id="alertInstanceHistorySegmentMapperXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertInstanceHistorySegmentMapper" />
+	</bean>	
+
+	<bean id="deferredAlertDaoXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.DeferredAlertMapper" />
+	</bean>	
+
+	<bean id="deferredAlertSegmentMapperXa" parent="BaseMybatisDAOXA">
+		<property name="mapperInterface" value="com.s1.alerts.dao.DeferredAlertSegmentMapper" />
+	</bean>	
+
+	<bean id="alertTransactionParameterDAO" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.alerts.dao.AlertTransactionParameterMapper" />
+	</bean>	
+	
+</beans>

@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+    <import resource="soa-map-definitions.xml"/>
+	<import resource="soa-bean-definitions.xml"/>
+	<import resource="soa-aspect-definition.xml"/>	
+	<import resource="soa-transformation-definition.xml"/>	
+	<import resource="soa-service-definitions.xml"/>
+	<import resource="soa-context-sensitive-config.xml"/>
+	<import resource="soa-mfaf-config.xml"/>
+	<import resource="soa-availability-rules-definitions.xml"/>
+
+</beans>

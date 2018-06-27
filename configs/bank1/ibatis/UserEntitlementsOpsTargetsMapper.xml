@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.arch.security.authorization.dao.UserEntitlementsOpsTargetsMapper" >
+
+	<cache size="500" eviction="LRU" readOnly="true" flushInterval="86400000" />
+
+	<!-- These statements were broken out from the original user entitlements mapper because you can only have one
+			cache per mapper in MyBatis 3 -->  	
+	<select id="selectArcOperationKyByOperationName" parameterType="java.lang.String" resultType="java.lang.String" useCache="true">
+		SELECT ARCOperationKy
+		FROM ARCOPERATION
+		WHERE NAME = #{value}
+	</select>
+
+	<select id="selectArcOperationKeysByOperationNames" parameterType="com.s1.arch.security.authorization.dao.ibatis.UserEntitlementsParm" resultType="java.lang.String" useCache="true">
+		SELECT ARCOperationKy
+		FROM ARCOPERATION
+		WHERE NAME IN
+		<foreach collection="operationNames" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+
+	<select id="selectArcTargetType" parameterType="java.lang.String" resultType="long" useCache="true">
+		SELECT ARCTargetTypeKy FROM ARCTARGETTYPE WHERE name = #{value}
+	</select>
+	
+</mapper>

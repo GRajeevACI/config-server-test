@@ -1,0 +1,1882 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       					   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean id="customerIDValidation" class="com.s1.common.validation.pluggable.CustomerIDValidator" scope="prototype"/>
+	
+	<bean id="featureCodeValidator" class="com.s1.common.validation.pluggable.FeatureCodeValidator" >
+	  <property name="featureCodeMap" ref="featureCodeMap"/>
+	</bean>
+	
+	<bean id="featureCodeMap" class="com.s1.common.validation.pluggable.FeatureCodeMap">
+	  <property name="map">
+	    <map>
+	      <entry key="90" value="90"/>
+	      <entry key="91" value="91"/>
+	      <entry key="92" value="92"/>
+	      <entry key="93" value="93"/>
+	      <entry key="94" value="94"/>
+	      <entry key="95" value="95"/>
+	      <entry key="96" value="96"/>
+	      <entry key="97" value="97"/>
+	      <entry key="98" value="98"/>
+	      <entry key="99" value="99"/>
+	      <entry key="100" value="100"/>
+	    </map>
+	  </property>
+	</bean>
+		
+	<bean id="validationService" class="com.s1.common.validation.IntlValidationService"
+		scope="prototype" />
+		
+	<bean id="validationFrameworkService" class="com.s1.common.validation.ValidationService"
+		scope="prototype" />
+		
+	<bean id="required" class="com.s1.common.validation.pluggable.RequiredValidator"
+		scope="prototype" />
+	<bean id="mfaRequired" class="com.s1.common.validation.pluggable.MfaRequiredValidator"
+		scope="prototype" />
+	<bean id="minAmount"
+		class="com.s1.common.validation.pluggable.MinMoneyAmountValidator"
+		scope="prototype" />
+	<bean id="ibanIdValidation"
+		class="com.s1.common.validation.pluggable.IBANBankIDValidator"
+		scope="prototype" />
+	<bean id="saudiIbanIdValidation"
+		class="com.s1.common.validation.pluggable.SaudiIBANBankIDValidator"
+		scope="prototype" />		
+	<bean id="sepaIbanIdValidation"
+		class="com.s1.common.validation.pluggable.SEPAIBANBankIDValidator"
+		scope="prototype" />			
+	<bean id="maxAmount"
+		class="com.s1.common.validation.pluggable.MaxMoneyAmountValidator"
+		scope="prototype" />	
+	<bean id="validateandcalulatevalueDate"
+		class="com.s1.common.validation.pluggable.ValidateAndCalulateValueDateValidator"
+		scope="prototype" />
+		
+	<bean id="validateandcalulatevalueDateNoCountry"
+		class="com.s1.common.validation.pluggable.ValidateAndCalulateValueDateNoCountryValidator"
+		scope="prototype" />
+	<bean id="ValidateAndCalulateValueDateSameDateValidator"
+		class="com.s1.common.validation.pluggable.ValidateAndCalulateValueDateSameDateValidator"
+		scope="prototype" />		
+	
+	<bean id="rcpntAmtReqrdWithAcctStatus"
+		class="com.s1.common.validation.pluggable.RcpntAmtReqrdWithAcctStatusValidator"
+		scope="prototype" />
+		
+	<bean id="achRcpntAmtReqrdWithAcctStatus"
+		class="com.aciworldwide.payments.recipient.validators.ACHRcpntAmtReqrdWithAcctStatusValidator"
+		scope="prototype" />
+		
+	<bean id="achIATIntlDestCountryAndCurrValidator"
+		class="com.s1.common.validation.pluggable.ach.ACHIATIntlDestCountryAndCurrValidator"
+		scope="prototype" />
+	
+	<bean id="iatBankIdTypeValidator"
+		class="com.s1.common.validation.pluggable.ach.ACHIATBankIdTypeValidator"
+		scope="prototype" />			
+			
+	<bean id="childSupportAmount"
+		class="com.s1.common.validation.pluggable.ach.childsupport.ChildSupportAmountValidator"
+		scope="prototype"/>
+		
+	<bean id="childSupportAmountAndAddenda"
+		class="com.s1.common.validation.pluggable.ChildSupportAmountValidator"
+		scope="prototype"/>
+		
+	<bean id="rcpntAcctTypeDBITCRDT"
+		class="com.s1.common.validation.pluggable.RcpntAcctTypeDBITCRDTValidator"
+		scope="prototype" />
+	
+	<bean id="partialStatusAmountValidator"
+		class="com.s1.common.validation.pluggable.PartialStatusAmountValidator"
+		scope="prototype" />
+	
+	<bean id="recurrenceSpecification"
+		class="com.s1.common.validation.pluggable.RecurrenceSpecificationValidator"
+		scope="prototype" />
+
+	<bean id="crncyContractInfoRequired"
+		class="com.s1.common.validation.pluggable.CrncyContractInfoRequiredValidator"
+		scope="prototype" />
+		
+	<bean id="regExValidation"
+		class="com.s1.common.validation.pluggable.RegExValidator"
+		scope="prototype" />
+		
+	<bean id="s1DateValidation"
+		class="com.s1.common.validation.pluggable.S1DateValidator"
+		scope="prototype" />
+		
+	<bean id="tmplLoaderDateValidation"
+		class="com.s1.common.validation.pluggable.TemplateLoaderDateValidator"
+		scope="prototype" />
+
+	<bean id="s1NonPastDateValidation"
+		class="com.s1.common.validation.pluggable.S1NonPastDateValidator"
+		scope="prototype" />
+
+	<bean id="moneyValidation"
+		class="com.s1.common.validation.pluggable.MoneyValidator"
+		scope="prototype" />
+			
+	<bean id="lengthValidation"
+		class="com.s1.common.validation.pluggable.LengthValidator"
+		scope="prototype" />
+	
+	
+	<bean id="lengthWithPaymentTypeValidation"
+		class="com.s1.common.validation.pluggable.LengthWithPaymentTypeValidator"
+		scope="prototype" />
+		
+	<bean id="zipCodeValidation"
+		class="com.s1.common.validation.pluggable.ZipCodeValidator"
+		scope="prototype" />	
+		
+		
+		
+	<bean id="dateNotBeforeToday"
+		class="com.s1.common.validation.pluggable.DateNotBeforeTodayValidator"
+		scope="prototype" />
+
+	<bean id="billPaydateNotBeforeToday"
+		class="com.aciworldwide.common.validators.BillPaymentDateValidator"
+		scope="prototype" />
+		
+	<bean id="tmplActivationDateNotBeforeToday"
+		class="com.s1.common.validation.pluggable.TmplActivationDateNotBeforeTodayValidator"
+		scope="prototype" />		
+		
+	<bean id="dateNotAfterToday"
+		class="com.s1.common.validation.pluggable.DateNotAfterTodayValidator"
+		scope="prototype" />	
+			
+	<bean id="amountRange"
+		class="com.s1.common.validation.pluggable.AmountRangeValidator"
+		scope="prototype" />	
+	
+	<bean id="swiftValidator"
+		class="com.s1.common.validation.pluggable.SwiftValidator"
+		scope="prototype" />
+		
+	<bean id="sgSwiftValidator"
+		class="com.s1.common.validation.pluggable.SGSwiftValidator"
+		scope="prototype" />
+		
+	<bean id="swiftStandardBankValidator"
+		class="com.s1.common.validation.pluggable.SwiftStandardBankValidator"
+		scope="prototype" />
+		
+	<bean id="emailAddress"
+		class="com.s1.common.validation.pluggable.EMailValidator"
+		scope="prototype" />
+		
+	<bean id="validValues"
+		class="com.s1.common.validation.pluggable.ValidValuesValidator"
+		scope="prototype" />
+		
+	<bean id="rcpntLoanAcctType" 
+		class="com.s1.common.validation.pluggable.RcpntLoanAcctTypeValidator" 
+		scope="prototype" />
+		
+	<bean id="integerRange"
+		class="com.s1.common.validation.pluggable.IntegerRangeValidator"
+		scope="prototype" />
+		
+	<bean id="countryValidator"
+		class="com.s1.common.validation.pluggable.CountryCodeValidator"
+		scope="prototype" />
+		
+	<bean id="translationValidator"
+		class="com.s1.common.validation.pluggable.TranslationValidator"
+		scope="prototype" />
+		
+	<bean id="recurringFieldsValidator"
+		class="com.s1.common.validation.pluggable.RecurringFieldsValidator"
+		scope="prototype" />
+		
+	<bean id="allFieldsRequiredValidator"
+		class="com.s1.common.validation.pluggable.AllFieldsRequiredValidator"
+		scope="prototype" />
+				
+	<bean id="allFieldsRequiredValidatorSaveIncomplete"
+		class="com.s1.common.validation.pluggable.AllFieldsRequiredValidatorSaveIncomplete"
+		scope="prototype" />
+			
+	<bean id="fieldNotAllowedValidator"
+		class="com.s1.common.validation.pluggable.FieldNotAllowedValidator"
+		scope="prototype" />
+	
+	<bean id="achRecipFieldPresenceValidator"
+		class="com.s1.common.validation.pluggable.AchRecipFieldPresenceValidator"
+		scope="prototype" />
+		
+	<bean id="notificationTypeValidator"
+		class="com.s1.common.validation.pluggable.NotificationTypeValidator"
+		scope="prototype" />
+		
+	<bean id="fromAccountValidator"
+		class="com.s1.common.validation.pluggable.FromAccountValidator"
+		scope="prototype" />
+		
+	<bean id="bigDecimalValidator"
+		class="com.s1.common.validation.pluggable.BigDecimalValidator"
+		scope="prototype" />
+	
+	<bean id="importDateValidator"
+		class="com.s1.common.validation.pluggable.ImportDateValidator"
+		scope="prototype" />
+		
+	<bean id="importBankIdValidator"
+		class="com.s1.common.validation.pluggable.ImportBankIdValidator"
+		scope="prototype" />
+
+	<bean id="tmplLoaderBankIdValidator"
+		class="com.s1.common.validation.pluggable.TmplLoaderBankIdValidator"
+		scope="prototype" />
+		
+	<bean id="importEntitlementsCheckValidator"
+		class="com.s1.common.validation.pluggable.ImportEntitlementsCheckValidator"
+		scope="prototype" />
+		
+	<bean id="extRefCodeValidator"
+		class="com.s1.common.validation.pluggable.ExtRefCodeValidator"
+		scope="prototype" />
+	
+	<bean id="msgCodeValidator"
+		class="com.s1.common.validation.pluggable.MsgCodeValidator"
+		scope="prototype" />
+		
+	<bean id="bankNameAddressValidator"
+		class="com.s1.common.validation.pluggable.BankNameAddressValidator"
+		scope="prototype" />
+		
+	<bean id="sgGiroCatPurpValidator"
+		class="com.s1.common.validation.pluggable.SGGiroCatPurpValidator"
+		scope="prototype" />
+		
+	<bean id="paymentTypeValidator"
+		class="com.s1.common.validation.pluggable.PaymentTypeValidator"
+		scope="prototype" />	
+		
+	<bean id="templateAmountTypeValidator"
+		class="com.s1.common.validation.pluggable.TemplateAmountTypeValidator"
+		scope="prototype" />
+	
+	<bean id="DrCrEntitlementCheck" class="com.s1.common.validation.pluggable.DrCrEntitlementCheckValidator"
+		scope="prototype" />
+
+	<bean id="idNumberValidator" 
+		class="com.s1.common.validation.pluggable.IdNumberValidator" 
+		scope="prototype" />
+		
+	<bean id="rcpntIdNumberValidator" 
+		class="com.s1.common.validation.pluggable.RcpntIdNumberValidator" 
+		scope="prototype" />
+
+	<bean id="rcpntCreditRefCheckSumValidator" 
+		class="com.s1.common.validation.pluggable.RcpntCreditRefCheckSumValidator" 
+		scope="prototype" />
+
+	<bean id="alphaNumSpaceValidator" 
+		class="com.s1.common.validation.pluggable.AlphaNumSpaceValidator" 
+		scope="prototype" />
+
+	<bean id="creditorIdValidator" 
+		class="com.s1.common.validation.pluggable.CreditorIdValidator" 
+		scope="prototype" />
+
+	<bean id="mappingUtility" class="com.s1.common.validation.mapping.MappingUtility"
+		scope="prototype" />
+
+	<bean id="PaymentUIValidation"
+		class="com.s1.payments.ui.form.ValidationPlugin"/>
+	
+	<!-- TODO : Change this class and its implementation as par need of ImportValidation -->
+	<bean id="ImportValidation"
+		class="com.s1.payments.ui.form.ValidationPlugin"/>
+		
+	<bean id="amendMandateRequiredValidator" 
+		class="com.s1.common.validation.pluggable.AmendMandateFieldRequiredValidator" 
+		scope="prototype" />
+		
+	<bean id="notificationTypeTPValid" 
+		class="com.s1.common.validation.pluggable.NotificationTypeTPValidator" 
+		scope="prototype" />
+
+	<bean id="mandateCollDtRequiredValidator" 
+		class="com.s1.common.validation.pluggable.MandateCollDateRequiredValidator" 
+		scope="prototype" />
+	
+	<bean id="mandateFreqRequiredValidator" 
+		class="com.s1.common.validation.pluggable.MandateFrequencyRequiredValidator" 
+		scope="prototype" />
+	
+	<bean id="mandateCollDateCheckValidator" 
+		class="com.s1.common.validation.pluggable.MandateCollDateCheckValidator" 
+		scope="prototype" />
+		
+	<bean id="mandateFrequencyCheckValidator" 
+		class="com.s1.common.validation.pluggable.MandateFrequencyCheckValidator" 
+		scope="prototype" />
+		
+	<bean id="oldNewMandateCompareValidator" 
+		class="com.s1.common.validation.pluggable.OldNewMandateCompareValidator" 
+		scope="prototype" />
+
+	<bean id="allMandateFieldsRequiredValidator" 
+		class="com.s1.common.validation.pluggable.AllMandateFieldsRequiredValidator" 
+		scope="prototype" />
+	
+	<bean id="charactersValidatorUsingRegEx" 
+		class="com.s1.common.validation.pluggable.FieldCharactersValidator" 
+		scope="prototype" />
+
+	<bean id="emailValidator" 
+		class="com.s1.common.validation.pluggable.security.EmailValidator" 
+		scope="prototype" />
+
+	<bean id="numericValidator" 
+		class="com.s1.common.validation.pluggable.security.NumericValidator" 
+		scope="prototype" />
+		
+
+	<bean id="alphaSpaceValidation" 
+		class="com.s1.common.validation.pluggable.security.AlphaSpaceValidator" 
+		scope="prototype" />
+		
+	<bean id="validCharSetValidator" 
+		class="com.s1.common.validation.pluggable.security.ValidCharSetValidator" 
+		scope="prototype" />
+		
+	<bean id="civilianIdValidator" 
+		class="com.s1.common.validation.pluggable.CivilianIdValidator" 
+		scope="prototype" />
+		
+	<bean id="saudiPRNValidation"
+		class="com.s1.common.validation.pluggable.SaudiPRNAccountValidator" 
+		scope="prototype" />
+    <bean id="requiredIfNonExact"
+    	class="com.s1.common.validation.pluggable.RequiredIfNonExactAmountValidator"
+    	scope="prototype" />
+    <bean id="arabicCharSet" class="com.s1.common.validation.pluggable.RegExValidator">
+        <property name="regEx" value="^[a-zA-Z0-9\u002F\u002D\u003F\u003A\u0028\u0029\u002E\u002C\u002B\u0027\u0020\u0600-\u06FF]*$"/>
+    </bean>
+    
+	<bean id="routingNumberValidator" 
+		class="com.s1.common.validation.pluggable.RoutingNumberValidator" 
+		scope="prototype" />
+		
+	<bean id="accountValidator" 
+		class="com.s1.common.validation.pluggable.AccountValidator" 
+		scope="prototype" />
+		
+	<bean id="exchangeRateValidator"
+		class="com.s1.common.validation.pluggable.ExchangeRateValidator"
+		scope="prototype" />
+		
+	<bean id="achRecurrenceSpecification" class="com.s1.common.validation.pluggable.ACHRecurrenceValidator" scope="prototype" />
+	
+	<bean id="iatForeignBankIdValidator" class="com.aciworldwide.payments.validators.ach.IATForeignBankIdValidator" scope="prototype" />
+	
+	<bean id="iatRecipientAccountTypeValidator" class="com.aciworldwide.payments.validators.ach.IATRecipientAccountTypeValidator" scope="prototype" />
+	
+	<bean id="iatRecipientBankIdTypeValidator" class="com.aciworldwide.payments.validators.ach.IATRecipientBankIdTypeValidator" scope="prototype" />
+	
+	<bean id="iatBankIdTypeEnumValidator" class="com.aciworldwide.payments.validators.ach.IATBankIdTypeValidator" scope="prototype" />
+	
+	<bean id="iatDestinationCurrencyValidator" class="com.aciworldwide.payments.validators.ach.IATDestinationCurrencyValidator" scope="prototype" />
+	
+	<bean id="iatPaymentDateValidator" class="com.aciworldwide.payments.validators.ach.IATPaymentDateValidator" scope="prototype" />
+	
+	<bean id="iatRecipientAccountCurrencyValidator" class="com.aciworldwide.payments.validators.ach.RecipientDestinationAccountCurrencyValidator" scope="prototype" />
+	
+	<bean id="iatRecipientAccountCountryValidator" class="com.aciworldwide.payments.validators.ach.RecipientDestinationAccountCountryValidator" scope="prototype" />
+	
+	<bean id="iatRcpntAcctTypeDBITCRDT" class="com.aciworldwide.payments.validators.ach.IatRcpntAcctTypeDBITCRDTValidator" scope="prototype" />
+	
+	<bean id="financialInstitutionValidator" class="com.aciworldwide.payments.validators.ach.FinancialInstitutionValidator" scope="prototype" />
+	
+	<bean id="iatRecipientBankCountryValidator" class="com.aciworldwide.payments.validators.ach.IATRecipientBankCountryValidator" scope="prototype" ></bean>
+	
+	<bean id="requiredWithPaymentType" class="com.aciworldwide.payments.recipient.validators.RequiredWithPaymentTypeValidator" scope="prototype" ></bean>
+	
+	<bean id="requiredWithPaymentTypeIAT" class="com.aciworldwide.payments.recipient.validators.RequiredWithPaymentTypeValidatorIAT" scope="prototype" ></bean>
+	
+	<bean id="requiredByPmtAndCountry" class="com.aciworldwide.payments.recipient.validators.RequiredByPmtTypeAndCountry" scope="prototype" ></bean>
+	
+	<bean id="requiredWithCountryCode" class="com.aciworldwide.payments.recipient.validators.RequiredWithCountryCodeValidator" scope="prototype" ></bean>
+	
+	<bean id="recipientPaymentTypeValidator" class="com.aciworldwide.payments.recipient.validators.RecipientPaymentTypeValidator"/> 
+	
+	<bean id="recipientRequiredValidator" class="com.aciworldwide.payments.recipient.validators.RecipientRequiredValidator"/> 
+	
+	<bean id="recipientIDRequiredValidator" class="com.aciworldwide.payments.recipient.validators.RecipientIDRequiredValidator"/>
+	
+	<bean id="recipientBankIdTypeValidator" class="com.aciworldwide.payments.recipient.validators.RecipientBankIdTypeValidator"/>
+	
+	<bean id="recipientAccountCurrency" class="com.aciworldwide.payments.recipient.validators.RecipientAccountCurrencyValidator"/>
+	
+	<bean id="recipientAccountType" class="com.aciworldwide.payments.recipient.validators.RecipientAccountTypeValidator"/>
+	
+	<bean id="maxFutureDaysValidator" class="com.s1.common.validation.pluggable.MaxFutureDaysValidator" scope="prototype" />
+	
+	<!--  Wire Validators Start  -->
+	
+	<bean id="bookWireBankIdValidator" class="com.aciworldwide.payments.validators.wire.BookWireBankValidator" scope="prototype" />
+	
+	<bean id="intlWireBankIdValidator" class="com.aciworldwide.payments.validators.wire.IntlWireBankValidator" scope="prototype" />
+	
+	<bean id="soaWireBankValidator" class="com.aciworldwide.payments.validators.wire.SOAWireBankValidator" scope="prototype" />
+	
+	<bean id="amountRangeTypeValidator" class="com.aciworldwide.payments.recipient.validators.AmountRangeTypeValidator" scope="prototype" />
+	
+	<bean id="templateApprovalsNumberValidator" class="com.aciworldwide.payments.validators.wire.TemplateApprovalsNumberValidator" scope="prototype" />
+	
+	<bean id="intlWireRecpIdentTypeValidValues" class="com.aciworldwide.payments.validators.wire.IntlWireRecpIdentTypeValidValues" scope="prototype" />
+	
+	<bean id="intlWireSenderToReceiverInfoValidator" class="com.aciworldwide.payments.validators.wire.IntlWireSenderToReceiverInfoValidator" scope="prototype" />
+	
+	<bean id="multiBankIdValidator" class="com.aciworldwide.payments.validators.wire.MultiBankValidator" scope="prototype" />
+	
+	<bean id="soaPostalCodeValidator" class="com.aciworldwide.payments.validators.wire.PostalCodeValidator" scope="prototype" />
+	
+	<bean id="drawDownRecpRequired" class="com.aciworldwide.payments.validators.wire.DrawdownRecipientRequiredValidator" scope="prototype" />
+	
+	<bean id="listMinLenghtValidator" class="com.aciworldwide.payments.validators.wire.SOAListMinLenghtValidator" scope="prototype" />
+	
+	<bean id="ordCustomerAddressValidator" class="com.aciworldwide.payments.recipient.validators.OrdCustomerAddressValidator" scope="prototype" />
+	
+	<bean id="orderingCustomerIdValidator" class="com.aciworldwide.payments.recipient.validators.OrderingCustomerIdValidator" scope="prototype" />
+	
+	<bean id="uswireBankIdValidator" class="com.aciworldwide.payments.validators.wire.USWireBankIdValidator" scope="prototype" />
+	
+	<bean id="wirePaymentDateValidator" class="com.aciworldwide.payments.validators.wire.WirePaymentDateValidator" scope="prototype" />
+	
+	<bean id="wireTemplateGroupDateValidator" class="com.aciworldwide.services.templategroup.validator.WireTemplateGroupDateValidator" scope="prototype" />
+	
+	<bean id="intlWireContractRateValidator" class="com.aciworldwide.services.templategroup.validator.IntlWireContractRateValidator" scope="prototype" />
+	
+	<bean id="wireRecurrenceValidator" class="com.aciworldwide.payments.validators.wire.WireRecurrenceValidator" scope="prototype" />
+	
+	<bean id="wireTemplateLimitValidator" class="com.aciworldwide.payments.validators.wire.WireTemplateLimitValidator" scope="prototype" />
+	
+	<bean id="yearRangeValidator" class="com.aciworldwide.payments.validators.wire.YearRangeValidator" scope="prototype"/>
+	
+	<bean id="remittanceDocDateValidator" class="com.aciworldwide.payments.validators.wire.RemittanceDocDateValidator" scope="prototype"/>
+	
+	<bean id="fedTaxRadioButtonValidation" class="com.aciworldwide.payments.validators.wire.FedTaxRadioButtonValidation" scope="prototype"/>
+
+	<bean id="requiredForFedTax" class="com.aciworldwide.payments.validators.wire.RequiredForFedTax" scope="prototype"/>
+	
+	<bean id="requiredForFedTaxTemplate" class="com.aciworldwide.payments.validators.wire.RequiredForFedTaxTemplate" scope="prototype"/>
+	
+	<bean id="fedTaxTemplateLimitValidator" class="com.aciworldwide.payments.validators.wire.FedTaxTemplateLimitValidator" scope="prototype"/>
+	<bean id="recipientAddressMandatoryValidator" class="com.aciworldwide.payments.validators.wire.RecipientAddressMandatoryValidator" scope="prototype"/>			
+	<!-- Wire Validators End  -->
+	
+	
+	<bean id="taxAuthCodeValidator" class="com.aciworldwide.payments.validators.ach.TaxAuthCodeValidator" scope="prototype" />
+	
+	<bean id="recpIdentTypeValidValues" class="com.aciworldwide.payments.recipient.validators.RecpIdentTypeValidValues" scope="prototype" />
+	
+	<bean id="recpUniqValidator" class="com.aciworldwide.payments.recipient.validators.RecipientUniqueValidator" scope="prototype" />
+	
+	<bean id="childSupportAmountEmpTerminationValidator" class="com.aciworldwide.payments.validators.ach.ChildSupportAmountEmpTerminationValidator" scope="prototype" />
+	
+	<bean id="addendaPrenoteAmtValidator" class="com.aciworldwide.payments.validators.ach.AddendaPrenoteAmtValidator" scope="prototype" />
+	
+	<bean id="dateQualifierValidator" class="com.aciworldwide.payments.validators.ach.DateQualifierValidator" scope="prototype" />	
+	
+	<bean id="ctxAmountValidator" class="com.aciworldwide.payments.validators.ach.CTXAmountValidator" scope="prototype" />
+	
+	<bean id="rckAmountValidator" class="com.aciworldwide.payments.validators.ach.RCKAmountValidator" scope="prototype" />
+	
+	<bean id="companyEntryDescriptionRequiredValidator" class="com.aciworldwide.payments.validators.ach.CompanyEntryDescriptionRequiredValidator" scope="prototype" />
+	
+	<bean id="originatingAccountRequiredValidator" class="com.aciworldwide.payments.validators.ach.OriginatingAccountRequiredValidator" scope="prototype" />
+	
+	<bean id="originatingACHCompanyIDRequiredValidator" class="com.aciworldwide.payments.validators.ach.OriginatingACHCompanyIDRequiredValidator" scope="prototype" />
+	
+	<bean id="companyIDDelimiterValidator"
+		class="com.s1.common.validation.pluggable.CompanyIDDelimiterValidator"
+		scope="prototype" />
+		
+	<bean id="gssoProvidersExistValidator"
+		class="com.s1.common.validation.pluggable.GssoProvidersExistValidator"
+		scope="prototype" />
+		
+	<bean id="gssoProvidersNeedsGuidValidator"
+		class="com.s1.common.validation.pluggable.GssoProvidersNeedsGuidValidator"
+		scope="prototype" />
+		
+	<bean id="gssoProvidersCompanyGuidValidator"
+		class="com.s1.common.validation.pluggable.GssoProvidersCompanyGuidValidator"
+		scope="prototype" />
+		
+	<bean id="gssoProvidersCompanyGuidUniqValidator"
+		class="com.s1.common.validation.pluggable.GssoProvidersCompanyGuidUniqValidator"
+		scope="prototype" />			
+		
+	<bean id="customerLimitRequiredValidator"
+		class="com.s1.common.validation.pluggable.CustomerLimitRequiredValidator"
+		scope="prototype" />
+		
+	<bean id="customerLimitTypeValidator"
+		class="com.aciworldwide.pim.messages.service.validator.CustomerLimitTypeValidator"
+		scope="prototype" />
+		
+	<bean id="customerLimitAmountValidator"
+		class="com.aciworldwide.pim.messages.service.validator.CustomerLimitAmountValidator"
+		scope="prototype" />			
+	
+	<bean id="dateRangeValidator"
+		class="com.s1.common.validation.pluggable.DateRangeValidator"
+		scope="prototype" />
+		
+	<bean id="currencyValidator"
+		class="com.s1.common.validation.pluggable.CurrencyValidator"
+		scope="prototype" />	
+		
+	<bean id="customerIdUniqValidator"
+		class="com.s1.common.validation.pluggable.CustomerIDUniqValidator"
+		scope="prototype" />
+		
+	<bean id="cosValidator"
+		class="com.s1.common.validation.pluggable.COSValidator"
+		scope="prototype" />
+	
+	<bean id="affiliateValidator"
+		class="com.s1.common.validation.pluggable.AffiliateValidator"
+		scope="prototype" />					
+			
+	<bean id="paymentAllocationValidator"
+		class="com.s1.common.validation.pluggable.PaymentAllocationValidator"
+		scope="prototype" />
+		
+	<bean id="OWASPValidator"
+		class="com.s1.common.validation.pluggable.OWASPValidator"
+		scope="prototype" />
+		
+	<bean id="stateCodeValidator"
+		class="com.s1.common.validation.pluggable.StateCodeValidator"
+		scope="prototype" />
+		
+	<bean id="bankIdValidator"
+		class="com.aciworldwide.pim.messages.service.validators.BankIdValidator"
+		scope="prototype" />
+		
+	<bean id="zipCodeValidator"
+		class="com.aciworldwide.pim.messages.service.validators.ZipCodeValidator"
+		scope="prototype" />
+		
+	<bean id="stateCodeImportValidator"
+		class="com.s1.common.validation.pluggable.StateCodeImportValidator"
+		scope="prototype" />			
+		
+	<bean id="countryStateValidator" class="com.s1.common.validation.pluggable.CountryStateValidator" scope="prototype" />
+	
+	<bean id="soaRecipientCountryStateValidator" class="com.aciworldwide.payments.recipient.validators.SoaRecipientCountryStateValidator" scope="prototype" />
+				
+	<bean id="profileNameValidator"
+		class="com.aciworldwide.common.imprt.validators.ProfileNameValidator"
+		scope="prototype" />
+		
+	<bean id="exportProfileNameValidator"
+		class="com.aciworldwide.common.export.validators.ProfileNameValidator"
+		scope="prototype" />
+		
+	<bean id="acctExportProfileNameValidator"
+		class="com.aciworldwide.common.validation.ProfileNameValidator"
+		scope="prototype" />
+		
+	<bean name="selectedFieldsValidator" class="com.aciworldwide.common.imprt.validators.SelectedFieldsValidator">
+		<property name="udImportUtility" ref="udUtils" />
+	</bean>
+
+	<bean name="defaultValuesValidator" class="com.aciworldwide.common.imprt.validators.DefaultValuesValidator">
+		<property name="udImportUtility" ref="udUtils" />
+	</bean>
+
+	<bean name="fixedLengthValidator" class="com.aciworldwide.common.imprt.validators.FixedLengthValidator">
+		<property name="udImportUtility" ref="udUtils" />
+	</bean>
+
+	<bean id="fileFormatContentTypeValidator" class="com.aciworldwide.common.imprt.validators.FileFormatContentTypeValidator" scope="prototype">
+		<property name="udImportUtility" ref="udUtils" />
+	</bean>
+	
+	<bean id="addressValidator"
+		class="com.s1.common.validation.pluggable.AddressValidator"
+		scope="prototype" />
+			
+	<bean id="addendaValidator"
+		class="com.s1.common.validation.pluggable.AddendaValidator"
+		scope="prototype" />
+		
+	<bean id="childSupportAddendaValidator"
+		class="com.s1.common.validation.pluggable.ChildSupportAddendaValidator"
+		scope="prototype" />
+	<bean id="ccdAddendaValidator"
+		class="com.s1.common.validation.pluggable.CCDAddendaValidator"
+		scope="prototype" />
+	<bean id="taxAddendaValidator"
+		class="com.s1.common.validation.pluggable.TaxAddendaValidator"
+		scope="prototype" />
+	<bean id="ctxAddendaValidator"
+		class="com.s1.common.validation.pluggable.CTXAddendaValidator"
+		scope="prototype" />
+		
+	<bean id="notRequiredValidator"
+		class="com.s1.common.validation.pluggable.NotRequiredValidator"
+		scope="prototype" />
+	
+	<bean id="addendaTypeValidator" 
+		class="com.s1.common.validation.pluggable.AddendaTypeValidator" 
+		scope="prototype" />
+	
+	<!-- ACH Specific Validators -->
+	
+	<bean id="sameDayAchRecipientCrDrValidator"
+	 	class="com.s1.common.validation.pluggable.ach.SameDayAchRecipientCrDrValidator"
+	 	scope="prototype" /> 
+	<bean id="achCharValidator" 
+		class="com.s1.common.validation.pluggable.ach.ACHCharactersValidator" 
+		scope="prototype" />
+	
+	<bean id="achAddendaCharValidator" 
+		class="com.s1.common.validation.pluggable.ach.ACHAddendaCharactersValidator" 
+		scope="prototype" />
+		
+	<bean id="achFreeformAddendaCharValidator" 
+		class="com.s1.common.validation.pluggable.ach.AchFreeformAddendaCharactersValidator" 
+		scope="prototype" />
+		
+	<bean id="achFreeformAddendaListCharValidator" 
+		class="com.s1.common.validation.pluggable.ach.AchFreeformAddendaListCharactersValidator" 
+		scope="prototype" />
+		
+	<bean id="achNumPmtValidator" 
+		class="com.s1.common.validation.pluggable.ach.ACHNumberOfPaymentsValidator" 
+		scope="prototype" />
+	
+	<bean id="achOriginatingCompValidator" 
+		class="com.s1.common.validation.pluggable.ach.ACHOriginatingCompValidator" 
+		scope="prototype" />
+	
+	<bean id="achImportAmountStatus" 
+		class="com.s1.common.validation.pluggable.AchImportAmountStatusValidator" 
+		scope="prototype" />
+	
+	<bean id="achImportAmountStatusAddenda" 
+		class="com.s1.common.validation.pluggable.AchImportAmountStatusAddendaValidator" 
+		scope="prototype" />
+		
+	<bean id="achTranCodeValidator" 
+		class="com.s1.common.validation.pluggable.ach.ACHTransactionCodeValidator" 
+		scope="prototype" />
+	
+	<bean id="abaBankIdValidator"
+		class="com.s1.common.validation.pluggable.ach.ABABankIdValidator"
+		scope="prototype" />
+		
+	<bean id="amountDecimalPointValidator"
+		class="com.s1.common.validation.pluggable.ach.AmountDecimalPointValidator"
+		scope="prototype" />
+	
+	<bean id="childSupportRecipName"
+		class="com.s1.common.validation.pluggable.ach.ACHChildSupportRecipNameValidator"
+		scope="prototype" />
+	
+	<bean id="childSupportRecipId"
+		class="com.s1.common.validation.pluggable.ach.ACHChildSupportRecipIdValidator"
+		scope="prototype" />
+	
+	<bean id="achConditionalRequired"
+		class="com.s1.common.validation.pluggable.ach.ACHConditionalRequired"
+		scope="prototype" />
+	
+	<bean id="rcpntAcctTypeValidator"
+		class="com.s1.common.validation.pluggable.ach.RcpntAccountTypeValidator"
+		scope="prototype" />
+	
+	<bean id="childSupportCreditOnlyIndicator"
+		class="com.s1.common.validation.pluggable.ach.ACHChildSupportCrDrIndicatorValidator"
+		scope="prototype" />
+    
+	<bean id="transferRecurrenceValidator"
+		class="com.s1.common.validation.pluggable.TransferRecurrenceValidator"
+		scope="prototype" />
+		
+	<bean id="transferExchangeRateValidator"
+		class="com.s1.common.validation.pluggable.TransferExchangeRateValidator"
+		scope="prototype" />
+		
+	<bean id="loanAmountValidator"
+		class="com.s1.common.validation.pluggable.LoanAmountValidator"
+		scope="prototype" />
+		
+	<bean id="valuesDifferValidator"
+		class="com.s1.common.validation.pluggable.ValuesDifferValidator"
+		scope="prototype" />
+  
+    <bean id="validValuesIgnoringNumeric"
+		class="com.s1.common.validation.pluggable.ValidValuesIgnoringNumericValidator"
+		scope="prototype" />
+	
+	<bean id="ctxImportAddendaAmountsValidator"
+		class="com.s1.common.validation.pluggable.ach.CTXImportAddendaAmountsValidator"
+		scope="prototype" />
+	
+	<bean id="taxRecipNameValidator"
+		class="com.s1.common.validation.pluggable.ach.AchTaxRecipientNameValidator"
+		scope="prototype" />
+	
+	<bean id="taxRecipIdValidator"
+		class="com.s1.common.validation.pluggable.ach.AchTaxRecipientIdValidator"
+		scope="prototype" />
+	
+	<bean id="achTaxImportSegmentsValidator"
+		class="com.s1.common.validation.pluggable.ach.AchTaxImportSegmentsValidator"
+		scope="prototype" />
+	
+	<bean id="achTaxAuthValidator"
+		class="com.s1.common.validation.pluggable.ach.AchTaxAuthValidator"
+		scope="prototype" />
+	
+	<bean id="achTaxTypeValidator"
+		class="com.s1.common.validation.pluggable.ach.AchTaxTypeValidator"
+		scope="prototype" />
+	
+	<bean id="taxFormatAccountValidator"
+		class="com.s1.common.validation.pluggable.ach.AchTaxFormatAccountValidator"
+		scope="prototype" />
+	
+	<bean id="nachaIatAddressValidator"
+		class="com.s1.common.validation.pluggable.ach.NachaIatAddressValidator"
+		scope="prototype" />
+
+	<bean id="nachaRecpBankId"
+		class="com.s1.common.validation.pluggable.ach.NachaRecipientBankIdValidator"
+		scope="prototype" />
+		
+	<bean id="nachaRecordMatch"
+		class="com.s1.common.validation.pluggable.ach.NachaRecordMatchValidator"
+		scope="prototype" />
+		
+	<bean id="nachaRecpCrDrAndPrenoteSts" 
+		class="com.s1.common.validation.pluggable.ach.NachaRecipientCrDrAndPrenoteStsValidator" 
+		scope="prototype" lazy-init="true"/>
+		
+	<bean id="nachaChildSuppAmount" 
+		class="com.s1.common.validation.pluggable.ach.childsupport.NachaChildSupportAmountValidator" 
+		scope="prototype" lazy-init="true"/>
+	
+	<bean id="nachaCtxAddendaAcctNumQualifier" 
+		class="com.s1.common.validation.pluggable.ach.ctx.NachaCtxAddendaAcctNumQualifierValidator" 
+		scope="prototype" lazy-init="true"/>
+	<bean id="nachaNumOfAddendaRecords" 
+		class="com.s1.common.validation.pluggable.ach.NachaNumOfAddendaRecordsValidator" 
+		scope="prototype" lazy-init="true"/>
+		
+	<bean id="achAddendaLength"
+		class="com.s1.common.validation.pluggable.AchAddendaLengthValidator"
+		scope="prototype" />	
+		
+	<bean id="achRecpIdentType" class="com.aciworldwide.payments.recipient.validators.AchRecpIdentTypeValidator"/>
+    <!-- End ACH Specific Validators -->
+    
+    <bean id="accountAdditionalIdValidator"
+		class="com.aciworldwide.pim.messages.service.validator.AccountAdditionalIdValidator"
+		scope="prototype" />	
+		
+	<bean id="countryStateISO3Validator"
+		class="com.aciworldwide.pim.messages.service.validator.CountryStateISO3Validator"
+		scope="prototype" />
+
+	<bean id="achPostalCodeValidator"
+			class="com.s1.common.validation.pluggable.PostalCodeValidator"
+			scope="prototype" />
+			
+	<bean id="recipientContactInfoValidator"
+			class="com.s1.common.validation.pluggable.RecipientContactInfoValidator"
+			scope="prototype" />
+	
+	<bean id="achRecipientContactInfoValidator"
+			class="com.s1.common.validation.pluggable.AchRecipientContactInfoValidator"
+			scope="prototype" />
+
+    <bean id="validataionContextParams" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="locale" value="getLocale" />
+				<entry key="affiliateInfo" value="getAffiliateInfo" />	
+				<entry key="pmtInitialInfo" value="getPmtInitialInfo" />
+				<entry key="tpInitialInfo" value="getTPInitialInfo" />	
+				<entry key="pmtInitialValue" value="getPmtInitialValue" />
+				<entry key="amountType" value="getAmountType" />		
+				<entry key="isMustBeStdBank" value="getIsMustBeStdBankEnabled" />		
+				<entry key="dateFormat" value="getDateFormat" />					
+				<entry key="ibanValidationDate" value="getIbanValidationDate" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="validationContext" class="com.s1.common.validation.ValidationContext" scope="prototype">
+		<constructor-arg ref="validataionContextParams" />
+	</bean>	
+
+	<bean id="commonFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>			
+				<entry key="currencyConversionType" value="currencyConversionType" />				
+				<entry key="contractNumber" value="contractNumber" />
+				<entry key="contractRate" value="contractRate" />
+				<entry key="customerReference" value="customerReference" />
+				<entry key="endDate" value="endDate" />
+				<entry key="recurrenceDuration" value="recurrenceDuration" />
+				<entry key="executionDate" value="executionDate" />
+				<entry key="frequency" value="frequency" />
+				<entry key="fxInfo" value="fxInfo" />
+				<entry key="ibanId" value="ibanId" />
+				<entry key="orderingCustCityOfBirth" value="orderingForm.cityOfBirth" />
+				<entry key="orderingCustDateOfBirth" value="orderingForm.dateOfBirth" />
+				<entry key="orderingCust" value="orderingCustomer" />				
+				<entry key="orderingCustName" value="orderingForm.name" />
+				<entry key="orderingCustNationalityStatusCountryCode" value="orderingForm.nationalityStatus.countryCode" />
+				<entry key="orderingCustNickName" value="orderingForm.nickName" />
+				<entry key="orderingCustProvinceOfBirth" value="orderingForm.provinceOfBirth" />
+				<entry key="orderingCustRecipientId" value="orderingForm.recipientId" />
+				<entry key="orderingCustomerAddressLine1" value="orderingForm.address1" />
+				<entry key="orderingCustomerAddressLine2" value="orderingForm.address2" />
+				<entry key="orderingCustomerAddressLine3" value="orderingForm.address3" />
+				<entry key="orderingCustomerCustomerIdType" value="orderingForm.customerIdType" />
+				<entry key="postingIndicator" value="postingIndicator" />
+				<entry key="categoryPurpose" value="categoryPurpose" />
+				<entry key="activationDate" value="activationDate" />
+				<entry key="maxAmount" value="maxAmount" />
+				<entry key="paymentCurrencyCode" value="paymentCurrency.currencyCode" />
+				<entry key="selectedAccount" value="selectedAccount" />
+				<entry key="subType" value="subType" />
+				<entry key="templateName" value="templateName" />
+				<entry key="transactionNote" value="transactionNote" />
+				<entry key="valuedate" value="valuedate" />
+				<entry key="formValueMap" value="formValueMap" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="commonLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="name" value="target.name" />
+				<entry key="additionalInfo" value="additionalInfo" />
+				<entry key="adhocRecipient" value="adhoc" />
+				<entry key="beneficiaryReference" value="beneficiaryReference" />
+				<entry key="payeeAmount" value="payeeAmount" />
+				<entry key="reasonForLineItemText" value="reasonForLineItemText" />
+				<entry key="transactionCode" value="transactionCode" />
+				<entry key="recipientAdviceContent" value="recipientAdvice.content" />
+				<entry key="inlCountryOid" value="target.bankAddress.inlCountryOid" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="commonTPFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="accountNumber" value="accountNumber" />
+				<entry key="address1" value="address1" />
+				<entry key="address2" value="address2" />
+				<entry key="address3" value="address3" />
+				<entry key="bankAddress1" value="bankAddress1" />
+				<entry key="bankCountry" value="bankCountry.countryCodeKey" />
+				<entry key="bankBIC" value="bankBIC" />
+				<entry key="bankId2" value="bankId2" />
+				<entry key="bankIdentifier" value="bankIdentifier" />
+				<entry key="bankName" value="bankName" />
+				<entry key="destinationBankId" value="destinationBankId" />
+				<entry key="emailAddress" value="emailAddress" />
+				<entry key="name" value="name" />
+				<entry key="nickName" value="nickName" />
+				<entry key="notfAddress1" value="notfAddress1" />
+				<entry key="notfAddress2" value="notfAddress2" />
+				<entry key="notfAddress3" value="notfAddress3" />
+				<entry key="notfCountryCode" value="notfCountry.countryCode" />
+				<entry key="notfTypeEnum" value="notfTypeEnum" />
+				<entry key="number" value="number" />
+				<entry key="notificationType" value="notificationType" />
+				<entry key="addRecpNickname" value="addRecpNickname" />
+				<entry key="showAddInfo" value="showAddInfo" />
+				<entry key="useForCollections" value="useForCollections" />
+				<entry key="useForPayments" value="useForPayments" />
+				<entry key="selectIntlBank" value="selectIntlBank" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="additionalSMPFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="ultimateCreditor" value="ultimateCreditor" />
+				<entry key="postingIndicator" value="postingIndicator" />
+				<entry key="recurrenceDuration" value="recurrenceDuration" />
+				<entry key="recurrenceNumber" value="recurrenceNumber" />
+				<entry key="endDate" value="endDate" />
+				<entry key="recurring" value="recurring" />
+				
+			</map>
+		</property>
+	</bean>
+
+
+	<bean id="additionalSMPLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map></map>
+		</property>
+	</bean>
+	
+	<bean id="additionalSMPTPFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map></map>
+		</property>
+	</bean>
+	
+	<bean id="additionalSPTPFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="customerIdType" value="customerIdType" />
+				<entry key="idNumber" value="recipientId" />
+				<entry key="birthDate" value="dateOfBirth" />
+				<entry key="provinceOfBirth" value="provinceOfBirth" />
+				<entry key="cityOfBirth" value="cityOfBirth" />
+				<entry key="countryOfBirth" value="nationalityStatus.countryCode" />				
+				<entry key="mandateId" value="dependentSubForm.mandateId" />
+				<entry key="mandateSignature" value="dependentSubForm.mandateSignature" />
+				<entry key="mandateSignatureDt" value="dependentSubForm.mandateSignatureDt" />
+				<entry key="amendmentFlag" value="dependentSubForm.amendmentFlag" />
+				<entry key="oldRecipientName" value="dependentSubForm.oldRecipientName" />
+				<entry key="oldIBAN" value="dependentSubForm.oldIBAN" />
+				<entry key="oldBankID" value="dependentSubForm.oldBankID" />
+				<entry key="oldBankIdType" value="dependentSubForm.oldBankIdType" />
+				<entry key="amendmentCollectionDateFlag" value="dependentSubForm.amendmentCollectionDateFlag" />
+				<entry key="oldCollectionDate" value="dependentSubForm.oldCollectionDate" />
+				<entry key="collectionDate" value="dependentSubForm.collectionDate" />
+				<entry key="amendmentFrequencyFlag" value="dependentSubForm.amendmentFrequencyFlag" />
+				<entry key="oldFrequency" value="dependentSubForm.oldFrequency" />
+				<entry key="frequency" value="dependentSubForm.frequency" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="tmplFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="selectedAccount" value="originatingAccount" />
+				<entry key="templateName" value="templateName" />
+				<entry key="confidential" value="confidentialInd" />
+				<entry key="templateLimit" value="templateLimit" />
+				<entry key="activationDate" value="activationdate" />
+				<entry key="numOfAppr" value="noOfApprovers" />
+				<entry key="recpAmtCurrType" value="amountCurrency" />
+				<entry key="creditDebitIndicator" value="paymentDrCrIndicator" />
+				<entry key="customerReference" value="customerRef" />
+				<entry key="customerId" value="customerId" />
+				<entry key="originatingFiId" value="originatingFiId" />
+				<entry key="sourceCurrency" value="sourceCurrency" />
+				<entry key="recipientCurrency" value="recipientCurrency" />
+				<entry key="creditorId" value="creditorId" />
+				<entry key="scheme" value="scheme" />
+				<entry key="paymentSequence" value="paymentSequence" />
+				<entry key="allowPaymentSequenceToChange" value="allowPaymentSequenceToChange" />
+				<entry key="allowCustomerRefToChange" value="allowCustomerRefToChange" />
+				<entry key="categoryPurpose" value="categoryPurpose" />
+				<entry key="postingIndicator" value="postingIndicator" />
+				<entry key="allowPostingIndicatorToChange" value="allowPostingIndicatorToChange" />
+				<entry key="orderingCustName" value="orderingCustName" />
+				<entry key="orderingCustCountry" value="orderingCustCountry" />
+				<entry key="orderingCustIdType" value="orderingCustIdType" />
+				<entry key="orderingCustIdNumber" value="orderingCustIdNumber" />
+				<entry key="orderingCustBDate" value="orderingCustBDate" />
+				<entry key="orderingCustBProvince" value="orderingCustBProvince" />
+				<entry key="orderingCustBCity" value="orderingCustBCity" />
+				<entry key="orderingCustBCountry" value="orderingCustBCountry" />
+				<entry key="orderingCustAdd" value="orderingCustAdd" />
+				<entry key="orderingCustAdd2" value="orderingCustAdd2" />
+				<entry key="orderingCustAdd3" value="orderingCustAdd3" />
+				<entry key="confidentialInd" value="confidentialInd" />
+				<entry key="customerId" value="customerId" />
+				<entry key="amountType" value="amountType" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="tmplRecpFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="name" value="recipientName" />
+				<entry key="accountType" value="recipientAccountType" />
+				<entry key="accountNumber" value="recipientAccountNumber" />
+				<entry key="bankIdentifier" value="recipientFiId" />
+				<entry key="emailAddress" value="recipientAdvisingEmail" />
+				<entry key="status" value="recipientStatus" />
+				<entry key="recpSaveToMstList" value="saveToMasterList" />
+				<entry key="recipientAdviceContent" value="recipientAdvisingText" />
+				<entry key="number" value="recipientAdvisingSMS" />
+				<entry key="notfCountryCode" value="recipientAdvisingCountry" />
+				<entry key="notfAddress1" value="recipientAdvisingAddress" />
+				<entry key="notfAddress2" value="recipientAdvisingAddress2" />
+				<entry key="notfAddress3" value="recipientAdvisingAddress3" />
+				<entry key="nickName" value="recipientNickName" />
+				<entry key="recipientAmount" value="recipientAmount" />
+				<entry key="recpCategoryPurpose" value="categoryPurpose"/>
+				<entry key="recipientAddress" value="recipientAddress"/>
+				<entry key="recipientAddress2" value="recipientAddress2"/>
+				<entry key="recipientCountry" value="recipientCountry"/>
+				<entry key="recipientIdType" value="recipientIdType"/>
+				<entry key="recipientIdNumber" value="recipientIdNumber"/>
+				<entry key="recipientBDate" value="recipientBDate"/>
+				<entry key="recipientBProvince" value="recipientBProvince"/>
+				<entry key="recipientBCity" value="recipientBCity"/>
+				<entry key="recipientBCountry" value="recipientBCountry"/>
+				<entry key="recipientTransRef" value="recipientTransRef"/>
+				<entry key="recipientRemittanceType" value="recipientRemittanceType"/>				
+				<entry key="recipientRemittanceTypeUnstructText" value="recipientRemittanceTypeUnstructText"/>				
+				<entry key="recipientRemittanceCredRef" value="recipientRemittanceCredRef"/>
+				<entry key="recipientRemittanceIssuer" value="recipientRemittanceIssuer"/>
+				<entry key="mandateId" value="mandateId" />
+				<entry key="mandateSignature" value="mandateSignature" />
+				<entry key="mandateSignatureDate" value="mandateSignatureDate" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="smpbPmtHoldVal" class="com.s1.common.validation.pojo.PaymentHoldingValue"> <!-- Same for template -->
+		<constructor-arg ref="commonFields" />
+		<constructor-arg ref="additionalSGBPmtFields" />
+		<constructor-arg ref="commonLineItemFields" />
+		<constructor-arg ref="additionalSMPLineItemFields" />
+	</bean>
+	
+	<bean id="sbgiroHolderValue" class="com.s1.common.validation.pojo.PaymentHoldingValue"> <!-- Same for template -->
+		<constructor-arg ref="commonFields" />
+		<constructor-arg ref="additionalSMPFields" />
+		<constructor-arg ref="commonLineItemFields" />
+		<constructor-arg ref="additionalSMPLineItemFields" />
+	</bean>
+
+	<bean id="spddHolderValue" class="com.s1.common.validation.pojo.PaymentHoldingValue"> <!-- Same for template -->
+		<constructor-arg ref="commonFields" />
+		<constructor-arg ref="additionalSMPFields" />
+		<constructor-arg ref="commonLineItemFields" />
+		<constructor-arg ref="additionalSMPLineItemFields" />
+	</bean>
+
+	<bean id="smpbTpHoldVal" class="com.s1.common.validation.pojo.ThirdPartyHoldingValue">
+		<constructor-arg ref="commonTPFields" />
+		<constructor-arg ref="additionalSMPTPFields" />
+	</bean>
+	
+	<bean id="sadomTpHoldVal" class="com.s1.common.validation.pojo.ThirdPartyHoldingValue">
+		<constructor-arg ref="commonTPFields" />
+		<constructor-arg ref="additionalSMPTPFields" />
+	</bean>
+	
+	<bean id="commonTmplLdrHolder" class="com.s1.common.validation.pojo.TmplLoaderHoldingValue">
+		<constructor-arg ref="tmplFields" />
+		<constructor-arg ref="tmplRecpFields" />
+	</bean>
+
+
+<!--  Start of Validations for Singapore Bulk Giro Payments Configurations -->
+
+	<bean id="additionalSGBPmtFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="recurrenceDuration" value="recurrenceDuration" />
+				<entry key="recurrenceNumber" value="recurrenceNumber" />
+				<entry key="endDate" value="endDate" />
+				<entry key="recurring" value="recurring" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="commonSGBGIROLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="name" value="target.name" />
+				<entry key="additionalInfo" value="additionalInfo" />
+				<entry key="payeeAmount" value="payeeAmount" />
+				<entry key="recipientAdviceContent" value="recipientAdvice.content" />
+				<entry key="categoryPurpose" value="categoryPurpose" />
+				<entry key="statusView" value="statusView" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="additionalSGBGIROLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map></map>
+		</property>
+	</bean>
+	
+	<bean id="sbgiroHolder" class="com.s1.common.validation.pojo.PaymentHoldingValue"> <!-- Same for template -->
+		<constructor-arg ref="commonFields" />
+		<constructor-arg ref="additionalSGBPmtFields" />
+		<constructor-arg ref="commonSGBGIROLineItemFields" />
+		<constructor-arg ref="additionalSGBGIROLineItemFields" />
+	</bean>
+
+<!--  End of Validations for Singapore Bulk Giro Payments Configurations-->
+	
+	<!--  Start of Validations for SEPA Debit Payments Configurations -->
+	
+	<bean id="additionalSPDDPmtFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="recurrenceDuration" value="recurrenceDuration" />
+				<entry key="recurrenceNumber" value="recurrenceNumber" />
+				<entry key="endDate" value="endDate" />
+				<entry key="recurring" value="recurring" />
+				<entry key="sequence" value="sequence" />
+				<entry key="scheme" value="scheme" />
+				<entry key="creditorId" value="creditorId" />
+				<entry key="sepaCreditorOid" value="sepaCreditorOid" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="commonSPDDLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="sourceMap">
+			<map>
+				<entry key="name" value="target.name" />
+				<entry key="additionalInfo" value="additionalInfo" />
+				<entry key="payeeAmount" value="payeeAmount" />
+				<entry key="recipientAdviceContent" value="recipientAdvice.content" />
+				<entry key="categoryPurpose" value="categoryPurpose" />				
+				<entry key="beneficiaryReference" value="beneficiaryReference" />
+				<entry key="statusView" value="statusView" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="spddHolder" class="com.s1.common.validation.pojo.PaymentHoldingValue"> <!-- Same for template -->
+		<constructor-arg ref="commonFields" />
+		<constructor-arg ref="additionalSPDDPmtFields" />
+		<constructor-arg ref="commonSPDDLineItemFields" />
+		<constructor-arg ref="additionalSGBGIROLineItemFields" />
+	</bean>
+	
+	<bean id="spddTpHoldVal" class="com.s1.common.validation.pojo.ThirdPartyHoldingValue">
+		<constructor-arg ref="commonTPFields" />
+		<constructor-arg ref="additionalSPTPFields" />
+	</bean>
+	<!--  End of Validations for SEPA Debit Payments Configurations-->
+ 
+    <!-- Start of Saudi Intrabank configurations -->
+    <bean id="sainbHolder" class="com.s1.common.validation.pojo.PaymentHoldingValue">
+        <constructor-arg ref="commonFields" />
+        <constructor-arg ref="additionalSainbPmtFields" />
+        <constructor-arg ref="commonSainbLineItemFields" />
+    </bean>
+    
+    <bean id="additionalSainbPmtFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="recurrenceDuration" value="recurrenceDuration" />
+                <entry key="recurrenceNumber" value="recurrenceNumber" />
+                <entry key="endDate" value="endDate" />
+                <entry key="recurring" value="recurring" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="commonSainbLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="name" value="target.name" />
+                <entry key="additionalInfo" value="additionalInfo" />
+                <entry key="payeeAmount" value="payeeAmount" />
+                <entry key="recipientAdviceContent" value="recipientAdvice.content" />
+                <entry key="beneficiaryReference" value="beneficiaryReference" />
+                <entry key="statusView" value="statusView" />
+                <entry key="receiverInformationContent" value="receiverAdvice.content" />
+                <entry key="receiverInformationPaymentPurpose" value="receiverAdvice.paymentPurpose" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="saiIntrabankRecipient" class="com.s1.common.validation.pojo.ThirdPartyHoldingValue">
+    		<constructor-arg ref="commonTPFields" />
+    </bean>
+    <!-- End of Saudi Intrabank configurations -->
+    
+    <!-- Start of Saudi Domestic configurations -->
+    <bean id="sadomHolder" class="com.s1.common.validation.pojo.PaymentHoldingValue">
+        <constructor-arg ref="commonFields" />
+        <constructor-arg ref="additionalSadomPmtFields" />
+        <constructor-arg ref="commonSadomLineItemFields" />
+        <constructor-arg ref="additionalSadombLineItemFields" />
+    </bean>
+    
+    <bean id="additionalSadomPmtFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="recurrenceDuration" value="recurrenceDuration" />
+                <entry key="recurrenceNumber" value="recurrenceNumber" />
+                <entry key="endDate" value="endDate" />
+                <entry key="recurring" value="recurring" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="commonSadomLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="name" value="target.name" />
+                <entry key="additionalInfo" value="additionalInfo" />
+                <entry key="payeeAmount" value="payeeAmount" />
+                <entry key="recipientAdviceContent" value="recipientAdvice.content" />
+                <entry key="beneficiaryReference" value="beneficiaryReference" />
+                <entry key="statusView" value="statusView" />
+            </map>
+        </property>
+    </bean>
+    
+	<bean id="checkDigitValidator" class="com.s1.intl.disbursements.validator.CheckDigitValidator"/>
+	    
+    <bean id="additionalSadombLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map></map>
+        </property>
+    </bean>
+    <!-- End of Saudi Intrabank configurations -->
+    <!-- Start of Saudi Payroll configurations -->
+    <bean id="sapyrHolder" class="com.s1.common.validation.pojo.PaymentHoldingValue">
+        <constructor-arg ref="commonFields" />
+        <constructor-arg ref="additionalSapyrPmtFields" />
+        <constructor-arg ref="commonSapyrLineItemFields" />
+        <constructor-arg ref="additionalSapyrLineItemFields" />
+    </bean>
+    
+    <bean id="sapyrTmplLdrHolder" class="com.s1.common.validation.pojo.TmplLoaderHoldingValue">
+		<constructor-arg ref="tmplFields" />
+		<constructor-arg ref="sapyrTmplRecpFields" />
+	</bean>
+	
+    <bean id="sapyrTmplRecpFields" 
+	      parent="tmplRecpFields" 
+	      class="org.springframework.beans.factory.config.MapFactoryBean">
+	    <property name="sourceMap">
+	        <map merge="true">
+	            <entry key="basicSalaryAmnt" value="basicSalaryAmnt" />
+				<entry key="housingAllowanceAmnt" value="housingAllowanceAmnt" />
+				<entry key="otherExpensesAmnt" value="otherExpensesAmnt" />
+				<entry key="deductionsAmnt" value="deductionsAmnt" />
+	        </map>
+	    </property>
+	</bean>
+    
+    <bean id="additionalSapyrPmtFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="recurrenceDuration" value="recurrenceDuration" />
+                <entry key="recurrenceNumber" value="recurrenceNumber" />
+                <entry key="endDate" value="endDate" />
+                <entry key="recurring" value="recurring" />
+                <entry key="molEstblishmentId" value="molEstblishmentId" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="commonSapyrLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="name" value="target.name" />
+                <entry key="additionalInfo" value="additionalInfo" />
+                <entry key="payeeAmount" value="payeeAmount" />
+                <entry key="recipientAdviceContent" value="recipientAdvice.content" />
+                <entry key="beneficiaryReference" value="beneficiaryReference" />
+                <entry key="statusView" value="statusView" />
+                <entry key="receiverInformationContent" value="receiverAdvice.content" />
+                <entry key="receiverInformationPaymentPurpose" value="receiverAdvice.paymentPurpose" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="additionalSapyrLineItemFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+            	<entry key="basicSalaryAmnt" 		value="dependentValue.basicSalaryAmnt" />
+            	<entry key="housingAllowanceAmnt" 	value="dependentValue.housingAllowanceAmnt" />
+            	<entry key="otherExpensesAmnt" 		value="dependentValue.otherExpensesAmnt" />
+            	<entry key="deductionsAmnt" 		value="dependentValue.deductionsAmnt" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="saPayrollRecipient" class="com.s1.common.validation.pojo.ThirdPartyHoldingValue">
+    		<constructor-arg ref="commonTPFields" />
+    		<constructor-arg ref="additionalPayrollRecipientFields" />
+    </bean>
+    <bean id="additionalPayrollRecipientFields" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+            	<entry key="recipientId"			value="recipientId" />
+            	<entry key="accountType"      		value="accountType" />
+            	<entry key="basicSalaryAmnt" 		value="dependentSubForm.basicSalaryAmnt.value" />
+            	<entry key="housingAllowanceAmnt" 	value="dependentSubForm.housingAllowanceAmnt.value" />
+            	<entry key="otherExpensesAmnt" 		value="dependentSubForm.otherExpensesAmnt.value" />
+            	<entry key="deductionsAmnt" 		value="dependentSubForm.deductionsAmnt.value" />
+            </map>
+        </property>
+    </bean>
+    
+    <!-- End of Saudi Payroll configurations -->
+    
+    <bean id="COSParamFeatureValidator" class="com.aciworldwide.common.validation.pluggable.COSParamFeatureValidator" scope="prototype">
+     		<property name="authTypeMap" ref="authTypeMap"/>
+     		<property name="COSParams" ref="COSParams"/>
+     		
+    </bean>
+    
+    <bean id="AdaptiveAuthValidator" class="com.aciworldwide.common.validation.pluggable.AdaptiveAuthValidator" scope="prototype"/>
+     
+    
+    <bean id="authTypeMap" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+            	<entry key="BNKAuthTknMlt"			value="TOKEN_MULTIPLE" />
+            	<entry key="BNKAuthTknFin"      	value="TOKEN_FINAL_ONLY" />
+            	<entry key="BNKAuthOBAMlt" 			value="OOBA_MULTIPLE" />
+            	<entry key="BNKAuthOBAFin" 			value="OOBA_FINAL_ONLY" />
+            	<entry key="BNKCRA" 				value="CHALLENGE_RESPONSE_ALL" />
+            	<entry key="BNKCRAPP" 				value="CHALLENGE_RESPONSE_APPROVAL" />
+            	<entry key="BNKCRF" 				value="CHALLENGE_RESPONSE_FINAL_ONLY" />
+            	<entry key="BNKAuthTypPas" 			value="PASSWORD" />
+            	<entry key="BNKAuthOBALgn" 			value="OOBA" />
+            	<entry key="BNKAuthTypTKN" 			value="TOKEN" />
+            	<entry key="BNKAuthTypNon" 			value="NONE" />
+            	<entry key="BNKAuthQALgn" 			value="CHALLENGE_QA" />
+            </map>
+        </property>
+    </bean>
+       
+    <bean id="COSParams" class="org.springframework.beans.factory.config.MapFactoryBean" >
+        <property name="sourceMap">
+            <map>
+          		<entry key="IsBillingHardCharge" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="2"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="CanAdminVoice" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="3"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="CanAdminTextMessage" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="3"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsAutoAccountAssociate" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="3"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsApproveOwnEnabled" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="25"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DualAuthUserAdminClient" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="15"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="CanAdminDisableOOBAAccess" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="112"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="CanAdminEnableOOBAAccess" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="112"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="CanUserDisableOOBAAccess" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="112"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsUserAcctAccessACHCompanyIDEnabled" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="26"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="CanCSAAdministerUserProfileMobilePhone" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="50"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsCSAMobileAdmin" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="62"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DisplayPanelAuthForEFD" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="40"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DisplayIsMultiUser" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="10"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DisplayWireTemplateGroupsAdmin" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="45"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DisplayPanelAuthPerPayment" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="37"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DualAuthTemplates" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="30"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsApproveOwnEnabled" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="25"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsExternalAccountsEnabled" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="46"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DualAuthRecipients" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="61"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DualAuthUserAdminSAM" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="20"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsSecureMsgAttachmentEnabled" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="60"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsSingleCrncyEnbld" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="85"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsTemplateOverrideForApprovals" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="33"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="TransferNavigationType" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="string"/>
+						<property name="ranking" value="90"/>
+						<property name="validValues">
+							<list>
+								<value>Secondary</value>
+								<value>Primary</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="EnableUserGroups" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="105"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="IsMobileSelfEnroll" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="55"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="AdaptiveAuthenticationGroup" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="integer"/>
+						<property name="ranking" value="7"/>
+					</bean>
+				</entry>
+				<entry key="AdaptiveAuthenticationGroupTransactions" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="integer"/>
+						<property name="ranking" value="8"/>
+					</bean>
+				</entry>
+				<entry key="ClassOfServiceTheme" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="String"/>
+						<property name="ranking" value="65"/>
+					</bean>
+				</entry>
+				<entry key="UserLogonAuthType" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="integer"/>
+						<property name="ranking" value="5"/>
+						<property name="validValues">
+							<list>
+								<value>PASSWORD</value>
+								<value>OOBA_PASSWORD</value>
+								<value>TOKEN</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="ApplicationExitPath" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="String"/>
+						<property name="ranking" value="70"/>
+						<property name="validValues">
+							<list>
+								<value>Commercial</value>
+								<value>Small Business</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				<entry key="DashBoardTitle" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="String"/>
+						<property name="ranking" value="75"/>
+						<property name="validValues">
+							<list>
+								<value>home</value>
+								<value>treasuryDashboard</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				
+				<entry key="IsBulkTransfersEnabled" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="boolean"/>
+						<property name="ranking" value="75"/>
+						<property name="validValues">
+							<list>
+								<value>true</value>
+								<value>false</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				
+				<entry key="UserEntitlementsType" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="string"/>
+						<property name="ranking" value="100"/>
+						<property name="validValues">
+							<list>
+								<value>Basic</value>
+								<value>Advanced</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				
+				<entry key="USACHType" >
+					<bean class="com.aciworldwide.enrollment.service.customer.ConfigCOSParamValue">
+						<property name="valueType" value="string"/>
+						<property name="ranking" value="100"/>
+						<property name="validValues">
+							<list>
+								<value>Basic</value>
+								<value>Advanced</value>
+							</list>
+						</property>	
+					</bean>
+				</entry>
+				
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="transferScheduleTimeValidator"
+		class="com.s1.common.validation.pluggable.TransferScheduleTimeValidator"
+		scope="prototype" />
+    
+    <bean id="fieldNotRequiredValidator" class="com.s1.common.validation.pluggable.FieldNotRequiredValidator"/>
+    
+    <bean id="creditDebitTypeValidator" 
+		class="com.s1.common.validation.pluggable.CreditDebitTypeValidator" 
+		scope="prototype" />
+		
+	<bean id="equalsValidator" class="com.aciworldwide.common.validation.pluggable.EqualsStringValidator" scope="prototype"/>	
+	<bean id="alertCommonParameterValidator" class="com.aciworldwide.alert.validator.AlertCommonParameterValidator" scope="prototype"/>
+	<bean id="issueAccountValidator" class="com.aciworldwide.common.validators.AccountValidator" scope="prototype" />
+	<bean id="stopAmountValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.StopAmountValidator" scope="prototype" />
+	<bean id="stopReasonValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.StopReasonValidator" scope="prototype" />
+	<bean id="stopCurrencyValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.StopCurrencyValidator" scope="prototype" />
+	<bean id="stopCheckRangeValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.StopCheckRangeValidator" scope="prototype" />
+	<bean id="stopMaxRangeValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.StopMaxRangeValidator" scope="prototype" />
+	<bean id="issueCheckRangeValidator" class="com.aciworldwide.common.validators.IssueCheckRangeValidator" scope="prototype" />
+	<bean id="issueAmountValidator" class="com.aciworldwide.common.validators.IssueAmountValidator" scope="prototype" />	
+    <bean id="multipleIssueCountValidator" class="com.aciworldwide.common.validators.MultipleIssueCountValidator" scope="prototype" />
+	<bean id="validateChallangeQA" class="com.aciworldwide.pim.messages.service.validator.ChallengeQAValidator" /> 
+    <bean id="alertReminderParameterValidator" class="com.aciworldwide.alert.validator.AlertReminderParameterValidator" scope="prototype"/>
+    <bean id="achAuthRuleNameValidator" class="com.aciworldwide.common.validators.ACHAuthRuleNameValidator" scope="prototype" />
+	<bean id="achAuthRuleDateValidator" class="com.aciworldwide.common.validators.AchAuthRuleDateValidator" scope="prototype" />
+	<bean id="achAuthRuleAmountValidator" class="com.aciworldwide.common.validators.AchAuthRuleAmountValidator" scope="prototype" />
+	<bean id="achAuthRuleOrgcompValidator" class="com.aciworldwide.common.validators.AchAuthRuleOrgcompValidator" scope="prototype" />
+	<bean id="achAuthRuleAccountValidator" class="com.aciworldwide.common.validators.AchAuthRuleAccountValidator" scope="prototype" />
+	<bean id="imageSearchSoaValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.ImageSearchValidator" scope="prototype"/>
+	<bean id="checkInquiryValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.CheckInquiryValidator" scope="prototype"/>
+	<bean id="checkDateNotAfterTodayValidator" class="com.aciworldwide.pim.messages.management.service.check.validators.DateNotAfterTodayValidator" scope="prototype" />
+
+	
+	
+	<bean id="timeFormatValidator" class="com.aciworldwide.pim.messages.service.validator.TimeFormatValidator" scope="prototype" />
+	<bean id="blankEmailValidator" class="com.aciworldwide.pim.messages.service.validator.BlankEmailValidator" scope="prototype" />
+	<bean id="emailRequiredFieldValidator" class="com.aciworldwide.pim.messages.service.validator.EmailRequiredFieldValidator" scope="prototype" />
+	<bean id="faxRequiredFieldValidator" class="com.aciworldwide.pim.messages.service.validator.FaxRequiredFieldValidator" scope="prototype" />
+	<bean id="faxNumberValidator" class="com.aciworldwide.pim.messages.service.validator.FaxNumberValidator" scope="prototype" />
+	<bean id="startEndTimeValidator" class="com.aciworldwide.pim.messages.service.validator.StartEndTimeValidator" scope="prototype" />
+	<bean id="intervalValidator" class="com.aciworldwide.pim.messages.service.validator.IntervalValidator" scope="prototype" />
+	<bean id="emailDestinationValidation" class="com.aciworldwide.pim.messages.service.validator.EmailDestinationValidation" scope="prototype" />
+	<bean id="frequencyRequiredFieldValidator" class="com.aciworldwide.pim.messages.service.validator.FrequencyRequiredFieldValidator" scope="prototype" /> 
+	<bean id="currentDayReportValidator" class="com.aciworldwide.reports.validator.CurrentDayReportValidator" scope="prototype" /> 
+	<bean id="priorDayReportValidator" class="com.aciworldwide.reports.validator.PriorDayReportValidator" scope="prototype" />
+	<bean id="validReportNameValidator" class="com.aciworldwide.reports.validator.ValidReportNameValidator" scope="prototype" />
+	<bean id="buildIdValidator" class="com.aciworldwide.reports.validator.BuildIdValidator" scope="prototype" />  
+	<bean id="relativeDateValidValues" class="com.aciworldwide.pim.messages.service.validator.RelativeDateValidValues" scope="prototype" />  
+	<bean id="channelAndIntervalStringValidator" class="com.aciworldwide.reports.validator.ChannelAndIntervalStringValidator" scope="prototype" /> 
+	<bean id="frequencyCombinationValidator" class="com.aciworldwide.reports.validator.FrequencyCombinationValidator" scope="prototype" />
+	<bean id="customerGuidValidator" class="com.aciworldwide.common.validators.CustomerGuidValidator" scope="prototype" />
+	<bean id="customerUniqueGuidValidator" class="com.aciworldwide.common.validators.CustomerUniqueGuidValidator" scope="prototype" />
+	<bean id="checkFreeAccountsValidator" class="com.aciworldwide.common.validators.CheckFreeAccountsValidator" scope="prototype" >
+		<property name="gssoCheckFreeCustomerService" ref="gssoCheckFreeCustomerService" />
+		<property name="gssoCheckFreeAccountService" ref="gssoCheckFreeAccountService"/>
+		<property name="gssoCheckFreeUserService" ref="gssoCheckFreeUserService" />
+		<property name="entitlementService" ref="entitlementService" />
+		<property name="checkfreeFacadeService" ref="checkfreeFacadeService" />
+		<property name="accountService" ref="accountService" />
+		<property name="companyService" ref="companyService" />
+	</bean>
+	<bean id="checkFreePrimaryUserValidator" class="com.aciworldwide.common.validators.CheckFreePrimaryUserValidator" scope="prototype" />	
+	<bean id="userGuidValidator" class="com.aciworldwide.common.validators.UserGuidValidator" scope="prototype"> 
+	    <property name="userService" ref="userService"/>
+	</bean>
+	<bean id="userDOBValidator" class="com.aciworldwide.common.validators.UserDOBValidator" scope="prototype" />
+	<bean id="checkFreeAddressValidator" class="com.aciworldwide.common.validators.CheckFreeAddressValidator" scope="prototype" />
+    <bean id="checkFreeCustomerIdValidator" class="com.aciworldwide.common.validators.CheckFreeCustomerIdValidator" scope="prototype" />
+    <bean id="checkFreeUserValidator" class="com.aciworldwide.common.validators.CheckFreeUserValidator" scope="prototype">
+    <property name="userService" ref="userService"/>
+    </bean>
+    <bean id="securityQuestionValidator" class="com.aciworldwide.common.validators.SecurityQuestionValidator" scope="prototype" />
+    <bean id="taxIdValidator" class="com.aciworldwide.common.validators.TaxIdValidator" scope="prototype">
+       <property name="userService" ref="userService"/>
+    </bean>
+
+    <bean id="fileUploadsDateValidator" class="com.aciworldwide.common.validators.FileUploadsDateValidator" scope="prototype" />
+    
+    <bean id="transferRuleUniqueValidator" class="com.aciworldwide.transferrule.validator.TransferRuleUniqueValidator" scope="prototype"/>
+    <bean id="transferRuleDuplicateValidator" class="com.aciworldwide.transferrule.validator.TransferRuleDuplicateValidator" scope="prototype"/>
+    <bean id="transferRuleAccountValidator" class="com.aciworldwide.transferrule.validator.TransferRuleAccountValidator" scope="prototype"/>
+    <bean id="targetAmountValidator" class="com.aciworldwide.transferrule.validator.TargetAmountValidator" scope="prototype"/>
+     <bean id="validValuesForRuleFrequency" class="com.aciworldwide.transferrule.validator.ValidValuesForRuleFrequency"  scope="prototype"/>
+     <bean id="transferRuleDateValidator" class="com.aciworldwide.transferrule.validator.TransferRuleDateValidator"  scope="prototype"/>
+	 <bean id="accountTransferDetailValidator" class="com.aciworldwide.transferrule.validator.AccountTransferDetailValidator" scope="prototype"/>
+    <bean id="amountRequiredValidator" class="com.aciworldwide.pim.messages.service.validator.AmountRequiredValidator" scope="prototype"/>
+    <bean id="toDateFromDateValidator" class="com.aciworldwide.pim.messages.service.validator.ToDateFromDateValidator" scope="prototype"/>
+</beans>

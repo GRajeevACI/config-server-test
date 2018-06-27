@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="AchMobileApprovalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.approvals.provider.ach.MobileApprovalACHMapper" />
+	</bean>
+	<bean id="MobileApprovalACHService" class="com.s1.app.mobileBanking.approvals.provider.ach.MobileApprovalACHServiceImpl">
+		<property name="mapper" ref="AchMobileApprovalMapper" />
+	</bean>
+	
+	<bean id="StopPayMobileApprovalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.approvals.provider.stopPay.MobileApprovalStopPayMapper" />
+	</bean>
+	<bean id="MobileApprovalStopPayService" class="com.s1.app.mobileBanking.approvals.provider.stopPay.MobileApprovalStopPayServiceImpl">
+		<property name="mapper" ref="StopPayMobileApprovalMapper" />
+	</bean>
+	
+	<bean id="PositivePayMobileApprovalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.approvals.provider.positivePay.MobileApprovalPositivePayMapper" />
+	</bean>	
+	<bean id="MobileApprovalPositivePayService" class="com.s1.app.mobileBanking.approvals.provider.positivePay.MobileApprovalPositivePayServiceImpl">
+		<property name="mapper" ref="PositivePayMobileApprovalMapper" />
+	</bean>
+	
+	<bean id="WireMobileApprovalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.approvals.provider.wire.MobileApprovalWireMapper" />
+	</bean>
+	<bean id="MobileApprovalWireService" class="com.s1.app.mobileBanking.approvals.provider.wire.MobileApprovalWireServiceImpl">
+		<property name="mapper" ref="WireMobileApprovalMapper" />
+	</bean>
+
+	<bean id="templateMobileApprovalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.approvals.provider.template.MobileApprovalTemplateMapper" />
+	</bean>
+	<bean id="MobileApprovalTemplateService" class="com.s1.app.mobileBanking.approvals.provider.template.MobileApprovalTemplateServiceImpl">
+		<property name="mapper" ref="templateMobileApprovalMapper" />
+	</bean>
+
+	<bean id="xferMobileApprovalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.mobileBanking.approvals.provider.transfer.MobileApprovalTransferMapper" />
+	</bean>
+	<bean id="MobileApprovalTransferService" class="com.s1.app.mobileBanking.approvals.provider.transfer.MobileApprovalTransferServiceImpl">
+		<property name="mapper" ref="xferMobileApprovalMapper" />
+	</bean>
+</beans>

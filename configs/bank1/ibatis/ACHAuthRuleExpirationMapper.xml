@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.ACHAuthRuleExpirationMapper">
+
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		  FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		 WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'achAuthExp'
+		   AND bas.BNKUSERKY = #{userOid}
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy 
+								     	   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+								    	  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+									 		AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+									 		AND batp.ParmName = 'expDays'
+									 		AND DATE(CURRENT_TIMESTAMP + bapvAcct.IntegerValue DAYS) = #{expiryDate,jdbcType=DATE}
+										)
+	</select>
+	<select id="getMatchingSubscriptions-Oracle" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		  FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		 WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'achAuthExp'
+		   AND bas.BNKUSERKY = #{userOid}
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy 
+								     	   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+								    	  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+									 		AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+									 		AND batp.ParmName = 'expDays'
+									 		AND to_date(systimestamp + bapvAcct.IntegerValue) = #{expiryDate,jdbcType=DATE}
+										)
+	</select>
+	<select id="getAccountsForAchAuthRules" resultMap="com.s1.common.accounts.dao.CustomerAccountMapper.BaseResultMap">
+		select b.*
+		  from BNKCustAcct b
+		 where 
+		 	  b.BNKCustAcctKy in ( select z.BNKCustAcctKy
+		 	  						 from BNKACHAUTHACCT z
+		 	  				    	where z.BNKACHAUTHKY = #{achAuthOid}
+		 	  				    )
+	</select>
+
+</mapper>

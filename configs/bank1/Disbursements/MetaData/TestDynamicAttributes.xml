@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paymentType xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PaymentType.xsd" identifier="InternationalPaymentMetaData" version="1.0.0">
+	<dynamicAttributeType identifier="paymenttype" attributeType="Payment">
+		<fields widgetType="ContentBox" identifier="formcontentbox">
+			<fieldLabel defaultText="Test Content Box" defaultToolTipText="Test Content Box"/>
+			<fields widgetType="TextInput" identifier="ultimateCreditor" isRequired="true" isVisible="true" customClass="" size="40">
+				<fieldLabel defaultText="labelUltimateCreditor" defaultToolTipText="labelUltimateCreditorToolTip"/>
+				<availabilityRules identifier="1stRule" beanName="com.aci.dynamicattributes.rules.AvailabilityTrueRule"/>
+				<availabilityRules identifier="2ndRule" beanName="com.aci.dynamicattributes.rules.AvailabilityTrueRule"/>
+			</fields>
+			<fields widgetType="SelectInput" identifier="postingIndicator" name="postingIndicator" tilesLabel="labelPostingIndicator" isRequired="true" isVisible="true" placeholder="selectPostingIndicator" value="-1">
+				<fieldLabel defaultText="labelPostingIndicator"/>
+				<availabilityRules identifier="1stRule" beanName="com.aci.dynamicattributes.rules.AvailabilityTrueRule"/>
+				<availabilityRules identifier="2ndRule" beanName="com.aci.dynamicattributes.rules.AvailabilityFalseRule"/>
+				<allowedValues identifier="postingIndValues" beanName="com.aci.payments.metadata.ui.PopulateIdType"/>
+				<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onChange" triggerValue="BNKPOSTPAY" instigatorID="postingIndicator" receiverID="customerRefEditable"/>
+				<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.PopulateEvent" eventType="onChange" triggerValue="BNKPOSTREC" instigatorID="postingIndicator" receiverID="extraText1"/>
+			</fields>
+			<fields widgetType="RadioInput" identifier="subType" name="subType" custom_class="payment_type" direction="horizontal" value="credit" tilesLabel="labelCollectionType">
+				<fieldLabel defaultText="labelCollectionType"/>
+				<availabilityRules identifier="1stRule" beanName="com.aci.dynamicattributes.rules.AvailabilityFalseRule"/>
+				<availabilityRules identifier="2ndRule" beanName="com.aci.dynamicattributes.rules.AvailabilityFalseRule"/>
+				<allowedValues identifier="subTypeValues" beanName="com.aci.payments.metadata.ui.PopulateIdType"/>
+			</fields>
+			<fields widgetType="CheckInput" identifier="customerRefEditable" isRequired="false" isVisible="true">
+				<fieldLabel defaultText="SomeEditableField" defaultToolTipText="Save as template"/>
+				<events identifier="subTypeEvent" beanName="com.aci.payments.metadata.events.ToggleEvent" eventType="onClick" instigatorID="customerRefEditable" receiverID="ultimateCreditor,postingIndicator"/>
+			</fields>
+			<fields widgetType="SelectInput" identifier="extraText1" name="extraText1" tilesLabel="labelExtraText1" isRequired="false" isVisible="true" placeholder="selectExtraText1" value="-1">
+				<fieldLabel defaultText="labelExtraText1"/>
+			</fields>
+		</fields>
+	</dynamicAttributeType>
+</paymentType>

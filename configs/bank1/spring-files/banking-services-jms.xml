@@ -1,0 +1,437 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+
+	<jee:jndi-lookup id="rTSynchAccountsQueueConnectionFactory"
+        jndi-name="jms/RTSynchAccountsQueueConnectionFactory" />
+
+    <jee:jndi-lookup id="rTSynchAccountsQueue"
+        jndi-name="jms/RTSynchAccountsQueue" />
+
+    <bean id="rTSynchAccountsMessageListener" 
+        class="com.s1.app.bank.accounts.user.realtimecurrentday.mq.RTSynchAccountsMessageHandler" >
+        <property name="cDTransactionService" ref="cDTransactionService" />
+        <property name="maxFailedDeliveryAttempts" value="2" />
+    </bean>
+
+    <bean id="rTSynchAccountsMessageListenerContainer" 
+         class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="rTSynchAccountsQueueConnectionFactory" />
+        <property name="destination" ref="rTSynchAccountsQueue" />
+        <property name="messageListener" ref="rTSynchAccountsMessageListener" />
+        <property name="taskExecutor" ref="rTSynchAccountsTaskExecutor" />  
+        <property name="transactionManager" ref="txManager" />
+        <property name="concurrentConsumers" value="1" />
+        <property name="maxConcurrentConsumers" value="1" />
+    </bean>
+
+    <bean id="rTSynchAccountsTaskExecutor" class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+        <property name="workManagerName" value="wm/default" />
+    </bean>
+
+    <bean id="rTSynchAccountsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="rTSynchAccountsQueueConnectionFactory"/>
+        <property name="defaultDestination" ref="rTSynchAccountsQueue"/>        
+    </bean>
+	
+	
+	<jee:jndi-lookup id="uploadParsingQueueConnectionFactory"
+		jndi-name="jms/UploadParsingQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="uploadParsingQueue"
+		jndi-name="jms/UploadParsingQueue" />
+
+	<bean id="uploadParsingMessageListener"
+			class="com.s1.banking.common.upload.messaging.UploadParsingMDB">
+		<property name="uploadBatchService" ref="uploadBatchService"/>
+	</bean>
+
+	<bean id="uploadParsingTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="uploadParsingMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="uploadParsingQueueConnectionFactory" />
+		<property name="destination" ref="uploadParsingQueue" />
+		<property name="messageListener"
+			ref="uploadParsingMessageListener" />
+		<property name="taskExecutor" ref="uploadParsingTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="uploadTransmissionQueueConnectionFactory"
+		jndi-name="jms/UploadTransmissionQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="uploadTransmissionQueue"
+		jndi-name="jms/UploadTransmissionQueue" />
+
+	<bean id="uploadTransmissionMessageListener"
+			class="com.s1.banking.common.upload.messaging.UploadTransmittingMDB">
+		<property name="uploadBatchService" ref="uploadBatchService"/>
+	</bean>
+
+	<bean id="uploadTransmissionTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="uploadTransmissionMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="uploadTransmissionQueueConnectionFactory" />
+		<property name="destination" ref="uploadTransmissionQueue" />
+		<property name="messageListener"
+			ref="uploadTransmissionMessageListener" />
+		<property name="taskExecutor" ref="uploadTransmissionTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="cDRealtimeUpdateQueueConnectionFactory"
+		jndi-name="jms/CDRealtimeUpdateQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="cDRealtimeUpdateQueue"
+		jndi-name="jms/CDRealtimeUpdateQueue" />
+
+	<bean id="cDRealtimeUpdateMessageListener"
+		class="com.s1.app.bank.accounts.user.realtimecurrentday.mq.RTUpdateMessageHandler">
+		<property name="cDTransactionService" ref="cDTransactionService" />
+		<property name="maxFailedDeliveryAttempts" value="2" />
+	</bean>
+
+	<bean id="cDRealtimeUpdateTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="cDRealtimeUpdateMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="cDRealtimeUpdateQueueConnectionFactory" />
+		<property name="destination" ref="cDRealtimeUpdateQueue" />
+		<property name="messageListener"
+			ref="cDRealtimeUpdateMessageListener" />
+		<property name="taskExecutor" ref="cDRealtimeUpdateTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="eFDParsingQueueConnectionFactory"
+		jndi-name="jms/EFDParsingQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="eFDParsingQueue"
+		jndi-name="jms/EFDParsingQueue" />
+
+	<bean id="eFDParsingMessageListener"
+		class="com.s1.banking.efd.upload.messaging.UploadParsingMDB">
+		<property name="efdService" ref="efdService" />
+	</bean>
+
+	<bean id="eFDTransmissionMessageListener"
+		class="com.s1.banking.efd.upload.messaging.UploadTransmittingMDB">
+		<property name="efdService" ref="efdService" />
+	</bean>
+	
+	<bean id="eFDParsingTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="eFDParsingMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="eFDParsingQueueConnectionFactory" />
+		<property name="destination" ref="eFDParsingQueue" />
+		<property name="messageListener"
+			ref="eFDParsingMessageListener" />
+		<property name="taskExecutor" ref="eFDParsingTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="eFDTransmissionQueueConnectionFactory"
+		jndi-name="jms/EFDTransmissionQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="eFDTransmissionQueue"
+		jndi-name="jms/EFDTransmissionQueue" />
+
+
+	<bean id="eFDTransmissionTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="eFDTransmissionMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="eFDTransmissionQueueConnectionFactory" />
+		<property name="destination" ref="eFDTransmissionQueue" />
+		<property name="messageListener"
+			ref="eFDTransmissionMessageListener" />
+		<property name="taskExecutor" ref="eFDTransmissionTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="importFileParsingQueueConnectionFactory"
+		jndi-name="jms/ImportFileParsingQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="importFileParsingQueue"
+		jndi-name="jms/ImportFileParsingQueue" />
+
+	<bean id="importFileParsingMessageListener"
+			class="com.s1.banking.common.imprt.messaging.ImportFileParserMDB">
+		<property name="importService" ref="importService"/>
+		<property name="disbursementService" ref="disbursementService" />
+	</bean>
+
+	<bean id="importFileParsingTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="importFileParsingMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="importFileParsingQueueConnectionFactory" />
+		<property name="destination" ref="importFileParsingQueue" />
+		<property name="messageListener"
+			ref="importFileParsingMessageListener" />
+		<property name="taskExecutor" ref="importFileParsingTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="importPaymentSaverQueueConnectionFactory"
+		jndi-name="jms/ImportPmtSaverQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="importPaymentSaverQueue"
+		jndi-name="jms/ImportPmtSaverQueue" />
+
+	<bean id="importPaymentSaverMessageListener"
+		class="com.s1.banking.common.imprt.messaging.ImportPaymentSaverMDB" />
+
+	<bean id="importPaymentSaverTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="importPaymentSaverMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="importPaymentSaverQueueConnectionFactory" />
+		<property name="destination" ref="importPaymentSaverQueue" />
+		<property name="messageListener"
+			ref="importPaymentSaverMessageListener" />
+		<property name="taskExecutor" ref="importPaymentSaverTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<jee:jndi-lookup id="xferTransmissionQueueConnectionFactory"
+		jndi-name="jms/XferTransmissionQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="xferTransmissionQueue"
+		jndi-name="jms/XferTransmissionQueue" />
+
+	<bean id="xferTransmissionMessageListener"
+		class="com.s1.app.disbursements.transfer.XferTransmissionMDBBean">
+		<property name="maxFailedDeliveryAttempts" value="2" />
+	</bean>
+
+	<bean id="xferTransmissionTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="xferTransmissionMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"	
+			ref="xferTransmissionQueueConnectionFactory" />
+		<property name="destination" ref="xferTransmissionQueue" />
+		<property name="messageListener" ref="xferTransmissionMessageListener" />
+		<property name="taskExecutor" ref="xferTransmissionTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+	
+	<jee:jndi-lookup id="usrIndvlEntlRemoveQueueConnectionFactory"
+		jndi-name="jms/UsrIndvlEntlRemoveQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="usrIndvlEntlRemoveQueue"
+		jndi-name="jms/UsrIndvlEntlRemoveQueue" />
+
+	<bean id="usrIndvlEntlRemoveMessageListener"
+		class="com.s1.common.entitlement.user.CosSwitchIndvToGrpRmvUsrEntlMDBean" >
+		<property name="entitlementRemoveService" ref="individualUserEntitlementRemoveService" />
+    </bean>
+
+	<bean id="usrIndvlEntlRemoveTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="usrIndvlEntlRemoveMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"	
+			ref="usrIndvlEntlRemoveQueueConnectionFactory" />
+		<property name="destination" ref="usrIndvlEntlRemoveQueue" />
+		<property name="messageListener" ref="usrIndvlEntlRemoveMessageListener" />
+		<property name="taskExecutor" ref="usrIndvlEntlRemoveTaskExecutor" />	
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+		
+ 	<bean id="usrIndvlEntlRemoveProcessTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="usrIndvlEntlRemoveQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="usrIndvlEntlRemoveQueue"/>		
+		<property name="pubSubDomain" value="true"/>		
+	</bean>
+	
+	<!-- Asynchornous Payments Queue -->
+
+	<jee:jndi-lookup id="asyncPmtProcessQueueConnectionFactory"
+		jndi-name="jms/AsyncPaymentsQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="asyncPmtProcessQueue"
+		jndi-name="jms/AsyncPaymentsQueue" />
+
+	<bean id="asyncPmtProcessQueueMessageListener"
+			class="com.s1.app.disbursements.async.messaging.AsyncPaymentsProcessQueueListener">
+	</bean>
+
+	<bean id="asyncPmtProcessQueueTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="asyncPmtProcessMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="asyncPmtProcessQueueConnectionFactory" />
+		<property name="destination" ref="asyncPmtProcessQueue" />
+		<property name="messageListener"
+			ref="asyncPmtProcessQueueMessageListener" />
+		<property name="taskExecutor" ref="asyncPmtProcessQueueTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+	</bean>
+
+	<bean id="asyncPmtProcessQueueTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="asyncPmtProcessQueueConnectionFactory"/>
+		<property name="defaultDestination" ref="asyncPmtProcessQueue"/>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+
+	<!-- Changes related to Topic created for BusinessServiceSetting-->
+	
+	<bean id="businessServiceSettingRuntimeService" class="com.s1.common.classofservice.runtime.BusinessServiceSettingRuntimeServiceImpl">
+		<property name="template" ref="businessServiceSettingNotifyTemplate" />
+	</bean>
+
+	<jee:jndi-lookup id="businessServiceSettingNotifyTopicConnectionFactory" jndi-name="jms/BusinessServiceSettingNotifyTopicConnectionFactory" />
+
+	<jee:jndi-lookup id="businessServiceSettingNotifyTopic" jndi-name="jms/BusinessServiceSettingNotifyTopic" />
+
+	<bean id="businessServiceSettingNotifyMessageListener" class="com.s1.common.classofservice.runtime.BusinessServiceSettingRuntimeListenerBean" >
+		<property name="service" ref="businessServiceSettingRuntimeService" />
+		<property name="maxFailedDeliveryAttempts" value="2" />
+    </bean>
+
+	<bean id="businessServiceSettingNotifyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="businessServiceSettingNotifyTopicConnectionFactory" />
+		<property name="destination" ref="businessServiceSettingNotifyTopic" />
+		<property name="messageListener" ref="businessServiceSettingNotifyMessageListener" />
+		<property name="taskExecutor" ref="businessServiceSettingNotifyTaskExecutor" />	
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="1" />
+	</bean>
+
+	<bean id="businessServiceSettingNotifyTaskExecutor" class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+ 	<bean id="businessServiceSettingNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="businessServiceSettingNotifyTopicConnectionFactory"/>
+		<property name="defaultDestination" ref="businessServiceSettingNotifyTopic"/>		
+		<property name="pubSubDomain" value="true"/>		
+	</bean>
+	
+	<!-- GBS-76366: Changes related to Topic created for GrndsPropertyRefresh -->
+	<bean id="grndsPropertyRefreshRuntimeService" class="com.aci.grnds.change.runtime.GrndsPropertyRefreshRuntimeServiceImpl">
+		<property name="template" ref="grndsPropertyRefreshNotifyTemplate" />
+	</bean>
+
+	<jee:jndi-lookup id="grndsPropertyRefreshNotifyTopicConnectionFactory" jndi-name="jms/GrndsPropertyRefreshNotifyTopicConnectionFactory" />
+
+	<jee:jndi-lookup id="grndsPropertyRefreshNotifyTopic" jndi-name="jms/GrndsPropertyRefreshNotifyTopic" />
+
+	<bean id="grndsPropertyRefreshNotifyMessageListener" class="com.aci.grnds.change.runtime.GrndsPropertyHandler" >
+		<property name="service" ref="grndsPropertyRefreshRuntimeService" />
+		<property name="maxFailedDeliveryAttempts" value="2" />
+    </bean>
+
+	<bean id="grndsPropertyRefreshNotifyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="grndsPropertyRefreshNotifyTopicConnectionFactory" />
+		<property name="destination" ref="grndsPropertyRefreshNotifyTopic" />
+		<property name="messageListener" ref="grndsPropertyRefreshNotifyMessageListener" />
+		<property name="taskExecutor" ref="grndsPropertyRefreshNotifyTaskExecutor" />	
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="1" />
+	</bean>
+
+	<bean id="grndsPropertyRefreshNotifyTaskExecutor" class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+ 	<bean id="grndsPropertyRefreshNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="grndsPropertyRefreshNotifyTopicConnectionFactory"/>
+		<property name="defaultDestination" ref="grndsPropertyRefreshNotifyTopic"/>		
+		<property name="pubSubDomain" value="true"/>		
+	</bean>	
+	
+	<!-- GBS-46735: Changes related to Topic created for dataservices commerce group-->
+	<bean id="dataServicesMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<!-- From the web-resources jar -->
+				<value>com/s1/arch/common/entitlement/dataservices/dataservices-messages-ext-Resources</value>
+				<value>com/s1/arch/common/entitlement/dataservices/dataservices-messages-Resources</value>
+			</list>
+		</property>
+		<property name="useCodeAsDefaultMessage" value="true"></property>
+	</bean>
+	
+	<bean id="dataServicesRuntimeService" class="com.s1.common.entitlement.dataservices.runtime.DataServicesRuntimeServiceImpl">
+		<property name="template" ref="dataServicesNotifyTemplate" />
+	</bean>
+
+	<jee:jndi-lookup id="dataServicesNotifyTopicConnectionFactory" jndi-name="jms/DataServicesNotifyTopicConnectionFactory" />
+
+	<jee:jndi-lookup id="dataServicesNotifyTopic" jndi-name="jms/DataServicesNotifyTopic" />
+
+	<bean id="dataServicesNotifyMessageListener" class="com.s1.common.entitlement.dataservices.runtime.DataServicesRuntimeListenerBean" >
+		<property name="service" ref="dataServicesRuntimeService" />
+		<property name="maxFailedDeliveryAttempts" value="2" />
+    </bean>
+
+	<bean id="dataServicesNotifyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="dataServicesNotifyTopicConnectionFactory" />
+		<property name="destination" ref="dataServicesNotifyTopic" />
+		<property name="messageListener" ref="dataServicesNotifyMessageListener" />
+		<property name="taskExecutor" ref="dataServicesNotifyTaskExecutor" />	
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="1" />
+	</bean>
+
+	<bean id="dataServicesNotifyTaskExecutor" class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+ 	<bean id="dataServicesNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="dataServicesNotifyTopicConnectionFactory"/>
+		<property name="defaultDestination" ref="dataServicesNotifyTopic"/>		
+		<property name="pubSubDomain" value="true"/>		
+	</bean>
+	
+</beans>

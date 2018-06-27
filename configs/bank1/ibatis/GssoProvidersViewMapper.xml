@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aci.gsso.mapper.GssoProviderViewMapper" >
+  <resultMap id="BaseResultMap" type="com.aci.gsso.view.GssoProvidersBaseView" >
+    <result column="PROVIDERKY" property="providerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="FEATURENAME" property="providerFeatureName" jdbcType="VARCHAR" />
+    <result column="BNKFEATUREKY" property="featureOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="SSOID" property="ssoId" jdbcType="VARCHAR" />  
+    <result column="ISFEATUREENABLED" property="isFeatureEnabled" jdbcType="VARCHAR" typeHandler="com.s1.arch.ibatis.TrueFalseBooleanTypeHandler" />
+    <result column="MSGCODE" property="msgCode" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="EntitledProvidersResultMap" type="com.aci.gsso.view.GssoCustomerEntitledProviderView" >  
+    <result column="PROVIDERKY" property="providerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKGSSOCUSTOMERCFGKY" property="customerCfgOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKCUSTOMERKY" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="GUID" property="guid" jdbcType="VARCHAR" />
+    <result column="GUIDSMODE" property="guidsMode" jdbcType="VARCHAR" />
+    <result column="SSOIDUSERUNIQUEMODE" property="ssoIdUserUniqueMode" jdbcType="VARCHAR" />
+    <result column="CMPANCHORUSERID" property="cmpAnchorUserId" jdbcType="VARCHAR" />
+    <result column="FEATURENAME" property="providerFeatureName" jdbcType="VARCHAR" />
+    <result column="GUIDALLWDCHARSCUSTOMER" property="guidAllwdCharsCustomer" jdbcType="VARCHAR" />
+    <result column="GUIDALLWDCHARSCUSTOMERMINLEN" property="guidAllwdCharsCustomerMinLen" jdbcType="SMALLINT" />
+    <result column="GUIDALLWDCHARSCUSTOMERMAXLEN" property="guidAllwdCharsCustomerMaxLen" jdbcType="SMALLINT" />
+    <result column="MAXNUMOFACCTSTOSEND" property="maxNumOfAccountsToSend" jdbcType="SMALLINT" />
+    <result column="BNKFEATUREKY" property="featureOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="SSOID" property="ssoId" jdbcType="VARCHAR" />
+    <result column="AFFILIATECFGKY" property="affiliateCfgOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="DISPLAYNAME" property="displayName" jdbcType="VARCHAR" />
+    <result column="VERSIONSTAMP" property="versionStamp" jdbcType="SMALLINT" /> 
+  </resultMap>
+
+  <resultMap id="UserEntitledProvidersResultMap" extends="BaseResultMap" type="com.aci.gsso.view.GssoUserEntitledProviderView" >  
+    <result column="BNKGSSOUSERCFGKY" property="userCfgOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKUSERKY" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="GUID" property="guid" jdbcType="VARCHAR" />
+    <result column="ISENROLLED" property="isEnrolled" jdbcType="VARCHAR" />
+    <result column="GUIDSMODE" property="guidsMode" jdbcType="VARCHAR" />
+    <result column="SSOIDUSERUNIQUEMODE" property="ssoIdUserUniqueMode" jdbcType="VARCHAR" />
+    <result column="SUPPORTEDACTIONS" property="supportedActions" jdbcType="VARCHAR" />
+    <result column="GUIDALLWDCHARSUSER" property="guidAllwdCharsUser" jdbcType="VARCHAR" />
+    <result column="GUIDALLWDCHARSUSERMINLEN" property="guidAllwdCharsUserMinLen" jdbcType="SMALLINT" />
+    <result column="GUIDALLWDCHARSUSERMAXLEN" property="guidAllwdCharsUserMaxLen" jdbcType="SMALLINT" />
+    <result column="BNKFEATUREKY" property="featureOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="AFFILIATECFGKY" property="affiliateCfgOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="VERSIONSTAMP" property="versionStamp" jdbcType="SMALLINT" /> 
+  </resultMap>
+
+  <resultMap id="UserEntitledProviderCustomFieldsViewResultMap" extends="BaseResultMap" type="com.aci.gsso.view.GssoUserEntitledProviderCustomFieldsView" >  
+    <result column="BNKGSSOCUSTOMFLDMETADATAKY" property="gssoProviderCustomFieldOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKGSSOAFFILIATECFGKY" property="gssoProviderAffiliateOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="SEQUENCEINDEX" property="sequenceIndex" jdbcType="VARCHAR" />
+    <result column="KEYVERBIAGE" property="keyVerbiage" jdbcType="VARCHAR" />
+    <result column="VALUEVERBIAGE" property="valueVerbiage" jdbcType="VARCHAR" />    
+    <result column="VALUETYPE" property="valueType" jdbcType="VARCHAR" />
+    <result column="MULTICHOICEVALUES" property="multiChoiceValues" jdbcType="BLOB" />
+    <result column="MSGCODE" property="msgCode" jdbcType="VARCHAR" />
+    <result column="CUSTOMFIELDLABLE" property="customFieldLabel" jdbcType="VARCHAR" />
+    <result column="BNKGSSOCUSTOMFLDVALUEKY" property="gssoProviderCustomFieldValueOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />    
+    <result column="VERSIONSTAMP" property="versionStamp" jdbcType="SMALLINT" /> 
+  </resultMap>
+  
+  <resultMap id="gssoProductViewMap" extends="BaseResultMap" type="com.aci.gsso.view.GssoProductView">
+ 	<id column="BNKGSSOPRODCFGKY" property="gssoProductConfig.oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="VFMPRODSUBTYPEKY" property="gssoProductConfig.productSubTypeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKPRODUCTKY" property="gssoProductConfig.productOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="BNKGSSOCFGKY" property="gssoProductConfig.gssoConfigOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+    <result column="ISPROVIDERSELECTED" property="gssoProductConfig.isProviderSelected" jdbcType="CHAR" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />  
+    <result column="UPDATEDTTM" property="gssoProductConfig.updateDateTime" jdbcType="TIMESTAMP" />
+    <result column="UPDATEUSER" property="gssoProductConfig.updateUser" jdbcType="VARCHAR" />
+    <result column="VERSIONSTAMP" property="gssoProductConfig.versionStamp" jdbcType="SMALLINT" /> 
+    <result column="PRODSBTYPACCTENBLLOCATION" property="gssoProviderLocation" jdbcType="VARCHAR" />
+    <result column="PRODACCTENBLLOCATION" property="gssoProviderProductLocation" jdbcType="VARCHAR" />
+  </resultMap>
+    
+	<resultMap type="com.aci.gsso.view.GssoAccountsToOperationMapping" id="accountsToOperationMapping">
+		 <result column="OPERATIONNAME" property="operationName" jdbcType="VARCHAR" />
+		  <result column="ACCOUNTSENTITLEDCOUNT" property="accountsEntitledCount" />
+	</resultMap>    
+	
+  <select id="findGssoProductConfigs" parameterType="java.util.Map" resultMap="gssoProductViewMap">
+
+	SELECT BNKGSSOPRODCFG.BNKGSSOPRODCFGKY,
+	BNKGSSOPRODCFG.VFMPRODSUBTYPEKY, BNKGSSOPRODCFG.BNKPRODUCTKY,
+	BNKGSSOPRODCFG.BNKGSSOCFGKY, BNKGSSOPRODCFG.ISPROVIDERSELECTED,
+	BNKGSSOPRODCFG.UPDATEDTTM,BNKGSSOPRODCFG.UPDATEUSER,BNKGSSOPRODCFG.VERSIONSTAMP,
+	BNKGSSOCFG.bnkgssocfgky as PROVIDERKY, ARCMESSAGE.translation as
+	FEATURENAME, BNKGSSOCFG.BNKFeatureKy as BNKFEATUREKY, BNKGSSOCFG.ssoId
+	as SSOID, BNKGSSOCFG.PRODSBTYPACCTENBLLOCATION, BNKGSSOCFG.PRODACCTENBLLOCATION 
+	from ARCENUM, ARCMESSAGE, BNKFEATURE, BNKGSSOCFG
+	left outer join
+	BNKGSSOPRODCFG on BNKGSSOCFG.bnkgssocfgky =
+	BNKGSSOPRODCFG.bnkgssocfgky
+	and BNKGSSOPRODCFG.VFMPRODSUBTYPEKY = #{productSubTypeOid},
+	BNKGSSOAFFILIATECFG
+	where
+	ARCENUM.msgcode=ARCMESSAGE.msgcode
+	and
+	BNKFEATURE.bnkfeatureky =
+	BNKGSSOCFG.bnkfeatureky
+	and
+	BNKFEATURE.featGrpMsgCdEnum =
+	ARCMESSAGE.msgCode
+	and ARCENUM.category =
+	'gssoProvEnum'
+	and
+	ARCMESSAGE.arclocalecdky = #{localeOid}
+	and
+	BNKGSSOAFFILIATECFG.cororgky = #{affiliateOid}
+	and
+	BNKGSSOCFG.bnkgssocfgky = BNKGSSOAFFILIATECFG.bnkgssocfgky
+	and
+	BNKGSSOCFG.ISACCTINTEGRATIONSCOPE = 1
+	and
+	BNKGSSOPRODCFG.bnkproductky is null
+
+  </select>
+
+	<select id="findGssoProviders" parameterType="java.util.Map"
+		resultMap="gssoProductViewMap">
+		
+		select BNKGSSOCFG.bnkgssocfgky as PROVIDERKY, ARCMESSAGE.translation as
+		FEATURENAME, BNKGSSOCFG.BNKFeatureKy as BNKFEATUREKY, BNKGSSOCFG.ssoId
+		as SSOID,
+		ARCMESSAGE.arclocalecdky,BNKGSSOCFG.PRODSBTYPACCTENBLLOCATION
+		from ARCENUM, ARCMESSAGE, BNKFEATURE, BNKGSSOCFG,BNKGSSOAFFILIATECFG
+		where ARCENUM.msgcode=ARCMESSAGE.msgcode
+		and BNKFEATURE.bnkfeatureky = BNKGSSOCFG.bnkfeatureky
+		and
+		BNKFEATURE.featGrpMsgCdEnum = ARCMESSAGE.msgCode
+		and ARCENUM.category =
+		'gssoProvEnum'
+		and ARCMESSAGE.arclocalecdky = #{localeOid}
+		and BNKGSSOAFFILIATECFG.cororgky = #{affiliateOid}
+		and
+		BNKGSSOCFG.ISACCTINTEGRATIONSCOPE = 1
+		and BNKGSSOCFG.bnkgssocfgky =
+		BNKGSSOAFFILIATECFG.bnkgssocfgky
+		
+	</select>
+
+	<select id="findGssoProductConfigsForProduct" parameterType="java.util.Map"
+		resultMap="gssoProductViewMap">
+
+		SELECT BNKGSSOPRODCFG.BNKGSSOPRODCFGKY,
+		BNKGSSOPRODCFG.VFMPRODSUBTYPEKY, BNKGSSOPRODCFG.BNKPRODUCTKY,
+		BNKGSSOPRODCFG.BNKGSSOCFGKY, BNKGSSOPRODCFG.ISPROVIDERSELECTED,
+		BNKGSSOPRODCFG.UPDATEDTTM,BNKGSSOPRODCFG.UPDATEUSER,BNKGSSOPRODCFG.VERSIONSTAMP,
+		BNKGSSOCFG.bnkgssocfgky as PROVIDERKY, ARCMESSAGE.translation as
+		FEATURENAME, BNKGSSOCFG.BNKFeatureKy as BNKFEATUREKY, BNKGSSOCFG.ssoId
+		as SSOID, BNKGSSOCFG.PRODSBTYPACCTENBLLOCATION,
+		BNKGSSOCFG.PRODACCTENBLLOCATION
+		from ARCENUM, ARCMESSAGE, BNKFEATURE, BNKGSSOCFG left outer join
+		BNKGSSOPRODCFG on BNKGSSOCFG.bnkgssocfgky = BNKGSSOPRODCFG.bnkgssocfgky
+		and BNKGSSOPRODCFG.bnkproductky = #{productOid},
+		BNKGSSOAFFILIATECFG
+		where
+		ARCENUM.msgcode=ARCMESSAGE.msgcode
+		and BNKFEATURE.bnkfeatureky = BNKGSSOCFG.bnkfeatureky
+		and
+		BNKFEATURE.featGrpMsgCdEnum = ARCMESSAGE.msgCode
+		and ARCENUM.category =
+		'gssoProvEnum'
+		and ARCMESSAGE.arclocalecdky =  #{localeOid}
+		and BNKGSSOAFFILIATECFG.cororgky = #{affiliateOid}
+		and
+		BNKGSSOCFG.bnkgssocfgky = BNKGSSOAFFILIATECFG.bnkgssocfgky
+		and
+		BNKGSSOCFG.ISACCTINTEGRATIONSCOPE = 1
+		
+	</select>
+		
+      
+  <select id="selectProvidersBasicData" resultMap="BaseResultMap" parameterType="map" >
+    select c.bnkgssocfgky as PROVIDERKY, 
+    	d.translation as FEATURENAME, 
+    	a.BNKFeatureKy as BNKFEATUREKY, 
+    	c.ssoId as SSOID, 
+    	e.propertyvalue as ISFEATUREENABLED,
+    	d.msgCode AS MSGCODE
+    from bnkfeature a, 
+    	bnkgssocfg c, 
+    	arcmessage d, 
+    	arcenum b  
+    	LEFT OUTER JOIN arcconfiguration e 
+    		ON e.propertyname = b.msgcode
+    		and e.domain = #{domain}
+    where a.bnkfeatureky = c.bnkfeatureky
+    and b.msgCode = d.msgCode
+    and d.arclocalecdky = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and a.featGrpMsgCdEnum = b.msgCode
+    and b.category = 'gssoProvEnum'
+  </select> 
+  <select id="selectCustomerEntitledProviders" resultMap="EntitledProvidersResultMap" parameterType="map" >
+	select d.bnkgssocfgky as PROVIDERKY, 
+	    g.bnkgssocustomercfgky as BNKGSSOCUSTOMERCFGKY, 
+	    g.bnkcustomerky as BNKCUSTOMERKY, 
+	    g.guid as GUID, 
+	    d.guidsMode as GUIDSMODE, 
+	    d.ssoIdUserUniqueMode AS SSOIDUSERUNIQUEMODE, 
+	    g.cmpAnchorUserId as CMPANCHORUSERID, 
+	    f.translation as FEATURENAME, 
+	    d.guidAllwdCharsCustomer as GUIDALLWDCHARSCUSTOMER, 
+	    d.ssoIDCustomerMinLen as GUIDALLWDCHARSCUSTOMERMINLEN, 
+	    d.ssoIDCustomerMaxLen as GUIDALLWDCHARSCUSTOMERMAXLEN, 
+	    e.MAXNUMOFACCTSTOSEND as MAXNUMOFACCTSTOSEND, 
+	    e.DISPLAYNAME as DISPLAYNAME, 
+	    d.BNKFeatureKy as BNKFEATUREKY, 
+	    d.ssoId as SSOID, 
+	    e.bnkgssoaffiliatecfgky as AFFILIATECFGKY, 
+	    g.VERSIONSTAMP as VERSIONSTAMP
+    from bnkfeature a, 
+         arcenum b, 
+         bnksvcfeature c, 
+         bnkgssocfg d, 
+         arcmessage f,
+ 	     bnkgssoaffiliatecfg e left outer join bnkgssocustomercfg g on e.bnkgssoaffiliatecfgky = g.bnkgssoaffiliatecfgky and g.bnkcustomerky = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+ 	where a.bnkfeatureky = c.bnkfeatureky
+ 	     and c.bnkclassofsvcky = #{classOfServiceOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+ 	     and 
+ 	     <if test="classOfServiceCustomized"> c.bnkcustomerky = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}</if>
+ 	     <if test="!classOfServiceCustomized"> c.bnkcustomerky is null </if>
+ 	     and d.bnkgssocfgky = e.bnkgssocfgky 	
+ 	     and e.cororgky = #{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+ 	     and b.msgCode = f.msgCode
+ 	     and arclocalecdky = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+ 	     and a.featGrpMsgCdEnum = b.msgCode
+ 	     and a.bnkfeatureky = d.bnkfeatureky
+ 	     and c.isActive = 1
+	     and b.category = 'gssoProvEnum'
+	     order by FEATURENAME
+  </select>
+
+  <select id="selectFullUserEntitledProviders" resultMap="UserEntitledProvidersResultMap" parameterType="map" >
+	select d.bnkgssocfgky as PROVIDERKY, d.supportedActions as SUPPORTEDACTIONS, g.bnkgssousercfgky as BNKGSSOUSERCFGKY, g.bnkuserky as BNKUSERKY, g.guid as GUID, g.isenrolled as ISENROLLED,
+	d.guidsMode as GUIDSMODE, d.ssoIdUserUniqueMode AS SSOIDUSERUNIQUEMODE, f.translation as FEATURENAME, d.guidAllwdCharsUser as GUIDALLWDCHARSUSER, d.ssoIDUserMinLen as GUIDALLWDCHARSUSERMINLEN, 
+	d.ssoIDUserMaxLen as GUIDALLWDCHARSUSERMAXLEN, d.BNKFeatureKy as BNKFEATUREKY, d.ssoId as SSOID, e.bnkgssoaffiliatecfgky as AFFILIATECFGKY, e.displayName as DisplayName, g.VERSIONSTAMP as VERSIONSTAMP
+    from bnkfeature a, arcenum b, bnksvcfeature c, bnkgssocfg d, arcmessage f,
+    bnkgssoaffiliatecfg e left outer join bnkgssousercfg g on e.bnkgssoaffiliatecfgky = g.bnkgssoaffiliatecfgky
+    and g.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    where a.bnkfeatureky = c.bnkfeatureky
+    and c.bnkclassofsvcky = #{classOfServiceOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and
+ 	<if test="classOfServiceCustomized"> c.bnkcustomerky = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler} </if>
+ 	<if test="!classOfServiceCustomized"> c.bnkcustomerky is null </if>
+    and d.bnkgssocfgky = e.bnkgssocfgky
+    and e.cororgky = #{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and b.msgCode = f.msgCode
+    and arclocalecdky = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and a.featGrpMsgCdEnum = b.msgCode
+    and a.bnkfeatureky = d.bnkfeatureky
+    and c.isActive = 1
+    and b.category = 'gssoProvEnum'
+    order by FEATURENAME
+  </select>
+  
+  <select id="selectCustomUserEntitledProviders" resultMap="UserEntitledProvidersResultMap" parameterType="map" >
+     select a.bnkgssocfgky as PROVIDERKY, a.supportedActions as SUPPORTEDACTIONS, e.bnkgssousercfgky as BNKGSSOUSERCFGKY, e.bnkuserky as BNKUSERKY, e.guid as GUID, e.isenrolled as ISENROLLED,
+    a.guidsMode as GUIDSMODE, a.ssoIdUserUniqueMode AS SSOIDUSERUNIQUEMODE,  k.translation as FEATURENAME, a.guidAllwdCharsUser as GUIDALLWDCHARSUSER, a.ssoIDUserMinLen as GUIDALLWDCHARSUSERMINLEN, a.ssoIDUserMaxLen as GUIDALLWDCHARSUSERMAXLEN,
+    a.BNKFeatureKy as BNKFEATUREKY, a.ssoId as SSOID, d.bnkgssoaffiliatecfgky as AFFILIATECFGKY,  d.displayName as DisplayName, e.VERSIONSTAMP as VERSIONSTAMP
+    from bnkgssocfg a, bnkfuncoprtn c, bnkfeature f, arcoperation g, arcgrant h, bnkuser i, arcenum j, arcmessage k, bnksvcfeature m,
+    bnkgssoaffiliatecfg d left outer join bnkgssousercfg e on d.bnkgssoaffiliatecfgky = e.bnkgssoaffiliatecfgky and e.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    where a.bnkgssocfgky = d.bnkgssocfgky
+    and d.cororgky = #{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and a.bnkfeatureky = f.bnkfeatureky
+    and a.bnkfeatureky = m.bnkfeatureky
+    and m.bnkclassofsvcky = #{classOfServiceOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and  <if test="classOfServiceCustomized"> m.bnkcustomerky = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler} </if>
+ 	<if test="!classOfServiceCustomized"> m.bnkcustomerky is null </if>
+    and c.featcd = f.featcd
+    and c.operationname = g.name
+    and g.arcoperationky = h.arcoperationky
+    and i.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and i.arcprincipalky = h.arcprincipalky
+    and m.isActive = 1
+    and j.msgCode = k.msgCode
+    and j.category = 'gssoProvEnum'
+    and f.featGrpMsgCdEnum = j.msgCode
+    and k.arclocalecdky = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    order by FEATURENAME    
+  </select>    
+   
+  <select id="isClassOfServiceCustomizedForThisCustomer" parameterType="com.s1.arch.utilities.ObjectId" resultType="java.lang.String" useCache="false">
+	SELECT ISCOSCUSTOMIZED FROM BNKCUSTOMER WHERE BNKCustomerKy = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+  </select>
+  
+  <select id="selectUserEntitledProviderCustomFieldsView" resultMap="UserEntitledProviderCustomFieldsViewResultMap" parameterType="map" >
+    select a.BNKGSSOCUSTOMFLDMETADATAKY as BNKGSSOCUSTOMFLDMETADATAKY, BNKGSSOAFFILIATECFGKY, SEQUENCEINDEX, KEYVERBIAGE, VALUEVERBIAGE, VALUETYPE, OWNERTYPE, MULTICHOICEVALUES, a.MSGCODE as MSGCODE, 
+    TRANSLATION as CUSTOMFIELDLABLE, VALUEVERBIAGE, BNKGSSOCUSTOMFLDVALUEKY, b.VERSIONSTAMP as VERSIONSTAMP
+    from ARCMessage c, BNKGSSOCustomFldMetaData a left outer join BNKGSSOCUSTOMFLDVALUE b on a.BNKGSSOCUSTOMFLDMETADATAKY = b.BNKGSSOCUSTOMFLDMETADATAKY
+    and b.BNKUSERKY = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    where c.MSGCODE = a.MSGCODE
+    and a.BNKGSSOAFFILIATECFGKY = #{affiliateCfgOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    and c.ARCLOCALECDKY = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    order by SEQUENCEINDEX
+  </select>
+
+	<select id="countFullEntitledAccountsBySSOIdForCustomer" resultMap="accountsToOperationMapping" parameterType="map" >
+		select a.oprtnname as operationName, count(*) as accountsEntitledCount from bnkcustacctoprtn a , BNKCUSTACCT b
+		where
+		a.BNKCUSTACCTky = b.BNKCUSTACCTky and
+		a.isselected = 1 and
+		b.corcustomerky=#{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		and a.oprtnname like '/dataop/gsso%'
+		group by a.oprtnname
+	</select>
+	
+	<select id="countCustomEntitledAccountsBySSOIdForCustomer" resultMap="accountsToOperationMapping" parameterType="map" >
+		select  a.oprtnname as operationName, count(*) as accountsEntitledCount from bnkcustacctoprtn a , BNKCUSTACCT b, arcgrant c, arctarget d, arctargettype e, arcoperation f
+		where 
+		a.BNKCUSTACCTky = b.BNKCUSTACCTky and
+		a.isselected = 1 and b.corcustomerky=#{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		and c.arcprincipalky=#{principalOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		and c.arcoperationky=f.arcoperationky
+		and c.arctargetky = d.arctargetky
+		and CAST(b.bnkacctky AS VARCHAR(64)) = d.name
+		and (f.name= a.oprtnname or f.name='/dataop/user/account/full')
+		and d.arctargettypeky=e.arctargettypeky
+		and e.name = 'Account'
+		and a.oprtnname like '%/dataop/gsso/%'
+		group by a.oprtnname
+	</select>
+	
+	<select id="getMaxAccountCountAndDisplayName" resultMap="EntitledProvidersResultMap" parameterType="map">
+		select
+		e.MAXNUMOFACCTSTOSEND as MAXNUMOFACCTSTOSEND,
+		e.DISPLAYNAME as DISPLAYNAME,
+		d.ssoId as SSOID
+		from bnkgssocfg d,
+		bnkgssoaffiliatecfg e
+		where d.bnkgssocfgky = e.bnkgssocfgky
+		and e.cororgky = #{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+	
+  <select id="selectFullGroupEntitledProviders" resultMap="UserEntitledProvidersResultMap" parameterType="map" >
+	select distinct  a.bnkgssocfgky as PROVIDERKY, a.supportedActions as SUPPORTEDACTIONS, 
+				e.bnkgssousercfgky as BNKGSSOUSERCFGKY, e.bnkuserky as BNKUSERKY, e.guid as GUID, e.isenrolled as ISENROLLED,
+    			a.guidsMode as GUIDSMODE, a.ssoIdUserUniqueMode AS SSOIDUSERUNIQUEMODE,  
+    			k.translation as FEATURENAME, 
+    			a.guidAllwdCharsUser as GUIDALLWDCHARSUSER, a.ssoIDUserMinLen as GUIDALLWDCHARSUSERMINLEN, a.ssoIDUserMaxLen as GUIDALLWDCHARSUSERMAXLEN,
+    			a.BNKFeatureKy as BNKFEATUREKY, a.ssoId as SSOID, 
+    			d.bnkgssoaffiliatecfgky as AFFILIATECFGKY, d.displayName as DisplayName,
+    			e.VERSIONSTAMP as VERSIONSTAMP 
+		from    bnkuser u, bnkcustomer c, 
+				BNKCUSTUSERGRP grp, ARCPRINCIPALGRP asso, 
+				bnkfuncoprtn Z ,bnkgssocfg a, bnkfeature f, arcenum j, arcmessage k, bnksvcfeature l,
+				bnkgssoaffiliatecfg d left outer join bnkgssousercfg e on d.bnkgssoaffiliatecfgky = e.bnkgssoaffiliatecfgky		
+ 				and e.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		where	asso.ARCPRINCIPALKY= u.ARCPRINCIPALKY and 
+				asso.ARCPRINCIPALKYGRP=grp.BNKCUSTUSERGRPKY and  
+				c.bnkcustomerky=u.bnkcustomerky and 
+				grp.bnkcustomerky=u.bnkcustomerky  and 
+			<if test="classOfServiceCustomized"> l.bnkcustomerky = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler} </if>
+ 			<if test="!classOfServiceCustomized"> l.bnkcustomerky is null </if>
+				and  grp.groupACCESSTYPCD='F'
+		 		and u.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		 		and f.bnkfeatureky = l.bnkfeatureky
+				and Z.featcd = f.featcd
+    			and a.bnkfeatureky = f.bnkfeatureky
+				and a.bnkgssocfgky = d.bnkgssocfgky
+				and l.bnkclassofsvcky =  #{classOfServiceOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and l.isActive = 1
+				and d.cororgky = #{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    			and j.msgCode = k.msgCode
+    			and f.featGrpMsgCdEnum = j.msgCode
+    			and k.arclocalecdky = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and j.category = 'gssoProvEnum' 
+    	order by FEATURENAME
+				   
+  </select>
+  
+  <select id="selectCustomGroupEntitledProviders" resultMap="UserEntitledProvidersResultMap" parameterType="map" >
+ 	select distinct  a.bnkgssocfgky as PROVIDERKY, a.supportedActions as SUPPORTEDACTIONS, 
+					e.bnkgssousercfgky as BNKGSSOUSERCFGKY, e.bnkuserky as BNKUSERKY, e.guid as GUID, e.isenrolled as ISENROLLED,
+					a.guidsMode as GUIDSMODE, a.ssoIdUserUniqueMode AS SSOIDUSERUNIQUEMODE,  
+					k.translation as FEATURENAME, 
+					a.guidAllwdCharsUser as GUIDALLWDCHARSUSER, a.ssoIDUserMinLen as GUIDALLWDCHARSUSERMINLEN, a.ssoIDUserMaxLen as GUIDALLWDCHARSUSERMAXLEN, 
+					a.BNKFeatureKy as BNKFEATUREKY, a.ssoId as SSOID, d.bnkgssoaffiliatecfgky as AFFILIATECFGKY, d.displayName as DisplayName,
+					e.VERSIONSTAMP as VERSIONSTAMP    
+		from ARCGRANT G, ARCOPERATION O,
+		 	bnkuser u, bnkcustomer c , ARCTARGET T, 
+			BNKCUSTUSERGRP grp, ARCPRINCIPALGRP asso,
+			bnkfuncoprtn Z ,bnkgssocfg a, bnkfeature f, arcenum j, arcmessage k, bnksvcfeature l,
+			bnkgssoaffiliatecfg d left outer join bnkgssousercfg e on d.bnkgssoaffiliatecfgky = e.bnkgssoaffiliatecfgky		
+ 			and e.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		where 	asso.ARCPRINCIPALKY= u.ARCPRINCIPALKY and 
+				asso.ARCPRINCIPALKYGRP=grp.BNKCUSTUSERGRPKY and  
+				O.ARCOPERATIONKY =  G.ARCOPERATIONKY and
+				c.bnkcustomerky=u.bnkcustomerky and 
+				grp.bnkcustomerky=u.bnkcustomerky   
+    			and  
+    			<if test="classOfServiceCustomized"> l.bnkcustomerky = #{customerOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler} </if>
+ 				<if test="!classOfServiceCustomized"> l.bnkcustomerky is null </if>				
+				and g.arcprincipalky=grp.BNKCUSTUSERGRPKY
+				and  G.ARCTARGETKY = T.ARCTARGETKY
+				and u.bnkuserky = #{userOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and Z.featcd = f.featcd
+    			and Z.operationname = O.name
+    			and a.bnkfeatureky = f.bnkfeatureky
+				and a.bnkgssocfgky = d.bnkgssocfgky
+				and a.bnkfeatureky = l.bnkfeatureky
+    			and l.bnkclassofsvcky = #{classOfServiceOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and d.cororgky = #{affiliateOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+    			and j.msgCode = k.msgCode
+    			and f.featGrpMsgCdEnum = j.msgCode
+    			and k.arclocalecdky = #{localeOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+				and j.category = 'gssoProvEnum'
+		    order by FEATURENAME    
+  </select>    	
+</mapper>
+

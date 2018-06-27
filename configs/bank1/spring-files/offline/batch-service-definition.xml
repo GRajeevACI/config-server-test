@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- <import resource="classpath:config/spring-files/lightweightbatch-definition.xml" />  -->
+	<import resource="classpath:config/spring-files/offline/data-source-definition.xml" />
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/config/ibatis/LightweightBatch_SqlMapConfig.xml" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <bean id="sqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory" />
+    </bean>
+    
+	<!--  SAMUnloader service -->
+	<bean id="samUnloaderService" class="com.s1.app.sam.samfacade.unloader.SAMUnloaderServiceBean" >
+		<property name="customerUnloadMapper" ref="customerUnloadMapper"/>
+		<property name="customerUnloadHistoryMapper" ref="customerUnloadHistoryMapper"/>
+	</bean>	
+	
+	<bean id="customerUnloadMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.app.sam.samfacade.dao.CustomerUnloadMapper" />
+	</bean>
+	
+	<bean id="customerUnloadHistoryMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.app.sam.samfacade.dao.CustomerUnloadHistoryMapper" />
+	</bean>
+</beans>

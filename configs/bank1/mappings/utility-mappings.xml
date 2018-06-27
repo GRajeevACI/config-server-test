@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.service.utility.PaymentAccount</typeA>
+	 	<typeB>com.aciworldwide.pim.messages.payments.component.PaymentAccountType</typeB>
+	    	<fields>
+	    		<field oneWay="true">
+					<fieldA>account.soaInstrId</fieldA>
+					<fieldB>id</fieldB>
+				</field>
+	        	<field oneWay="true">
+					<fieldA>account.description</fieldA>
+					<fieldB>nickname</fieldB>
+				</field>
+				<field oneWay="true">
+					<fieldA>account.accountIdMask</fieldA>
+					<fieldB>number</fieldB>
+				</field>
+				<field oneWay="true">
+					<fieldA>account.currency.alpha3Code</fieldA>
+					<fieldB>currency</fieldB>
+				</field>		
+				<field oneWay="true">
+					<fieldA>account.paymentBalance.value</fieldA>
+					<fieldB>balanceAmount</fieldB>
+				</field>
+				<field oneWay="true">
+					<fieldA>achCompanyIds</fieldA>
+					<fieldB>achCompanyIds</fieldB>
+				</field>					
+			</fields>
+	</mapping>
+</mappings>	

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.common.entitlement.dao.CosParamMapper">
+
+	<select id="getParameterByCosOid" parameterType="map" resultType="java.lang.String"  useCache="false">
+		SELECT a.parmvalue 
+		FROM BNKCOSPARM a,BNKCOSPARMTYPE c 		
+		<if test="null != BNKCUSTOMERKY">
+			, BNKCUSTOMER b
+		</if>
+		WHERE c.BNKCOSPARMTYPEKY= a.BNKCOSPARMTYPEKY 
+			AND a.BNKCLASSOFSVCKY = #{BNKCLASSOFSVCKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}					
+			AND  c.fieldname = #{PARAMNAME,jdbcType=VARCHAR}
+			<choose>
+				<when test="null != BNKCUSTOMERKY">
+					AND b.BNKCUSTOMERKY = #{BNKCUSTOMERKY,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+					AND 
+					(
+						(
+							b.BNKCUSTOMERKY = a.BNKCUSTOMERKY 
+							AND b.ISCOSCUSTOMIZED='1' 
+						)
+						OR 
+						(
+							a.BNKCUSTOMERKY is null
+							AND b.ISCOSCUSTOMIZED='0' 
+						)
+					)
+					AND b.BNKCLASSOFSVCKY = a.BNKCLASSOFSVCKY			
+				</when>
+				<otherwise>
+					AND a.BNKCUSTOMERKY is null
+				</otherwise>
+			</choose> 			
+	</select>
+	<select id="getUserIndvlSetupCustomizedCustomerOidsCustomizedOnCosOid" parameterType="com.s1.arch.utilities.ObjectId" resultType="com.s1.arch.utilities.ObjectId" useCache="false">
+		SELECT DISTINCT b.BNKCUSTOMERKY 
+		FROM BNKCOSPARM a,BNKCOSPARMTYPE c, BNKCUSTOMER b		
+		WHERE c.BNKCOSPARMTYPEKY= a.BNKCOSPARMTYPEKY 
+			AND a.BNKCLASSOFSVCKY = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}			
+			AND c.fieldname = 'isUserGroupsEnabled'
+			AND b.BNKCUSTOMERKY = a.BNKCUSTOMERKY
+			AND a.parmvalue = 'false'
+			AND b.ISCOSCUSTOMIZED='1' 
+			AND b.BNKCLASSOFSVCKY = a.BNKCLASSOFSVCKY	
+			
+			UNION ALL
+			
+		SELECT DISTINCT b.BNKCUSTOMERKY		
+		FROM BNKCUSTOMER b, BNKCOSPARM a
+		WHERE a.BNKCUSTOMERKY = b.BNKCUSTOMERKY and  b.BNKCLASSOFSVCKY = a.BNKCLASSOFSVCKY and  b.ISCOSCUSTOMIZED='1' 
+		AND  a.BNKCLASSOFSVCKY = #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}	
+		AND a.BNKCUSTOMERKY not in  
+		(
+			SELECT  BNKCUSTOMERKY from BNKCOSPARM a , BNKCOSPARMTYPE b 
+			WHERE 
+				a.BNKCOSPARMTYPEKY = b.BNKCOSPARMTYPEKY 
+				and b.fieldname = 'isUserGroupsEnabled' 
+				and BNKCUSTOMERKY is not null 
+				and a.BNKCLASSOFSVCKY= #{value,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			
+			
+		)	
+	</select>
+    
+			
+</mapper>

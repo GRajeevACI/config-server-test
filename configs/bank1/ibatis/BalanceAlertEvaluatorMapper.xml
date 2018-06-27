@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.BalanceAlertEvaluatorMapper">
+
+	<select id="getMatchingSubscriptionsForOver" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'acctBalOver'
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'account'
+											AND bapvAcct.IntegerValue = #{accountOid}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'balances'
+											AND bapvAcct.IntegerValue = #{affFldDefOid}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAmt.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAmt
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAmt.BnkAlrtSbscrptnKy
+											AND bapvAmt.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'threshold'
+											AND bapvAmt.DecimalValue <![CDATA[ < ]]> #{newBalance}
+										)
+	</select>
+	
+	
+	<select id="getMatchingSubscriptionsForPeriodicBal" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'periodicBal'
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'account'
+											AND bapvAcct.IntegerValue = #{accountOid}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'balances'
+											AND bapvAcct.IntegerValue = #{affFldDefOid}
+										)
+	</select>
+	
+	
+	<select id="getMatchingSubscriptionsForUnder" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+		SELECT bas.*
+		FROM BnkAlrtSbscrptn bas, BnkAlrtType bat
+		WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'acctBalUnder'
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'account'
+											AND bapvAcct.IntegerValue = #{accountOid}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAcct.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAcct.BnkAlrtSbscrptnKy
+											AND bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'balances'
+											AND bapvAcct.IntegerValue = #{affFldDefOid}
+										)
+		   AND bas.BnkAlrtSbscrptnKy in (SELECT bapvAmt.BnkAlrtSbscrptnKy
+										   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAmt
+										  WHERE bas.BnkAlrtSbscrptnKy = bapvAmt.BnkAlrtSbscrptnKy
+											AND bapvAmt.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+											AND batp.ParmName = 'threshold'
+											AND bapvAmt.DecimalValue <![CDATA[ > ]]> #{newBalance}
+										)
+	</select>
+	
+	<select id="getBalanceInformation" parameterType="map" resultType="com.s1.alerts.model.AccountBalanceCodes">
+		select 
+			a.BNKAPPFLDDEFKY as "affFldDefOid",
+			a.FIELDNAME as "fieldName", 
+			a.DESCRIPTION as "description", 
+			b.EXTERNALSYSCD as "baiCode",
+			a.BNKAPPFLDDESCMSGCD as "messageCode"
+		from 
+			BNKAPPFLDDEF a, BNKFLDDEFCDMAP b
+		where 
+			a.BNKAPPFLDDEFKY = b.BNKAPPFLDDEFKY and b.EXTERNALSYSTYPECD = 1
+			<if test="baiCodes != null">
+				and b.EXTERNALSYSCD in
+				<foreach collection="baiCodes" item="baiCode" open="(" close=")" separator=",">
+	            	 #{baiCode}
+	        	</foreach>
+        	</if>
+	</select>
+	
+	<select id="getBalanceInformationByFieldNames" parameterType="map" resultType="com.s1.alerts.model.AccountBalanceCodes">
+		select 
+			a.BNKAPPFLDDEFKY as "affFldDefOid",
+			a.FIELDNAME as "fieldName", 
+			a.DESCRIPTION as "description", 
+			b.EXTERNALSYSCD as "baiCode"
+		from 
+			BNKAPPFLDDEF a, BNKFLDDEFCDMAP b
+		where 
+			a.BNKAPPFLDDEFKY = b.BNKAPPFLDDEFKY and b.EXTERNALSYSTYPECD = 1
+			and a.FIELDNAME in
+			<foreach collection="fieldNames" item="fieldName" open="(" close=")" separator=",">
+            	 #{fieldName}
+        	</foreach>
+	</select>
+	
+	<select id="getBalanceInformationAndMessageCodeByFieldNames" parameterType="map" resultType="com.s1.alerts.model.AccountBalanceCodes">
+		select 
+			a.BNKAPPFLDDEFKY as "affFldDefOid",
+			a.FIELDNAME as "fieldName", 
+			a.DESCRIPTION as "description", 
+			b.EXTERNALSYSCD as "baiCode",
+			a.BNKAPPFLDDESCMSGCD as "messageCode"
+		from 
+			BNKAPPFLDDEF a, BNKFLDDEFCDMAP b
+		where 
+			a.BNKAPPFLDDEFKY = b.BNKAPPFLDDEFKY and b.EXTERNALSYSTYPECD = 1
+			and a.FIELDNAME in
+			<foreach collection="fieldNames" item="fieldName" open="(" close=")" separator=",">
+            	 #{fieldName}
+        	</foreach>
+	</select>
+	
+	<select id="findProductByAccountId" parameterType="int" resultMap="com.s1.common.accounts.dao.AccountMapper.ProductMap">
+		SELECT E.*
+		FROM BNKACCT A, BNKPRODUCT E
+		WHERE A.BNKPRODUCTKY = E.BNKPRODUCTKY 
+		AND A.BNKACCTKY = #{acctOid}
+	</select>
+	
+	<select id="getDefaultConfiguredBalanceForAlertByProdSubTypeAndExternalTypeCode"
+		parameterType="int"
+		resultType="com.s1.alerts.model.AccountBalanceCodes">
+		select
+			f.BNKAPPFLDDEFKY as "affFldDefOid",
+			b.DESCRIPTION as "description",
+			f.EXTERNALSYSCD as "baiCode",
+			g.FIELDNAME as "fieldName"
+		from
+			BNKFEATUREMAP a, BNKSUMFIELDCFG b, VFMPRODSUBTYPE c, VFMPRODTYPE d, BNKPRODTYAPPFLD
+			e, BNKFLDDEFCDMAP f, BNKAPPFLDDEF g
+		where 
+			a.BNKSUMFIELDCFGKY = b.BNKSUMFIELDCFGKY
+			and b.BNKPRODSUBTYPEKY = c.VFMPRODSUBTYPEKY
+			and c.VFMPRODTYPEKY = d.VFMPRODTYPEKY
+			and e.BNKPRODTYAPPFLDKY = b.BNKPRODTYAPPFLDKY
+			and f.BNKAPPFLDDEFKY = e.BNKAPPFLDDEFKY
+			and g.BNKAPPFLDDEFKY = f.BNKAPPFLDDEFKY
+			and a.SCREENCDKY = 1 and c.VFMPRODSUBTYPEKY = #{prodSubTypeKy} and f.EXTERNALSYSTYPECD = #{externalTypeCode}
+	</select>
+	
+	<select id="getDefaultConfiguredBalancesForAlertByProdSubTypeAndExternalTypeCode"
+		parameterType="map"
+		resultType="com.s1.alerts.model.AccountBalanceCodes">
+		select
+			f.BNKAPPFLDDEFKY as "affFldDefOid",
+			b.DESCRIPTION as "description",
+			f.EXTERNALSYSCD as "baiCode",
+			g.FIELDNAME as "fieldName"
+		from
+			BNKFEATUREMAP a, BNKSUMFIELDCFG b, VFMPRODSUBTYPE c, VFMPRODTYPE d, BNKPRODTYAPPFLD
+			e, BNKFLDDEFCDMAP f, BNKAPPFLDDEF g
+		where 
+			a.BNKSUMFIELDCFGKY = b.BNKSUMFIELDCFGKY
+			and b.BNKPRODSUBTYPEKY = c.VFMPRODSUBTYPEKY
+			and c.VFMPRODTYPEKY = d.VFMPRODTYPEKY
+			and e.BNKPRODTYAPPFLDKY = b.BNKPRODTYAPPFLDKY
+			and f.BNKAPPFLDDEFKY = e.BNKAPPFLDDEFKY
+			and g.BNKAPPFLDDEFKY = f.BNKAPPFLDDEFKY
+			and a.SCREENCDKY = 1 and c.VFMPRODSUBTYPEKY = #{prodSubTypeKy} and f.EXTERNALSYSTYPECD = #{externalTypeCode}
+	</select>
+	
+	<select id="getDefaultConfiguredBalancesForAlertByProdSubType"
+		parameterType="map"
+		resultType="com.s1.alerts.model.AccountBalanceCodes">
+		select distinct
+			f.BNKAPPFLDDEFKY as "affFldDefOid",
+			b.DESCRIPTION as "description",
+			g.FIELDNAME as "fieldName"
+		from
+			BNKFEATUREMAP a, BNKSUMFIELDCFG b, VFMPRODSUBTYPE c, VFMPRODTYPE d, BNKPRODTYAPPFLD
+			e, BNKFLDDEFCDMAP f, BNKAPPFLDDEF g
+		where 
+			a.BNKSUMFIELDCFGKY = b.BNKSUMFIELDCFGKY
+			and b.BNKPRODSUBTYPEKY = c.VFMPRODSUBTYPEKY
+			and c.VFMPRODTYPEKY = d.VFMPRODTYPEKY
+			and e.BNKPRODTYAPPFLDKY = b.BNKPRODTYAPPFLDKY
+			and f.BNKAPPFLDDEFKY = e.BNKAPPFLDDEFKY
+			and g.BNKAPPFLDDEFKY = f.BNKAPPFLDDEFKY
+			and a.SCREENCDKY = 1 and c.VFMPRODSUBTYPEKY = #{prodSubTypeKy}
+	</select>
+	
+	
+</mapper>

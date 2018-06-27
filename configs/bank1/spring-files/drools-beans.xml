@@ -1,0 +1,24 @@
+<!--  This file is used by com.s1.bnk.disbursement.sweeps.batch.TransferRulesProcessor
+	  to instantiate Knowledge base bean for sweep rules evaluation-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:drools="http://drools.org/schema/drools-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                           http://drools.org/schema/drools-spring  http://drools.org/schema/drools-spring.xsd"
+	default-lazy-init="true">
+
+	<drools:resource id="sweepRules " type="DRL"
+		source="classpath:config/rules/sweepRules.drl" />
+
+
+	<drools:kbase id="sweepKnowledgeBase">
+		<drools:resources>
+			<drools:resource ref="sweepRules" />
+		</drools:resources>
+		<drools:configuration>
+			<drools:mbeans enabled="false" />
+		</drools:configuration>
+	</drools:kbase>
+	 
+</beans>

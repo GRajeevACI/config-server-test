@@ -1,0 +1,413 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="baiStatementAndDetailsService" class="com.s1.export.provider.bai.AccountStatementsAndTransactionsServiceImpl">
+		<property name="dbType" value="${databasetype}" />
+		<property name="mapper" ref="baiStatementAndDetailsDao" />
+	</bean>
+
+	<bean id="baiStatementAndDetailsDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.export.provider.bai.dao.AccountStatementsAndTransactionsMapper" />
+	</bean>	
+      
+   <bean id="csvReportDataDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+       <property name="mapperInterface" value="com.s1.export.provider.csv.dao.CSVReportDataMapper" />
+       <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+       <property name="sequenceService" ref="sequenceService" />
+   </bean>
+   
+   <bean id="csvReportDataService" class="com.s1.export.provider.csv.CSVReportDataServiceImpl">
+   		<property name="reportDataMapper" ref="csvReportDataDao" />
+   		<property name="dbType" value="${databasetype}" />
+   </bean>
+      
+   <bean id="wcdReportDataDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+       <property name="mapperInterface" value="com.s1.export.provider.csv.dao.WCDReportDataMapper" />
+       <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+       <property name="sequenceService" ref="sequenceService" />
+   </bean>
+
+   <bean id="wcdReportDataService" class="com.s1.export.provider.csv.WCDReportDataServiceImpl">
+   		<property name="reportDataMapper" ref="wcdReportDataDao" />
+   		<property name="dbType" value="${databasetype}" />
+   </bean>
+      
+      <bean id="exportValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportAccountValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportAccountValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportFieldValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportFieldValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="ExportFieldDefCdMapValueDAO" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportFieldDefCdMapValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportRequestValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportRequestValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportExportFieldValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportExportFieldValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportBAITxnGrpValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportBAITxnGrpValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="enumerationValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.replacement.enumeration.dao.EnumerationValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>     
+	  <bean id="exportAppFieldDefDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportAppFieldDefValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportBinaryValueDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportBinaryValueMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>
+      <bean id="exportProfileParametersDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+        <property name="mapperInterface" value="com.s1.export.dao.ExportProfileParametersMapper" />
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+        <property name="sequenceService" ref="sequenceService" />
+      </bean>	      
+	   <bean id="exportProfileParametersService" class="com.s1.export.ExportProfileParametersServiceImpl">
+	       <property name="dbType" value="${databasetype}" />
+	       <property name="exportProfileParametersDao" ref="exportProfileParametersDao" />
+	   </bean>
+      <bean id="dss" class="com.s1.export.io.DatabaseStreamService">
+  	      <property name="chunkSize" value="20000" />
+  	      <property name="binaryDao" ref="exportBinaryValueDao" />
+      </bean>
+
+	<bean id="grndsEnv-ep-Download" class="com.s1.export.SpringGrndsFactory" factory-method="getEnvironment">
+		<constructor-arg value="ep"/>
+		<constructor-arg>
+			<list value-type="java.lang.String">
+				<value>Download</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="grndsEnv-IRExport" class="com.s1.export.SpringGrndsFactory" factory-method="getEnvironment">
+		<constructor-arg value="IRExport"/>
+		<constructor-arg>
+			<list value-type="java.lang.String" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="timeReporter" class="com.s1.arch.monitoring.timing.StandardTimeReporter" scope="prototype" />
+	<bean id="exportMonitor" class="com.s1.export.monitor.ExportProcessMonitor" >
+		<property name="timeReporter" ref="timeReporter" />
+		<property name="shortTimeWindowInSeconds" value="5" />
+		<property name="longTimeWindowInSeconds" value="86400" />
+	</bean>
+	
+	<bean id="baiMonitor" class="com.s1.export.monitor.StmtSumTranExportMonitor" >
+		<property name="timeReporter" ref="timeReporter" />
+		<property name="timeWindowInSeconds" value="5" />
+	</bean>
+	<bean id="baiContentFormat" class="com.s1.export.download.ContentFormat">
+		<property name="code" value="bai_text" />
+		<property name="name" value="BAI II" />
+		<property name="mimeType" value="text/plain" />
+		<property name="fileExtension" value="txt" />
+	</bean>
+	<bean id="baiExportProvider" class="com.s1.export.provider.bai.BAIExportProvider" scope="prototype" >
+		<property name="monitor" ref="exportMonitor" />
+		<property name="baiMonitor" ref="baiMonitor" />
+		<property name="grndsEnvironment" ref="grndsEnv-ep-Download"/>
+		<property name="contentFormat" ref="baiContentFormat" />
+		<property name="rowProducer">
+			<bean class="com.s1.export.provider.bai.BAIRowProducer" >
+				<property name="chunkSize" value="20000" />
+				<property name="exportValueDao" ref="exportValueDao" />
+				<property name="statementsDao" ref="baiStatementAndDetailsService" />
+				<property name="exportProfileParametersDao" ref="exportProfileParametersDao" />
+				<property name="enumerationValueDao" ref="enumerationValueDao" />
+				<property name="exportProfileParametersService" ref="exportProfileParametersService" />
+			</bean>
+		</property>
+		<property name="fileWriter">
+			<bean class="com.s1.export.provider.bai.BAIFileWriter" >
+				<property name="timeReporter" ref="timeReporter"/>
+				<property name="exportValueDao" ref="exportValueDao" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="csvMonitor" class="com.s1.export.monitor.StmtSumTranExportMonitor" >
+		<property name="timeReporter" ref="timeReporter" />
+		<property name="timeWindowInSeconds" value="5" />
+	</bean>
+	<bean id="delimitedExportProviderTemplate" abstract="true" class="com.s1.export.provider.csv.CSVExportProvider" scope="prototype" >
+		<property name="monitor" ref="exportMonitor" />
+		<property name="csvMonitor" ref="csvMonitor" />
+		<property name="grndsEnvironment" ref="grndsEnv-IRExport" />
+		<property name="exportProfileParametersDao" ref="exportProfileParametersDao" />
+		<property name="exportValueDao" ref="exportValueDao" />
+		<property name="rowProducer">
+			<bean class="com.s1.export.provider.csv.CSVRowProducer" >
+				<property name="chunkSize" value="2000" />
+				<property name="exportValueDao" ref="exportValueDao" />
+				<property name="statementsAndTransactionsDao" ref="csvReportDataService" />
+				<property name="wcdReportDataDao" ref="wcdReportDataService" />
+				<property name="exportProfileParametersDao" ref="exportProfileParametersDao" />
+				<property name="enumerationValueDao" ref="enumerationValueDao" />
+				<property name="exportProfileParametersService" ref="exportProfileParametersService" />
+			</bean>
+		</property>
+		<property name="fileWriter">
+			<bean class="com.s1.export.provider.csv.CSVFileWriter" >
+				<property name="grndsEnvironment" ref="grndsEnv-IRExport" />
+				<property name="csvReportDataService" ref="csvReportDataService" />
+				<property name="escapeStrategy">
+					<bean class="com.s1.export.provider.csv.StandardDelimiterEscapeStrategy">
+						<property name="nullReplacement" value="" />
+						<property name="quoteString" value="&quot;" />
+					</bean>
+				</property>
+				<property name="exportResource" ref="resourceBundleProducer" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="resourceBundleProducer" class="com.s1.export.ResourceBundleProducer" >
+		<property name="baseName" value="com.s1.banking.common.export.Export-Resources" />
+	</bean>
+	
+	<bean id="csvContentFormat" class="com.s1.export.download.ContentFormat">
+		<property name="code" value="csv_text" />
+		<property name="name" value="CSV" />
+		<property name="mimeType" value="text/csv" />
+		<property name="fileExtension" value="csv" />
+	</bean>
+	<bean id="csvExportProvider" parent="delimitedExportProviderTemplate" scope="prototype">
+		<property name="delimiter" value="," />
+		<property name="contentFormat" ref="csvContentFormat" />
+	</bean>
+	
+	<!-- There's no official MIME-type mapping for tab separated values... -->
+	<bean id="tsvContentFormat" class="com.s1.export.download.ContentFormat">
+		<property name="code" value="tsv_text" />
+		<property name="name" value="TSV" />
+		<property name="mimeType" value="text/plain" />
+ 	 	<property name="fileExtension" value="txt" />
+	</bean>
+	<bean id="tsvExportProvider" parent="delimitedExportProviderTemplate" scope="prototype" >
+		<property name="delimiter" value="	" />
+		<property name="contentFormat" ref="tsvContentFormat" />
+	</bean>
+	
+	<!-- There's no official MIME-type mapping for semicolon separated values... -->
+	<bean id="ssvContentFormat" class="com.s1.export.download.ContentFormat">
+		<property name="code" value="ssv_text" />
+		<property name="name" value="SSV" />
+		<property name="mimeType" value="text/plain" />
+		<property name="fileExtension" value="txt" />
+	</bean>
+	<bean id="ssvExportProvider" parent="delimitedExportProviderTemplate" scope="prototype" >
+		<property name="delimiter" value=";" />
+		<property name="contentFormat" ref="ssvContentFormat" />
+	</bean>	
+
+	<bean id="enumTableProviderSelector" class="com.s1.export.provider.selection.EnumTableProviderSelector">
+		<property name="enumerationValueDAO" ref="enumerationValueDao" />
+		<property name="exportValueDAO" ref="exportValueDao" />
+		<property name="enumTableEntries">
+			<list value-type="com.s1.export.provider.selection.EnumTableEntry" >
+				<bean class="com.s1.export.provider.selection.EnumTableEntry" >
+					<property name="category" value="exportStdFmtEnum" />
+					<property name="messageCode" value="BNKBai" />
+					<property name="exportProviderBeanName" value="baiExportProvider" />
+					<property name="contentFormat" ref="baiContentFormat" />
+				</bean>
+				<bean class="com.s1.export.provider.selection.EnumTableEntry" >
+					<property name="category" value="exportSwiftFmtEnum" />
+					<property name="messageCode" value="BNKSwift" />
+					<property name="exportProviderBeanName" value="swiftExportProvider" />
+					<property name="contentFormat" ref="swiftContentFormat" />
+				</bean>
+				<bean class="com.s1.export.provider.selection.EnumTableEntry" >
+					<property name="category" value="expCustomFmtEnum" />
+					<property name="messageCode" value="BNKCsv" />
+					<property name="exportProviderBeanName" value="csvExportProvider" />
+					<property name="contentFormat" ref="csvContentFormat" />
+				</bean>
+				<bean class="com.s1.export.provider.selection.EnumTableEntry" >
+					<property name="category" value="expCustomFmtEnum" />
+					<property name="messageCode" value="BNKTsv" />
+					<property name="exportProviderBeanName" value="tsvExportProvider" />
+					<property name="contentFormat" ref="tsvContentFormat" />
+				</bean>
+				<bean class="com.s1.export.provider.selection.EnumTableEntry" >
+					<property name="category" value="expCustomFmtEnum" />
+					<property name="messageCode" value="BNKSsv" />
+					<property name="exportProviderBeanName" value="ssvExportProvider" />
+					<property name="contentFormat" ref="ssvContentFormat" />
+				</bean>
+				<bean class="com.s1.export.provider.selection.EnumTableEntry" >
+					<property name="category" value="exportStdFmtEnum" />
+					<property name="messageCode" value="BNKQckBk2003" />
+					<property name="exportProviderBeanName" value="ofxExportProvider" />
+					<property name="contentFormat" ref="ofxContentFormat" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+    
+    <bean id="exportFileResultService" class="com.s1.export.download.ExportFileResultServiceImpl" >
+		<property name="exportFileRequestStreamService" ref="dss" />
+		<property name="exportRequestValueDAO" ref="exportRequestValueDao" />
+		<property name="providerSelector" ref="enumTableProviderSelector" />
+		<property name="byteCountFormatter">
+			<bean class="com.s1.arch.monitoring.core.PowerBaseFormatter" lazy-init="false">
+				<property name="base" value="1000" />
+				<property name="baseThreshold" value="0.85" />
+				<property name="baseSuffixes">
+					<list value-type="java.lang.String">
+						<value>B</value>
+						<value>KB</value>
+						<value>MB</value>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+    <bean id="exportFileRequestCleanupService" class="com.s1.export.message.ExportFileRequestCleanupServiceImpl" >
+		<property name="exportRequestValueDao" ref="exportRequestValueDao" />
+		<property name="exportBinaryValueDao" ref="exportBinaryValueDao" />
+	</bean>
+	 <bean id="exportFileWrapperService" class="com.s1.export.message.ExportFileWrapperServiceBean" >
+	</bean>
+
+    <bean id="exportFileCreatorService" class="com.s1.export.message.ExportFileCreatorServiceEngineImpl" >
+  	  <property name="monitor" ref="exportMonitor"/>
+  	  <property name="connectionFactoryName" value="jms/ExportFileRequestQueueConnectionFactory"/>
+  	  <property name="queueName" value="jms/ExportFileRequestQueue"/>
+  	  <property name="exportValueDAO" ref="exportValueDao"/>
+  	  <property name="exportRequestValueDAO" ref="exportRequestValueDao"/>
+  	  <property name="maintSvc" ref="exportFileRequestMaintenanceService"/>
+  	  <property name="svc" ref="dss"/>
+  	  <property name="timeReporter" ref="timeReporter" />
+  	  <property name="providerSelectors">
+              <list value-type="com.s1.export.provider.selection.ProviderSelector">
+                  <ref bean="enumTableProviderSelector"/>
+              </list>
+          </property>
+       </bean>
+       <bean id="exportFileRequestMaintenanceService" class="com.s1.export.message.ExportFileRequestMaintenanceServiceImpl" >
+		<property name="exportRequestValueDao" ref="exportRequestValueDao" />
+       </bean>
+
+       <!-- SWIFT Section -->
+		<bean id="swiftContentFormat" class="com.s1.export.download.ContentFormat">
+			<property name="code" value="swift_text" />
+			<property name="name" value="SWIFT" />
+			<property name="mimeType" value="text/plain" />
+			<property name="fileExtension" value="txt" />
+		</bean>
+       <bean id="swiftExportProvider" class="com.s1.export.provider.swift.SwiftExportProvider" scope="prototype" >
+		<property name="monitor" ref="exportMonitor" />
+		<property name="contentFormat" ref="swiftContentFormat" />
+		<property name="grndsEnvironment" ref="grndsEnv-ep-Download"/>
+                <property name="rowProducer">
+	                <bean class="com.s1.export.provider.swift.SwiftRowProducer" >
+	                        <property name="chunkSize" value="20000" /> 
+                                <property name="exportValueDao" ref="exportValueDao" />
+                                <property name="statementsDao" ref="baiStatementAndDetailsService" />
+                                <property name="exportProfileParametersDao" ref="exportProfileParametersDao" />
+                                <property name="exportAppFieldDefDao" ref="exportAppFieldDefDao" />
+                                <property name="exportProfileParametersService" ref="exportProfileParametersService" />
+	                </bean>
+	        </property>
+	        <property name="fileWriter">
+	                <bean class="com.s1.export.provider.swift.SwiftFileWriter">
+                                <property name="exportValueDao" ref="exportValueDao" />
+                                <property name="timeReporter" ref="timeReporter" />
+                        </bean>
+	        </property>
+      </bean>
+      
+      <!-- OFX Section -->
+	<bean id="ofxContentFormat" class="com.s1.export.download.ContentFormat">
+		<property name="code" value="ofx_text" />
+		<property name="name" value="QuickBooks" />
+		<property name="mimeType" value="text/plain" />
+		<property name="fileExtension" value="qbo" />
+	</bean>
+	
+	<bean id="ofxTransactionsDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+       <property name="mapperInterface" value="com.s1.export.provider.ofx.dao.TransactionsMapper" />
+       <property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+       <property name="sequenceService" ref="sequenceService" />
+   	</bean>
+   	
+   	<bean id="ofxTransactionsService" class="com.s1.export.provider.ofx.TransactionsServiceImpl">
+   		<property name="mapper" ref="ofxTransactionsDao" />
+   		<property name="dbType" value="${databasetype}" />
+   	</bean>
+	
+      <bean id="ofxExportProvider" class="com.s1.export.provider.ofx.OFXExportProvider" scope="prototype">
+      	<property name="monitor" ref="exportMonitor" />
+      	<property name="contentFormat" ref="ofxContentFormat" />
+      	<property name="fileWriter">
+      		<bean class="com.s1.export.provider.ofx.OFXFileWriter" />
+      	</property>
+      	<property name="affiliateSubdomainProvider">
+      		<bean class="com.s1.common.download.AffiliateSubdomainProvider" />
+      	</property>
+      	<property name="rowProducer">
+      		<bean class="com.s1.export.provider.ofx.OFXRowProducer">
+      			<property name="chunkSize" value="20000" />
+      			<property name="accountIdTranslator" >
+      				<bean class="com.s1.export.provider.ofx.AccountIdTranslate" />
+      			</property>
+      			<property name="depositAccountBalanceAdapter">
+      				<bean class="com.s1.export.provider.ofx.DefaultAccountBalanceAdapter">
+      					<property name="balanceSummaryField" value="closingLedger" />      					
+	 	 	 	 	 	<property name="secondaryBalanceSummaryField" value="ledgerBalance" />
+	 	 	 	 	 	<!-- GBS-34187: adding 'ledgerBalance' as secondary balance field because the 
+	 	 	 	 	 	deposit balance is stored in database under 'ledgerBalance' for current day
+	 	 	 	 	 	(MT941 & MT942) but under 'closingLedger' for prior day (MT940). -->      					
+      				</bean>
+      			</property>
+      			<property name="loanAccountBalanceAdapter">
+      				<bean class="com.s1.export.provider.ofx.DefaultAccountBalanceAdapter">
+      					<property name="balanceSummaryField" value="currentBalance" />      					
+      				</bean>
+      			</property>
+      			<property name="creditAccountBalanceAdapter">
+      				<bean class="com.s1.export.provider.ofx.DefaultAccountBalanceAdapter">
+      					<property name="balanceSummaryField" value="availableCreditBalance" />      					
+      				</bean>
+      			</property>
+      			<property name="exportProfileParametersDAO" ref="exportProfileParametersDao" />
+      			<property name="exportProfileParametersService" ref="exportProfileParametersService" />
+      			<property name="exportValueDAO" ref="exportValueDao" />
+      			<property name="transactionsDAO" ref="ofxTransactionsService" />
+      		</bean>
+      	</property>
+     </bean>
+</beans>

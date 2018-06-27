@@ -1,0 +1,362 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+		
+	
+	<bean id="soaActionItemsService" class="com.aciworldwide.banking.actionitem.SOAActionItemsServiceImpl" >
+		<property name="messageSource" ref="actionItemMessageSource" />
+		<property name="companyService" ref="companyService" />
+		<property name="actionItemRuntimeService" ref="actionItemRuntimeService" />
+		<property name="summaryGroupConfigs">
+		
+		<list>
+			<ref bean="soaAlertSummaryGroupConfig" />
+			<ref bean="soaApprovalsSummaryConfig" />
+			<ref bean="soaSecureMessagesSummaryConfig" />
+			</list>			
+		</property>
+	</bean>
+
+	
+	<bean id="soaBaseActionItemGroupProducer" 
+				class="com.aciworldwide.banking.actionitem.BaseActionItemGroupProducer" abstract="true" >
+		<property name="actionItemCountService" ref="actionItemCountService" />
+	</bean>
+	
+	<bean id="soaApprovalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.ApprovalsGroupProducer" 
+				abstract="true" parent="soaBaseActionItemGroupProducer">
+				
+		<property name="companyService" ref="companyService" />
+		<property name="authorizationService" ref="authorizationService" />
+		<property name="maxLineItems" value="0" />
+		<property name="messageSource" ref="actionItemMessageSource" />
+	</bean>
+	
+	<bean id="soaAchPaymentApprovalsGroupProducer" parent="soaApprovalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+				
+		<property name="nameMsgCode" value="actionItem.ach" />
+		<property name="url" value="" />
+	    <property name="approvalOpNamePrefix" value="/payment/ach" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.ACH_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="soaPaymentTemplatesApprovalsGroupProducer" 
+			parent="soaApprovalsGroupProducerBase" 
+			class="com.aciworldwide.banking.actionitem.approval.PaymentTemplatesApprovalsGroupProducer" >			
+		<property name="nameMsgCode" value="actionItem.paymentTemplates" />
+		<property name="url" value="" />
+	</bean>
+	
+	<bean id="soaWirePaymentApprovalsGroupProducer" parent="soaApprovalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+				
+		<property name="nameMsgCode" value="actionItem.wires" />
+		<property name="url" value="" />
+	    <property name="approvalOpNamePrefix" value="/payment/wire" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.WIRE_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="soaIssueApprovalsGroupProducer" 
+				class="com.aciworldwide.banking.actionitem.approval.IssuesGroupProducer" parent="soaApprovalsGroupProducerBase">
+				
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ISSUE_MAINTENANCE" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.FRAUD_CONTROL_ISSUE_MAINTENANCE_APPROVE" />
+			</list>
+		</property>
+
+		<property name="nameMsgCode" value="actionItem.issues" />
+		<property name="url" value="" />
+		<property name="issueService" ref="issueService" />
+		<property name="fromPastDays" value="5" />
+	</bean>
+	
+	<bean id="soaStopPayApprovalsGroupProducer" 
+				class="com.aciworldwide.banking.actionitem.approval.StopPayApprovalsGroupProducer" 
+				parent="soaApprovalsGroupProducerBase">
+				
+		<property name="nameMsgCode" value="actionItem.stopPay" />
+		<property name="url" value="" />
+
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.STOP_PAYMENTS" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.SERVICE_CHK_STOP_PAYMENT_APPROVE" />
+			</list>
+		</property>
+		
+		<property name="stopPaymentService" ref="stopPaymentService" />
+	</bean>	
+	
+	<bean id="soaPosPayApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.PosPayApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.posPay" />
+		<property name="url" value="" />
+	</bean>
+	
+	<bean id="soaEfdUploadApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.EfdApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.efd" />
+		<property name="url" value="" />
+		<property name="efdService" ref="efdService" />
+	</bean>
+	
+	<bean id="soaUploadFilesApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.UploadFilesApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.uploadFiles" />
+		<property name="url" value="" />
+		<property name="uploadBatchService" ref="uploadBatchService" />
+	</bean>
+	
+	<!-- TODO : need to confirm with product, under GBS-72236 this workflow is removed 
+	<bean id="soaCheckBookRequestGroupProducer" parent="approvalsGroupProducerBase"
+				class="com.aciworldwide.banking.actionitem.approval.CheckBookRequestGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.chbkrqstApprovals" />
+		<property name="url" value="" />	
+		<property name="countCacheable" value="true" />		
+	</bean> -->
+	
+	<bean id="soaUserApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.UserApprovalsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.user" />
+		<property name="url" value="" />
+	</bean>
+	
+	<bean id="soaAchAuthApprovalsGroupProducer" parent="approvalsGroupProducerBase"
+						class="com.aciworldwide.banking.actionitem.approval.AchAuthGroupProducer">
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.ACH_AUTHORIZATION" />
+		</property>
+		<property name="featureRequiresDualAuth" value="true" />
+		<property name="requiredFunctionalEntitlementsAny">
+			<list />
+		</property>
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.FRAUD_CONTROL_ACH_AUTH_APPROVE" />
+			</list>
+		</property>
+
+		<property name="nameMsgCode" value="actionItem.achAuth" />
+		<property name="url" value="" />
+		<!-- <property name="messageSource" ref="actionItemMessageSource" /> chk if needed -->
+		<property name="achAuthService" ref="achAuthService" />
+	</bean>
+	
+	
+	
+	<bean id="soaTransferTemplatesApprovalsGroupProducer" parent="approvalsGroupProducerBase"	
+					class="com.aciworldwide.banking.actionitem.approval.TransferTemplatesApprovalsGroupProducer" >
+					
+		<property name="nameMsgCode" value="actionItem.transferTemplate" />
+		<property name="url" value="" />
+		<property name="bulkTransferService" ref="bulkTransferService" />
+
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />			
+		</property>
+		<property name="featureRequiresDualAuth" value="false" />
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_TEMPLATE_VIEW" />
+			</list>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_TEMPLATE_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_TEMPLATE_APPROVE_OWN" />
+			</list>
+		</property>
+	</bean>			
+
+	<bean id="soaTransferApprovalsGroupProducer" class="com.aciworldwide.banking.actionitem.approval.TransferApprovalsGroupProducer" 
+					parent="approvalsGroupProducerBase">
+		<property name="feature">
+			<util:constant static-field="com.s1.common.classofservice.DefaultFeature.INTERNAL_TRANSFERS" />			
+		</property>
+		<property name="featureRequiresDualAuth" value="false" />
+		<property name="requiredFunctionalEntitlementsAll">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.ACCOUNT_TRANSFER_VIEW" />
+			</list>
+		</property>
+		<property name="requiredFunctionalEntitlementsAny">
+			<list>
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE_OWN_REPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_INTERNAL_APPROVE_OWN_NONREPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_APPROVE_OWN_NONREPETITIVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE" />
+				<util:constant static-field="com.s1.common.authorization.Operation.TRANSFER_EXTERNAL_OUTBOUND_APPROVE_OWN_NONREPETITIVE" />
+			</list>
+		</property>
+		
+		<property name="nameMsgCode" value="actionItem.transfers" />
+		<property name="url" value="" />
+		<property name="countCacheable" value="true" />
+	</bean>
+	
+	<bean id="soaUsRecipientGroupProducer" class="com.aciworldwide.banking.actionitem.approval.UsRecipientGroupProducer" parent="approvalsGroupProducerBase">
+		<property name="nameMsgCode" value="actionItem.usRecipientApprovals" />
+		<property name="url" value="" />	
+		<property name="countCacheable" value="true" />		
+	</bean>
+
+	
+	<!--  Summary Config For Approvals -->
+			<bean id="soaApprovalsSummaryConfig" class="com.aciworldwide.banking.actionitem.ActionItemSummaryGroupConfig">
+				<property name="id" value="approvalsGroupId" />
+				<property name="msgCode" value="actionItem.approvals" />
+				<property name="groupProducers">
+					<list>
+						<!-- ACH Payments Approvals -->
+						<ref bean="soaAchPaymentApprovalsGroupProducer" />
+						<!-- Wire Payments Approvals -->
+						<ref bean="soaWirePaymentApprovalsGroupProducer" />				
+						<!-- ACH/Wire Templates -->
+						<ref bean="soaPaymentTemplatesApprovalsGroupProducer" />
+						
+						<!-- Stop Pay Approvals -->
+						<ref bean="soaStopPayApprovalsGroupProducer" />						
+						<!-- issues grp producers -->
+						<ref bean="soaIssueApprovalsGroupProducer" />
+						<!-- positive pay approval producer -->
+						<ref bean="soaPosPayApprovalsGroupProducer" />				
+						<!-- efd upload approval producer -->
+						<ref bean="soaEfdUploadApprovalsGroupProducer" />
+						<!-- file upload approval producer -->
+						<ref bean="soaUploadFilesApprovalsGroupProducer" />
+						<!-- user approval producer -->
+						<ref bean="soaUserApprovalsGroupProducer" />
+						<!-- ach authrization approval producer -->
+						<ref bean="soaAchAuthApprovalsGroupProducer" />						
+						<!-- transfer template approval producer -->
+						<ref bean="soaTransferTemplatesApprovalsGroupProducer" />						
+						<!-- transfer approval producer -->						
+						<ref bean="soaTransferApprovalsGroupProducer" />
+						<!-- US recipient Approval Producer-->						
+						<ref bean="soaUsRecipientGroupProducer" />						
+						
+						<!-- all international payment approval produces are removed as FOR UOB 6.0 we do not plan for them -->					
+						
+					</list>
+				</property>	
+			</bean>
+	
+	
+	<!--  Summary Config For Secure Messages -->
+	<bean id="soaSecureMessagesSummaryConfig" class="com.aciworldwide.banking.actionitem.ActionItemSummaryGroupConfig">
+		<property name="id" value="messagesGroupId" />
+		<property name="msgCode" value="actionItem.messages" />
+		<property name="groupProducers">
+			<list>
+				<bean class="com.aciworldwide.banking.actionitem.MessagesGroupProducer" parent="soaBaseActionItemGroupProducer">
+					<property name="maxLineItems" value="5" />
+					<property name="nameMsgCode" value="actionItem.messages" />
+					<property name="messageSource" ref="actionItemMessageSource" />		
+					<property name="url" value="" />
+					<property name="secureMessageService" ref="secureMessageService" />
+					<property name="maxSubjectLineChars" value="32" />
+					<property name="maxMessageTextChars" value="75" />							
+				</bean>
+			</list>
+		</property>
+	</bean>
+			
+	<!-- Action Items widget integration -->
+	<bean id="soaAlertSummaryGroupConfig" class="com.aciworldwide.banking.actionitem.ActionItemSummaryGroupConfig">
+		<property name="id" value="alertsGroupId" />
+		<property name="msgCode" value="actionItem.alerts" />
+		<property name="groupProducers">
+			<list>
+				<bean class="com.aciworldwide.bnk.alerts.actionitem.AlertGroupProducer" >
+					<property name="alertInboxService" ref="alertInboxService" />
+					<property name="maxLineItems" value="5" />
+					<property name="nameMsgCode" value="actionItem.alerts" />
+					<property name="messageSource" ref="actionItemMessageSource" />		
+					<property name="url" value="" />								
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	
+	<!-- We have removed itlRecipientProduces , as scope is only limited to US payments -->
+	
+	<!-- <bean id="soaCanadaPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+					class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.cndPay" />
+		<property name="url" value="" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.CANADA_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="soaColPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+					class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.colPay" />
+		<property name="url" value="" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.COLOMBIA_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="soaSingaporePaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+					class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.sgpPay" />
+		<property name="url" value="" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.SINGAPORE_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="soaSepaPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+		<property name="nameMsgCode" value="actionItem.sepaPay" />
+		<property name="url" value="" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.SEPA_TRANSACTION_TYPE" />
+	    </property>
+	</bean>
+	
+	<bean id="soaItlPaymentApprovalsGroupProducer" parent="approvalsGroupProducerBase" 
+				class="com.aciworldwide.banking.actionitem.approval.PaymentsGroupProducer" >
+				
+		<property name="nameMsgCode" value="actionItem.itlPay" />
+		<property name="url" value="" />
+	    <property name="paymentType">
+	    	<util:constant static-field="com.s1.core.paymentcenter.user.PmtCenterConstants.INTL_TRANSACTION_TYPE" />
+	    </property>
+	</bean> -->
+	
+	
+	
+	
+	
+</beans>

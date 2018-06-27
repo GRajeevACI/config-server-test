@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  			    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd">
+
+       	<jee:jndi-lookup id="exportFileRequestQueueConnectionFactory"
+		jndi-name="jms/ExportFileRequestQueueConnectionFactory" />
+
+	<jee:jndi-lookup id="exportFileRequestQueue"
+		jndi-name="jms/ExportFileRequestQueue" />
+
+	<bean id="exportFileRequestMessageListener"
+		class="com.s1.export.message.ExportFileRequestMDB">
+		<property name="exportFileCreatorService" ref="exportFileCreatorService" />
+		<property name="exportRequestValueDao" ref="exportRequestValueDao" />
+		<property name="exportFileRequestCleanupService" ref="exportFileRequestCleanupService" />
+		<property name="timeoutFilters">
+			<list value-type="com.s1.export.message.RegexExceptionTypeFilter">
+				<!-- Timeout during JMS message processing -->
+				<bean class="com.s1.export.message.RegexExceptionTypeFilter">
+					<property name="typeNamePattern" value=".*TransactionSystemException" />
+					<property name="messagePatterns">
+						<list value-type="java.lang.String">
+							<value>.*timed out.*</value>
+						</list>
+					</property>
+        </bean>
+
+				<!-- IBatis timeout while processing SQL Statement -->
+				<bean class="com.s1.export.message.RegexExceptionTypeFilter">
+					<property name="typeNamePattern" value=".*SqlException" />
+					<property name="messagePatterns">
+						<list value-type="java.lang.String">
+							<value>.*SQLCODE=-952, SQLSTATE=57014.*</value>
+						</list>
+					</property>
+				</bean>
+				
+				<!-- Attempt to use DB connection after timeout (and transaction is rolled back) -->
+				<bean class="com.s1.export.message.RegexExceptionTypeFilter">
+					<property name="typeNamePattern" value=".*ResourceException" />
+					<property name="messagePatterns">
+						<list value-type="java.lang.String">
+							<value>.*rolledback.*</value>
+						</list>
+					</property>
+				</bean>
+
+				<!-- Another attempt to use DB after transaction rolled back -->
+				<bean class="com.s1.export.message.RegexExceptionTypeFilter">
+					<property name="typeNamePattern" value=".*TransactionRolledbackException" />
+					<property name="messagePatterns">
+						<list value-type="java.lang.String">
+							<value>.*timeout.*</value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="exportFileRequestTaskExecutor"
+		class="org.springframework.scheduling.commonj.WorkManagerTaskExecutor">
+		<property name="workManagerName" value="wm/default" />
+	</bean>
+
+	<bean id="exportFileRequestMessageListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"
+			ref="exportFileRequestQueueConnectionFactory" />
+		<property name="destination" ref="exportFileRequestQueue" />
+		<property name="messageListener"
+			ref="exportFileRequestMessageListener" />
+		<property name="taskExecutor" ref="exportFileRequestTaskExecutor" />
+		<property name="transactionManager" ref="txManager" />
+		<property name="concurrentConsumers" value="1" />
+		<property name="maxConcurrentConsumers" value="2" />
+		<property name="transactionTimeout" value="300" />
+	</bean>
+</beans>

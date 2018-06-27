@@ -1,0 +1,6 @@
+authn.properties
+authz.properties
+interceptors.properties
+audit.properties
+mapping.properties
+query.properties

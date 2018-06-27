@@ -1,0 +1,1371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.export.provider.bai.dao.AccountStatementsAndTransactionsMapper">
+
+	<resultMap id="selectTempStatementsResult" type="com.s1.export.provider.bai.model.TempStatementValue" >
+		<result property="rowOrder"				column="RowOrder"				jdbcType="INTEGER" />
+		<result property="oid"					column="BNKCPDyStmtKy"			jdbcType="BIGINT"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="accountOid"			column="BNKAcctKy"				jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="accountName"			column="AccountName"			jdbcType="VARCHAR" />
+		<result property="accountId"			column="AccountId"				jdbcType="VARCHAR" />
+		<result property="accountIrFiid"		column="AccountIrFiid"			jdbcType="VARCHAR" />
+		<result property="accountCurrency"		column="AccountCurrency"		jdbcType="VARCHAR" />
+		<result property="currencyScale"		column="CurrencyScale"			jdbcType="INTEGER" />
+		<result property="statementDate"		column="StatementDate"			jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap id="selectTempSummariesResult" type="com.s1.export.provider.bai.model.TempSummaryValue" >
+		<result property="rowOrder"				column="RowOrder"				jdbcType="INTEGER" />
+		<result property="oid"					column="BNKCPDyStmtDetailKy"	jdbcType="BIGINT"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="statementOid"			column="BNKCPDyStmtKy"			jdbcType="BIGINT"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="accountOid"			column="BNKAcctKy"				jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="fieldValue"			column="FieldDefValue"			jdbcType="VARCHAR" />
+		<result property="description"			column="Description"			jdbcType="VARCHAR" />
+		<result property="effectiveDate"		column="EffectiveDate"			jdbcType="TIMESTAMP" />
+		<result property="expirationDate"		column="ExpirationDate"			jdbcType="TIMESTAMP" />
+		<result property="itemCount"			column="ItemCount"				jdbcType="SMALLINT" />
+		<result property="fieldName"			column="FieldName"				jdbcType="VARCHAR" />
+		<result property="externalSystemCode"	column="ExternalSystemCode"		jdbcType="VARCHAR" />
+		<result property="accountName"			column="AccountName"			jdbcType="VARCHAR" />
+		<result property="accountId"			column="AccountId"				jdbcType="VARCHAR" />
+		<result property="accountIrFiid"		column="AccountIrFiid"			jdbcType="VARCHAR" />
+		<result property="accountCurrency"		column="AccountCurrency"	    jdbcType="VARCHAR" />
+		<result property="currencyScale"		column="CurrencyScale"			jdbcType="INTEGER" />
+		<result property="batchRunDate"         column="BatchRunDate"           jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<resultMap id="selectTempTransactionsResult" type="com.s1.export.provider.bai.model.TempTransactionValue" >
+		<result property="rowOrder"					column="RowOrder"					jdbcType="INTEGER" />
+		<result property="oid"						column="BNKCPDyTrnKy"				jdbcType="BIGINT" 		typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="statementOid"				column="BNKCPDyStmtKy"				jdbcType="BIGINT" 		typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="accountOid"				column="BNKAcctKy"					jdbcType="INTEGER" 		typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="postedDateTime"			column="PostedDateTime"				jdbcType="TIMESTAMP" />
+		<result property="userOriginDateTime"		column="UserOriginDateTime"			jdbcType="TIMESTAMP" />
+		<result property="memo"						column="Memo"						jdbcType="VARCHAR" />
+		<result property="amount"					column="Amount"						jdbcType="DECIMAL" />
+		<result property="valueDate"				column="ValueDate"					jdbcType="DATE" />
+		<result property="bankReferenceNumber"		column="BankReferenceNumber"		jdbcType="VARCHAR" />
+		<result property="customerReferenceNumber"	column="CustomerReferenceNumber"	jdbcType="VARCHAR" />
+		<result property="zeroDayFloatAmount"		column="ZeroDayFloatAmount"			jdbcType="DECIMAL" />
+		<result property="oneDayFloatAmount"		column="OneDayFloatAmount"			jdbcType="DECIMAL" />
+		<result property="twoDayFloatAmount"		column="TwoDayFloatAmount"			jdbcType="DECIMAL" />
+		<result property="transactionCode"			column="TransactionCode"			jdbcType="VARCHAR" />
+		<result property="transactionTypeKey"		column="TransactionTypeKey"			jdbcType="INTEGER" />
+		<result property="productSubTypeKey"		column="ProductSubTypeKey"			jdbcType="INTEGER" />
+		<result property="supplementaryDetails"		column="SupplementaryDetails"		jdbcType="VARCHAR" />
+		<result property="accountName"				column="AccountName"				jdbcType="VARCHAR" />
+		<result property="accountId"				column="AccountId"					jdbcType="VARCHAR" />
+		<result property="accountIrFiid"			column="AccountIrFiid"				jdbcType="VARCHAR" />
+		<result property="accountCurrency"			column="AccountCurrency"			jdbcType="VARCHAR" />
+		<result property="currencyScale"		    column="CurrencyScale"			    jdbcType="INTEGER" />
+		<result property="debitCreditIndicator"		column="DebitCreditInd"				jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="selectTempTransactionMemosResult" type="com.s1.export.provider.bai.model.TempTransactionMemoValue" >
+		<result property="rowOrder"			column="RowOrder"					jdbcType="INTEGER" />
+		<result property="oid"				column="BNKCPDyTrnMemoKy"			jdbcType="BIGINT" 	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="transactionOid"	column="BNKCPDyTrnKy"				jdbcType="BIGINT" 	typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="additionalMemo"	column="AdditionalMemo"				jdbcType="VARCHAR" />
+	</resultMap>
+
+<!-- Helper tables that must be created by ExportProfileParametersDAO -->
+	<!-- The name, as used in references, of the account temp table -->
+	<sql id="accountTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpAcctDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpAcctDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpAcctDgtt</if>
+	</sql>
+
+	<!-- The name of the account temp table's BNKAcctKy column -->
+	<sql id="accountTempTableBNKAcctKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpAcctDgtt.BNKAcctKy</if>
+		<if test="dbType == 'hsql'">BNKExpAcctDgtt.BNKAcctKy</if>
+		<if test="dbType == 'oracle'">BNKExpAcctDgtt.BNKAcctKy</if>
+	</sql>
+
+	<!-- The name, as used in references, of the summaryFieldFilter temp table -->
+	<sql id="summaryFieldFilterTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpSumFldFltrDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpSumFldFltrDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpSumFldFltrDgtt</if>
+	</sql>
+
+	<!-- The name of the summaryFieldFilter temp table's BNKAppFldDefKy column -->
+	<sql id="summaryFieldFilterTempTableBNKAppFldDefKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpSumFldFltrDgtt.BNKAppFldDefKy</if>
+		<if test="dbType == 'hsql'">BNKExpSumFldFltrDgtt.BNKAppFldDefKy</if>
+		<if test="dbType == 'oracle'">BNKExpSumFldFltrDgtt.BNKAppFldDefKy</if>
+	</sql>
+
+	<!-- The name, as used in references, of the tranTypeFilter temp table -->
+	<sql id="tranTypeFilterTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnTpFltrDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpTrnTpFltrDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpTrnTpFltrDgtt</if>
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKProdSubTypeKy column -->
+	<sql id="tranTypeFilterTempTableBNKProdSubTypeKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy</if>
+		<if test="dbType == 'hsql'">BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy</if>
+		<if test="dbType == 'oracle'">BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy</if>
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKTrnTypeKy column -->
+	<sql id="tranTypeFilterTempTableBNKTrnTypeKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnTpFltrDgtt.BNKTrnTypeKy</if>
+		<if test="dbType == 'hsql'">BNKExpTrnTpFltrDgtt.BNKTrnTypeKy</if>
+		<if test="dbType == 'oracle'">BNKExpTrnTpFltrDgtt.BNKTrnTypeKy</if>
+	</sql>
+
+	<!-- Syntax for declaring a temp table for oracle table gets created with SQL script it is one time activity -->
+	<sql id="declareTempTable">
+		<if test="dbType == 'db2'">
+		DECLARE GLOBAL TEMPORARY TABLE
+		</if>
+		<if test="dbType == 'hsql'">
+		CREATE GLOBAL TEMPORARY TABLE
+		</if>
+	</sql>
+	
+	<!-- The name, as used in declaration, of the statement temp table -->
+	<sql id="statementTempTableNameDecl">
+		<if test="dbType == 'db2'">BNKExpStmtDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt</if>
+	</sql>
+
+	<!-- The name, as used in references, of the statement temp table -->
+	<sql id="statementTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt</if>
+	</sql>
+
+	<!-- The name of the statement temp table's Oid column -->
+	<sql id="statementTempTableOidColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.BNKCPDyStmtKy</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.BNKCPDyStmtKy</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.BNKCPDyStmtKy</if>
+	</sql>
+
+	<!-- The name of the statement temp table's Oid column index -->
+	<sql id="statementTempTable_OidIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt_gi1</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt_gi1</if>
+	</sql>
+
+	<!-- The name of the statement temp table's RowOrder column -->
+	<sql id="statementTempTableRowOrderColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.RowOrder</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.RowOrder</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.RowOrder</if>
+	</sql>
+
+	<!-- The name of the statement temp table's RowOrder column index this statement is not needed for oracle  -->
+	<sql id="statementTempTable_RowOrderIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt_gi2</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt_gi2</if>
+	</sql>
+
+	<!-- The name of the statement temp table's AccountName column -->
+	<sql id="statementTempTableAccountNameColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.AccountName</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.AccountName</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.AccountName</if>
+	</sql>
+
+	<!-- The name of the statement temp table's AccountId column -->
+	<sql id="statementTempTableAccountIdColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.AccountId</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.AccountId</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.AccountId</if>
+	</sql>
+
+	<!-- The name of the statement temp table's AccountIrFiid column -->
+	<sql id="statementTempTableAccountIrFiidColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.AccountIrFiid</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.AccountIrFiid</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.AccountIrFiid</if>
+	</sql>
+
+	<!-- The name of the statement temp table's AccountCurrency column -->
+	<sql id="statementTempTableAccountCurrencyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.AccountCurrency</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.AccountCurrency</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.AccountCurrency</if>
+	</sql>
+	
+	<!-- The name of the statement temp table's CurrencyScale column -->
+	<sql id="statementTempTableCurrencyScaleColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.CurrencyScale</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.CurrencyScale</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.CurrencyScale</if>
+	</sql>
+	
+	<!-- The name of the statement temp table's AccountIrFiid column -->
+	<sql id="statementTempTableAccountOidColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpStmtDgtt.BNKAcctKy</if>
+		<if test="dbType == 'hsql'">BNKExpStmtDgtt.BNKAcctKy</if>
+		<if test="dbType == 'oracle'">BNKExpBAIStmtDgtt.BNKAcctKy</if>
+	</sql>
+
+	<!-- The name, as used in declaration, of the summary temp table -->
+	<sql id="summaryTempTableNameDecl">
+		<if test="dbType == 'db2'">BNKExpSumDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpSumDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAISumDgtt</if>
+	</sql>
+
+	<!-- The name, as used in reference, of the summary temp table -->
+	<sql id="summaryTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpSumDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpSumDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAISumDgtt</if>
+	</sql>
+
+	<!-- The name of the summary temp table's RowOrder column index does not need for oracle-->
+	<sql id="summaryTempTable_RowOrderIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKExpSumDgtt_gi1</if>
+		<if test="dbType == 'hsql'">BNKExpSumDgtt_gi1</if>
+	</sql>
+
+	<!-- The name, as used in declaration, of the transaction temp table -->
+	<sql id="transactionTempTableNameDecl">
+		<if test="dbType == 'db2'">BNKExpTrnDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpTrnDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAITrnDgtt</if>
+	</sql>
+
+	<!-- The name, as used in reference, of the transaction temp table -->
+	<sql id="transactionTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpTrnDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAITrnDgtt</if>
+	</sql>
+
+	<!-- The name of the transaction temp table's RowOrder column -->
+	<sql id="transactionTempTableRowOrderColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnDgtt.RowOrder</if>
+		<if test="dbType == 'hsql'">BNKExpTrnDgtt.RowOrder</if>
+		<if test="dbType == 'oracle'">BNKExpBAITrnDgtt.RowOrder</if>
+	</sql>
+
+	<!-- The name of the transaction temp table's Oid column -->
+	<sql id="transactionTempTableBNKCPDyTrnKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnDgtt.BNKCPDyTrnKy</if>
+		<if test="dbType == 'hsql'">BNKExpTrnDgtt.BNKCPDyTrnKy</if>
+		<if test="dbType == 'oracle'">BNKExpBAITrnDgtt.BNKCPDyTrnKy</if>
+	</sql>
+
+	<!-- The name of the transaction temp table's RowOrder column index, does not need for oracle  -->
+	<sql id="transactionTempTable_RowOrderIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnDgtt_gi1</if>
+		<if test="dbType == 'hsql'">BNKExpTrnDgtt_gi1</if>
+	</sql>
+
+	<!-- The name of the transaction temp table's BNKCPDyTrnKy column index, does not need for oracle-->
+	<sql id="transactionTempTable_BNKCPDyTrnKyIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnDgtt_gi2</if>
+		<if test="dbType == 'hsql'">BNKExpTrnDgtt_gi2</if>
+	</sql>
+
+	<!-- The name, as used in declaration, of the transaction memo temp table -->
+	<sql id="transactionMemoTempTableNameDecl">
+		<if test="dbType == 'db2'">BNKExpTrnmemoDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpTrnmemoDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAITrnmemoDgtt</if>
+	</sql>
+
+	<!-- The name, as used in reference, of the transaction memo temp table -->
+	<sql id="transactionMemoTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnmemoDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpTrnmemoDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpBAITrnmemoDgtt</if>
+	</sql>
+
+	<!-- The name of the transaction memo temp table's RowOrder column index, does not need for oracle-->
+	<sql id="transactionMemoTempTable_RowOrderIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnmemoDgtt_gi1</if>
+		<if test="dbType == 'hsql'">BNKExpTrnmemoDgtt_gi1</if>
+	</sql>
+
+	<!-- Temporary table creation options -->
+	<sql id="tempTableOptions">
+		<if test="dbType == 'db2'">
+		ON COMMIT PRESERVE ROWS
+		NOT LOGGED
+		ON ROLLBACK DELETE ROWS
+		</if>
+		<if test="dbType == 'hsql'">
+		ON COMMIT PRESERVE ROWS
+		</if>
+	</sql>
+
+	<!--
+	  Create temporary tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="createStatementTempTable">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="statementTempTableNameDecl" />
+			(
+				RowOrder			INTEGER			NOT NULL,
+				BNKAcctKy			INTEGER			NOT NULL,
+				BNKCPDyStmtKy		BIGINT			NOT NULL,
+				AccountName			VARCHAR(35)		,
+				AccountId			VARCHAR(35)		NOT NULL,
+				AccountIrFiid		VARCHAR(32)		,
+				AccountCurrency		VARCHAR(16)		,
+				CurrencyScale		INTEGER         ,
+				StatementDate		TIMESTAMP		
+			)
+			<include refid="tempTableOptions" />
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+	</update>
+	<update id="createSummaryTempTable">	
+		<if test="dbType == 'db2' or dbType == 'hsql'">	
+			<include refid="declareTempTable" /> <include refid="summaryTempTableNameDecl" />
+			(
+				RowOrder			INTEGER			NOT NULL,
+				BNKAcctKy			INTEGER			NOT NULL,
+				BNKCPDyStmtKy		BIGINT			NOT NULL,
+				BNKCPDyStmtDetailKy	BIGINT			,
+				FieldDefValue		VARCHAR(64)		,
+				Description			VARCHAR(64)		,
+				EffectiveDate		TIMESTAMP		,
+				ExpirationDate		TIMESTAMP		,
+				ItemCount			INTEGER			,
+				FieldName			VARCHAR(35)		,
+				ExternalSystemCode	VARCHAR(64)		,		
+				AccountName			VARCHAR(35)		,
+				AccountId			VARCHAR(35)		NOT NULL,
+				AccountIrFiid		VARCHAR(32)		,
+				AccountCurrency		VARCHAR(16)		,
+				CurrencyScale		INTEGER         ,
+				BatchRunDate        TIMESTAMP
+			)
+			<include refid="tempTableOptions" />
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+	</update>
+	<update id="createTransactionTempTable">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="transactionTempTableNameDecl" />
+			(
+				RowOrder				INTEGER			NOT NULL,
+				BNKAcctKy				INTEGER			NOT NULL,
+				BNKCPDyStmtKy			BIGINT			NOT NULL,
+				BNKCPDyTrnKy			BIGINT			NOT NULL,
+				PostedDateTime			TIMESTAMP		,
+				UserOriginDateTime		TIMESTAMP		,
+				Memo					VARCHAR(255)	,
+				Amount					DECIMAL(18,3)	,
+				ValueDate				DATE			,
+				BankReferenceNumber		VARCHAR(32)		,
+				CustomerReferenceNumber	VARCHAR(76)		,
+				ZeroDayFloatAmount		DECIMAL(18,3)	,
+				OneDayFloatAmount		DECIMAL(18,3)	,
+				TwoDayFloatAmount		DECIMAL(18,3)	,
+				TransactionCode			VARCHAR(50)		,
+				ProductSubTypeKey		INTEGER			,
+				SupplementaryDetails    VARCHAR(64)     ,
+				TransactionTypeKey		INTEGER			,
+				AccountName				VARCHAR(35)		,
+				AccountId				VARCHAR(35)		NOT NULL,
+				AccountIrFiid			VARCHAR(32)		,
+				AccountCurrency			VARCHAR(16)		,
+				CurrencyScale		    INTEGER         ,
+				DebitCreditInd			VARCHAR(1)
+			)
+			<include refid="tempTableOptions" />
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+	</update>
+	<update id="createTransactionMemoTempTable">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="transactionMemoTempTableNameDecl" />
+			(
+				RowOrder				INTEGER			NOT NULL,
+				BNKCPDyTrnKy			BIGINT			NOT NULL,
+				BNKCPDyTrnMemoKy		BIGINT			NOT NULL,
+				AdditionalMemo			VARCHAR(255)
+			)
+			<include refid="tempTableOptions" />
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+	</update>
+
+	<!--
+	  Drop temporary tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="dropStatementTempTable" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="statementTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>
+	</update >
+	<update id="dropSummaryTempTable" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="summaryTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+		
+	</update>
+	<update id="dropTransactionTempTable" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="transactionTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>
+	</update>
+	<update id="dropTransactionMemoTempTable" timeout="600">		
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="transactionMemoTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>		
+	</update>
+	
+	<!--
+	  Create necessary indices on temp tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="indexStatementTempTable_RowOrder" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="statementTempTable_RowOrderIndexName" />
+			ON <include refid="statementTempTableNameRef" /> 
+			(
+				RowOrder ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>			
+		
+	</update>
+	<update id="indexStatementTempTable_BNKCPDyStmtKy" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="statementTempTable_OidIndexName" />
+			ON <include refid="statementTempTableNameRef" /> 
+			(
+				BNKCPDyStmtKy ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>				
+	</update>
+
+	<update id="indexSummaryTempTable_RowOrder" timeout="600">		
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="summaryTempTable_RowOrderIndexName" />
+			ON <include refid="summaryTempTableNameRef" /> 
+			(
+				RowOrder ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>
+	</update>
+
+	<update id="indexTransactionTempTable_RowOrder" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="transactionTempTable_RowOrderIndexName" />
+			ON <include refid="transactionTempTableNameRef" /> 
+			(
+				RowOrder ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>		
+	</update>
+
+	<update id="indexTransactionTempTable_BNKCPDyTrnKy" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="transactionTempTable_BNKCPDyTrnKyIndexName" />
+			ON <include refid="transactionTempTableNameRef" /> 
+			(
+				BNKCPDyTrnKy ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>		
+	</update>
+
+	<update id="indexTransactionMemoTempTable_RowOrder" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="transactionMemoTempTable_RowOrderIndexName" />
+			ON <include refid="transactionMemoTempTableNameRef" /> 
+			(
+				RowOrder ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>			
+	</update>
+
+	<update id="runstatsStatementTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="statementTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+				</if>	
+		<if test="dbType == 'oracle'">
+			CALL ADMIN_run_stat('<include refid="statementTempTableNameRef"/>')			
+		</if>	
+	</update>
+
+	<update id="runstatsSummaryTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="summaryTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+				</if>	
+		<if test="dbType == 'oracle'">
+			CALL ADMIN_run_stat('<include refid="summaryTempTableNameRef"/>')			
+		</if>		
+		
+	</update>
+
+	<update id="runstatsTransactionTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="transactionTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+				</if>	
+		<if test="dbType == 'oracle'">
+			CALL ADMIN_run_stat('<include refid="transactionTempTableNameRef"/>')			
+		</if>				
+	</update>
+
+	<update id="runstatsTransactionMemoTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="transactionMemoTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+				</if>	
+		<if test="dbType == 'oracle'">
+			CALL ADMIN_run_stat('<include refid="transactionMemoTempTableNameRef"/>')			
+		</if>	
+		
+	</update>
+
+	<!--
+	  Fragment of SQL that selects statement information from the source statement table given
+	  by the parameter 'statementTable'.
+	  
+		The results are ordered by:
+			1. Statement date	(ascending)
+			2. Account IR FIID	(ascending)
+			3. Account Id		(ascending)
+		
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+			statementTable			Yes			The name of the statement table (BNKCDyStmt or BNKPDyStmt)
+			irFiidColumn			Yes			The name of the irfiid column in the BNKAcct table to use (DSPLYCDIRFIID or DSPLYPDIRFIID)
+			fromDate				Yes			The start Date
+			toDate					Yes			The end Date
+	  -->
+	<sql id="selectStatementsFromSourceFragment">
+		SELECT 
+			<if test="dbType == 'db2' or dbType == 'oracle'">
+				ROW_NUMBER() OVER( 
+					ORDER BY 
+					<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')" >
+						BNKAcct.${irFiidColumn} ASC
+						,BNKAcct.AcctId ASC
+					</if>
+					<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')" >
+						${statementTable}.stmtDttm ASC 
+						,BNKAcct.${irFiidColumn} ASC
+						,BNKAcct.AcctId ASC
+					</if>
+				)												AS RowOrder,
+			</if>
+			<if test="dbType == 'hsql'">
+				NULL											AS RowOrder,
+			</if>
+			${statementTable}.BNKAcctKy						AS BNKAcctKy
+			,${statementTable}.${statementTable}Ky			AS BNKCPDyStmtKy
+			,BNKAcct.AcctName								AS AccountName
+			,BNKAcct.AcctId									AS AccountId
+			,BNKAcct.${irFiidColumn}						AS AccountIrFiid
+			,ArcIsoCurrencyCd.TextCurrCd					AS AccountCurrency
+			,ArcIsoCurrencyCd.Scale							AS CurrencyScale
+			,${statementTable}.StmtDttm						AS StatementDate
+		FROM
+			${statementTable}
+				JOIN <include refid="accountTempTableNameRef"/> ON <include refid="accountTempTableBNKAcctKyColumn"/> = ${statementTable}.BNKAcctKy
+				JOIN BNKAcct ON BNKAcct.BNKAcctKy = <include refid="accountTempTableBNKAcctKyColumn"/>
+				LEFT OUTER JOIN ArcIsoCurrencyCd ON BNKAcct.IsoCurrencyCdKy = ArcIsoCurrencyCd.ArcIsoCurrencyCdKy
+		<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+		WHERE
+			${statementTable}.StmtDttm <![CDATA[ >= ]]> #{fromDate,jdbcType=TIMESTAMP}
+			AND ${statementTable}.StmtDttm <![CDATA[ <= ]]> #{toDate,jdbcType=TIMESTAMP}
+		</if>
+	</sql>
+	
+	<!--
+	  Populate Statements temporary table.
+	  
+	  Uses 'selectStatementsFromSourceFragment'.
+	  -->
+	<insert id="populateStatementTempTable" timeout="600">
+		INSERT INTO <include refid="statementTempTableNameRef" />
+		(
+			RowOrder,
+			BNKAcctKy,
+			BNKCPDyStmtKy,
+			AccountName,
+			AccountId,
+			AccountIrFiid,
+			AccountCurrency,
+			CurrencyScale,
+			StatementDate
+		)
+		<include refid="selectStatementsFromSourceFragment" />
+	</insert>
+	
+	<!--
+	  Select all values that would be inserted into the temp statements table.
+	  
+	  Uses 'selectStatementsFromSourceFragment'.  Called by hsql-specific fixup code in DAO only! 
+	  -->
+	<select id="selectStatementsForTempTable" parameterType="java.util.Map" resultMap="selectTempStatementsResult">
+		<include refid="selectStatementsFromSourceFragment" />
+		<if test="dbType == 'hsql'">
+		ORDER BY 
+			<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+				BNKAcct.${irFiidColumn} ASC
+				,BNKAcct.AcctId ASC
+			</if>
+			<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+				${statementTable}.stmtDttm ASC 
+				,BNKAcct.${irFiidColumn} ASC
+				,BNKAcct.AcctId ASC
+			</if>
+		</if>
+	</select>
+	
+	<!--
+	  Insert a statement into the temp statements table
+
+	  Called by hsql-specific fixup code in DAO only! 
+	  -->
+	<insert id="insertStatementIntoTempTable" parameterType="com.s1.export.provider.bai.model.TempStatementValue" >
+		INSERT INTO BNKExpStmtDgtt
+		(
+			RowOrder,
+			BNKAcctKy,
+			BNKCPDyStmtKy,
+			AccountName,
+			AccountId,
+			AccountIrFiid,
+			AccountCurrency,
+			CurrencyScale,
+			StatementDate		
+		)
+		VALUES
+		(
+			#{rowOrder},
+			#{accountOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{oid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{accountName},
+			#{accountId},
+			#{accountIrFiid},
+			#{accountCurrency},
+			#{currencyScale},
+			#{statementDate}
+		)
+	</insert>
+	
+	<!--
+	  Selects rows from the temporary statement table.  Rows in [firstRow, lastRow) are returned.
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			fromRow					Yes			Integer.  The first row to grab
+			toRow					Yes			Integer.  The row just beyond the last row to grab 
+	  -->
+	<select id="selectTempStatements" parameterType="java.util.Map" resultMap="selectTempStatementsResult">
+		SELECT
+			RowOrder		AS RowOrder,
+			BNKAcctKy		AS BNKAcctKy,
+			BNKCPDyStmtKy	AS BNKCPDyStmtKy,
+			AccountName		AS AccountName,
+			AccountId		AS AccountId,
+			AccountIrFiid	AS AccountIrFiid,
+			AccountCurrency AS AccountCurrency,
+			CurrencyScale	AS CurrencyScale,
+			StatementDate	AS StatementDate
+		FROM
+			<include refid="statementTempTableNameRef" />
+		WHERE
+			RowOrder <![CDATA[>=]]> #{fromRow} 
+			AND RowOrder <![CDATA[<]]> #{toRow}
+		ORDER BY
+			RowOrder ASC 		
+	</select>
+	
+<!-- SUMMARIES -->
+	
+	<!--
+	  Fragment of SQL that selects summary information from the source summary table given
+	  by the parameter 'statementDetailTable'.
+
+		The results are ordered by
+			1. Associated Statement's row order
+			2. Statement Detail effective date (if any)
+			3. External System Code (e.g. BAI code, if any)
+		
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+			dataSource				Yes			CurrentDay or PriorDay
+			statementDetailTable	Yes			The name of the statement detail table (BNKCDyStmtDetail or BNKPDyStmtDetail)
+			externalSystemTypeCode	Yes			The external system type code (1 for BAI2, 2 for SWIFT)
+			filterSummaryFields		No			Presence indicates that the summary fields should be filtered by the
+												summaryFieldFilterTempTable setup by the ExportProfileParametersDAO
+	  -->
+	<sql id="selectSummariesFromSourceFragment">
+		SELECT 
+			<if test="dbType == 'db2'">
+			ROW_NUMBER() OVER(
+				ORDER BY
+				<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+					DATE(${statementDetailTable}.effectiveDttm) ASC
+					,<include refid="statementTempTableRowOrderColumn" /> ASC
+					,BNKFldDefCdMap.ExternalSysCd ASC
+				</if>
+				<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+					<include refid="statementTempTableRowOrderColumn" /> ASC
+					,${statementDetailTable}.effectiveDttm ASC 
+					,BNKFldDefCdMap.ExternalSysCd ASC
+				</if>
+			)																AS RowOrder,
+			</if>
+			<if test="dbType == 'oracle'">
+			ROW_NUMBER() OVER(
+				ORDER BY
+				<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+					trunc(${statementDetailTable}.effectiveDttm) ASC
+					,<include refid="statementTempTableRowOrderColumn" /> ASC
+					,BNKFldDefCdMap.ExternalSysCd ASC
+				</if>
+				<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+					<include refid="statementTempTableRowOrderColumn" /> ASC
+					,${statementDetailTable}.effectiveDttm ASC 
+					,BNKFldDefCdMap.ExternalSysCd ASC
+				</if>
+			)																AS RowOrder,
+			</if>			
+			<if test="dbType == 'hsql'">
+			NULL															AS RowOrder,
+			</if>
+			<include refid="statementTempTableAccountOidColumn" />			AS BNKAcctKy
+			,<include refid="statementTempTableOidColumn"/>					AS BNKCPDyStmtKy
+			,${statementDetailTable}.${statementDetailTable}Ky				AS BNKCPDyStmtDetailKy
+			,${statementDetailTable}.appFldDefValue							AS FieldDefValue
+			,${statementDetailTable}.description								AS Description
+			,${statementDetailTable}.effectiveDttm							AS EffectiveDate
+			,${statementDetailTable}.expirationDttm							AS ExpirationDate
+			,${statementDetailTable}.itemcount								AS ItemCount
+			,BNKAppFldDef.fieldName											AS FieldName
+			,BNKFldDefCdMap.ExternalSysCd									AS ExternalSystemCode
+			,<include refid="statementTempTableAccountNameColumn" />		AS AccountName
+			,<include refid="statementTempTableAccountIdColumn" />			AS AccountId
+			,<include refid="statementTempTableAccountIrFiidColumn" />		AS AccountIrFiid
+			,<include refid="statementTempTableAccountCurrencyColumn" />	AS AccountCurrency
+			,<include refid="statementTempTableCurrencyScaleColumn" />	    AS CurrencyScale
+			,BATAudit.FileDttm                                              AS BatchRunDate
+		FROM
+			<include refid="statementTempTableNameRef"/> JOIN
+			${statementDetailTable} ON ${statementDetailTable}.${statementTable}Ky = <include refid="statementTempTableOidColumn" />
+			JOIN BNKAppFldDef ON ${statementDetailTable}.BNKAppFldDefKy = BNKAppFldDef.BNKAppFldDefKy
+			<if test="filterSummaryFields">
+			JOIN <include refid="summaryFieldFilterTempTableNameRef" />
+				ON ${statementDetailTable}.BNKAppFldDefKy = <include refid="summaryFieldFilterTempTableBNKAppFldDefKyColumn" />
+			</if>
+			JOIN BNKFldDefCdMap ON BNKFldDefCdMap.BNKAppFldDefKy = BNKAppFldDef.BNKAppFldDefKy
+				AND BNKFldDefCdMap.ExternalSysTypeCd = #{externalSystemTypeCode} 
+			LEFT OUTER JOIN BATAudit ON ${statementDetailTable}.BATAuditKy = BATAudit.BATAuditKy
+			<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+			WHERE
+			${statementDetailTable}.EffectiveDttm <![CDATA[ >= ]]> #{fromDate,jdbcType=TIMESTAMP}
+			AND ${statementDetailTable}.EffectiveDttm <![CDATA[ <= ]]> #{toDate,jdbcType=TIMESTAMP}
+			</if>
+	</sql>
+	
+	<!-- Populate insert -->
+	
+	<!--
+	  Populate Summaries temp table.
+	  
+	  Uses SQL fragment 'selectSummariesFromSourceFragment'
+	  -->
+	<insert id="populateSummaryTempTable" timeout="600">
+		INSERT INTO <include refid="summaryTempTableNameRef" />
+		(
+			RowOrder,
+			BNKAcctKy,
+			BNKCPDyStmtKy,
+			BNKCPDyStmtDetailKy,
+			FieldDefValue,
+			Description,
+			EffectiveDate,
+			ExpirationDate,
+			ItemCount,
+			FieldName,
+			ExternalSystemCode,
+			AccountName,
+			AccountId,
+			AccountIrFiid,
+			AccountCurrency,
+			CurrencyScale,
+			BatchRunDate
+		)
+		<include refid="selectSummariesFromSourceFragment" />
+	</insert>
+
+	<!--
+	  Select all summaries using the 'selectSummariesFromSourceFragment' fragment.
+	  
+	  Used by hsql fixup code
+	  -->
+	<select id="selectSummariesForTempTable" parameterType="java.util.Map" resultMap="selectTempSummariesResult">
+		<include refid="selectSummariesFromSourceFragment" />
+		ORDER BY
+			<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+				YEAR(${statementDetailTable}.effectiveDttm) ASC
+				,MONTH(${statementDetailTable}.effectiveDttm) ASC
+				,DAYOFMONTH(${statementDetailTable}.effectiveDttm) ASC
+				,<include refid="statementTempTableRowOrderColumn" /> ASC
+				,BNKFldDefCdMap.ExternalSysCd ASC
+			</if>
+			<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+				<include refid="statementTempTableRowOrderColumn" /> ASC
+				,${statementDetailTable}.effectiveDttm ASC 
+				,BNKFldDefCdMap.ExternalSysCd ASC
+			</if>
+	</select>
+	
+	<!--
+	  Insert summary into temp table.
+	  
+	  Used by hsql fixup code
+	  -->
+	<insert id="insertSummaryIntoTempTable" parameterType="com.s1.export.provider.bai.model.TempSummaryValue">
+		INSERT INTO BNKExpSumDgtt
+		(
+			RowOrder,
+			BNKAcctKy,
+			BNKCPDyStmtKy,
+			BNKCPDyStmtDetailKy,
+			FieldDefValue,
+			Description,
+			EffectiveDate,
+			ExpirationDate,
+			ItemCount,
+			FieldName,
+			ExternalSystemCode,
+			AccountName,
+			AccountId,
+			AccountIrFiid,
+			AccountCurrency,
+			CurrencyScale,
+			BatchRunDate
+		)
+		VALUES
+		(
+			#{rowOrder},
+			#{accountOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{statementOid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{oid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{fieldValue},
+			#{description},
+			#{effectiveDate},
+			#{expirationDate},
+			#{itemCount},
+			#{fieldName},
+			#{externalSystemCode},
+			#{accountName},
+			#{accountId},
+			#{accountIrFiid},
+			#{accountCurrency},
+			#{currencyScale},
+			#{batchRunDate}
+		)
+	</insert>
+
+	<!--
+	  Selects rows from the temporary summaries table.  Rows in [firstRow, lastRow) are selected.
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			fromRow					Yes			Integer.  The first row to grab
+			toRow					Yes			Integer.  The row just beyond the last row to grab 
+	  -->
+	<select id="selectTempSummaries" parameterType="java.util.Map" resultMap="selectTempSummariesResult">
+		SELECT
+			RowOrder			AS RowOrder,
+			BNKAcctKy			AS BNKAcctKy,	
+			BNKCPDyStmtKy		AS BNKCPDyStmtKy,
+			BNKCPDyStmtDetailKy	AS BNKCPDyStmtDetailKy,
+			FieldDefValue		AS FieldDefValue,
+			Description			AS Description,
+			EffectiveDate		AS EffectiveDate,
+			ExpirationDate		AS ExpirationDate,
+			ItemCount			AS ItemCount,
+			FieldName			AS FieldName,
+			ExternalSystemCode	AS ExternalSystemCode,
+			AccountName			AS AccountName,
+			AccountId			AS AccountId,
+			AccountIrFiid		AS AccountIrFiid,
+			AccountCurrency     AS AccountCurrency,
+			CurrencyScale       AS CurrencyScale,
+			BatchRunDate        AS BatchRunDate
+		FROM
+			<include refid="summaryTempTableNameRef" />
+		WHERE
+			RowOrder <![CDATA[ >= ]]> #{fromRow} 
+			AND RowOrder <![CDATA[ < ]]> #{toRow}
+		ORDER BY
+			RowOrder ASC
+	</select>
+
+<!--  END SUMMARIES -->
+
+
+<!-- TRANSACTIONS -->
+
+	<!-- 
+	  SQL fragment that selects transactions from the source table given by 'transactionTable' and
+	  'transactionMemoTable' 
+		
+		The results are ordered by:
+			1. Associated statement row order
+			2. Posted date
+		
+		Expected contents of the parameter Map:
+			Key							Required?	Expected Value
+			===							=========	==============
+			dbType						Yes			db2 or hsql
+			dataSource					Yes			CurrentDay or PriorDay
+			transactionTable			Yes			The name of the statement transactions table (BNKCDyTrn or BNKPDyTrn)
+			transactionMemoTable		Yes			The name of the statement transactions memo table (BNKCDyTrnMemo or BNKPDyTrnMemo)
+			filterTranTypes				No			Presence indicates that transactions should be filtered based on the product
+													sub-types/tran types stored in the tranTypeFilterTempTable setup by
+													ExportProfileParametersDAO
+			fromAmount					No			The lowest transaction value to be reported
+			toAmount					No			The highest transaction value to be reported
+	  -->
+	<sql id="selectTransactionsFromSourceFragment">
+		SELECT 
+			<if test="dbType == 'db2'">
+			ROW_NUMBER() OVER(
+				ORDER BY
+				<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+					DATE(TranTable.PostedDttm) ASC,
+					<include refid="statementTempTableRowOrderColumn" />,
+					TranTable.${transactionTable}Ky
+				</if>
+				<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+					<include refid="statementTempTableRowOrderColumn" /> ASC,
+					TranTable.PostedDttm ASC
+				</if>
+			)															AS RowOrder,
+			</if>
+			<if test="dbType == 'oracle'">
+			ROW_NUMBER() OVER(
+				ORDER BY
+				<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+					trunc(TranTable.PostedDttm) ASC,
+					<include refid="statementTempTableRowOrderColumn" />,
+					TranTable.${transactionTable}Ky
+				</if>
+				<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')">
+					<include refid="statementTempTableRowOrderColumn" /> ASC,
+					TranTable.PostedDttm ASC
+				</if>
+			)															AS RowOrder,
+			</if>			
+			<if test="dbType == 'hsql'">
+			NULL														AS RowOrder,
+			</if>
+			<include refid="statementTempTableAccountOidColumn" />		AS BNKAcctKy,
+			TranTable.${statementTable}Ky								AS BNKCPDyStmtKy,
+			TranTable.${transactionTable}Ky								AS BNKCPDyTrnKy,
+			TranTable.PostedDttm										AS PostedDateTime,
+			TranTable.UserOriginDttm									AS UserOriginDateTime,
+			TranTable.Memo												AS Memo,
+			TranTable.Amount											AS Amount,
+			TranTable.ValueDt											AS ValueDate,
+			TranTable.FiTrnReference									AS BankReferenceNumber,
+			TranTable.CustTrnRef										AS CustomerReferenceNumber,
+			TranTable.DayFloatAmt0										AS ZeroDayFloatAmount,
+			TranTable.DayFloatAmt1										AS OneDayFloatAmount,
+			TranTable.DayFloatAmt2										AS TwoDayFloatAmount,
+			TranTable.TrnCode											AS TransactionCode,
+			TranTable.BNKProdSubTypeKy									AS ProductSubTypeKey,
+			TranTable.SupplementaryDet									AS SupplementaryDetails,
+			TranTable.BNKTrnTypeKy										AS TransactionTypeKey,
+			<include refid="statementTempTableAccountNameColumn" />		AS AccountName,
+			<include refid="statementTempTableAccountIdColumn" />		AS AccountId,
+			<include refid="statementTempTableAccountIrFiidColumn" />	AS AccountIrFiid,
+			<include refid="statementTempTableAccountCurrencyColumn" />	AS AccountCurrency,
+			<include refid="statementTempTableCurrencyScaleColumn" />	AS CurrencyScale,
+			VFMTrnType.DebitCredit										AS DebitCreditInd
+		FROM
+			<include refid="statementTempTableNameRef" />
+			,${transactionTable} TranTable
+			,VFMTrnType
+			<if test="filterTranTypes">
+			,BNKAcct
+			,BNKProduct ProdTable
+			</if>
+		WHERE
+			<include refid="statementTempTableOidColumn"/> = TranTable.${statementTable}Ky
+			AND TranTable.BNKTrnTypeKy = VFMTrnType.VFMTrnTypeKy
+			
+			<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')">
+			<!-- AND TranTable.PostedDttm <![CDATA[ >= ]]> #{fromDate ,jdbcType=DATE}
+			AND TranTable.PostedDttm <![CDATA[ <= ]]> #{toDate,jdbcType=DATE} -->
+			
+			<if test="dbType == 'oracle'">
+				AND	TranTable.PostedDttm <![CDATA[ >= ]]> #{fromDate,jdbcType=TIMESTAMP}
+				AND TranTable.PostedDttm <![CDATA[ <= ]]> #{toDate,jdbcType=TIMESTAMP}
+			</if>
+			<if test="dbType == 'db2'">				
+   				AND DATE(TranTable.PostedDttm )<![CDATA[ >= ]]> #{fromDate ,jdbcType=TIMESTAMP}
+	     		AND DATE(TranTable.PostedDttm) <![CDATA[ <= ]]> #{toDate,jdbcType=TIMESTAMP}
+			</if>
+			<if test="dbType == 'hsql'">
+				AND TranTable.PostedDttm <![CDATA[ >= ]]> #{fromDate ,jdbcType=DATE}
+			   AND TranTable.PostedDttm <![CDATA[ <= ]]> #{toDate,jdbcType=DATE}
+			</if>
+			
+			</if>
+			<if test="fromAmount != null">
+			AND TranTable.Amount <![CDATA[ >= ]]> #{fromAmount}
+			AND TranTable.Amount <![CDATA[ <= ]]> #{toAmount}
+			</if>
+			<if test="filterTranTypes">
+			AND BNKAcct.BNKAcctKy = TranTable.BNKAcctKy
+			AND ProdTable.BNKProductKy = BNKAcct.BNKProductKy
+			AND EXISTS (
+				SELECT
+					*
+				FROM
+					<include refid="tranTypeFilterTempTableNameRef"/>
+				WHERE
+					<include refid="tranTypeFilterTempTableBNKTrnTypeKyColumn"/> = TranTable.BNKTrnTypeKy
+					AND <include refid="tranTypeFilterTempTableBNKProdSubTypeKyColumn"/> = ProdTable.BNKProdSubTypeKy
+			)
+			</if>
+	</sql>
+	
+	<!--
+	  Populates the temp transaction table
+	  
+	  Uses 'selectTransactionsFromSourceFragment'
+	  -->
+	<insert id="populateTransactionTempTable" timeout="600">
+		INSERT INTO <include refid="transactionTempTableNameRef" />
+		(
+			RowOrder,
+			BNKAcctKy,
+			BNKCPDyStmtKy,
+			BNKCPDyTrnKy,
+			PostedDateTime,
+			UserOriginDateTime,
+			Memo,
+			Amount,
+			ValueDate,
+			BankReferenceNumber,
+			CustomerReferenceNumber,
+			ZeroDayFloatAmount,
+			OneDayFloatAmount,
+			TwoDayFloatAmount,
+			TransactionCode,
+			ProductSubTypeKey,
+			SupplementaryDetails,
+			TransactionTypeKey,
+			AccountName,
+			AccountId,
+			AccountIrFiid,
+			AccountCurrency,
+			CurrencyScale,
+			DebitCreditInd
+		)
+		<include refid="selectTransactionsFromSourceFragment" />
+	</insert>	
+	
+	
+	<!--
+	  Select all transactions from source table using 'selectTransactionsFromSourceFragment'
+	  
+	  Used by hsql fixup code
+	  -->
+	<select id="selectTransactionsForTempTable" parameterType="java.util.Map" resultMap="selectTempTransactionsResult">
+		<include refid="selectTransactionsFromSourceFragment" />
+		ORDER BY
+			<if test="dataSource.toString().equals('CurrentDayStmtsAndTrans')" >
+				YEAR(TranTable.PostedDttm) ASC,
+				MONTH(TranTable.PostedDttm) ASC,
+				DAYOFMONTH(TranTable.PostedDttm) ASC,
+				<include refid="statementTempTableRowOrderColumn" />,
+				TranTable.${transactionTable}Ky
+			</if>
+			<if test="dataSource.toString().equals('PriorDayStmtsAndTrans')" >
+				<include refid="statementTempTableRowOrderColumn" /> ASC,
+				TranTable.PostedDttm ASC
+			</if>
+	</select>
+
+	<!--
+	  Inserts into the transaction temp table
+	  
+	  Used by hsql fixup code
+	  -->
+	<insert id="insertTransactionIntoTempTable" parameterType="com.s1.export.provider.bai.model.TempTransactionValue">
+		INSERT INTO BNKExpTrnDgtt
+		(
+			RowOrder,
+			BNKAcctKy,
+			BNKCPDyStmtKy,
+			BNKCPDyTrnKy,
+			PostedDateTime,
+			UserOriginDateTime,
+			Memo,
+			Amount,
+			ValueDate,
+			BankReferenceNumber,
+			CustomerReferenceNumber,
+			ZeroDayFloatAmount,
+			OneDayFloatAmount,
+			TwoDayFloatAmount,
+			TransactionCode,
+			ProductSubTypeKey,
+			SupplementaryDetails,
+			TransactionTypeKey,
+			AccountName,
+			AccountId,
+			AccountIrFiid,
+			AccountCurrency,
+			CurrencyScale,
+			DebitCreditInd
+		)
+		VALUES
+		(
+			#{rowOrder},
+			#{accountOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{statementOid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{oid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{postedDateTime},
+			#{userOriginDateTime},
+			#{memo},
+			#{amount},
+			#{valueDate},
+			#{bankReferenceNumber},
+			#{customerReferenceNumber},
+			#{zeroDayFloatAmount},
+			#{oneDayFloatAmount},
+			#{twoDayFloatAmount},
+			#{transactionCode},
+			#{productSubTypeKey},
+			#{supplementaryDetails},
+			#{transactionTypeKey},
+			#{accountName},
+			#{accountId},
+			#{accountIrFiid},
+			#{accountCurrency},
+			#{currencyScale},
+			#{debitCreditIndicator}	
+		)
+	</insert>
+	
+	<!--
+	  Selects rows from the temporary transactions table.  Rows in [firstRow, lastRow) are selected.
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			fromRow					Yes			Integer.  The first row to grab
+			toRow					Yes			Integer.  The row just beyond the last row to grab 
+	  -->
+	<select id="selectTempTransactions" parameterType="java.util.Map" resultMap="selectTempTransactionsResult">
+		SELECT
+			RowOrder				AS RowOrder,
+			BNKAcctKy				AS BNKAcctKy,
+			BNKCPDyStmtKy			AS BNKCPDyStmtKy,
+			BNKCPDyTrnKy			AS BNKCPDyTrnKy,
+			PostedDateTime			AS PostedDateTime,
+			UserOriginDateTime		AS UserOriginDateTime,
+			Memo					AS Memo,
+			Amount					AS Amount,
+			ValueDate				AS ValueDate,
+			BankReferenceNumber		AS BankReferenceNumber,
+			CustomerReferenceNumber	AS CustomerReferenceNumber,
+			ZeroDayFloatAmount		AS ZeroDayFloatAmount,
+			OneDayFloatAmount		AS OneDayFloatAmount,
+			TwoDayFloatAmount		AS TwoDayFloatAmount,
+			TransactionCode			AS TransactionCode,
+			ProductSubTypeKey		AS ProductSubTypeKey,
+			TransactionTypeKey		AS TransactionTypeKey,
+			SupplementaryDetails    AS SupplementaryDetails,
+			AccountName				AS AccountName,
+			AccountId				AS AccountId,
+			AccountIrFiid			AS AccountIrFiid,
+			AccountCurrency         AS AccountCurrency,
+			CurrencyScale           AS CurrencyScale,
+			DebitCreditInd			AS DebitCreditInd
+		FROM
+			<include refid="transactionTempTableNameRef" />
+		WHERE
+			RowOrder <![CDATA[>=]]> #{fromRow} 
+			AND RowOrder <![CDATA[<]]> #{toRow}
+		ORDER BY
+			RowOrder ASC
+	</select>
+
+<!-- TRANSACTION MEMOS -->
+
+	<!-- 
+	  SQL fragment that selects transaction memos from the source table given by 'transactionMemoTable' 
+		
+		The results are ordered by:
+			1. Associated transaction row order
+		
+		Expected contents of the parameter Map:
+			Key							Required?	Expected Value
+			===							=========	==============
+			dbType						Yes			db2 or hsql
+			dataSource					Yes			CurrentDay or PriorDay
+			transactionTable			Yes			The name of the statement transactions table (BNKCDyTrn or BNKPDyTrn)
+			transactionMemoTable		Yes			The name of the statement transactions memo table (BNKCDyTrnMemo or BNKPDyTrnMemo)
+	  -->
+	<sql id="selectTransactionMemosFromSourceFragment">
+		SELECT 
+			<if test="dbType == 'db2' or dbType == 'oracle'">
+			ROW_NUMBER() OVER(
+				ORDER BY 
+					<include refid="transactionTempTableRowOrderColumn" /> ASC
+			)															AS RowOrder,
+			</if>
+			<if test="dbType == 'hsql'">
+			NULL														AS RowOrder,
+			</if>
+			${transactionMemoTable}.${transactionTable}Ky					AS BNKCPDyTrnKy,
+			${transactionMemoTable}.${transactionMemoTable}Ky				AS BNKCPDyTrnMemoKy,
+			${transactionMemoTable}.Description							AS AdditionalMemo
+		FROM
+			${transactionMemoTable}
+				JOIN <include refid="transactionTempTableNameRef" /> 
+				ON ${transactionMemoTable}.${transactionTable}Ky = <include refid="transactionTempTableBNKCPDyTrnKyColumn"/>
+	</sql>
+	
+	<!--
+	  Populates the temp transaction memo table
+	  
+	  Uses 'selectTransactionMemosFromSourceFragment'
+	  -->
+	<insert id="populateTransactionMemoTempTable" timeout="600">
+		INSERT INTO <include refid="transactionMemoTempTableNameRef" />
+		(
+			RowOrder,
+			BNKCPDyTrnKy,
+			BNKCPDyTrnMemoKy,
+			AdditionalMemo
+		)
+		<include refid="selectTransactionMemosFromSourceFragment" />
+	</insert>	
+	
+	
+	<!--
+	  Select all transaction memos from source table using 'selectTransactionMemosFromSourceFragment'
+	  
+	  Used by hsql fixup code
+	  -->
+	<select id="selectTransactionMemosForTempTable" parameterType="java.util.Map" resultMap="selectTempTransactionMemosResult">
+		<include refid="selectTransactionMemosFromSourceFragment" />
+		ORDER BY 
+			<include refid="transactionTempTableRowOrderColumn" /> ASC
+	</select>
+
+	<!--
+	  Inserts into the transaction memo temp table
+	  
+	  Used by hsql fixup code
+	  -->
+	<insert id="insertTransactionMemoIntoTempTable" parameterType="com.s1.export.provider.bai.model.TempTransactionMemoValue">
+		INSERT INTO BNKExpTrnmemoDgtt
+		(
+			RowOrder,
+			BNKCPDyTrnKy,
+			BNKCPDyTrnMemoKy,
+			AdditionalMemo
+		)
+		VALUES
+		(
+			#{rowOrder},
+			#{transactionOid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{oid,jdbcType=BIGINT,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+			#{additionalMemo}
+		)
+	</insert>
+	
+	<!--
+	  Selects rows from the temporary transaction memos table.  Rows in [firstRow, lastRow) are selected.
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			fromRow					Yes			Integer.  The first row to grab
+			toRow					Yes			Integer.  The row just beyond the last row to grab 
+	  -->
+	<select id="selectTempTransactionMemos" parameterType="java.util.Map" resultMap="selectTempTransactionMemosResult">
+		SELECT
+			RowOrder				AS RowOrder,
+			BNKCPDyTrnKy			AS BNKCPDyTrnKy,
+			BNKCPDyTrnMemoKy		AS BNKCPDyTrnMemoKy,
+			AdditionalMemo			AS AdditionalMemo
+		FROM
+			<include refid="transactionMemoTempTableNameRef" />
+		WHERE
+			RowOrder <![CDATA[>=]]> #{fromRow} 
+			AND RowOrder <![CDATA[<]]> #{toRow}
+		ORDER BY
+			RowOrder ASC
+	</select>
+	
+</mapper>

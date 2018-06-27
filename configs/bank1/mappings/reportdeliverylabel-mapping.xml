@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.s1.app.bank.reports.reportdelivery.user.ReportDeliveryLabel
+		</typeA>
+		<typeB>com.aciworldwide.pim.message.reports.reportdelivery.ReportDeliveryLabelListType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>reportName</fieldA>
+				<fieldB>reportName</fieldB>
+			</field>
+			<field>
+				<fieldA>pmtReportName</fieldA>
+				<fieldB>pmtReportName</fieldB>
+			</field>
+			<field>
+				<fieldA>reportType</fieldA>
+				<fieldB>reportType</fieldB>
+			</field>
+			<field>
+				<fieldA>reportStatus</fieldA>
+				<fieldB>reportStatus</fieldB>
+			</field>
+			<field>
+				<fieldA>priorDay</fieldA>
+				<fieldB>priorDay</fieldB>
+			</field>
+			<field>
+				<fieldA>buildId</fieldA>
+				<fieldB>buildId</fieldB>
+			</field>			
+		</fields>
+	</mapping>
+</mappings>

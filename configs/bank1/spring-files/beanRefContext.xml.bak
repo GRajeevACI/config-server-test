@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<!-- This bean is the parent ApplicationContext for the WebApplicationContexts defined in the WARs. 
+		The context files listed here should contain beans that are used by all WARs, 
+		for example Services and DAO's. -->
+	<bean id="ear.context" class="org.springframework.context.support.ClassPathXmlApplicationContext">
+		<constructor-arg index="0">
+			<list>
+				<value>config/spring-files/core-services-context.xml</value>
+				<value>config/spring-files/banking-bean-definition.xml</value>
+				<value>config/spring-files/alerts-core-context.xml</value>
+				<value>config/spring-files/pim-beans-definition.xml</value>
+				<value>config/spring-files/banking-services-context.xml</value>
+				<value>config/spring-files/dashboard-services-context.xml</value>
+				<value>config/spring-files/export-file-services-context.xml</value>
+				<value>config/spring-files/payments-services-context.xml</value>
+				
+				<value>config/spring-files/security-config-common.xml</value>
+				<!-- Below gets replaced via token replacement through maven/ant -->				
+				<value>config/spring-files/@spring.security.config.file.name@</value>				
+
+				<value>config/spring-files/alerts-web-context.xml</value>				
+				<value>config/spring-files/mobile-report-daos.xml</value>		
+				<value>config/spring-files/authorization-services-context.xml</value>	
+				<value>config/spring-files/banking-sso-definition.xml</value>	
+<!-- 				<value>config/spring-files/async-message-jms.xml</value>	 -->
+				<value>config/spring-files/metadata-services.xml</value>
+				<value>config/spring-files/soa-core-context.xml</value>
+				<!--  Below files should always be at the end. It is meant for PSO/stack compilance.  -->
+				<value>config/spring-files/appserver-specific-config.xml</value>
+				<value>config/spring-files/cache-core-context.xml</value>				
+				<value>config/spring-files/override-config.xml</value>	
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<!-- This bean is the ApplicationContext for remote services.  It is only necessary if this
+		server will accept requests from batch processes. -->
+	<bean id="batch.context" class="org.springframework.context.support.ClassPathXmlApplicationContext">
+		<constructor-arg index="0">
+			<list>
+				<value>config/spring-files/remote-service-definitions.xml</value>
+			</list>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<ref bean="ear.context" />
+		</constructor-arg>
+	</bean>
+
+</beans>

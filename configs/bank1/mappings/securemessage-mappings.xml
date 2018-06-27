@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping mapNull="false">
+		<typeA>com.s1.common.securemessage.SecureMessageFileValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.uob.securemessage.SecureMessageAttachmentFileType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>fileName</fieldA>
+				<fieldB>fileName</fieldB>
+			</field>
+			<field>
+				<fieldA>soaInstructionId</fieldA>
+				<fieldB>fileUUID</fieldB>
+			</field>
+			<field>
+				<fieldA>mimeType</fieldA>
+				<fieldB>fileMimeType</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.service.rest.ext.AttachmentsInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.uob.securemessage.services.SecureMessageSendRqType</typeB>
+		<fields>
+			<field>
+				<fieldA>attachments</fieldA>
+				<fieldB>attachments</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.service.rest.ext.AttachmentInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.uob.securemessage.SecureMessageAttachmentType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>resourceName</fieldA>
+				<fieldB>fileName</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.InputStreamToByteArrayConverter">
+				<fieldA>data</fieldA>
+				<fieldB>file</fieldB>
+			</field>
+			<field>
+				<fieldA>contentType</fieldA>
+				<fieldB>contentType</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+
+</mappings>	

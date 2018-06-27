@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.PaymentChangeEvaluatorMapper">
+
+	<select id="prepareSubscriptionData" parameterType="map" statementType="CALLABLE" >
+			{ call
+				BNKPmtStsAlrtSbsDataSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler},
+				#{v_alertTypeNm},
+				#{v_reqStatus},
+				#{v_reqThreshold},
+				#{v_reqmeth_parm1},
+				#{v_reqmeth_parm2},
+				#{v_reqmeth_parm3},
+				NULL,
+				NULL) }
+	</select>
+	
+	 <select id="getMatchingSubscriptions" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+	 	select * from SESSION.bnkalrtsbscrptnDgtt
+	 </select>
+	 
+	 <update id="dropAlrtSubscriptionsTempTable" >
+		DROP TABLE SESSION.bnkalrtsbscrptnDgtt
+	</update>
+	
+	 <select id="getMatchingSubscriptions-Oracle" parameterType="map" resultMap="com.s1.alerts.dao.AlertSubscriptionMapper.BaseResultMap">
+	 	select * from bnkalrtsbscrptnDgtt
+	 </select>
+	 
+	<update id="dropAlrtSubscriptionsTempTable-Oracle">
+		select 1 from dual
+	</update>
+	
+	
+</mapper>

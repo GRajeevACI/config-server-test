@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.dashboard.widget.balancesChart.dao.BalancesChartWidgetMapper" >
+
+<resultMap id="accountBalanceView" 
+	type="com.s1.dashboard.widget.balancesChart.model.AccountBalanceView">
+	
+	<result column="BNKACCTKY" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	<result column="FIELDNAME" property="balanceFieldName" />
+	<result column="APPFLDDEFVALUE" property="accountBalance" />
+	<result column="TEXTCODE" property="currencyCode" />
+	<result column="ACCTUUID" property="accountUUID" />
+</resultMap>
+
+<select id="getCurrentDayBalances" resultMap="accountBalanceView">
+select 
+	STATEMENT.BNKACCTKY,
+	BNKAPPFLDDEF.FIELDNAME,
+	DETAILS.BNKCDYSTMTDETAILKY,
+	DETAILS.EFFECTIVEDTTM,
+	DETAILS.APPFLDDEFVALUE,
+	ARCISOCURRENCYCD.TEXTCURRCD TEXTCODE,
+	BNKACCT.SOAINSTRID ACCTUUID
+from 
+	BNKCDYSTMT STATEMENT,
+	BNKCDYSTMTDETAIL DETAILS,
+	BNKAPPFLDDEF,
+	BNKACCT,
+	ARCISOCURRENCYCD
+where
+	STATEMENT.BNKACCTKY IN 
+		<foreach item="oid1" index="idx1" collection="accountOids"
+				open="(" separator="," close=")">
+			#{oid1}
+		</foreach>
+	AND STATEMENT.BNKCDYSTMTKY = DETAILS.BNKCDYSTMTKY
+	AND BNKAPPFLDDEF.FIELDNAME = #{fieldName}
+	AND DETAILS.EFFECTIVEDTTM__ = #{statementDate}
+	AND DETAILS.BNKAPPFLDDEFKY = BNKAPPFLDDEF.BNKAPPFLDDEFKY
+	AND STATEMENT.BNKACCTKY = BNKACCT.BNKACCTKY
+	AND BNKACCT.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY
+</select>
+
+<select id="getPriorDayBalances" resultMap="accountBalanceView">
+SELECT
+	BNKPDYSTMTDETAIL.BNKACCTKY,
+	BNKAPPFLDDEF.FIELDNAME,
+	BNKPDYSTMTDETAIL.EFFECTIVEDTTM,
+	BNKPDYSTMTDETAIL.APPFLDDEFVALUE,
+	ARCISOCURRENCYCD.TEXTCURRCD TEXTCODE,
+	BNKACCT.SOAINSTRID ACCTUUID
+FROM
+	BNKAPPFLDDEF,
+	BNKPDYSTMTDETAIL,
+	BNKACCT,
+	ARCISOCURRENCYCD
+WHERE
+	BNKPDYSTMTDETAIL.BNKACCTKY IN
+		<foreach item="oid1" index="idx1" collection="accountOids"
+				open="(" separator="," close=")">
+			#{oid1}
+		</foreach>
+	AND BNKPDYSTMTDETAIL.EFFECTIVEDTTM =	
+			(SELECT  MAX(STMTDTL.EFFECTIVEDTTM) FROM BNKPDYSTMTDETAIL STMTDTL 
+					WHERE  STMTDTL.BNKACCTKY = BNKPDYSTMTDETAIL.BNKACCTKY
+					AND STMTDTL.BNKAPPFLDDEFKY = BNKPDYSTMTDETAIL.BNKAPPFLDDEFKY )		
+	AND BNKPDYSTMTDETAIL.BNKAPPFLDDEFKY = BNKAPPFLDDEF.BNKAPPFLDDEFKY
+	AND BNKAPPFLDDEF.FIELDNAME = #{fieldName}
+	AND BNKACCT.BNKACCTKY = BNKPDYSTMTDETAIL.BNKACCTKY
+	AND BNKACCT.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY
+</select>
+
+</mapper>

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+				
+   
+   <bean id="bootstrap" class="com.s1.app.disbursements.corpach.batch.achRetNoc.Bootstrap">   
+		<property name="inputTasks">
+			<map>
+				<entry key="ach" value-ref="achFileProcessorTask" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="properties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:achretnocloader.properties"/>
+		<property name="properties">
+			<props>
+				<prop key="dbProvider">db2</prop>
+				<prop key="dbHostPrefix" />
+				<prop key="dbHostname">localhost</prop>
+				<prop key="dbPort">50000</prop>
+				<prop key="dbName">GBSDB41</prop>
+				<prop key="dataSource.driverClassName">com.ibm.db2.jcc.DB2Driver</prop>
+				<prop key="dataSource.connectionInitSqls">SELECT CURRENT SQLID FROM SYSIBM.SYSDUMMY1</prop>
+				<prop key="dbtype">db2</prop>
+				<prop key="passwordCipherFile">../../cloak/cloak.properties</prop>
+				<prop key="passwordKeyFile">../../cloak/cloak.keys</prop>
+ 				<prop key="dataSource.maxActive">150</prop>
+ 				<prop key="dataSource.maxIdle">150</prop>
+ 				<prop key="dataSource.minIdle">0</prop>
+ 				<prop key="dataSource.maxWait">5000</prop>
+				<prop key="dataSource.poolPreparedStatements">true</prop>
+				<prop key="dataSource.maxOpenPreparedStatements">20000</prop>
+				<prop key="dataSource.timeBetweenEvictionRunsMillis">120000</prop>
+				<prop key="dataSource.minEvictableIdleTimeMillis">60000</prop>
+				<prop key="dataSource.numTestsPerEvictionRun">5</prop>
+				<prop key="dataSource.testOnBorrow">true</prop>
+				<prop key="dataSource.testWhileIdle">true</prop>
+				<prop key="dataSource.validationQuery">values(1)</prop>
+				<prop key="dataSource.removeAbandoned">false</prop>
+				<prop key="dataSource.initialSize">5</prop>
+				<prop key="dbConnection.URL">jdbc:${dbProvider}:${dbHostPrefix}//${dbHostname}:${dbPort}/${dbName}#{ '$[dbFunctionPath]' == '' ? '' : ':currentFunctionPath=$[dbFunctionPath];' }</prop>
+				<prop key="passwordCipherFile">../../cloak/cloak.properties</prop>
+				<prop key="passwordKeyFile">../../cloak/cloak.keys</prop>
+				<prop key="batchCommitCount">2000</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="propertiesHolder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties" ref="properties"/>
+	</bean>
+   	
+   	<bean id="cloakPropertiesHolder" class="com.s1.spring.CloakPropertyPlaceholderConfigurer">
+		<property name="placeholderPrefix" value="$["/>
+		<property name="placeholderSuffix" value="]"/>
+		<property name="config" ref="properties" />
+	</bean>
+   	
+	<bean id="achJobConfig" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:achretnocloader.properties</value>
+			</list>
+		</property>
+		<property name="properties">
+			<props>
+				<prop key="loader.logPath">../../data/CORPLDRETACH</prop>
+				<prop key="loader.watchPath">../../bci/CORPLDRETACH/watch</prop>
+				<prop key="loader.processingPath">../../data/CORPLDRETACH/processing</prop>
+				<prop key="loader.completedPath">../../data/CORPLDRETACH/completed</prop>
+				<prop key="loader.partialPath">../../data/CORPLDRETACH/partial</prop> 
+				<prop key="loader.exceptionPath">../../exception</prop>
+				<prop key="loader.criticalPath">../../data/CORPLDRETACH/rejected</prop>
+				<prop key="loader.archivePath">../../archive</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="achUnloadJobConfig" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:achretnocloader.properties</value>
+			</list>
+		</property>
+		<property name="properties">
+			<props>
+				<prop key="unloader.logPath">../../data/CORPULDRETACH</prop>
+				<prop key="unloader.archivePath">../../archive</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="achFileProvider" class="com.s1.app.disbursements.corpach.batch.achRetNoc.NachaFileProvider">
+		<constructor-arg ref="achJobConfig" />
+		<property name="nchr" ref="nachaAuditCreator" />
+		<property name="registryRecordCreator" ref="nachaRegistryRecordCreator" />
+	</bean> 
+	<bean id="achFileProcessorTask" class="com.s1.app.disbursements.corpach.batch.achRetNoc.FileProcessorTask">
+		<property name="provider" ref="achFileProvider" />
+		<property name="loaderParser" ref="loaderParser"/>
+		<property name="registryRecordCreator" ref="nachaRegistryRecordCreator" />
+		<property name="nchr" ref="nachaAuditCreator" />
+	</bean>
+	
+	<bean id="nachaRegistryRecordCreator" class="com.s1.app.disbursements.corpach.batch.achRetNoc.NachaRegistryRecordCreator">
+		<property name="achReturnsNOCService" ref="achReturnsNOCService" />
+	</bean>
+
+	<bean id="nachaAuditCreator" class="com.s1.app.disbursements.corpach.batch.achRetNoc.NachaAuditRecordCreator">
+		<property name="achReturnsNOCService" ref="achReturnsNOCService" />
+	</bean>
+
+	<bean id="duplicateFileValidator" class="com.s1.app.disbursements.corpach.batch.achRetNoc.DuplicateFileValidator"/>
+
+	<bean id="loaderParser" class="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCHoldingsLoaderParser">
+		<property name="achReturnsNOCService" ref="achReturnsNOCService" />
+		<property name="batchCommitCount" value="${batchCommitCount}" />
+	</bean>
+	
+	<bean id="achReturnsNOCService"	class="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCServiceImpl">
+		<property name="achReturnsNOCMapper" ref="achReturnsNOCMapper" />
+		<property name="achReturnsNOCDetailMapper" ref="achReturnsNOCDetailMapper" />
+		<property name="achReturnsNOCRegistryMapper" ref="achReturnsNOCRegistryMapper" />
+		<property name="batchAuditDao" ref="batchAuditDao" />
+		<property name="batchRunDao" ref="batchRunDao" />
+		<property name="batchThreadDao" ref="batchThreadDao" />
+		<property name="batchErrorDao" ref="batchErrorDao" />
+	</bean>
+	
+    <bean id="sqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory" />
+        <property name="databaseType" value="${dbtype}" />
+    </bean>
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:/config/ibatis/ACHRetNoc-SqlMapConfig.xml" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+	<bean id="sequenceService" class="com.s1.arch.batch.lightweight.persistence.sequence.BatchLocalSequenceService">
+		<property name="sequenceGenerator" ref="sequenceGenerator"/>
+	</bean>
+	<bean id="sequenceGenerator" class="com.s1.arch.batch.lightweight.persistence.sequence.BatchLocalSequenceGenerator">
+		<property name="sequenceGeneratorDao" ref="sequenceGeneratorDao"/>
+		<property name="databaseType" value="${dbtype}" />
+	</bean>
+	<bean id="sequenceGeneratorDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sequenceSqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.persistence.sequence.dao.SequenceGeneratorMapper" />
+	</bean>
+	<bean id="sequenceSqlSessionTemplate" class="com.s1.arch.mybatis.DBSpecificSqlSessionTemplate">
+		<constructor-arg ref="sequenceSqlSessionFactory" />
+		<property name="databaseType" value="${dbtype}" />
+	</bean>
+	<bean id="sequenceSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:/config/ibatis/ACHRetNoc-SqlMapConfig.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="sslEnabled" class="java.lang.String">
+		<constructor-arg value="$[actuate.database.SSL.]" />
+	</bean>
+	<bean id="db2ConnProp" class="java.lang.String">
+		<constructor-arg value="sslConnection=true;" />
+	</bean>
+	<bean id="EmptyProp" class="java.lang.String">
+		<constructor-arg value="" />
+	</bean>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+ 		<property name="driverClassName" value="${dataSource.driverClassName}" />
+ 		<property name="maxActive" value="${dataSource.maxActive}"/>
+ 		<property name="maxIdle" value="${dataSource.maxIdle}"/>
+ 		<property name="minIdle" value="${dataSource.minIdle}"/>
+ 		<property name="maxWait" value="${dataSource.maxWait}"/>
+		<property name="url" value="${dbConnection.URL}" />		
+		<property name="poolPreparedStatements" value="${dataSource.poolPreparedStatements}"/>
+		<property name="maxOpenPreparedStatements" value="${dataSource.maxOpenPreparedStatements}"/>
+		<property name="timeBetweenEvictionRunsMillis" value="${dataSource.timeBetweenEvictionRunsMillis}"/>
+		<property name="minEvictableIdleTimeMillis" value="${dataSource.minEvictableIdleTimeMillis}"/>
+		<property name="numTestsPerEvictionRun" value="${dataSource.numTestsPerEvictionRun}"/>
+		<property name="testOnBorrow" value="${dataSource.testOnBorrow}"/>
+		<property name="testWhileIdle" value="${dataSource.testWhileIdle}"/>
+		<property name="validationQuery" value="${dataSource.validationQuery}"/>
+		<property name="connectionInitSqls" value="${dataSource.connectionInitSqls}"/>
+		<property name="removeAbandoned" value="${dataSource.removeAbandoned}"/>
+		<property name="username" value="$[dbUser]" />
+		<property name="password" value="$[dbpassword]" />
+		<property name="defaultAutoCommit" value="false" />
+		<property name="initialSize" value="${dataSource.initialSize}"/>
+		<property name="connectionProperties" value="#{ sslEnabled == 'true' ? db2ConnProp : EmptyProp }"/>
+	</bean>
+		
+	<bean id="BaseMyBatisMapper" abstract="true">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="achReturnsNOCMapper" class="com.s1.arch.mybatis.BatchExecutionMapperFactoryBean" >
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="achReturnsNOCDetailMapper" class="com.s1.arch.mybatis.BatchExecutionMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCDetailMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	<bean id="achReturnsNOCRegistryMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCRegistryMapper" />
+	</bean>
+	
+	<bean id="fiCodeDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchFiCodeMapper" />
+	</bean>		
+	
+	<bean id="programCodeDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchProgramCodeMapper" />
+	</bean>
+	
+	<bean id="productCodeDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchProductCodeMapper" />
+	</bean>
+	
+	<bean id="batchAuditDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchAuditMapper" />
+	</bean>
+
+	<bean id="batchRunDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchRunMapper" />
+	</bean>
+
+	<bean id="batchThreadDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchThreadMapper" />
+	</bean>
+	
+	<bean id="batchErrorDao" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMyBatisMapper">
+		<property name="mapperInterface" value="com.s1.arch.batch.lightweight.dao.BatchErrorMapper" />
+	</bean>
+	
+	<bean id="batchError" class="com.s1.arch.batch.lightweight.model.BatchError" scope="prototype" />
+	
+	<bean id="batchAuditExample" class="com.s1.arch.batch.lightweight.model.BatchAuditExample" scope="prototype"/>
+	
+	<bean id="batchErrorExample" class="com.s1.arch.batch.lightweight.model.BatchErrorExample" scope="prototype"/>
+	
+	<bean id="batchFiCodeExample" class="com.s1.arch.batch.lightweight.model.BatchFiCodeExample" scope="prototype"/>
+	
+	<bean id="batchProgramCodeExample" class="com.s1.arch.batch.lightweight.model.BatchProgramCodeExample" scope="prototype"/>
+	
+	<bean id="batchProductCodeExample" class="com.s1.arch.batch.lightweight.model.BatchProductCodeExample" scope="prototype"/>
+	
+	<bean id="batchRunExample" class="com.s1.arch.batch.lightweight.model.BatchRunExample" scope="prototype"/>
+	
+	<bean id="batchThreadExample" class="com.s1.arch.batch.lightweight.model.BatchThreadExample" scope="prototype"/>
+	
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	    <property name="dataSource" ref="dataSource"/>
+		<property name="nestedTransactionAllowed" value="false" />
+	</bean>
+	<aop:config>
+		<aop:pointcut id="achRetNocParserOps" expression="execution(public * com.s1.app.disbursements.corpach.batch.achRetNoc.ACHReturnsNOCService.*(..))" />
+		<aop:advisor id="achRetNocParserAdvisor" pointcut-ref="achRetNocParserOps" advice-ref="txAchRetNocParserAdvice" />
+	</aop:config>
+	<tx:advice id="txAchRetNocParserAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED" />
+		</tx:attributes>
+	</tx:advice>
+	
+   <bean id="unloadHandler" class="com.s1.app.disbursements.corpach.batch.achRetNoc.UnloadRetNocHandler">
+		<property name="props" ref="achUnloadJobConfig" />
+		<property name="batchFiCodeExample" ref="batchFiCodeExample" />
+		<property name="fiCodeDao" ref="fiCodeDao" />
+		<property name="batchProgramCodeExample" ref="batchProgramCodeExample" />
+		<property name="programCodeDao" ref="programCodeDao" />
+		<property name="batchProductCodeExample" ref="batchProductCodeExample" />
+		<property name="productCodeDao" ref="productCodeDao" />
+		<property name="achReturnsNOCService" ref="achReturnsNOCService" />
+	</bean>
+</beans>

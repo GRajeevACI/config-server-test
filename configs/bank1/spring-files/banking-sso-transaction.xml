@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<aop:config>
+
+		<aop:pointcut id="allGssoServiceOps" expression="execution(public * com.aci.gsso..*Service.*(..))" />		
+        <aop:pointcut id="initiatorOps" expression="execution(public * com.aci.gsso.framework.businesslayer.IGSSOInitiatorServiceAPI.*(..))" />
+		<aop:pointcut id="assignGuidIfUniqueOps" expression="execution(public * com.aci.gsso.admin.service.GuidService.assignGuidIfUnique(..))" />
+        <aop:pointcut id="dbLevelSyncLockOps" expression="execution(public * com.aci.gsso.framework.persistencelayer.GssoDBLevelSyncLockService.applyLock(..) throws *)" />
+        <aop:pointcut id="dbLevelSyncUnlockOps" expression="execution(public * com.aci.gsso.framework.persistencelayer.GssoDBLevelSyncLockService.applyUnlock(..))" />
+        <aop:pointcut id="initiatorPersisterUpsertOps" expression="execution(public * com.aci.gsso.framework.persistencelayer.IGSSOInitiatorPersister.upsert*(..))" />
+
+		<aop:advisor id="allGssoServiceAdvisor" pointcut-ref="allGssoServiceOps" advice-ref="txTypicalTransactionAdvice" order="5" />       
+        <aop:advisor id="initiatorAdvisor" pointcut-ref="initiatorOps" advice-ref="txTypicalTransactionAdvice" order="5" />
+        <aop:advisor id="assignGuidIfUniqueAdvisor" pointcut-ref="assignGuidIfUniqueOps" advice-ref="txRequiresNewSerializable" order="10" />
+		<aop:advisor id="dbLevelSyncLockAdvisor" pointcut-ref="dbLevelSyncLockOps" advice-ref="txRequiresNewReadCommitted" order="10" />
+        <aop:advisor id="dbLevelSyncUnlockAdvisor" pointcut-ref="dbLevelSyncUnlockOps" advice-ref="txRequiresNewReadCommitted" order="10" />
+                
+        <!-- Using txRequiresNewReadCommitted instead of txRequiresNewSerializable for performance, as a call to a 3rd-party system will happen during this tx.
+                All paths going through the upsert methods should use GssoDBLevelSyncLockService to lock. -->
+        <aop:advisor id="initiatorPersisterUpsertAdvisor" pointcut-ref="initiatorPersisterUpsertOps" advice-ref="txRequiresNewSerializable" order="10"  />
+	</aop:config>
+	
+	<tx:advice	id="txTypicalTransactionAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice	id="txRequiresNewSerializable" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="SERIALIZABLE" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice id="txRequiresNewReadCommitted" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+        </tx:attributes>
+    </tx:advice>
+</beans>

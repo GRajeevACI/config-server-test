@@ -1,0 +1,127 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:task="http://www.springframework.org/schema/task"	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+			http://www.springframework.org/schema/task  
+			http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<bean id="authorizationService" class="com.s1.arch.security.authorization.Authorizer" factory-method="createFilterChain">
+		<constructor-arg ref="${authorization.service.implementationName}" />
+	</bean>
+	
+	<bean id="authorizationDataService" class="com.s1.arch.security.authorization.AuthorizationDataServiceImpl">
+		<property name="authGrantMapper" ref="authorizationMapper" />
+		<property name="operationMapper" ref="grantOperationMapper" />
+		<property name="targetTypeMapper" ref="grantTargetTypeMapper" />
+	</bean>
+	
+	<bean id="delegatingAuthorizationService" class="com.s1.arch.security.authorization.DelegatingAuthorizationService" lazy-init="true">
+		<property name="delegate" ref="authorizationDataService" />
+	</bean>
+	
+	<bean id="cachingAuthorizationService" class="com.s1.arch.security.authorization.CachingAuthorizationService" lazy-init="true">
+		<property name="delegate" ref="authorizationDataService" />
+		<property name="cache" ref="authorizationCache" />
+		<property name="authorizationGrantMapper" ref="authorizationMapper" />
+		<property name="operationCache" ref="operationCache" />
+		<property name="targetTypeCache" ref="targetTypeCache" />
+		<property name="principalMapper" ref="grantPrincipalMapper" />
+		<property name="targetEntryFactory" ref="targetEntryFactory" />
+		<property name="statisticsDriver" ref="authorizationCacheStatistics" />
+		<property name="topicBroadcast" ref="topicBroadcast" />		
+	</bean>
+
+	<bean id="operationCache" class="com.s1.arch.security.authorization.cache.OperationCache" lazy-init="true">
+		<property name="dataService" ref="authorizationDataService" />
+	</bean>
+	
+	<bean id="targetTypeCache" class="com.s1.arch.security.authorization.cache.TargetTypeCache" lazy-init="true">
+		<property name="dataService" ref="authorizationDataService" />
+	</bean>
+	
+	<bean id="authorizationCacheStatistics" class="com.s1.arch.security.authorization.cache.AuthorizationCacheStatisticsImpl" />
+	
+	<bean id="authorizationCache" class="com.s1.arch.security.authorization.cache.AuthorizationCacheImpl" lazy-init="true">
+		<property name="statisticsDriver" ref="authorizationCacheStatistics" />
+		<property name="concurrencyLevel" value="${authorization.cache.concurrencyLevel}" />
+		<property name="initialCapacity" value="${authorization.cache.initialCapacity}" />
+		<property name="maximumCapacity" value="${authorization.cache.maximumCapacity}" />
+		<property name="timeToLive" value="${authorization.cache.timeToLive}" />		
+	</bean>
+	
+	<bean id="authorizationCacheSessionListener" class="com.s1.arch.security.authorization.cache.AuthorizationCacheSessionListener">
+		<property name="cache" ref="authorizationCache" />
+	</bean>
+	
+	<bean id="oidTargetEntryBuilder" class="com.s1.arch.security.authorization.cache.OidTargetEntry.Builder" />
+	
+	<bean id="stringTargetEntryBuilder" class="com.s1.arch.security.authorization.cache.StringTargetEntry.Builder" />
+	
+	<bean id="noneTargetEntryBuilder" class="com.s1.arch.security.authorization.cache.NoneTargetEntry.Builder" />
+	
+	<bean id="targetEntryFactory" class="com.s1.arch.security.authorization.cache.TargetEntryFactory" lazy-init="true">
+		<property name="targetNames">
+			<map>
+				<entry key="Account" value-ref="oidTargetEntryBuilder" />
+				<entry key="workflow" value-ref="stringTargetEntryBuilder" />
+				<entry key="20040723154236:113745e2:fdec6b0d6f:S1:PLAT:NoneTargetType" value-ref="noneTargetEntryBuilder" />
+				<entry key="product" value-ref="oidTargetEntryBuilder" />
+				<entry key="Subsidiary" value-ref="oidTargetEntryBuilder" />
+				<entry key="MobilePrefAccount" value-ref="stringTargetEntryBuilder" />
+				<entry key="ApprovalType" value-ref="stringTargetEntryBuilder" />
+			</map>
+		</property>
+	</bean>
+	
+    <bean id="grantOperationMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.GrantOperationMapper" />
+	</bean>
+	
+	<bean id="grantTargetTypeMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.GrantTargetTypeMapper" />
+	</bean>
+
+	<bean id="grantPrincipalMapper" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.arch.security.authorization.dao.GrantPrincipalMapper" />
+	</bean>
+	
+	<bean id="cacheLRUEvict" class="com.s1.arch.security.authorization.scheduler.CacheLRUEvict">
+		<property name="cache" ref="authorizationCache" />			
+	</bean>
+	<bean id="topicBroadcast" class="com.s1.arch.security.authorization.scheduler.TopicBroadcast" />	
+	<!--
+	<bean id="authEvictSchedulerTask" 
+	  class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="cacheLRUEvict" />
+		<property name="targetMethod" value="evictLRU" />
+	</bean>	
+	
+	<bean id="authEvicttimerTask"
+		class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask" ref="authEvictSchedulerTask" />
+		<property name="delay" value="1000" />
+		<property name="period" value="60000" />
+	</bean>	
+	
+	<bean class="org.springframework.scheduling.timer.TimerFactoryBean">
+		<property name="scheduledTimerTasks">
+			<list>
+				<ref local="authEvicttimerTask" />
+			</list>
+		</property>
+	</bean>	
+	-->
+	<!--
+	<task:annotation-driven />
+
+	<context:component-scan base-package="com.s1.arch.security.authorization.scheduler"/>-->
+
+
+		<task:scheduled-tasks>
+		<task:scheduled ref="cacheLRUEvict" method="evictLRU" fixed-delay="${authorization.cache.LRUEvictDelay}"/>
+		<task:scheduled ref="topicBroadcast" method="broadcast" fixed-delay="${authorization.cache.topicBroadcastDelay}"/>	
+		</task:scheduled-tasks>
+
+	
+	
+</beans>

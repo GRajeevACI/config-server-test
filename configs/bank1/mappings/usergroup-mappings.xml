@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+<!-- Create user group--> 	
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.online.common.component.UserGroupType</typeA>
+		<typeB>com.s1.app.corp.groups.CorpGroupValue</typeB>
+		<fields>
+			<field>
+				<fieldA>groupName</fieldA>
+				<fieldB>groupName</fieldB>
+			</field>
+			<field>
+				<fieldA>groupDesc</fieldA>
+				<fieldB>description</fieldB>
+			</field>
+			<field>
+				<fieldA>accessControl.isSystemAdmin</fieldA>
+				<fieldB>companySystemAdministrator</fieldB>
+			</field>
+			<field customConverterBean="privilegeLevelConverter" oneWay="true">
+				<fieldA>accessControl.privilegeLevel</fieldA>
+				<fieldB>entitlementAccessTypeCd</fieldB>
+			</field>
+			<field>
+				<fieldA>accessControl.manageConfidentialBatch</fieldA>
+				<fieldB>confidentialBatch</fieldB>
+			</field>
+			<field customConverterBean="userApprovalConverter">
+				<fieldA>accessControl.approvalPrivileges</fieldA>
+				<fieldB>approvalOperations</fieldB>
+			</field>	
+			<field customConverterBean="userGroupLimitConverter">
+				<fieldA>accessControl.userLimit</fieldA>
+				<fieldB>limitsValue</fieldB>
+			</field>					
+			<field>
+				<fieldA>diffInfoDetails</fieldA>
+				<fieldB>diffInfoDetails</fieldB>
+			</field>		
+			<field>
+				<fieldA>lastModifiedBy</fieldA>
+				<fieldB>updateUser</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<!-- User group list-->
+	<mapping>
+		<typeA>com.s1.app.corp.groups.CorpGroupValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupInfoType</typeB>
+		<fields>
+			<field>
+				<fieldA>groupName</fieldA>
+				<fieldB>groupName</fieldB>
+			</field>
+			<field>
+				<fieldA>description</fieldA>
+				<fieldB>description</fieldB>
+			</field>
+			<field>
+				<fieldA>isCompanySystemAdministrator</fieldA>
+				<fieldB>isAdmin</fieldB>
+			</field>
+			<field customConverterBean="reversePrivilegeLevelConverter">
+				<fieldA>entitlementAccessTypeCd</fieldA>
+				<fieldB>entitlement</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.StringBooleanConverter">
+				<fieldA>hasOneApprovalGrant</fieldA>
+				<fieldB>isApprover</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.PendingStatusConverter">
+				<fieldA>status.statusCode</fieldA>
+				<fieldB>userGroupPendingStatus</fieldB>
+			</field>
+			<field>
+				<fieldA>updateUser</fieldA>
+				<fieldB>lastModifiedBy</fieldB>
+			</field>
+			<field>
+				<fieldA>updateDttm</fieldA>
+				<fieldB>lastModifiedDate</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.arch.service.transformation.converter.ApproveOwnAuthorizationConverter">
+				<fieldA>updateUser</fieldA>
+				<fieldB>isAuthorizedToApprove</fieldB>
+			</field>     	
+		</fields>
+	</mapping>
+	<mapping>
+	  <typeA>com.s1.app.corp.groups.UserGroupList</typeA>
+	  <typeB>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupListInquiryRsType</typeB>
+	  	<fields>
+			<field>
+				<fieldA>values</fieldA>
+				<fieldB>userGroupInfo</fieldB>
+			</field>
+		</fields>		
+	</mapping>
+	
+	<!-- Below is required for the Get Members of the UserGroup API -->
+	
+	
+	<mapping  mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.online.common.component.UserCriteriaType</typeA>
+		<typeB>com.s1.app.corp.groups.UserGroupAssociationValue</typeB>
+		<fields>
+			<field>
+				<fieldA>userIdent</fieldA>
+				<fieldB>userPrincipalName</fieldB>
+			</field>
+			<field>
+				<fieldA>firstName</fieldA>
+				<fieldB>userFirstName</fieldB>
+			</field>						
+			<field>
+				<fieldA>lastName</fieldA>
+				<fieldB>userLastName</fieldB>
+			</field>					
+		</fields>
+	</mapping>
+	<mapping>
+	  <typeA>com.aciworldwide.arch.service.pagination.PaginatedList</typeA>
+	  <typeB>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupMemberInquiryRsType</typeB>	  		 
+	  	<fields>
+			<field>
+				<fieldA>pagedList</fieldA>
+				<fieldB>groupMembers</fieldB>
+			</field>
+		</fields>		
+	</mapping>
+	<mapping>
+		<typeA>com.s1.app.corp.groups.UserGroupAssociationValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.management.usergroup.services.GroupMemberType</typeB>
+		<fields>
+			<field>
+				<fieldA>userLastName</fieldA>
+				<fieldB>lastName</fieldB>
+			</field>
+			<field>
+				<fieldA>userFirstName</fieldA>
+				<fieldB>firstName</fieldB>
+			</field>						
+			<field>
+				<fieldA>userId</fieldA>
+				<fieldB>userId</fieldB>
+			</field>
+			<field>
+				<fieldA>userStatus</fieldA>
+				<fieldB>userStatus</fieldB>
+			</field>									
+		</fields>
+	</mapping>
+	<mapping>
+		<typeA>com.s1.app.corp.groups.CorpGroupValue</typeA>
+		<typeB>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupDetailInquiryRsType</typeB>
+		<fields>
+			<field>
+				<fieldA>groupName</fieldA>
+				<fieldB>userGroup.groupName</fieldB>
+			</field>
+			<field>
+				<fieldA>groupName</fieldA>
+				<fieldB>userGroup.origGroupName</fieldB>
+			</field>
+			<field>
+				<fieldA>description</fieldA>
+				<fieldB>userGroup.groupDesc</fieldB>				
+			</field>
+			<field>
+				<fieldA>status.statusCode</fieldA>
+				<fieldB>userGroup.groupPendingStatus</fieldB>				
+			</field>		
+			<field>
+				<fieldA>updateUser</fieldA>
+				<fieldB>userGroup.lastModifiedBy</fieldB>				
+			</field>
+			<field>
+				<fieldA>isCompanySystemAdministrator</fieldA>
+				<fieldB>userGroup.accessControl.isSystemAdmin</fieldB>
+			</field>
+			<field>
+				<fieldA>isConfidentialBatch</fieldA>
+				<fieldB>userGroup.accessControl.manageConfidentialBatch</fieldB>
+			</field>
+			<field>
+				<fieldA>diffInfoDetails</fieldA>
+				<fieldB>userGroup.diffInfoDetails</fieldB>
+			</field>	
+			<field customConverterBean="reversePrivilegeLevelConverter" oneWay="true">
+				<fieldA>entitlementAccessTypeCd</fieldA>
+				<fieldB>userGroup.accessControl.privilegeLevel</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+	<!-- User Group - Users operations Add Users/Remove Users -->
+	<mapping>
+	  <typeA>com.s1.common.company.EmployeeViewList</typeA>
+	  <typeB>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupMemberInquiryRsType</typeB>
+	  	<fields>
+			<field>
+				<fieldA>values</fieldA>
+				<fieldB>groupMembers</fieldB>
+			</field>
+		</fields>		
+	</mapping>
+
+	<mapping>
+		<typeA>com.s1.common.company.EmployeeView</typeA>
+		<typeB>com.aciworldwide.pim.messages.management.usergroup.services.GroupMemberType</typeB>
+		<fields>
+			<field>
+				<fieldA>givenName</fieldA>
+				<fieldB>firstName</fieldB>
+			</field>
+			<field>
+				<fieldA>familyName</fieldA>
+				<fieldB>lastName</fieldB>
+			</field>
+			<field>
+				<fieldA>userId</fieldA>
+				<fieldB>userId</fieldB>
+			</field>
+			<field>
+				<fieldA>active</fieldA>
+				<fieldB>userStatus</fieldB>
+			</field>
+			 <field customConverter="com.aciworldwide.arch.service.transformation.converter.PendingStatusConverter">
+				<fieldA>status.statusCode</fieldA>
+				<fieldB>approvalStatus</fieldB>
+			</field>	
+		</fields>
+	</mapping>
+	<!-- End - User Group - Users operations Add Users/Remove Users -->
+	
+	<!--  Functional operations  -->
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupFunctionalPrivilegeManageRqType</typeA>
+		<typeB>com.s1.common.entitlement.FunctionalOperationValueList</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.pim.messages.service.mapper.FunctionalAccessConverter">
+				<fieldA>privileges</fieldA>
+				<fieldB>funcOpList</fieldB>
+			</field>					
+		</fields>
+	</mapping>
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.management.usergroup.services.UserGroupFunctionalPrivilegeManageRqType</typeA>
+		<typeB>com.s1.common.entitlement.FunctionalOperationValueList</typeB>
+		<fields>
+			<field customConverter="com.aciworldwide.pim.messages.service.mapper.FunctionalAccessConverter">
+				<fieldA>privileges</fieldA>
+				<fieldB>funcOpList</fieldB>
+			</field>					
+		</fields>
+	</mapping>
+	
+	
+	<mapping>
+		<typeA>com.aciworldwide.pim.messages.online.common.component.FunctionalPrivilegeInquiryRsType</typeA>
+		<typeB>com.s1.common.entitlement.FunctionalOperationValueList</typeB>
+		<fields>
+			<field>
+				<fieldA>privileges</fieldA>
+				<fieldB>funcOpList</fieldB>
+			</field>					
+		</fields>
+	</mapping>
+	<!--  Functional operation ends -->
+</mappings>	

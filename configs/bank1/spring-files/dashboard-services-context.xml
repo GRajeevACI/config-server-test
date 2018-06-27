@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		">
+
+	<bean name="widgetMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="mapperInterface" value="com.s1.dashboard.dao.WidgetMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>		
+	
+	<bean name="userWidgetMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="mapperInterface" value="com.s1.dashboard.dao.UserWidgetMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="sequenceService" ref="sequenceService" />	
+	</bean>
+	
+	<bean name="widgetPrefMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="mapperInterface" value="com.s1.dashboard.dao.UserWidgetPreferenceMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="sequenceService" ref="sequenceService" />			
+	</bean>
+	
+	<bean name="widgetService" class="com.s1.dashboard.services.impl.WidgetServiceImpl">
+		<property name="widgetMapper" ref="widgetMapper" />
+		<property name="userWidgetMapper" ref="userWidgetMapper" />
+		<property name="preferenceMapper" ref="widgetPrefMapper" />
+		<property name="widgetManifestMap" ref="widgetManifestMap" />
+	</bean>	
+	
+	<bean name="dashboardAccountReportsService" class="com.s1.dashboard.services.impl.AccountReportsServiceImpl">
+		<property name="standardReportService" ref="standardReportService" />
+		<property name="customReportService" ref="customReportService" />
+	</bean>
+	
+	<bean name="dashboardPaymentReportsService" class="com.s1.dashboard.services.impl.PaymentReportsServiceImpl">
+		<property name="authorizationService" ref="authorizationService" /> 
+		<property name="standardReportService" ref="standardPmtReportService" />
+		<property name="customReportService" ref="customPmtReportService" />
+		<property name="navigationCondition"  >
+			<bean class="com.s1.app.smallbiz.navigation.PaymentReportsCondition" />
+		</property>
+	</bean>
+
+	<bean name="dashboardTransferReportsService" class="com.s1.dashboard.services.impl.TransferReportsServiceImpl">
+		<property name="authorizationService" ref="authorizationService" /> 
+		<property name="standardReportService" ref="standardPmtReportService" />
+		<property name="customReportService" ref="customPmtReportService" />
+		<property name="navigationCondition"  >
+			<bean class="com.s1.app.smallbiz.navigation.TransferReportsCondition" />
+		</property>
+	</bean>
+	
+	<bean name="dashboardFraudControlReportsService" 
+		class="com.s1.dashboard.services.impl.FraudControlReportsServiceImpl">
+		<property name="authorizationService" ref="authorizationService" /> 
+		<property name="standardReportService" ref="standardReportService" />
+		<property name="customReportService" ref="customReportService" />
+		<property name="navigationCondition"  >
+			<bean class="com.s1.app.smallbiz.navigation.FraudReportCondition" />
+		</property>
+	</bean>
+	
+	<bean name="dashboardCheckServiceReportsService"
+		class="com.s1.dashboard.services.impl.CheckServiceReportsServiceImpl">
+		<property name="authorizationService" ref="authorizationService" /> 
+		<property name="standardReportService" ref="standardReportService" />
+		<property name="customReportService" ref="customReportService" />	
+		<property name="navigationCondition" >
+			<bean class="com.s1.app.smallbiz.navigation.CheckServicesReportCondition" />
+		</property>	
+	</bean>
+	
+	<bean name="dashboardAccountBalancesService"
+		class="com.s1.dashboard.services.impl.AccountBalancesServiceImpl">
+		<property name="accountWidgetMapper" ref="accountWidgetMapper" />
+		<property name="entitlementService" ref="entitlementService" />
+	</bean>
+	
+	<bean name="accountWidgetMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="mapperInterface" value="com.s1.dashboard.dao.AccountWidgetMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="sequenceService" ref="sequenceService" />	
+	</bean>
+
+	<bean id="baseShortcut" class="com.s1.dashboard.widget.shortcuts.ShortcutImpl" abstract="true">
+		<property name="authorizationService" ref="authorizationService" />
+		<property name="anyFeatures">
+			<list value-type="java.lang.Integer">
+			</list>
+		</property>
+		<property name="anyEntitlements">
+			<list value-type="java.lang.String">
+			</list>
+		</property>
+	</bean>
+	
+	<bean name="shortcutService" class="com.s1.dashboard.widget.shortcuts.ShortcutServiceImpl">
+		<property name="shortcuts">
+			<list value-type="com.s1.dashboard.widget.shortcuts.Shortcut">
+				<bean parent="baseShortcut">
+					<property name="id" value="create_payment" />
+					<property name="url" value="/core/paymentscenter/paymentList?mainTabClicked=true" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_CHILD}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_TAX}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_PPD}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_RCK}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_TEL}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_WEB}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_CCD}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_CTX}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_IAT}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_DOM_IAT}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_REVERSAL}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).BOOKWIRE}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).DRAFTS}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).DRAWDOWN}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).INTERNATIONAL_WIRE}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).MULTIBANK}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).USFEDERALTAX}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).WIRETRANSFERS}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ADVICETORECEIVE}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).ACH_REVERSAL_CREATE_MODIFY_VIEW_DELETE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CHILD_SUPPORT_CREDITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CHILD_SUPPORT_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CCD_CREDITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CCD_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CCD_DEBITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CCD_DEBITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CTX_CREDITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CTX_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_IAT_CREDITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_IAT_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_IAT_DEBITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_IAT_DEBITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_DOM_IAT_CREDITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_DOM_IAT_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_IAT_DEBITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_IAT_DEBITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_PPD_CREDITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_PPD_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_PPD_DEBITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_PPD_DEBITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_CREDIT_RCK.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_TAX_CREDITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_TEL_DEBITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_TEL_DEBITS_NON_REPETITIVE_APPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_WEB_DEBITS_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_WEB_DEBITS_NON_REPETITIVE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACH_DEBIT_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ADVICETORECEIVE_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_BOOK_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_BOOK_CREATE_FROM_TEMPLATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_BOOK_NONREP_CREATE_MODIFY_APPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_BOOK_REP_CREATE_MODIFY_APPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_INTERNATIONAL_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_INTERNATIONAL_CREATE_FROM_TEMPLATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_INTERNATIONAL_NONREP_CREATE_MODIFY_APPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_INTERNATIONAL_REP_CREATE_MODIFY_APPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).DRAFT_NONREP_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).DRAFT_REP_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).DRAWDOWN_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).DRAWDOWN_CREATE_FROM_TEMPLATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).MULTIBANK_NONREP_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).MULTIBANK_NONREP_OWNTEMP_CRMOAPPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).MULTBANK_REP_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).MULTIBANK_REP_OWNTEMP_CRMOAPPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).WIRE_CREATE_FROM_TEMPLATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).USFEDERAL_CREATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).USFEDERAL_CREATE_FROM_TEMPLATE.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="create_transfer" />
+					<property name="url" value="/disb/common/transact/user/transferViewPrimaryCorporate?transferType=pending" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).INTERNAL_TRANSFERS}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).EXTERNAL_TRANSFER}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).EXTERNAL_TRANFERS_OUTBOUND}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).EXTERNAL_TRANFERS_INBOUND}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).ACCOUNT_TRANSFER_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACCOUNT_TRANSFER_SAVE_APPROVE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACCOUNT_TRANSFER_CREATE_MODIFY_FROM_TEMPLATE.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).EXTERNAL_TRANSFER_INBOUND_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).EXTERNAL_TRANSFER_OUTBOUND_CREATE_MODIFY.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<!-- 
+				<bean parent="baseShortcut">
+					<property name="id" value="pay_bills" />
+					<property name="url" value="" />
+				</bean>
+				-->
+				<bean parent="baseShortcut">
+					<property name="id" value="view_statements" />
+					<property name="url" value="/userServlet/app/bank/user/viewSelectStatement" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).STATEMENTS}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).STATEMENTS.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_stop_pay" />
+					<property name="url" value="/userServlet/app/bank/user/manageStopPayment" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).STOP_PAYMENTS}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_STOP_PAYMENT_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_STOP_PAYMENT_VIEW.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_STOP_PAYMENT_DELETE.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_users" />
+					<property name="url" value="/sbb/app/corp/user/entitlement" />
+					<property name="csa" value="true" />
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="create_user" />
+					<property name="url" value="/sbb/app/corp/corporationEdit/addUser" />
+					<property name="csa" value="true" />
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="view_alerts" />
+					<property name="url" value="/userServlet/common/inbox/view?tab=0" />
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_alerts" />
+					<property name="url" value="/sbb/app/bank/user/manage/alertsTabs" />
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="view_messages" />
+					<property name="url" value="/userServlet/common/inbox/view?tab=1" />
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="send_message" />
+					<property name="url" value="/userServlet/common/securemessage/inbox/populate" />
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_pos_pay" />
+					<property name="url" value="/sbb/app/smallbiz/user/positivePayList" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).POSITIVE_PAY_DECISION}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).REVERSE_POSITIVE_PAY}</value>
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_POSITIVE_PAY}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_ACH_POSITIVE_PAY_VIEW.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_ACH_POSITIVE_PAY_PAYRETURN.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_POSITIVE_PAY_VIEW.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_POSITIVE_PAY_PAYRETURN.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_REVERSE_POSITIVE_PAY_VIEW.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_REVERSE_POSITIVE_PAY_PAYRETURN.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_account_reports" />
+					<property name="url" value="/sbb/app/smallbiz/user/reports/viewInfoReports" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).ACCOUNT_INFO_REPORTING_CURRENT_DAY_REPORTS_VIEW.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).ACCOUNT_INFO_REPORTING_PREVIOUS_DAY_REPORTS_VIEW.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_ach_auth" />
+					<property name="url" value="/sbb/app/achauth/user/achAuthList?accessway=menu" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ACH_AUTHORIZATION}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_ACH_AUTHORIZATION_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_ACH_AUTHORIZATION_VIEW.toString()}</value>
+						</list>
+					</property>
+				</bean>
+				<bean parent="baseShortcut">
+					<property name="id" value="manage_issues" />
+					<property name="url" value="/sbb/app/bank/user/manageIssues" />
+					<property name="anyFeatures">
+						<list value-type="java.lang.Integer">
+							<value>#{T(com.s1.common.classofservice.DefaultFeature).ISSUE_MAINTENANCE}</value>
+						</list>
+					</property>
+					<property name="anyEntitlements">
+						<list value-type="java.lang.String">
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_MANUAL_ISSUE_CREATE_MODIFY.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_MANUAL_ISSUE_VIEW.toString()}</value>
+							<value>#{T(com.s1.common.authorization.Operation).CHECK_MANUAL_ISSUE_DELETE.toString()}</value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	
+	<bean name="balancesChartWidgetMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="mapperInterface" value="com.s1.dashboard.widget.balancesChart.dao.BalancesChartWidgetMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+ 	<bean name="quickTransferAuthorizeService" class="com.s1.dashboard.services.impl.QuickTransferAuthorizeServiceImpl"/>	 
+	<bean name="quickTransferCreateService" class="com.s1.dashboard.services.impl.QuickTransferCreateServiceImpl"/>
+	
+	<bean name = "eventsService" class="com.s1.dashboard.services.impl.EventsServiceImpl"/>
+	
+	<util:map id="widgetManifestMap">
+		<entry key="HelloWorld">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="HelloWorldWidget" />
+				<property name="url" value="hello" />
+			</bean>
+		</entry>
+		<entry key="GoodbyeWorld">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="GoodbyeWidget" />
+				<property name="url" value="goodbye" />
+			</bean>
+		</entry>
+		<entry key="Reports">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="ReportsWidget" />
+				<property name="url" value="reports" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).REPORTS_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="Shortcuts">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="ShortcutsWidget" />
+				<property name="url" value="shortcuts" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).SHORTCUTS_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="SpecialReports">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="SpecialReportsWidget" />
+				<property name="url" value="specialReports" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).SPECIALREPORTS_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="Calendar">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="CalendarWidget" />
+				<property name="url" value="calendar" />
+			</bean>
+		</entry>
+		<entry key="Accounts">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="AccountsWidget" />
+				<property name="url" value="accounts" />
+			</bean>
+		</entry>
+		<entry key="BalancesChart">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="BalancesChartWidget" />
+				<property name="url" value="balancesChart" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).BALANCECHART_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="QuickTransfer">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="QuickTransferWidget" />
+				<property name="url" value="quicktransfer" />
+				<property name="widgetCOSFeature" value="#{T(com.s1.common.classofservice.DefaultFeature).QUICKTRANSFER_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="Statements">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="StatementsWidget" />
+				<property name="url" value="statements" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).STATEMENTS_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="FxRates">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="FxRatesWidget" />
+				<property name="url" value="fxrates" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).FXRATES_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="CurrencyConverter">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="CurrencyConverterWidget" />
+				<property name="url" value="currencyConverter" />
+				<property name="widgetCOSFeature" 
+					value="#{T(com.s1.common.classofservice.DefaultFeature).CURRENCYCONVERTER_WIDGET}" />
+			</bean>
+		</entry>
+		<entry key="Events">
+			<bean class="com.s1.dashboard.model.WidgetManifest">
+				<property name="constructor" value="EventsWidget" />
+				<property name="url" value="events" />
+				<property name="widgetCOSFeature" value="#{T(com.s1.common.classofservice.DefaultFeature).EVENTS_WIDGET}" />
+			</bean>
+		</entry>
+	</util:map>
+	
+	<aop:config>
+		<aop:pointcut id="dashboardServiceOps" 
+			expression="execution(public * com.s1.dashboard.services..*Service.*(..))" />
+
+		<aop:advisor id="dashboardServiceAdvisor"
+			pointcut-ref="dashboardServiceOps" advice-ref="txDashboardServiceAdvice" />
+	</aop:config>
+
+	<tx:advice id="txDashboardServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- Read Methods -->
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS" isolation="READ_COMMITTED" />
+			<!-- Write Methods -->
+			<tx:method name="add*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="remove*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="set*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>	
+</beans>

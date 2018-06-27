@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.banking.common.dao.LastPDPostedDateMapper">
+
+
+
+	<select id="getLastPostedDate" resultType="java.util.Date"
+		parameterType="com.s1.arch.utilities.ObjectId">
+
+		SELECT max(postedDttm)
+		FROM BNKPDyTrn
+		WHERE BNKACCTKY = #{accountOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+
+	</select>
+
+	<select id="getNextDateFromPostedDate" resultType="java.util.Date"
+		parameterType="com.s1.arch.utilities.ObjectId">
+
+		SELECT max(postedDttm) + 1 days
+		FROM BNKPDyTrn 
+		WHERE BNKACCTKY = #{accountOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+
+	</select>	
+	
+	<select id="getNextDateFromPostedDate-Oracle" resultType="java.util.Date"
+		parameterType="com.s1.arch.utilities.ObjectId">
+
+		SELECT max(postedDttm) + 1 
+		FROM BNKPDyTrn
+		WHERE BNKACCTKY = #{accountOid,jdbcType=INTEGER,typeHandler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+
+	</select>
+
+</mapper>

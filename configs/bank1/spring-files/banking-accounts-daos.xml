@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+   	
+   	<bean id="customerAccountMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.accounts.dao.CustomerAccountMapper" />
+	</bean>
+	
+	<bean id="accountMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.accounts.dao.AccountMapper" />
+	</bean>
+	
+	<bean id="currentDayStatementMapper" class="com.s1.arch.mybatis.BatchExecutionMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.accounts.statement.dao.CurrentDayStatementMapper" />
+	</bean>
+   	
+   	<bean id="currentDayStatementDetailMapper" class="com.s1.arch.mybatis.BatchExecutionMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.accounts.statement.dao.CurrentDayStatementDetailMapper" />
+	</bean>
+	
+	<bean id="posPayAchDecCutoffRmndrMapper" class="com.s1.arch.mybatis.CustomMapperFactoryBean" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.app.smallbiz.positivepay.dao.PosPayAchCutoffRmndrMapper" />
+	</bean>
+	
+</beans>

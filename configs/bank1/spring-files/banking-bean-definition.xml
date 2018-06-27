@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+	
+	
+	<bean id="custIdentityDAO" parent="BaseMybatisDAO">
+		<property name="mapperInterface" value="com.s1.common.customer.dao.CustomerIdentityMapper" />
+	</bean>	
+
+	<bean id="quickCsvMapper"
+		class="com.s1.common.download.formats.corp.QuickCsvMapper" >
+	</bean>
+	<bean id="approvalsTree"
+		class="com.s1.app.ApprovalsTree" >
+	</bean>
+	<bean id="accountCashTransaction" class="com.s1.banking.common.AccountCashTransaction" scope="singleton"/>
+	<bean id="checkInquiryUtility" class="com.s1.app.bank.accounts.user.checkinquiry.CheckInquiryUtility" scope="singleton"/>
+	<!-- RunningBalance Populator Bean -->
+	<bean id="runningBalancePopulator"
+		class="com.s1.app.smallbiz.accounts.user.activity.runningbalance.AcctActivityRunningBalancePopulator" >
+	</bean>
+	<!--Account Activity PendingCleared List Sorter  -->
+	<bean id="pendClearedTrnPagerSorter"
+		class="com.s1.app.smallbiz.accounts.user.activity.sort.AccountActivityPendingTrnSorterBean" >
+	</bean>
+	
+	<!--Account Activity Scheduled List Sorter  -->
+	<bean id="scheduledTrnTrnPagerSorter"
+		class="com.s1.app.smallbiz.accounts.user.activity.sort.AccountActivityScheduledTrnSorterBean" >
+	</bean>	
+	
+	<!--  Acct Activity Bean's for SOA (6.0) -->
+		
+	<bean id="acctActivityAchPmtHandler"
+		class="com.aciworldwide.accounts.activity.retriever.AchPaymentTransactionsRetrievalHandler" >
+	</bean>
+	<bean id="acctActivityXferHandler"
+		class="com.aciworldwide.accounts.activity.retriever.TransferTransactionsRetrievalHandler" >
+	</bean>
+	<bean id="acctActivityWirePmtHandler"
+		class="com.aciworldwide.accounts.activity.retriever.WirePaymentTransactionsRetrievalHandler" >
+	</bean>
+	
+	<bean id="acctActivityTxnHandlerService"
+		class="com.aciworldwide.accounts.activity.handler.AccountActivityHandlerServiceImpl" >		
+		<property name="txnHandlers">
+			<list>
+				<ref bean="acctActivityAchPmtHandler" />
+				<ref bean="acctActivityXferHandler" />
+				<ref bean="acctActivityWirePmtHandler" />
+			</list>
+		</property>		
+	</bean>	
+	<!--  Acct Activity Bean's for SOA (6.0) -->	
+	
+	
+	<!-- Customized senders -->	
+	<!-- key-type = "java.lang.String" 
+		value-type = "com.aciworldwide.accounts.transaction.download.AccountExportFormat"> -->
+	<util:map id="acctTxnExportFormatterMap" >		
+		<entry key="CSV" value-ref="acctTxnExportCSVFormat"/>
+		<entry key="SSV" value-ref="acctTxnExportSSVFormat"/>
+		<entry key="TSV" value-ref="acctTxnExportTSVFormat"/>
+		<entry key="QBOOK" value-ref="acctTxnExportQBOOKFormat"/>
+		<entry key="PDF" value-ref="acctTxnExportPDFFormat"/>
+		<entry key="BAI2" value-ref="acctTxnExportBAI2Format"/>	
+	</util:map>	
+	
+	<bean id="acctTxnExportCSVFormat"
+		class="com.aciworldwide.accounts.transaction.download.AccountTransactionExportCSVFormat" />	
+		
+	<bean id="acctTxnExportSSVFormat"
+		class="com.aciworldwide.accounts.transaction.download.AccountTransactionExportSSVFormat" />	
+		
+	<bean id="acctTxnExportTSVFormat"
+		class="com.aciworldwide.accounts.transaction.download.AccountTransactionExportTSVFormat" />
+		
+	<bean id="acctTxnExportQBOOKFormat"
+		class="com.aciworldwide.accounts.transaction.download.AccountTransactionExportQBOOKFormat" >
+			<property name="quickBookMapperService" ref="acctExportQBOOKMapperService" />		
+	</bean>
+	<bean id="acctTxnExportPDFFormat"
+		class="com.aciworldwide.accounts.transaction.download.AccountTransactionExportPDFFormat" />
+	
+	<bean id="acctTxnExportBAI2Format"
+		class="com.aciworldwide.accounts.transaction.download.AccountTransactionExportBAI2Format" >
+			<property name="acctExportBAI2Processor" ref="acctExportBAI2Processor" />
+	</bean>
+	
+	<bean id="acctExportBAI2Processor"
+		class="com.aciworldwide.accounts.transaction.download.bai2.AcctExportBAI2Processor" >
+			<property name="acctExportBAIMapperService" ref="acctExportBAIMapperServiceBean" />
+	</bean>
+		
+	<bean id="acctExportUtilityService"
+		class="com.aciworldwide.accounts.transaction.download.service.AcctExportUtilityServiceBean" />	
+		
+		
+	<bean id="fisCustomerPUIDService"
+		class="com.s1.app.disbursements.edelivery.FISCustomerPUIDServiceBean" >
+		<property name="custIdentityDAO" ref="custIdentityDAO" />
+	</bean>
+	
+   <bean id="partial-pending-group-reader" class="org.beanio.spring.BeanIOFlatFileItemReader" scope="prototype">
+	    <property name="streamMapping" value="classpath:/config/EntitlementGroups/partial-group-pending-config.xml" />
+	    <property name="streamName" value="partial-pending-group-stream" />
+	    <property name="encoding" value="UTF-8" />
+	</bean>
+
+	 <bean id="partial-pending-user-reader" class="org.beanio.spring.BeanIOFlatFileItemReader" scope="prototype">
+	    <property name="streamMapping" value="classpath:/config/EntitlementGroups/partial-user-pending-config.xml" />
+	    <property name="streamName" value="partial-pending-user-stream" />
+	    <property name="encoding" value="UTF-8" />
+	</bean>
+	<!-- GBS-67853 -->
+	<bean id="achasync" class="com.s1.app.disbursements.async.CorpACHAsyncPaymentsProcess" scope="singleton" />
+	
+	 <bean id="intlPmtReportValueUtilityHelper" class="com.s1.common.intlpmtreports.IntlPmtReportValueUtilityHelper" scope="singleton" /> 
+	
+	 <bean id="intlPmtReportFormUtilityHelper" class="com.s1.common.intlpmtreports.IntlPmtReportFormUtilityHelper" scope="singleton" />
+	
+	<bean id="intlReportTokenUtilityHelper" class="com.s1.common.intlpmtreports.IntlReportTokenUtilityHelper" scope="singleton" />
+	
+	<bean id="corpAchServiceUtilityHelper" class="com.s1.app.disbursements.corpach.common.CorpAchServiceUtilityHelper" scope="singleton" />
+	
+	
+	<bean id="pmtReportsUtilityHelper" class="com.s1.common.paymentreports.customreports.PmtReportsUtilityHelper" scope="singleton" />
+	
+	<bean id="customReportsUtilityHelper" class="com.s1.app.bank.reports.customreports.ReportsUtilityHelper" scope="singleton" />
+	
+	<!-- GBS-47418 -->
+	<bean id="transactionTypesHelper" class="com.s1.app.disbursements.TransactionTypesHelper" scope="singleton" />
+	
+	<!-- GBS-387845 -->
+	<bean id="userPropertiesToXMLMapperHelper" class="com.s1.banking.common.pending.util.UserPropertiesToXMLMapperHelper" scope="singleton" /> 
+	
+	<bean id="xMLToUserPropertiesMapperHelper" class="com.s1.banking.common.pending.util.XMLToUserPropertiesMapperHelper" scope="singleton" /> 
+	
+	<bean id="commonUtilityHelper" class="com.s1.common.user.UtilityHelper" scope="singleton" /> 
+	<!--  GBS-36095-->
+	<bean id="exportUtilityHelper" class="com.s1.banking.common.export.user.UtilityHelper" scope="singleton" /> 
+	
+	<bean id="forwardingUtilityHelper" class="com.s1.app.disbursements.corpach.common.ui.ForwardingUtilityHelper" scope="singleton" /> 
+	
+	
+	<!-- GBS-37307 -->
+	<bean id="exportFieldConstantsImpl" class="com.s1.banking.common.export.execute.ExportFieldConstantsImpl" scope="singleton" /> 
+	
+	<!-- GBS-36101 -->
+	<!--  <bean id="operationHelper" class="com.s1.common.authorization.OperationHelper" scope="singleton" />-->
+	<!-- GBS-80913 GBS-81751-->
+	<bean id="suspectActionImpl" class="com.s1.app.smallbiz.positivepay.user.SuspectActionImpl" scope="singleton" /> 
+</beans>

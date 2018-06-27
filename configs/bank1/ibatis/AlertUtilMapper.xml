@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.s1.alerts.dao.AlertUtilMapper" >
+
+	<select id="getDestinationsBySubscription" parameterType="java.lang.Long" resultMap="com.s1.alerts.dao.AlertDestinationMapper.BaseResultMap">
+		SELECT a.BNKALRTDESTKY, a.BNKALRTDLVRYCHNKY, a.BNKUSERKY, a.ADDRESS, a.NICKNAME, a.QUIETTIMESTART, 
+		        a.QUIETTIMEEND, a.TIMEZONE, a.UPDATEDTTM, a.UPDATEUSER, a.VERSIONSTAMP, a.ISDISABLED, a.DISABLEDREASONCD, a.BNKALRTDESTUUID
+		FROM BNKALRTDEST a
+		INNER JOIN BNKALRTDESTSBSCRPTN b ON a.BNKALRTDESTKY = b.BNKALRTDESTKY
+		WHERE b.BNKALRTSBSCRPTNKY = #{value}
+	</select>
+	
+</mapper>

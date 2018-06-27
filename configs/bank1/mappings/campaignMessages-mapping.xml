@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	
+	<!--<mapping mapNull="false">	
+	 	<typeA>com.s1.common.campaign.view.GridPlan</typeA>
+		<typeB>com.aciworldwide.pim.messages.campaignmessage.services.UserMessagesInquiryRsType</typeB>
+		<fields>
+			<field>
+			   <fieldA>columnPlan</fieldA>
+			   <fieldB>columnPlan</fieldB>
+			</field>
+			<field>
+			   <fieldA>mmItemsOnLeft</fieldA>
+			   <fieldB>itemsOnTop</fieldB>
+			</field>
+			<field>
+			   <fieldA>mmItemOnRight</fieldA>
+			   <fieldB>itemsOnTop</fieldB>
+			</field>			
+			<field>
+				<fieldA>marketingMsgColWidth</fieldA>
+				<fieldB>marketingMsgColWidth</fieldB>
+			</field>														
+		</fields>
+	</mapping>
+	 -->
+	<mapping>
+		<typeA>com.s1.common.campaign.view.GridMember</typeA>
+		<typeB>com.aciworldwide.pim.messages.campaignmessage.services.GridMemberType</typeB>
+		<fields>
+			<field>
+				<fieldA>gridClass</fieldA>
+				<fieldB>gridClass</fieldB>
+			</field>
+			<field>
+				<fieldA>mmView</fieldA>
+				<fieldB>messageView</fieldB>
+			</field>
+		</fields>
+	</mapping>
+</mappings>

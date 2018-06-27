@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.mobileBanking.approvals.provider.ach.MobileApprovalACHMapper">
+
+    <resultMap id="BaseResultMap" type="com.s1.app.mobileBanking.approvals.provider.ach.MobileApprovalAchData">
+		<result column="VfmInstrKy" property="objectId" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VfmCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VFMRcrgModelKy" property="recurringModelOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="Companyentrydesc" property="name" jdbcType="VARCHAR" />
+		<result column="VfmInstrTypecdKy" property="pmtTypeCode" jdbcType="INTEGER" />
+		<result column="paymentType" property="pmtTypeText" jdbcType="VARCHAR" />	
+		<result column="paymentSubtype" property="pmtSubTypeText" jdbcType="VARCHAR" />        
+		<result column="instrSubTypCd" property="pmtSubTypeCode" jdbcType="INTEGER" />		
+		<result column="effectiveDttm" property="effectiveDate" jdbcType="TIMESTAMP" />
+		<result column="sendDttm" property="sendDate" jdbcType="TIMESTAMP" />    
+		<result column="acctId" property="accountId" jdbcType="VARCHAR" />
+		<result column="Nickname" property="accountNickName" jdbcType="VARCHAR" />
+		<result column="BNKAcctKy" property="accountOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VFMInstrStsCdky" property="statusCode" jdbcType="INTEGER" />
+		<result column="paymentStatus" property="statusText" jdbcType="VARCHAR" />			
+		<result column="Totaldebitcnt" property="debitCount" jdbcType="SMALLINT" />
+		<result column="Totaldebitamt" property="totalDebitAmt" jdbcType="DECIMAL" />
+		<result column="ARCISOCrncyCdKyDebit" property="debitAmountCcyOid" jdbcType="INTEGER" />
+		<result column="Totalcreditcnt" property="creditCount" jdbcType="SMALLINT" />
+		<result column="Totalcreditamt" property="totalCreditAmt" jdbcType="DECIMAL" />
+		<result column="ARCISOCrncyCdKyCredit" property="creditAmountCcyOid" jdbcType="INTEGER" />
+		<result column="Isconfidentialbatch" property="confidential" jdbcType="BOOLEAN" />
+		<result column="Achcompanyid" property="achCompanyId" jdbcType="VARCHAR" />
+		<result column="Achcompanyname" property="achCompanyName" jdbcType="VARCHAR" />
+		<result column="AuthorizeMemo" property="authMemo" jdbcType="VARCHAR" />
+		<result column="VfmRcrgFreqcdKy" property="recFrequency" jdbcType="SMALLINT" />
+		<result column="creatorId" property="creator" jdbcType="VARCHAR" />
+		<result column="updateDttm" property="lastUpdateTimestamp" jdbcType="TIMESTAMP" />
+		<result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+		<result column="versionStamp" property="lockValue" jdbcType="SMALLINT" />
+		<result column="row_number" property="rowno" jdbcType="SMALLINT" />
+		<result column="cnt" property="count" jdbcType="SMALLINT" />
+		<collection property="recipients" javaType="ArrayList" column="VfmInstrKy" ofType="com.s1.app.mobileBanking.approvals.provider.ach.MobileApprovalAchRecipientData" select="getAchPmtsRecipient"/>
+      </resultMap>
+      
+     <resultMap id="RecipientResultMap" type="com.s1.app.mobileBanking.approvals.provider.ach.MobileApprovalAchRecipientData">
+     	<id column="BNKACHInstrKy" property="achInstrKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="BNKAchPmtRcpntKy" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />          
+		<result column="thirdPartyName" property="thirdPartyName" jdbcType="VARCHAR" />      
+		<result column="isCredit" property="isCredit" jdbcType="BOOLEAN"/>            
+		<result column="paymentAmount" property="paymentAmount" jdbcType="DECIMAL"/>       
+		<result column="recipientId" property="recipientId" jdbcType="VARCHAR" />         
+		<result column="recipientTypeCd" property="recipientType" jdbcType="SMALLINT"/>       
+		<result column="addendaTypeCd" property="addendaType" jdbcType="SMALLINT"/>         
+		<result column="shortAddenda" property="shortAddenda" jdbcType="VARCHAR"/>        
+		<result column="rckchecknum" property="rckCheckNum" jdbcType="VARCHAR"/>         
+		<result column="rckfee" property="rckFee" jdbcType="DECIMAL"/>              
+		<result column="ARCCountryCdKy" property="countryCdKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />         
+		<result column="ARCCountry" property="country" jdbcType="VARCHAR"/>             
+		<result column="ISOCurrencyCdKyAcct" property="accountCurrencyKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />   
+		<result column="AcctCurrency" property="accountCurrency" jdbcType="VARCHAR"/>     
+		<result column="ISOCurrencyCdKyRcpnt" property="recipienttCurrencyky" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="RcpntCurrency" property="recipienttCurrency" jdbcType="VARCHAR"/>  
+		<result column="BNKTaxAuthCd" property="taxAuthCode" jdbcType="VARCHAR"  />         
+		<result column="acctID" property="acctId" jdbcType="VARCHAR"/>        
+		<result column="acctTypeCd" property="accountType" jdbcType="INTEGER"/>              
+      </resultMap>
+      
+    
+    <sql id="Base_Column_List" >
+       select row_number() over( order by a.SchdExecutionDttm ASC ) as row_number, 
+		a.VFMInstrKy ,a.VfmCustomerKy, a.VFMRcrgModelKy, rcm.VfmRcrgFreqcdKy, c.companyEntryDesc, a.VFMInstrTypeCdKy, msg2.translation paymentType
+		, a.InstrSubTypcd, 'paymentSubtype', c.EffectiveDttm , a.SchdExecutionDttm sendDttm, ac.acctId, ac.BnkAcctKy, cac.Nickname
+		,a.VFMInstrStsCdKy ,msg1.translation paymentStatus, c.totalDebitCnt , c.totalDebitAmt ,1, c.totalCreditCnt, c.totalCreditAmt, 1, 
+		c.isConfidentialBatch, acm.achCompanyId, acm.achCompanyName, a.AuthorizeMemo, a.creatorId, a.updateDttm, a.updateuser, a.versionStamp
+	</sql>
+
+	<update id="callBNKDshBrdAchPmtPrepSproc" statementType="CALLABLE" >
+		{ call BNKDshBrdAchPmtPrepSp() }
+	</update>
+	<update id="callBNKDshBrdAchPmtSproc" statementType="CALLABLE" parameterType="map">
+		{ call BNKDshBrdAchPmtSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled, jdbcType=BOOLEAN, typeHandlers=com.s1.arch.ibatis.TrueFalseBooleanTypeHandler}) }
+	</update>
+
+
+	<select id="getAchPmtsRecipient" resultMap="RecipientResultMap" parameterType="map" >
+			SELECT BNKACHInstrKy,BNKAchPmtRcpntKy,thirdPartyName, isCredit, paymentAmount, recipientId, recipientTypeCd,addendaTypeCd 
+				,shortAddenda,rckchecknum, rckfee,a.ARCCountryCdKy,ct.DESCRIPTION ARCCountry 
+				,ISOCurrencyCdKyAcct,b.TEXTCURRCD AcctCurrency,ISOCurrencyCdKyRcpnt,c.TEXTCURRCD RcpntCurrency	
+				,BNKTaxAuthCd,acctID,acctTypeCd
+			FROM BNKACHPmtRcpnt a 
+				left outer join ARCCountryCd ct on ( a.ARCCountryCdKy=ct.ARCCountryCdKy ) 
+				left outer join arcISOCurrencyCd b on ( a.ISOCurrencyCdKyAcct=b.arcISOCURRENCYCDKY )
+				left outer join arcISOCurrencyCd c on ( a.ISOCurrencyCdKyRcpnt=c.arcISOCURRENCYCDKY )
+		WHERE  BNKACHInstrKy = #{achInstrKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+	</select>
+
+	<select id="getAchPmtsForMobileApprovals" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" useCache="false" >
+		with a1 (row_number, VfmInstrKy, VfmCustomerKy, VfmRcrgmodelKy, VfmRcrgFreqcdKy, Companyentrydesc, VfmInstrTypecdKy, PaymentType, InstrSubTypcd, PaymentSubType
+			,EffectiveDttm, SendDttm, Accountid, BnkAcctKy, Nickname, VfmInstrstscdKy, Paymentstatus, Totaldebitcnt,Totaldebitamt,ARCISOCrncyCdKyDebit,Totalcreditcnt
+			,Totalcreditamt, ARCISOCrncyCdKyCredit,	Isconfidentialbatch, Achcompanyid, Achcompanyname, AuthorizeMemo, Creatorid, Updatedttm, Updateuser, Versionstamp) 
+		as ( 
+        	<include refid="Base_Column_List" />
+			FROM VFMINSTR a left outer join VFMRcrgModel rcm on (a.VFMRcrgModelKy = rcm.VFMRcrgModelKy )
+				,BNKACHINSTR c 
+				,session.BNKDshbrdACHUsrEntlDgtt hh, session.BNKDshbrdACHPmtDgtt ee 
+				,BnkAchCompany acm,BnkAcct ac, BnkCustAcct cac
+				,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+			WHERE a.VFMCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+				<if test="pmtTypeCodes == null"> 
+					AND a.VFMINSTRTYPECDKY is NULL
+				</if>
+				<if test="pmtTypeCodes != null"> 
+					AND a.VFMINSTRTYPECDKY in 
+					<foreach collection="pmtTypeCodes" item="item" open="(" close=")" separator=",">
+						#{item}
+					</foreach> 
+				</if>
+				<if test="pmtSubtypeCodes != null">
+					AND a.INSTRSUBTYPCD in 
+					<foreach collection="pmtSubtypeCodes" item="item1" open="(" close=")" separator=",">
+						#{item1} 
+					</foreach>
+				</if>         				
+				<if test="statusCodes == null"> 
+					AND a.VFMINSTRSTSCDKY is NULL
+				</if>
+				<if test="statusCodes != null"> 
+					AND a.VFMINSTRSTSCDKY IN 
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if>
+				<if test="startDate != null and startDate != ''"> 
+					AND date(a.SchdExecutionDttm) <![CDATA[ >= ]]> #{startDate,jdbcType=DATE}
+				</if>	
+				AND a.VFMInstrKy = c.BNKINSTRKY 
+				<if test="accountIds != null"> 
+					and  c.BnkAcctky in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if> 
+				AND ((hh.CreditDebitMixed = 'M' AND c.paymentTypeCd in ('C','D','M')) or (hh.CreditDebitMixed = c.paymentTypeCd))
+				AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY  AND c.BNKAcctKy = ee.BNKAcctKy
+				AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId) OR
+				(a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId) OR ( a.updateuser <![CDATA[ <> ]]> hh.userId))
+				AND ( c.BnkAchCompanyKy = acm.BnkAchCompanyKy 
+						and acm.BnkCustAcctKy = cac.BnkCustAcctKy 
+						and ac.BnkAcctKy = cac.BnkAcctKy 
+						and c.BnkAcctKy = ac.BnkAcctKy 
+						and c.BnkAcctky = cac.BnkAcctKy
+					)
+			    AND msg2.fetchId='paymentTypesEnum' AND a.VFMINSTRTYPECDKY = msg2.enumValue AND msg2.ARCLocaleCdKy =  #{localeOid} 
+			    AND msg1.fetchId='statusCodeEnum' and a.VFMINSTRSTSCDKY = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+		)	select b.cnt, a.* from a1 as a, (select count(*) as cnt from a1) as b 
+		<if test="noOfRows > 0">
+			where a.row_number between 1 and #{noOfRows} 
+		</if>
+				
+	</select>
+
+	<select id="getAchPmtsForMobileApprovals-Oracle" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" useCache="false" >
+		with a1 (row_number, VfmInstrKy, VfmCustomerKy, VfmRcrgmodelKy, VfmRcrgFreqcdKy, Companyentrydesc, VfmInstrTypecdKy, PaymentType, InstrSubTypcd, PaymentSubType
+			,EffectiveDttm, SendDttm, Accountid, BnkAcctKy, Nickname, VfmInstrstscdKy, Paymentstatus, Totaldebitcnt,Totaldebitamt,ARCISOCrncyCdKyDebit,Totalcreditcnt
+			,Totalcreditamt, ARCISOCrncyCdKyCredit,	Isconfidentialbatch, Achcompanyid, Achcompanyname, AuthorizeMemo, Creatorid, Updatedttm, Updateuser, Versionstamp) 
+		as ( 
+        	<include refid="Base_Column_List" />
+			FROM VFMINSTR a left outer join VFMRcrgModel rcm on (a.VFMRcrgModelKy = rcm.VFMRcrgModelKy )
+				,BNKACHINSTR c 
+				,BNKDshbrdACHUsrEntlDgtt hh, BNKDshbrdACHPmtDgtt ee 
+				,BnkAchCompany acm,BnkAcct ac, BnkCustAcct cac
+				,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+			WHERE a.VFMCustomerKy = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+				<if test="pmtTypeCodes == null"> 
+					AND a.VFMINSTRTYPECDKY is NULL
+				</if>
+				<if test="pmtTypeCodes != null"> 
+					AND a.VFMINSTRTYPECDKY in 
+					<foreach collection="pmtTypeCodes" item="item" open="(" close=")" separator=",">
+						#{item}
+					</foreach> 
+				</if>
+				<if test="pmtSubtypeCodes != null">
+					AND a.INSTRSUBTYPCD in 
+					<foreach collection="pmtSubtypeCodes" item="item1" open="(" close=")" separator=",">
+						#{item1} 
+					</foreach>
+				</if>  								
+				<if test="statusCodes == null"> 
+					AND a.VFMINSTRSTSCDKY is NULL
+				</if>
+				<if test="statusCodes != null"> 
+					AND a.VFMINSTRSTSCDKY IN 
+					<foreach collection="statusCodes" item="code" open="(" close=")" separator=",">
+						#{code}
+					</foreach>
+				</if>
+			        <if test="startDate != null and startDate != ''"> 
+			                and to_date(trunc(a.SchdExecutionDttm)) <![CDATA[ >= ]]> #{startDate,jdbcType=DATE}
+			        </if>
+				AND a.VFMInstrKy = c.BNKINSTRKY 
+				<if test="accountIds != null"> 
+					and  c.BnkAcctky in
+					<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+						#{acctId}
+					</foreach>
+				</if> 
+				AND ((hh.CreditDebitMixed = 'M' AND c.paymentTypeCd in ('C','D','M')) or (hh.CreditDebitMixed = c.paymentTypeCd))
+				AND ee.PaymentTypCd = a.VFMINSTRTYPECDKY AND hh.PaymentTypCd = a.VFMINSTRTYPECDKY  AND c.BNKAcctKy = ee.BNKAcctKy
+				AND ((a.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' AND a.updateuser = hh.userId) OR
+				(a.BNKINSTRTMPLKY IS NOT NULL AND hh.ISOWNREPEAPPROVE = '1' AND a.updateuser = hh.userId) OR ( a.updateuser <![CDATA[ <> ]]> hh.userId))
+				AND ( c.BnkAchCompanyKy = acm.BnkAchCompanyKy 
+						and acm.BnkCustAcctKy = cac.BnkCustAcctKy 
+						and ac.BnkAcctKy = cac.BnkAcctKy 
+						and c.BnkAcctKy = ac.BnkAcctKy 
+						and c.BnkAcctky = cac.BnkAcctKy
+					)
+			    AND msg2.fetchId='paymentTypesEnum' AND a.VFMINSTRTYPECDKY = msg2.enumValue AND msg2.ARCLocaleCdKy =  #{localeOid} 
+			    AND msg1.fetchId='statusCodeEnum' and a.VFMINSTRSTSCDKY = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+		)	select b.cnt, a.* from a1 a, (select count(*) as cnt from a1) b 
+		<if test="noOfRows > 0">
+			where a.row_number between 1 and #{noOfRows} 
+		</if>
+				
+	</select>	
+	
+	
+</mapper>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+		
+	<util:map id="bankIdMap">
+	   <entry key="ABA" value="ABA" />
+       <entry key="SWIFT" value="SWIFT" />
+       <entry key="CANADIANRT" value="CC" />
+       <entry key="COLUMIABNKID" value="CO" />
+   </util:map>
+   
+   <util:map id="alternateIDMap">
+	   <entry key="ABA" value="0" />
+       <entry key="SWIFT" value="1" />
+       <entry key="CANADIANRT" value="2" />
+       <entry key="COLUMIABNKID" value="99" />
+   </util:map>
+   
+   <util:map id="paymentTypeMap">
+   	  <entry key="CHILD" value="90"/>
+   	  <entry key="TAX" value="91"/>
+   	  <entry key="PPD" value="93"/>
+   	  <entry key="RCK" value="94"/>
+      <entry key="TEL" value="95"/>
+      <entry key="WEB" value="96"/>
+      <entry key="CCD" value="98"/>
+      <entry key="CTX" value="99"/>
+      <entry key="IAT" value="100"/>
+      <entry key="DOMIAT" value="101"/>
+   </util:map>
+   
+    <util:map id="featureTextMap">
+   	  <entry key="main.dashboardAsHome" value="dashboard"/>
+   	  <entry key="main.acct" value="accounts"/>
+   	  <entry key="main.acct.acct.accountActivity" value="accountActivity"/>
+   	  <entry key="main.acct.acct.prevday" value="accountsPriorDay"/>
+   	  <entry key="main.acct.acct.curday" value="accountsCurrentDay"/>
+      <entry key="main.acct.acct.cashposition" value="accountsCashPosition"/>
+      <entry key="main.acct.accttools.export" value="accountsExportProfile"/>
+      <entry key="main.acct.accttools.exporthistory" value="accountsExportProfileHistory"/>
+      <entry key="main.acct.accttools.statement" value="accountsStatements"/>
+      <entry key="main.acct.accttools.search" value="accountsSearch"/>
+      <entry key="main.acct.reports.inforeports" value="accountsInfoReports"/>
+      <entry key="main.acct.reports.specialreports" value="accountsSpecialReports"/>
+      <entry key="main.pmt" value="payments"/>
+      <entry key="main.pmt.pmt.pmtCenter" value="paymentCenter"/>
+      <entry key="main.pmt.pmt.ServicePaymentsCentre" value="servicePaymentsCentre"/>
+      <entry key="main.pmt.pmt.ServiceCentre" value="registeredServices"/>
+      <entry key="main.pmt.pmt.achtmplnew" value="templateCenter"/>
+      <entry key="main.pmt.pmt.TemplateGroupList" value="templateGroup"/>
+      <entry key="main.pmt.pmt.AllThirdPartyList" value="internationalMasterRecipientList"/>
+      <entry key="main.pmt.pmt.thirdparty" value="masterRecipientList"/>
+      <entry key="main.pmt.pmt.manageXferTmpl" value="manageSecTransferTmpl"/>
+      <entry key="main.pmt.pmt.addExtAccount" value="addSecExtAccount"/>
+      <entry key="main.pmt.pmttool.importpmt" value="importPayments"/>
+      <entry key="main.pmt.pmttool.importhistorypmt" value="importHistoryPayments"/>
+      <entry key="main.pmt.pmttool.exportpmt" value="exportPayments"/>
+      <entry key="main.pmt.pmttool.exporthistorypmt" value="exportHistoryPayments"/>
+      <entry key="main.pmt.pmttool.draftprinters" value="adminDraftPrinters"/>
+      <entry key="main.pmt.pmttool.holidaybycnt" value="holidayCalendar"/>
+      <entry key="main.pmt.pmttool.xferImportProfiles" value="xferImportProfiles"/>
+      <entry key="main.pmt.pmttool.xferImportHistory" value="xferImportHistory"/>
+      <entry key="main.pmt.thirdparty.CreateUSThirdParty" value="paymentsRecipients"/>
+      <entry key="main.pmt.thirdparty.CreateCOLTP" value="paymentsCreateCOLTP"/>
+      <entry key="main.pmt.thirdparty.CreateSGTP" value="paymentsCreateSGTP"/>
+      <entry key="main.pmt.thirdparty.CreateCLGTP" value="paymentsCreateCLGTP"/>
+      <entry key="main.pmt.reports.intlpaymentreports" value="internationalPaymentReports"/>
+      <entry key="main.pmt.reports.paymentreports" value="paymentReports"/>
+      <entry key="main.pmt.uspmt.DomesticTemplatesList" value="pmtTemplates"/>
+      <entry key="main.pmt.uspmt.createCcd" value="createCcd"/>
+      <entry key="main.pmt.uspmt.createChildSupport" value="createChildSupport"/>
+      <entry key="main.pmt.uspmt.createCtx" value="createCtx"/>
+      <entry key="main.pmt.uspmt.createIATDom" value="createIATDom"/>
+      <entry key="main.pmt.uspmt.createIATIntl" value="createIATIntl"/>
+      <entry key="main.pmt.uspmt.createPpd" value="createPpd"/>
+      <entry key="main.pmt.uspmt.createRck" value="createRck"/>
+      <entry key="main.pmt.uspmt.createTax" value="createTax"/>
+      <entry key="main.pmt.uspmt.createTel" value="createTel"/>
+      <entry key="main.pmt.uspmt.createWeb" value="createWeb"/>
+	  <entry key="main.pmt.basicach.BasicACHTemplatesList" value="BasicACHTemplatesList"/>
+	  <entry key="main.pmt.basicach.achQuickEntryBasic" value="achQuickEntryBasic"/>
+	  <entry key="main.pmt.basicach.createBusinessCollection" value="createBusinessCollection"/>
+	  <entry key="main.pmt.basicach.createPersonalCollection" value="createPersonalCollection"/>
+	  <entry key="main.pmt.basicach.createRck" value="createBasicRck"/>
+	  <entry key="main.pmt.basicach.createDirectDeposit" value="createDirectDeposit"/>
+	  <entry key="main.pmt.basicach.createBusinessDisbursement" value="createBusinessDisbursement"/>
+	  <entry key="main.pmt.basicach.createPersonalDisbursement" value="createPersonalDisbursement"/>
+	  <entry key="main.pmt.basicach.createBasicChildSupport" value="createBasicChildSupport"/>
+	  <entry key="main.pmt.basicach.createBasicTax" value="createBasicTax"/>
+      <entry key="main.pmt.colpmt.FromTemplatesList" value="colPmtFromTemplates"/>
+      <entry key="main.pmt.colpmt.CreateCOLcoll" value="createCOLcoll"/>
+      <entry key="main.pmt.colpmt.CreateCOLotp" value="createCOLotp"/>
+      <entry key="main.pmt.colpmt.CreateCOLpyrl" value="createCOLpyrl"/>
+      <entry key="main.pmt.colpmt.CreateCOLsuplr" value="createCOLsuplr"/>
+      <entry key="main.pmt.colpmt.CreateColGiro" value="createColGiro"/>
+      <entry key="main.pmt.draft.createDraft" value="createDraft"/>
+      <entry key="main.pmt.sgpmt.FromTemplatesList" value="sgPmtFromTemplates"/>
+      <entry key="main.pmt.sgpmt.CreateSGbGiro" value="createSGbGiro"/>
+      <entry key="main.pmt.wire.DomesticTemplatesList" value="wireTemplates"/>
+      <entry key="main.pmt.wire.TemplateGroupList" value="wireTemplateGroup"/>
+      <entry key="main.pmt.wire.createADR" value="createADR"/>
+      <entry key="main.pmt.wire.createBookWire" value="createBookWire"/>
+      <entry key="main.pmt.wire.createDrawdown" value="createDrawdown"/>
+      <entry key="main.pmt.wire.createIntlWire" value="createIntlWire"/>
+      <entry key="main.pmt.wire.createMultibank" value="createMultibank"/>
+      <entry key="main.pmt.wire.createUSFedTax" value="createUSFedTax"/>
+      <entry key="main.pmt.wire.createUSWire" value="createUSWire"/>
+      <entry key="main.pmt.uspmttmpl.createCcd" value="createCcdTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createChildSupport" value="createChildSupportTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createCtx" value="createCtxTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createIATDom" value="createIATDomTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createIATIntl" value="createIATIntlTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createPpd" value="createPpdTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createTax" value="createTaxTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createTel" value="createTelTemplate"/>
+      <entry key="main.pmt.uspmttmpl.createWeb" value="createWebTemplate"/>
+      <entry key="main.pmt.basicachtmpl.createBusinessCollection" value="createBusinessCollectionTemplate"/>
+	  <entry key="main.pmt.basicachtmpl.createPersonalCollection" value="createPersonalCollectionTemplate"/>
+	  <entry key="main.pmt.basicachtmpl.createDirectDeposit" value="createDirectDepositTemplate"/>
+	  <entry key="main.pmt.basicachtmpl.createBusinessDisbursement" value="createBusinessDisbursementTemplate"/>
+	  <entry key="main.pmt.basicachtmpl.createPersonalDisbursement" value="createPersonalDisbursementTemplate"/>
+	  <entry key="main.pmt.basicachtmpl.createBasicChildSupport" value="createBasicChildSupportTemplate"/>
+	  <entry key="main.pmt.basicachtmpl.createBasicTax" value="createBasicTaxTemplate"/>
+      <entry key="main.pmt.colpmttmpl.CreateCOLcollTemplate" value="createCOLcollTemplate"/>
+      <entry key="main.pmt.colpmttmpl.CreateCOLotpTemplate" value="createCOLotpTemplate"/>
+      <entry key="main.pmt.colpmttmpl.CreateCOLpyrlTemplate" value="createCOLpyrlTemplate"/>
+      <entry key="main.pmt.colpmttmpl.CreateCOLsuplrTemplate" value="createCOLsuplrTemplate"/>
+      <entry key="main.pmt.colpmttmpl.CreateCOLsvcTemplate" value="createCOLsvcTemplate"/>
+      <entry key="main.pmt.colpmttmpl.CreateColGiroTemplate" value="createColGiroTemplate"/>
+      <entry key="main.pmt.drafttmpl.createDraft" value="createDraftTemplate"/>
+      <entry key="main.pmt.sgpmttmpl.CreateSGbGiroTemplate" value="createSGbGiroTemplate"/>
+      <entry key="main.pmt.wiretmpl.createADR" value="createADRTemplate"/>
+      <entry key="main.pmt.wiretmpl.createBookWire" value="createBookWireTemplate"/>
+      <entry key="main.pmt.wiretmpl.createDrawdown" value="createDrawdownTemplate"/>
+      <entry key="main.pmt.wiretmpl.createIntlWire" value="createIntlWireTemplate"/>
+      <entry key="main.pmt.wiretmpl.createMultiBank" value="createMultiBankTemplate"/>
+      <entry key="main.pmt.wiretmpl.createUSFedTax" value="createUSFedTaxTemplate"/>
+      <entry key="main.pmt.wiretmpl.createUSWire" value="createUSWireTemplate"/>
+      <entry key="main.pmt.wiretmpl.createTemplateGroup" value="wireTemplateGroup"/>
+      <entry key="main.pmt.pmtxfertmpl.cpXferOTM" value="cpXferOTM"/>
+      <entry key="main.pmt.pmtxfertmpl.createMTOXferTmpl" value="createMTOSecXferTmpl"/>
+      <entry key="main.xfer" value="transfers"/>
+      <entry key="main.xfer.xferCenter.managexfers" value="transferCenter"/>
+      <entry key="main.xfer.xferCenter.manageXferRules" value="manageTransferRules"/>
+      <entry key="main.xfer.xferCenter.manageXferTmpl" value="manageXferTmpl"/>
+      <entry key="main.xfer.createxfer.xferSingle" value="createSingleTransfer"/>
+      <entry key="main.xfer.createxfer.xferToLoan" value="createLoanTransfer"/>
+      <entry key="main.xfer.createxfer.xferRule" value="createTransferRule"/>
+      <entry key="main.xfer.xferTools.xferImportProfiles" value="transferImportProfiles"/>
+      <entry key="main.xfer.xferTools.xferImportHistory" value="transferImportHistory"/>
+      <entry key="main.xfer.reports.xferReports" value="transferReports"/>
+      <entry key="main.fraud" value="fraudControl"/>
+      <entry key="main.fraud.manage.pospay" value="fraudPosPay"/>
+      <entry key="main.fraud.manage.issuemaint" value="fraudIssueMaint"/>
+      <entry key="main.fraud.manage.achauth" value="fraudAchAuth"/>
+      <entry key="main.fraud.create.issuesing" value="fraudIssueSingle"/>
+      <entry key="main.fraud.create.issuemult" value="fraudIssueMultiple"/>
+      <entry key="main.fraud.create.achauthrule" value="fraudAchRule"/>
+      <entry key="main.fraud.report.fraudcntrlrpts" value="fraudControlReports"/>
+      <entry key="main.srvc.manage.stoppay" value="checkStopPay"/>
+      <entry key="main.srvc" value="checkServices"/>
+      <entry key="main.srvc.manage.upaybillpay" value="usPayBillPay"/>
+      <entry key="main.srvc.create.createstoppay" value="checkCreateStopPay"/>
+      <entry key="main.srvc.create.createmulstoppay" value="checkCreateMultiStopPay"/>
+      <entry key="main.srvc.cancel.cancelstoppay" value="checkCancelStopPay"/>
+      <entry key="main.srvc.cancel.cancelmultistoppay" value="checkCancelMultiStopPay"/>
+      <entry key="main.srvc.tools.chkinq" value="checkChkInq"/>
+      <entry key="main.srvc.tools.imagesearch" value="imageSearch"/>
+      <entry key="main.srvc.tools.imageactivity" value="imageActivity"/>
+      <entry key="main.srvc.tools.chkcopy" value="checkCopy"/>
+      <entry key="main.srvc.rpt.checkservicesreports" value="checkServicesReports"/>
+      <entry key="main.filesrvc" value="fileServices"/>
+      <entry key="main.filesrvc.manage.filelist" value="manageFileUploads"/>
+      <entry key="main.filesrvc.manage.createfile" value="createFileUpload"/>
+      <entry key="main.filesrvc.manage.uploadprofile" value="manageCreateProfiles"/>
+      <entry key="main.filesrvc.tools.download" value="download"/>
+      <entry key="main.filesrvc.reports.filesvcreportsselect" value="fileServicesReports"/>
+      <entry key="main.filesrvc.reports.reports" value="efdReports"/>
+      <entry key="main.preferences" value="tools"/>
+      <entry key="main.preferences.manage.alerts" value="mangeAlertSettings"/>
+      <entry key="main.preferences.manage.messages" value="manageMessages"/>
+      <entry key="main.preferences.manage.bank" value="manageStandardBanks"/>
+      <entry key="main.preferences.create.file" value="fileDelivery"/>
+      <entry key="main.preferences.create.messages" value="createMessage"/>
+      <entry key="main.preferences.create.report" value="reportDelivery"/>
+      <entry key="main.preferences.create.addbank" value="addPreferredBank"/>
+      <entry key="main.preferences.set.passwords" value="adminPasswords"/>
+      <entry key="main.preferences.set.startup" value="startupScreen"/>
+      <entry key="main.admin.manage.entCP" value="manageUser"/>
+      <entry key="main.admin.create.usercreate" value="createUser"/>
+      <entry key="main.admin.manage.panelauthGroup" value="panelauthGroup"/>
+      <entry key="main.admin.reset.accpref" value="accountPreferences"/>
+      <entry key="main.admin.reset.contact" value="companyContactInformation"/>
+      <entry key="main.admin.manage.enrollBillPay" value="enrollBillPay"/>
+      <entry key="main.admin.reset.resetLogin" value="resetLogin"/>
+      <entry key="main.admin.reset.resetPassword" value="resetPassword"/>
+      <entry key="main.admin.report.useractivity" value="userActivityReport"/>
+      <entry key="main.admin.report.useraudit" value="userAuditReport"/>
+      <entry key="main.admin.report.userReport" value="userSetupReport"/>
+      <entry key="main.admin.report.groupReport" value="groupReport"/>
+      <entry key="main.filesrvc.efd.status" value="efdCheckStatus"/>
+      <entry key="main.filesrvc.efd.fileList" value="efdManageUploads"/>
+      <entry key="main.filesrvc.efd.uploadFile" value="efdInitiateUpload"/>
+      <entry key="main.filesrvc.efd.security" value="efdSecurity"/>
+      <entry key="main.filesrvc.efd.sapIdoc" value="efdSapIdoc"/>
+      <entry key="main.admin.create.sepaCreditorID" value="sepaCreditorID"/>
+      <entry key="main.admin.manage.sepaCreditorID" value="manageSepaCreditorID"/>
+      <entry key="main.admin" value="administration"/>
+      <entry key="main.pmt.capmt.FromTemplatesList" value="capmtFromTemplates"/>
+      <entry key="main.pmt.capmt.CreateCAAft" value="createCAAft"/>
+      <entry key="main.pmt.sepa.FromTemplatesList" value="sepapmtFromTemplates"/>
+      <entry key="main.pmt.sepa.CreateITLspcr" value="createITLspcr"/>
+      <entry key="main.pmt.sepa.CreateSp" value="createSp"/>
+      <entry key="main.pmt.itlilv.FromTemplatesList" value="itlilvFromTemplates"/>
+      <entry key="main.pmt.itlilv.CreateITLilv" value="createITLilv"/>
+      <entry key="main.pmt.sepatmpl.CreateITLspcrTemplate" value="createITLspcrTemplate"/>
+      <entry key="main.pmt.sepatmpl.CreateSpTemplate" value="createDirectDebitTemplate"/>
+      <entry key="main.pmt.itlilvtmpl.CreateITLilvTemplate" value="createITLilvTemplate"/>
+      <entry key="main.filesrvc.tools.download" value="fileDownload"/>
+      <entry key="main.preferences.manage.mobile" value="mobileBankingProfile"/>
+      <entry key="main.rdc.create.checkDeposit" value="depositCheck"/>
+      <entry key="main.rdc.manage.history" value="depositsHistory"/>
+      <entry key="main.billpay.create.payBill" value="mobilePayBill"/>
+      <entry key="main.billpay.manage.history" value="mobileManageBillPay"/>
+      <entry key="main.checkFreeBillPay" value="checkFreeBillPay"/>
+     </util:map>
+   
+     <util:map id="extendedFeatureMap">
+     </util:map>
+</beans>

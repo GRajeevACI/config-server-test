@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+	<!-- External Account Create Operation -->
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.onlinetransfer.services.ExternalAccountCreateRqType
+		</typeA>
+		<typeB>com.s1.common.accounts.thirdparty.ThirdPartyAccountValue
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>externalAccountInfo.nickName</fieldA>
+				<fieldB>nickName</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.accountIdent.primaryIdent</fieldA>
+				<fieldB>accountId</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.financialInstitution.name</fieldA>
+				<fieldB>bankName</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.financialInstitution.ident</fieldA>
+				<fieldB>bankId</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.financialInstitution.identType</fieldA>
+				<fieldB>bankIdType</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.accountType</fieldA>
+				<fieldB>accountType</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.enabledFromAccount</fieldA>
+				<fieldB>srcTransferEnabled</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountInfo.enabledToAccount</fieldA>
+				<fieldB>destTransferEnabled</fieldB>
+			</field>
+
+		</fields>
+	</mapping>
+
+	<!-- External Account Detail Operation -->
+
+	<mapping mapNull="false">
+		<typeA>com.s1.common.accounts.thirdparty.ThirdPartyAccountValue
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.onlinetransfer.services.ExternalAccountDetailInquiryRsType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>nickName</fieldA>
+				<fieldB>externalAccountInfo.nickName</fieldB>
+			</field>
+			<field>
+				<fieldA>soaInstructionId</fieldA>
+				<fieldB>externalAccountInfo.accountIdent.accountUid</fieldB>
+			</field>			
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>externalAccountInfo.accountIdent.primaryIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>bankName</fieldA>
+				<fieldB>externalAccountInfo.financialInstitution.name</fieldB>
+			</field>
+			<field>
+				<fieldA>bankId</fieldA>
+				<fieldB>externalAccountInfo.financialInstitution.ident</fieldB>
+			</field>
+			<field>
+				<fieldA>bankIdType</fieldA>
+				<fieldB>externalAccountInfo.financialInstitution.identType</fieldB>
+			</field>
+			<field>
+				<fieldA>accountType</fieldA>
+				<fieldB>externalAccountInfo.accountType</fieldB>
+			</field>
+			<field>
+				<fieldA>srcTransferEnabled</fieldA>
+				<fieldB>externalAccountInfo.enabledFromAccount</fieldB>
+			</field>
+			<field>
+				<fieldA>destTransferEnabled</fieldA>
+				<fieldB>externalAccountInfo.enabledToAccount</fieldB>
+			</field>
+
+			<field>
+				<fieldA>isoCurrency.alpha3Code</fieldA>
+				<fieldB>externalAccountInfo.currency</fieldB>
+			</field>
+
+			<field>
+				<fieldA>status</fieldA>
+				<fieldB>externalAccountInfo.externalAccountStatus</fieldB>
+			</field>
+
+		</fields>
+	</mapping>
+
+	<!-- External Account Summary Operation -->
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.onlinetransfer.services.ExternalAccountSummaryInquiryRqType
+		</typeA>
+		<typeB>com.s1.common.accounts.thirdparty.dao.ThirdPartyAccountCriteria
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountIdent
+				</fieldA>
+				<fieldB>soaInstructionId</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountNickName
+				</fieldA>
+				<fieldB>nickName</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountNumber.primaryIdent
+				</fieldA>
+				<fieldB>acctId</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountBank.ident
+				</fieldA>
+				<fieldB>bankId</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountBank.identType
+				</fieldA>
+				<fieldB>bankIdType</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountBank.name
+				</fieldA>
+				<fieldB>bankName</fieldB>
+			</field>
+
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.enabledFromAccount
+				</fieldA>
+				<fieldB>srcEnabled</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.enabledToAccount
+				</fieldA>
+				<fieldB>destEnabled</fieldB>
+			</field>
+			<field>
+				<fieldA>externalAccountSummaryInquiryCriteria.externalAccountStatus
+				</fieldA>
+				<fieldB>status</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.common.accounts.thirdparty.ThirdPartyAccountValue
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.uob.transfer.ExternalAccountDetailType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>soaInstructionId</fieldA>
+				<fieldB>accountIdent.accountUid</fieldB>
+			</field>
+			<field>
+				<fieldA>nickName</fieldA>
+				<fieldB>nickName</fieldB>
+			</field>
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>accountIdent.primaryIdent</fieldB>
+			</field>
+			<field>
+				<fieldA>bankName</fieldA>
+				<fieldB>financialInstitution.name</fieldB>
+			</field>
+			<field>
+				<fieldA>bankId</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field>
+				<fieldA>bankIdType</fieldA>
+				<fieldB>financialInstitution.identType</fieldB>
+			</field>
+			<field>
+				<fieldA>accountType</fieldA>
+				<fieldB>accountType</fieldB>
+			</field>
+			<field>
+				<fieldA>srcTransferEnabled</fieldA>
+				<fieldB>enabledFromAccount</fieldB>
+			</field>
+			<field>
+				<fieldA>destTransferEnabled</fieldA>
+				<fieldB>enabledToAccount</fieldB>
+			</field>
+
+			<field>
+				<fieldA>status</fieldA>
+				<fieldB>externalAccountStatus</fieldB>
+			</field>
+
+			<field>
+				<fieldA>isoCurrency.alpha3Code</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+
+		</fields>
+	</mapping>
+
+</mappings>

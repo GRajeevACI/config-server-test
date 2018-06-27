@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<import resource="payments-services-definition.xml" />
+
+	<import resource="payments-async-process-definition.xml" />
+	<import resource="payments-services-transactions.xml" />
+	<import resource="payments-services-jms.xml" />
+	<import resource="payments-recurrence-definition.xml" />
+	<import resource="import-context-definition.xml" />
+	<import resource="export-context-definition.xml" />
+	<import resource="validation-definition.xml" />
+	<import resource="ach-validation-definition.xml" />
+	
+</beans>

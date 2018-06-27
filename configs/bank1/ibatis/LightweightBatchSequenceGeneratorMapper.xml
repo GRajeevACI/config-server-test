@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.arch.batch.lightweight.persistence.sequence.dao.SequenceGeneratorMapper">
+	<resultMap id="sequenceMap" type="java.util.HashMap" >
+		<result property="NEXTSEQNUM"				column="NEXTSEQNUM"		jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.LongBigDecimalTypeHandler"/>
+		<result property="SEQNUMRANGE"			    column="seqNumRange"			jdbcType="INTEGER"	typeHandler="com.s1.arch.ibatis.LongBigDecimalTypeHandler" />
+	</resultMap>
+	<select id="selectNextBlockInfo" parameterType="string" resultType="java.util.HashMap">
+		select varchar(nextSeqNum) as NEXTSEQNUM, varchar(seqNumRange) as SEQNUMRANGE
+			from old table (
+				update UTLSeqNumGnrtr
+					set nextSeqNum = (
+						select sum(nextSeqNum + seqNumRange)
+							from UTLSeqNumGnrtr
+							where seqName = #{seqName})
+					where seqName = #{seqName})
+	</select>
+	<select id="selectNextBlockInfo-Oracle" parameterType="string" resultType="java.util.HashMap">
+         select cast(NEXTSEQNUM+1 as varchar2(38)) as NEXTSEQNUM ,  cast(seqNumRange as varchar2(38)) as SEQNUMRANGE 
+         from UTLSEQNUMGNRTR where seqname = #{seqName}     
+	</select>
+	<parameterMap id="getSeqParameters" type="java.util.HashMap" >
+        <parameter property="pSeqName" jdbcType="VARCHAR" javaType="java.lang.String"  mode="IN"/>
+        <parameter property="pBlockSize" jdbcType="INTEGER" javaType="java.lang.Integer" mode="IN"/>
+        <parameter property="pNextSeqNum" jdbcType="INTEGER" javaType="java.lang.Long" mode="OUT"/>
+ 	</parameterMap>
+ 	 <update id="updateNextBlockInfo-Oracle" parameterMap="getSeqParameters" statementType="CALLABLE">
+         call getNextSeqNum(?, ?, ?)
+	</update>
+	<!-- By default this statement does nothing -->
+	<update id="updateNextBlockInfo" parameterType="java.util.HashMap" >
+		SELECT '' FROM sysibm.SYSDUMMY1
+	</update>
+	<select id="selectAllSequenceNames" resultType="string">
+		select seqName
+			from UTLSeqNumGnrtr
+	</select>
+
+</mapper>

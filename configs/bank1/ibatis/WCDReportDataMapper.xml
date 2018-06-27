@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.export.provider.csv.dao.WCDReportDataMapper">
+
+	<resultMap id="selectTempWCDResultHsql" type="com.s1.export.provider.csv.model.TempWCDValue">
+		<result property="rowOrder"				column="RowOrder" 				jdbcType="INTEGER" />
+		<result property="oid"					column="BNKWIRECONFKY"			jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	</resultMap>
+	
+	<resultMap id="selectTempWCDResult" type="com.s1.export.provider.csv.model.TempWCDValue">
+		<result property="rowOrder"				column="RowOrder" 				jdbcType="INTEGER" />
+		<result property="oid"					column="BNKWIRECONFKY"			jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="bnkAcctKy"			column="BNKACCTKY"				jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result property="acctId"				column="ACCTID"					jdbcType="VARCHAR" />
+		<result property="acctName"				column="ACCTNAME"				jdbcType="VARCHAR" />
+		<result property="trnRef"				column="TRNREF"					jdbcType="VARCHAR" />
+		<result property="paymentAmt"			column="PAYMENTAMT"				jdbcType="DECIMAL" />
+		<result property="isoCurrencyCd"		column="ISOCURRENCYCD"			jdbcType="VARCHAR" />
+		<result property="mtsSeqNbr"			column="MTSSEQNBR"				jdbcType="VARCHAR" />
+		<result property="sourceCd"				column="SOURCECD"				jdbcType="VARCHAR" />
+		<result property="wireSvcRef"			column="WIRESVCREF"				jdbcType="VARCHAR" />
+		<result property="senderRefNbr"			column="SENDERREFNBR"			jdbcType="VARCHAR" />
+		<result property="exchRate"				column="EXCHRATE"				jdbcType="DECIMAL" />
+		<result property="isCredit"				column="ISCREDIT"				jdbcType="SMALLINT" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="ordCustId"			column="ORDCUSTID"				jdbcType="VARCHAR" />
+		<result property="ordCustIdTypeCd"		column="ORDCUSTIDTYPECD"		jdbcType="VARCHAR" />
+		<result property="ordCustName"			column="ORDCUSTNAME"			jdbcType="VARCHAR" />
+		<result property="ordCustAddr1"			column="ORDCUSTADDR1"			jdbcType="VARCHAR" />
+		<result property="ordCustAddr2"			column="ORDCUSTADDR2"			jdbcType="VARCHAR" />
+		<result property="ordCustAddr3"			column="ORDCUSTADDR3"			jdbcType="VARCHAR" />
+		<result property="ordBnkId"				column="ORDBNKID"				jdbcType="VARCHAR" />
+		<result property="ordBnkIdTypeCd"		column="ORDBNKIDTYPECD"			jdbcType="VARCHAR" />
+		<result property="ordBnkName"			column="ORDBNKNAME"				jdbcType="VARCHAR" />
+		<result property="ordBnkAddr1"			column="ORDBNKADDR1"			jdbcType="VARCHAR" />
+		<result property="ordBnkAddr2"			column="ORDBNKADDR2"			jdbcType="VARCHAR" />
+		<result property="ordBnkAddr3"			column="ORDBNKADDR3"			jdbcType="VARCHAR" />
+		<result property="ordBnkRef"			column="ORDBNKREF"				jdbcType="VARCHAR" />
+		<result property="sendBnkId"			column="SENDBNKID"				jdbcType="VARCHAR" />
+		<result property="sendBnkIdTypeCd"		column="SENDBNKIDTYPECD"		jdbcType="VARCHAR" />
+		<result property="sendBnkName"			column="SENDBNKNAME"			jdbcType="VARCHAR" />
+		<result property="sendBnkAddr1"			column="SENDBNKADDR1"			jdbcType="VARCHAR" />
+		<result property="sendBnkAddr2"			column="SENDBNKADDR2"			jdbcType="VARCHAR" />
+		<result property="sendBnkAddr3"			column="SENDBNKADDR3"			jdbcType="VARCHAR" />
+		<result property="sendBnkRef"			column="SENDBNKREF"				jdbcType="VARCHAR" />
+		<result property="bnkToBnkInfo1"		column="BNKTOBNKINFO1"			jdbcType="VARCHAR" />
+		<result property="bnkToBnkInfo2"		column="BNKTOBNKINFO2"			jdbcType="VARCHAR" />
+		<result property="bnkToBnkInfo3"		column="BNKTOBNKINFO3"			jdbcType="VARCHAR" />
+		<result property="bnkToBnkInfo4"		column="BNKTOBNKINFO4"			jdbcType="VARCHAR" />
+		<result property="bnkToBnkInfo5"		column="BNKTOBNKINFO5"			jdbcType="VARCHAR" />
+		<result property="bnkToBnkInfo6"		column="BNKTOBNKINFO6"			jdbcType="VARCHAR" />
+		<result property="detailOfPmt1"			column="DETAILOFPMT1"			jdbcType="VARCHAR" />
+		<result property="detailOfPmt2"			column="DETAILOFPMT2"			jdbcType="VARCHAR" />
+		<result property="detailOfPmt3"			column="DETAILOFPMT3"			jdbcType="VARCHAR" />
+		<result property="detailOfPmt4"			column="DETAILOFPMT4"			jdbcType="VARCHAR" />
+		<result property="advInstr1"			column="ADVINSTR1"				jdbcType="VARCHAR" />
+		<result property="advInstr2"			column="ADVINSTR2"				jdbcType="VARCHAR" />
+		<result property="advInstr3"			column="ADVINSTR3"				jdbcType="VARCHAR" />
+		<result property="offsetAcctIdTypeCd"	column="OFFSETACCTIDTYPECD"		jdbcType="VARCHAR" />
+		<result property="offsetAcctId"			column="OFFSETACCTID"			jdbcType="VARCHAR" />
+		<result property="offsetAcctName"		column="OFFSETACCTNAME"			jdbcType="VARCHAR" />
+		<result property="offsetAcctAddr1"		column="OFFSETACCTADDR1"		jdbcType="VARCHAR" />
+		<result property="offsetAcctAddr2"		column="OFFSETACCTADDR2"		jdbcType="VARCHAR" />
+		<result property="offsetAcctAddr3"		column="OFFSETACCTADDR3"		jdbcType="VARCHAR" />
+		<result property="beneIdTypeCd"			column="BENEIDTYPECD"			jdbcType="VARCHAR" />
+		<result property="beneId"				column="BENEID"					jdbcType="VARCHAR" />
+		<result property="beneName"				column="BENENAME"				jdbcType="VARCHAR" />
+		<result property="beneAddr1"			column="BENEADDR1"				jdbcType="VARCHAR" />
+		<result property="beneAddr2"			column="BENEADDR2"				jdbcType="VARCHAR" />
+		<result property="beneAddr3"			column="BENEADDR3"				jdbcType="VARCHAR" />
+		<result property="beneRef"				column="BENEREF"				jdbcType="VARCHAR" />
+		<result property="intrmdryBnkIdTypeCd"	column="INTRMDRYBNKIDTYPECD"	jdbcType="CHAR" />
+		<result property="intrmdryBnkId"		column="INTRMDRYBNKID"			jdbcType="VARCHAR" />
+		<result property="intrmdryBnkName"		column="INTRMDRYBNKNAME"		jdbcType="VARCHAR" />
+		<result property="intrmdryBnkAddr1"		column="INTRMDRYBNKADDR1"		jdbcType="VARCHAR" />
+		<result property="intrmdryBnkAddr2"		column="INTRMDRYBNKADDR2"		jdbcType="VARCHAR" />
+		<result property="intrmdryBnkAddr3"		column="INTRMDRYBNKADDR3"		jdbcType="VARCHAR" />
+		<result property="beneBnkIdTypeCd"		column="BENEBNKIDTYPECD"		jdbcType="VARCHAR" />
+		<result property="beneBnkId"			column="BENEBNKID"				jdbcType="VARCHAR" />
+		<result property="beneBnkName"			column="BENEBNKNAME"			jdbcType="VARCHAR" />
+		<result property="beneBnkAddr1"			column="BENEBNKADDR1"			jdbcType="VARCHAR" />
+		<result property="beneBnkAddr2"			column="BENEBNKADDR2"			jdbcType="VARCHAR" />
+		<result property="beneBnkAddr3"			column="BENEBNKADDR3"			jdbcType="VARCHAR" />
+		<result property="rcvBnkIdTypeCd"		column="RCVBNKIDTYPECD"			jdbcType="CHAR" />
+		<result property="rcvBnkId"				column="RCVBNKID"				jdbcType="VARCHAR" />
+		<result property="rcvBnkName"			column="RCVBNKNAME"				jdbcType="VARCHAR" />
+		<result property="rcvBnkAddr1"			column="RCVBNKADDR1"			jdbcType="VARCHAR" />
+		<result property="rcvBnkAddr2"			column="RCVBNKADDR2"			jdbcType="VARCHAR" />
+		<result property="rcvBnkAddr3"			column="RCVBNKADDR3"			jdbcType="VARCHAR" />
+		<result property="fxAmount"				column="FXAMOUNT"				jdbcType="DECIMAL" />
+		<result property="fxAmtIsoCurrencyCd"	column="FXAMTISOCURRENCYCD"		jdbcType="VARCHAR" />
+		<result property="valueDttm"			column="VALUEDTTM"				jdbcType="TIMESTAMP" />
+		<result property="sendDttm"				column="SENDDTTM"				jdbcType="TIMESTAMP" />
+		<result property="remittanceInfo"		column="RMTNCINFO"				jdbcType="VARCHAR" />
+	</resultMap>
+	
+<!-- Helper tables that must be created by ExportProfileParametersDAO -->
+	<!-- The name, as used in references, of the account temp table -->
+	<sql id="accountTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpAcctDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpAcctDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpAcctDgtt</if>
+	</sql>
+
+	<!-- The name of the account temp table's BNKAcctKy column -->
+	<sql id="accountTempTableBNKAcctKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpAcctDgtt.BNKAcctKy</if>
+		<if test="dbType == 'oracle'">BNKExpAcctDgtt.BNKAcctKy</if>
+		<if test="dbType == 'hsql'">BNKExpAcctDgtt.BNKAcctKy</if>
+	</sql>
+
+	<!-- The name, as used in references, of the summaryFieldFilter temp table -->
+	<sql id="summaryFieldFilterTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpSumFldFltrDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpSumFldFltrDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpSumFldFltrDgtt</if>
+	</sql>
+
+	<!-- The name of the summaryFieldFilter temp table's BNKAppFldDefKy column -->
+	<sql id="summaryFieldFilterTempTableBNKAppFldDefKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpSumFldFltrDgtt.BNKAppFldDefKy</if>
+		<if test="dbType == 'oracle'">BNKExpSumFldFltrDgtt.BNKAppFldDefKy</if>
+		<if test="dbType == 'hsql'">BNKExpSumFldFltrDgtt.BNKAppFldDefKy</if>
+	</sql>
+
+	<!-- The name, as used in references, of the tranTypeFilter temp table -->
+	<sql id="tranTypeFilterTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnTpFltrDgtt</if>
+		<if test="dbType == 'oracle'">BNKExpTrnTpFltrDgtt</if>
+		<if test="dbType == 'hsql'">BNKExpTrnTpFltrDgtt</if>
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKProdSubTypeKy column -->
+	<sql id="tranTypeFilterTempTableBNKProdSubTypeKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy</if>
+		<if test="dbType == 'oracle'">BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy</if>
+		<if test="dbType == 'hsql'">BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy</if>
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKTrnTypeKy column -->
+	<sql id="tranTypeFilterTempTableBNKTrnTypeKyColumn">
+		<if test="dbType == 'db2'">SESSION.BNKExpTrnTpFltrDgtt.BNKTrnTypeKy</if>
+		<if test="dbType == 'oracle'">BNKExpTrnTpFltrDgtt.BNKTrnTypeKy</if>
+		<if test="dbType == 'hsql'">BNKExpTrnTpFltrDgtt.BNKTrnTypeKy</if>
+	</sql>
+
+	<!-- Syntax for declaring a temp table, this is not needed for oracle -->
+	<sql id="declareTempTable">
+		<if test="dbType == 'db2'">
+		DECLARE GLOBAL TEMPORARY TABLE
+		</if>
+		<if test="dbType == 'oracle'">
+		CREATE GLOBAL TEMPORARY TABLE
+		</if>
+		<if test="dbType == 'hsql'">
+		CREATE GLOBAL TEMPORARY TABLE
+		</if>
+	</sql>
+	
+	<!-- The name, as used in declaration, of the wcd temp table -->
+	<sql id="wcdTempTableNameDecl">
+		<if test="dbType == 'db2'">BNKWCDDgtt</if>
+		<if test="dbType == 'oracle'">BNKWCDDgtt</if>
+		<if test="dbType == 'hsql'">BNKWCDDgtt</if>
+	</sql>
+
+	<!-- The name, as used in references, of the wcd temp table -->
+	<sql id="wcdTempTableNameRef">
+		<if test="dbType == 'db2'">SESSION.BNKWCDDgtt</if>
+		<if test="dbType == 'oracle'">BNKWCDDgtt</if>
+		<if test="dbType == 'hsql'">BNKWCDDgtt</if>
+	</sql>
+
+	<!-- The name of the wcd temp table's Oid column -->
+	<sql id="wcdTempTableOidColumn">
+		<if test="dbType == 'db2'">SESSION.BNKWCDDgtt.BNKWireConfKy</if>
+		<if test="dbType == 'oracle'">BNKWCDDgtt.BNKWireConfKy</if>
+		<if test="dbType == 'hsql'">BNKWCDDgtt.BNKWireConfKy</if>
+	</sql>
+
+	<!-- The name of the wcd temp table's AccountId column -->
+	<sql id="wcdTempTableAccountIdColumn">
+		<if test="dbType == 'db2'">SESSION.BNKWCDDgtt.BNKAcctKy</if>
+		<if test="dbType == 'oracle'">BNKWCDDgtt.BNKAcctKy</if>
+		<if test="dbType == 'hsql'">BNKWCDDgtt.BNKAcctKy</if>
+	</sql>
+
+	<!-- The name of the wcd temp table's RowOrder column index -->
+	<sql id="wcdTempTable_RowOrderIndexName">
+		<if test="dbType == 'db2'">SESSION.BNKWCDDgtt_gi1</if>
+		<if test="dbType == 'oracle'">BNKWCDDgtt_gi1</if>
+		<if test="dbType == 'hsql'">BNKWCDDgtt_gi1</if>
+	</sql>
+
+	<!-- Temporary table creation options, this is not needed for oracle -->
+	<sql id="tempTableOptions">
+		<if test="dbType == 'db2'">
+		ON COMMIT PRESERVE ROWS
+		NOT LOGGED
+		ON ROLLBACK DELETE ROWS
+		</if>
+		<if test="dbType == 'oracle'">
+		ON COMMIT PRESERVE ROWS
+		</if>
+		<if test="dbType == 'hsql'">
+		ON COMMIT PRESERVE ROWS
+		</if>
+	</sql>
+
+	<!--
+	  Create temporary tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="createWCDTempTable">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="wcdTempTableNameDecl" />
+			(
+				RowOrder			INTEGER			NOT NULL,
+				BNKWIRECONFKY 		INTEGER			NOT NULL
+			)
+			<include refid="tempTableOptions" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>			
+	</update>
+
+	<!--
+	  Drop temporary tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="dropWCDTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+		DROP TABLE <include refid="wcdTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+			select 1 from dual
+		</if>
+		<if test="dbType == 'hsql'">
+		DROP TABLE <include refid="wcdTempTableNameRef" />
+		</if>
+	</update>
+	
+	<!--
+	  Create necessary indices on temp tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="indexWCDTempTable_RowOrder" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="wcdTempTable_RowOrderIndexName" />
+			ON <include refid="wcdTempTableNameRef" /> 
+			(
+				RowOrder ASC
+			)
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>			
+		
+	</update>
+
+	<update id="runstatsWCDTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="wcdTempTableNameRef" /> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+		</if>
+		<if test="dbType == 'oracle'">			
+			CALL ADMIN_run_stat('<include refid="wcdTempTableNameRef"/>')						
+		</if>
+	</update>
+
+<!-- 
+  Order By clauses
+  
+  These sql fragments are used to generate the appropriate ORDER BY clause depending on which column
+  the user has chosen to sort by, and in what direction (ASCending or DESCending)
+  -->
+	<sql id="fullOrderByClause">
+		${orderByColumnName} <include refid="orderByDirection"/>
+	</sql>
+	
+	<sql id="orderByDirection">
+		<if test="orderByDirection.toString() == 'Ascending'">
+		ASC
+		</if>
+		<if test="orderByDirection.toString() == 'Descending'">
+		DESC
+		</if>
+	</sql>
+	
+<!-- BNKWireConf data-->
+
+	<!--
+	  Fragment of SQL that selects Wire Confirmation info from BNKWireConf
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+			fromDate				Yes			The start Date
+			toDate					Yes			The end Date
+			fromAmount				No			The lower-bound amount
+			toAmount				No			The upper-bound amount
+			debitCreditCd			No			'C' or 'D' or 'M' or null (Ideally it should not be null for WC types, but 'M' by default)
+	  -->
+	<sql id="selectWCDFromSourceFragment">
+		SELECT 
+			<if test="dbType == 'db2'">
+			ROW_NUMBER() OVER(
+				ORDER BY
+				<include refid="fullOrderByClause" />
+			)													AS RowOrder,
+			</if>
+			<if test="dbType == 'oracle'">
+			ROW_NUMBER() OVER(
+				ORDER BY
+				<include refid="fullOrderByClause" />
+			)													AS RowOrder,
+			</if>
+			<if test="dbType == 'hsql'">
+			NULL												AS RowOrder,
+			</if>
+			BNKWireConf.BNKWIRECONFKY
+		FROM
+			BNKWireConf
+			LEFT OUTER JOIN BNKWireConfRmtnc ON BNKWireConfRmtnc.BNKWireConfKy=BNKWireConf.BNKWireConfKy
+		WHERE
+			BNKWireConf.BNKAcctKy IN (
+				SELECT
+					BNKAcctKy
+				FROM
+					<include refid="accountTempTableNameRef" />
+			)
+			AND VALUEDTTM <![CDATA[ >= ]]> #{fromDate}
+			AND VALUEDTTM <![CDATA[ <= ]]> #{toDate}
+			<if test="fromAmount != null">
+			AND PAYMENTAMT <![CDATA[ >= ]]> #{fromAmount}
+			</if>
+			<if test="toAmount != null">
+			AND PAYMENTAMT <![CDATA[ <= ]]> #{toAmount}
+			</if>
+			<if test="debitCreditCd != null">
+				<if test="debitCreditCd == 'C'.toString()">
+				AND ISCREDIT = 1
+				</if>
+				<if test="debitCreditCd == 'D'.toString()">
+				AND ISCREDIT = 0
+				</if>
+			</if>
+	</sql>
+	
+	<!--
+	  Populate WCD temp table.
+	  
+	  Uses SQL fragment 'selectWCDFromSourceFragment'
+	  -->
+	<insert id="populateWCDTempTable" timeout="600">
+		INSERT INTO <include refid="wcdTempTableNameRef" />
+		(
+			RowOrder,
+			BNKWIRECONFKY
+		)
+		<include refid="selectWCDFromSourceFragment" />
+	</insert>
+
+	<!--
+	  Select all WCD using the 'selectWCDFromSourceFragment' fragment.
+	  
+	  Used by hsql fixup code
+	  -->
+	<select id="selectWCDForTempTable" parameterType="java.util.Map" resultMap="selectTempWCDResultHsql">
+		<include refid="selectWCDFromSourceFragment" />
+		ORDER BY
+			<include refid="fullOrderByClause" />
+	</select>
+	
+	<!--
+	  Insert WCD into temp table.
+	  
+	  Used by hsql fixup code
+	  -->
+	<insert id="insertWCDIntoTempTable" parameterType="com.s1.export.provider.csv.model.TempWCDValue">
+		INSERT INTO BNKWCDDgtt
+		(
+			RowOrder,
+			BNKWIRECONFKY
+		)
+		VALUES
+		(
+			#{rowOrder},
+			#{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		)
+	</insert>
+
+	<!--
+	  Selects rows from the temporary WCD table.  Rows in [firstRow, lastRow) are selected.
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			fromRow					Yes			Integer.  The first row to grab
+			toRow					Yes			Integer.  The row just beyond the last row to grab 
+	  -->
+	<select id="selectTempWCD" parameterType="java.util.Map" resultMap="selectTempWCDResult">
+		SELECT
+			RowOrder,
+			BNKWireConf.BNKWIRECONFKY,
+			BNKWireConf.BNKACCTKY,
+			ACCTID,
+			ACCTNAME,
+			TRNREF,
+			PAYMENTAMT,
+			ISOCURRENCYCD,
+			MTSSEQNBR,
+			SOURCECD,
+			WIRESVCREF,
+			SENDERREFNBR,
+			EXCHRATE,
+			ISCREDIT,
+			ORDCUSTID,
+			ORDCUSTIDTYPECD,
+			ORDCUSTNAME,
+			ORDCUSTADDR1,
+			ORDCUSTADDR2,
+			ORDCUSTADDR3,
+			ORDBNKID,
+			ORDBNKIDTYPECD,
+			ORDBNKNAME,
+			ORDBNKADDR1,
+			ORDBNKADDR2,
+			ORDBNKADDR3,
+			ORDBNKREF,
+			SENDBNKID,
+			SENDBNKIDTYPECD,
+			SENDBNKNAME,
+			SENDBNKADDR1,
+			SENDBNKADDR2,
+			SENDBNKADDR3,
+			SENDBNKREF,
+			BNKTOBNKINFO1,
+			BNKTOBNKINFO2,
+			BNKTOBNKINFO3,
+			BNKTOBNKINFO4,
+			BNKTOBNKINFO5,
+			BNKTOBNKINFO6,
+			DETAILOFPMT1,
+			DETAILOFPMT2,
+			DETAILOFPMT3,
+			DETAILOFPMT4,
+			ADVINSTR1,
+			ADVINSTR2,
+			ADVINSTR3,
+			OFFSETACCTIDTYPECD,
+			OFFSETACCTID,
+			OFFSETACCTNAME,
+			OFFSETACCTADDR1,
+			OFFSETACCTADDR2,
+			OFFSETACCTADDR3,
+			BENEIDTYPECD,
+			BENEID,
+			BENENAME,
+			BENEADDR1,
+			BENEADDR2,
+			BENEADDR3,
+			BENEREF,
+			INTRMDRYBNKIDTYPECD,
+			INTRMDRYBNKID,
+			INTRMDRYBNKNAME,
+			INTRMDRYBNKADDR1,
+			INTRMDRYBNKADDR2,
+			INTRMDRYBNKADDR3,
+			BENEBNKIDTYPECD,
+			BENEBNKID,
+			BENEBNKNAME,
+			BENEBNKADDR1,
+			BENEBNKADDR2,
+			BENEBNKADDR3,
+			RCVBNKIDTYPECD,
+			RCVBNKID,
+			RCVBNKNAME,
+			RCVBNKADDR1,
+			RCVBNKADDR2,
+			RCVBNKADDR3,
+			FXAMOUNT,
+			FXAMTISOCURRENCYCD,
+			VALUEDTTM,
+			SENDDTTM,
+			RMTNCINFO
+		FROM
+			<include refid="wcdTempTableNameRef" /> 
+				JOIN BNKWireConf ON BNKWireConf.BNKWireConfKy = <include refid="wcdTempTableOidColumn" />
+				LEFT OUTER JOIN BNKWireConfRmtnc ON BNKWireConfRmtnc.BNKWireConfKy = BNKWireConf.BNKWireConfKy
+				JOIN BNKAcct ON BNKAcct.BNKAcctKy = BNKWireConf.BNKAcctKy
+		WHERE
+			RowOrder <![CDATA[ >= ]]> #{fromRow} 
+			AND RowOrder <![CDATA[ < ]]> #{toRow}
+		ORDER BY
+			RowOrder ASC
+	</select>
+</mapper>

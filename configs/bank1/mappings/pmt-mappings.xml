@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>	
+	
+	<mapping>
+	  <typeA>com.aciworldwide.pim.messages.payments.component.RecurringInfoType</typeA>
+	  <typeB>com.s1.app.disbursements.recurrence.RecurrenceData</typeB>
+	    <fields>
+		<field>
+		   <fieldA>recurringScheduleType</fieldA>
+		   <fieldB>frequency</fieldB>
+		</field>  
+		<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+		   <fieldA>endDate</fieldA>
+		   <fieldB>endDate</fieldB>
+		</field> 
+		<field>
+		   <fieldA>numberOfPayments</fieldA>
+		   <fieldB>endNumber</fieldB>
+		</field> 
+		<field>
+		   <fieldA>adjustedValueDateRule</fieldA>
+		   <fieldB>rollDate</fieldB>
+		</field>
+    	<field>
+		   <fieldA>currentSeqNum</fieldA>
+		   <fieldB>currentSeqNum</fieldB>
+		</field>
+		<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+		   <fieldA>startDate</fieldA>
+		   <fieldB>startDate</fieldB>
+		</field> 
+		<field customConverter="com.aciworldwide.arch.service.transformation.converter.S1DateConverter">
+		   <fieldA>lastGenDate</fieldA>
+		   <fieldB>lastGenDate</fieldB>
+		</field> 
+		</fields>
+	</mapping>	
+	
+	<mapping mapNull="false">
+	 <typeA>com.aciworldwide.pim.messages.payments.PaymentDetailInquiryCriteriaType</typeA>
+	 <typeB>com.aciworldwide.common.payment.PaymentDetailInquiryCriteria</typeB>
+	    <fields>
+	  		<field>
+				<fieldA>paymentIdent</fieldA>
+				<fieldB>soaInstructionId</fieldB>
+			</field>
+			<field>
+				<fieldA>paymentType</fieldA>
+				<fieldB>paymentType</fieldB>
+			</field>
+		</fields>
+	</mapping>	
+	
+	<mapping mapNull="false">
+	 <typeA>com.aciworldwide.pim.messages.templates.services.TemplateDetailInquiryCriteriaType</typeA>
+	 <typeB>com.aciworldwide.common.payment.TemplateDetailInquiryCriteria</typeB>
+	    <fields>
+	  		<field>
+				<fieldA>templateIdent</fieldA>
+				<fieldB>soaInstructionId</fieldB>
+			</field>
+			<field>
+				<fieldA>paymentType</fieldA>
+				<fieldB>paymentType</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	
+</mappings>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.banking.actionitem.ActionItemSummaryGroup</typeA>
+		<typeB>com.aciworldwide.pim.messages.notification.component.ActionItemSummaryGroupType</typeB>
+		<fields>
+			<field>
+				<fieldA>id</fieldA>
+				<fieldB>id</fieldB>
+			</field>
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field>
+				<fieldA>actionItemGroups</fieldA>
+				<fieldB>groups</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.banking.actionitem.ActionItemGroup</typeA>
+		<typeB>com.aciworldwide.pim.messages.notification.component.ActionItemGroupType</typeB>
+		<fields>
+			<field>
+				<fieldA>id</fieldA>
+				<fieldB>id</fieldB>
+			</field>
+			<field>
+				<fieldA>visible</fieldA>
+				<fieldB>visible</fieldB>
+			</field>
+			<field>
+				<fieldA>name</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field>
+				<fieldA>count</fieldA>
+				<fieldB>count</fieldB>
+			</field>
+			<field>
+				<fieldA>url</fieldA>
+				<fieldB>url</fieldB>
+			</field>
+			<field>
+				<fieldA>moreLineItemsMsg</fieldA>
+				<fieldB>moreLineItemsMsg</fieldB>
+			</field>
+			<field>
+				<fieldA>lineItems</fieldA>
+				<fieldB>lineItems</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.banking.actionitem.LineItem</typeA>
+		<typeB>com.aciworldwide.pim.messages.notification.component.LineItemType</typeB>
+		<fields>
+			<field>
+				<fieldA>text</fieldA>
+				<fieldB>text</fieldB>
+			</field>
+			<field>
+				<fieldA>details</fieldA>
+				<fieldB>details</fieldB>
+			</field>
+			<field>
+				<fieldA>date</fieldA>
+				<fieldB>date</fieldB>
+			</field>		
+		</fields>
+	</mapping>
+	
+</mappings>

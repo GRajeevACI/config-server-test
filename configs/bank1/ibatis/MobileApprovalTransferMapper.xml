@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.mobileBanking.approvals.provider.transfer.MobileApprovalTransferMapper">
+
+    <resultMap id="BaseResultMap" type="com.s1.app.mobileBanking.approvals.provider.transfer.MobileApprovalTransferData">
+		<result column="InstructionId" property="objectId" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VfmCustomerKy" property="customerOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="VfmInstrStscdky" property="statusCode" jdbcType="INTEGER"/>
+		<result column="PaymentStatus" property="statusText" jdbcType="VARCHAR" />
+		<result column="VfmInstrTypecdky" property="pmtTypeCode" jdbcType="INTEGER" />
+		<result column="PaymentType" property="pmtTypeText" jdbcType="VARCHAR" />
+		<result column="VfmRcrgFreqcdky" property="recFrequency" jdbcType="SMALLINT" />
+		<result column="SchdExecutionDtTm" property="sendDate" jdbcType="TIMESTAMP" />  
+		<result column="Amount" property="amount" jdbcType="DECIMAL" />
+		<result column="LOANPRINCIPAL" property="principalAmount" jdbcType="DECIMAL" />		
+		<result column="LOANINTEREST" property="interestAmount" jdbcType="DECIMAL" />		
+		<result column="LOANESCROWAMT" property="escrowAmount" jdbcType="DECIMAL" />		
+		<result column="ISOCURRENCYCDKY" property="tranCrncyOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="MarkupText" property="currencySymbol" jdbcType="VARCHAR" />	
+		<result column="Scale" property="currencyScale" jdbcType="SMALLINT" />
+		<result column="TEXTCURRCD" property="tranCrncyAlpha3Cd" jdbcType="VARCHAR" />		
+		<result column="FromAcct" property="fromAcctOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="FromAcctName" property="fromAcctName" jdbcType="VARCHAR" />
+		<result column="ToAcct" property="toAcctOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="ToAcctName" property="toAcctName" jdbcType="VARCHAR" />
+		<result column="BulkXferSeqId" property="bulkXferSeqId" jdbcType="INTEGER" />
+		<result column="XferServerId" property="xferServerId" jdbcType="INTEGER" />
+		<result column="AuthorizeMemo" property="authMemo" jdbcType="VARCHAR" />
+		<result column="updateUser" property="updateUser" jdbcType="VARCHAR" />
+		<result column="versionStamp" property="lockValue" jdbcType="SMALLINT" />
+		<result column="row_number" property="rowno" jdbcType="SMALLINT" />
+		<result column="cnt" property="count" jdbcType="SMALLINT" />
+		<collection property="recipients" javaType="ArrayList" column="{InstrKy=InstructionId,pmtTypeCd=VfmInstrTypecdky}" ofType="com.s1.app.mobileBanking.approvals.provider.transfer.MobileApprovalXferRecipientData" select="getTransfersRecipient"/>
+     </resultMap>
+
+	 <resultMap id="RecipientResultMap" type="com.s1.app.mobileBanking.approvals.provider.transfer.MobileApprovalXferRecipientData">
+		<id column="INSTRUCTIONID" property="instrKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="VFMINSTRKY" property="recipientOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler"/>		
+		<result column="INSTRAMOUNT" property="amount" jdbcType="DECIMAL" />		
+		<result column="AMTCurrencyKy" property="amountCurrencyKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />	
+		<result column="AMTCurrency" property="amountCurrency" jdbcType="VARCHAR" />		
+		<result column="VFMSRCACCTKY" property="srcAcctky" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="srcAcctID" property="srcAcctId" jdbcType="VARCHAR" />
+		<result column="srcAcctCurCd" property="srcAcctCurrencyKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />	
+		<result column="srcAcctCur" property="srcAcctCurrency" jdbcType="VARCHAR" />		
+		<result column="VFMTGTACCTKY" property="dstAcctky" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />		
+		<result column="DstAcctId" property="dstAcctId" jdbcType="VARCHAR" />	
+		<result column="dstAcctCurCd" property="dstAcctCurrencyKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />	
+		<result column="dstAcctCur" property="dstAcctCurrency" jdbcType="VARCHAR" />		
+      </resultMap>
+	 
+	<update id="callXferUserPrep" statementType="CALLABLE" >
+        { call BNKDshbrdXferUsrPrepSp() }
+    </update>
+	<update id="callXferUserEntl" statementType="CALLABLE" parameterType="map">
+        { call BNKDshbrdXferEntlSp(#{v_BNKCustomerKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_ARCPrincipalKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}, #{v_UserAcessTypeCD}, #{v_UserGroupEnabled}) }
+    </update>	 
+
+	<select id="getTransfersRecipient" resultMap="RecipientResultMap" parameterType="map" >
+		<if test="pmtTypeCd == 62 or pmtTypeCd == 63 "> 
+			Select Instr.INSTRUCTIONID,Instr.VFMINSTRKY, Instr.ISOCURRENCYCDKY AMTCurrencyKy,AmtCurr.TEXTCURRCD AMTCurrency,Instr.INSTRAMOUNT, 
+			Xfnstr.VFMSRCACCTKY,SrcACCT.AcctID srcAcctID,SrcACCT.ISOCURRENCYCDKY srcAcctCurCd,AmtCurr.TEXTCURRCD srcAcctCur,
+			Xfnstr.VFMTGTACCTKY,DstACCT.AcctID dstAcctID,DstACCT.ISOCURRENCYCDKY dstAcctCurCd,AmtCurr.TEXTCURRCD dstAcctCur
+			from VFMINSTR Instr 
+					INNER JOIN VXFINSTR Xfnstr ON (Instr.VFMINSTRKY = Xfnstr.VFMINSTRKY and Instr.INSTRUCTIONID=Xfnstr.BULKXFERSEQID)
+				INNER JOIN ARCISOCURRENCYCD AmtCurr ON (Instr.ISOCURRENCYCDKY = AmtCurr.ARCISOCURRENCYCDKY )  	  
+				INNER JOIN BNKACCT SrcACCT ON (Xfnstr.VFMSRCACCTKY = SrcACCT.BNKACCTKY ) 
+				INNER JOIN ARCISOCURRENCYCD SrcCurr ON (SrcACCT.ISOCURRENCYCDKY = SrcCurr.ARCISOCURRENCYCDKY )  	  
+				INNER JOIN BNKACCT DstACCT ON (Xfnstr.VFMTGTACCTKY = DstACCT.BNKACCTKY)
+				INNER JOIN ARCISOCURRENCYCD DstCurr ON (DstACCT.ISOCURRENCYCDKY = DstCurr.ARCISOCURRENCYCDKY )  	  
+			where Instr.INSTRUCTIONID=#{InstrKy,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}  
+		</if>
+		<!--   This Query is NO use.... Just keeping that to make Mybatis working. -->
+		<if test="pmtTypeCd == 24 or pmtTypeCd == 25 or pmtTypeCd == 60 or pmtTypeCd == 61"> 
+			Select cast(null as integer) INSTRUCTIONID ,cast(null as integer) VFMINSTRKY, cast(null as integer) AMTCurrencyKy,cast(null as varchar(3)) AMTCurrency,0 INSTRAMOUNT, 
+			cast(null as integer) VFMSRCACCTKY,cast(null as varchar(10)) srcAcctID,cast(null as integer) srcAcctCurCd,cast(null as varchar(3)) srcAcctCur,
+			cast(null as integer) VFMTGTACCTKY,cast(null as varchar(10)) dstAcctID,cast(null as integer) dstAcctCurCd,cast(null as varchar(3)) dstAcctCur
+			from VFMINSTR  
+			where 1=2 and 3=4
+		</if>
+	
+	</select>
+			
+	 
+	<select id="getTransfersForMobileApprovals" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" useCache="false" >
+		with a1 (row_number, 
+			INSTRUCTIONID, VFMCUSTOMERKY,VFMINSTRSTSCDKY, paymentStatus, VFMINSTRTYPECDKY, paymentType ,
+			VfmRcrgFreqcdKy, SCHDEXECUTIONDTTM, Amount,  LOANPRINCIPAL, LOANINTEREST, LOANESCROWAMT, ISOCURRENCYCDKY, MarkupText, Scale, AuthorizeMemo,TEXTCURRCD,
+			fromacct,fromacctName,toacct,toacctName,BULKXFERSEQID, XFERSERVERID, updateUser,versionStamp ) 
+		as ( 
+			SELECT  row_number() over( order by SCHDEXECUTIONDTTM Asc ) as row_number, 
+				INSTRUCTIONID, VFMCUSTOMERKY,VFMINSTRSTSCDKY, paymentStatus, VFMINSTRTYPECDKY, paymentType ,
+				VfmRcrgFreqcdKy, SCHDEXECUTIONDTTM, Amount, LOANPRINCIPAL, LOANINTEREST, LOANESCROWAMT, ISOCURRENCYCDKY, MarkupText, Scale, AuthorizeMemo,TEXTCURRCD,
+				fromacct,fromacctName,toacct,toacctName,BULKXFERSEQID, XFERSERVERID, updateUser,versionStamp 
+			FROM (
+				SELECT   DISTINCT 
+					INSTRUCTIONID, VFMCUSTOMERKY,VFMINSTRSTSCDKY, msg1.translation as paymentStatus, VFMINSTRTYPECDKY, msg2.translation paymentType ,
+					(case when Instr.VFMRCRGMODELKY is null then -1 else rcm.VfmRcrgFreqcdKy end)  as VfmRcrgFreqcdKy,
+					Instr.SCHDEXECUTIONDTTM,cast(null as integer) Amount, Xfnstr.LOANPRINCIPAL, Xfnstr.LOANINTEREST, Xfnstr.LOANESCROWAMT,
+					Instr.ISOCURRENCYCDKY, ARCISOCURRENCYCD.MarkupText, ARCISOCURRENCYCD.Scale, Instr.AuthorizeMemo,ARCISOCURRENCYCD.TEXTCURRCD,
+					(case when Instr.VFMINSTRTYPECDKY = 62 then Xfnstr.VFMSRCACCTKY else cast(null as integer) end) fromacct,
+					(case when Instr.VFMINSTRTYPECDKY = 62 then BNKACCT.ACCTID else cast(null as varchar(13)) end) fromacctName,
+					(case when Instr.VFMINSTRTYPECDKY = 63 then Xfnstr.VFMTGTACCTKY else cast(null as integer) end) toacct,
+					(case when Instr.VFMINSTRTYPECDKY = 63 then BNKACCT_TARGET.ACCTID else cast(null as varchar(13)) end) toacctName,
+					Xfnstr.BULKXFERSEQID, Xfnstr.XFERSERVERID, Instr.updateUser,Instr.versionStamp 
+				FROM     
+					VFMINSTR Instr left outer join VFMRcrgModel rcm on (Instr.VFMRcrgModelKy = rcm.VFMRcrgModelKy )   
+					INNER JOIN ARCISOCURRENCYCD ON (Instr.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY )  
+					INNER JOIN VXFINSTR Xfnstr ON (Instr.VFMINSTRKY = Xfnstr.VFMINSTRKY )  
+					INNER JOIN BNKACCT ON (Xfnstr.VFMSRCACCTKY = BNKACCT.BNKACCTKY or Xfnstr.VXFTPSRCACCTKY = bnkacct.BNKAcctKy) 
+					INNER JOIN BNKACCT BNKACCT_TARGET ON (Xfnstr.VFMTGTACCTKY = BNKACCT_TARGET.BNKACCTKY or Xfnstr.VXFTPTGACCTKY = BNKACCT_TARGET.BNKAcctKy)
+					INNER JOIN  session.BNKDshbrdXferPmtDgtt ee on ( ( Xfnstr.VFMSRCACCTKY = ee.BNKACCTKY 
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMSRCACCTKY  in 
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					AND Xfnstr.vxftpsrcacctky IS NULL )
+					OR ( Xfnstr.vfmsrcacctky IS NULL	
+					AND Xfnstr.vxftpsrcacctky = ee.bnkacctky
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMTGTACCTKY  in 
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					))
+					,session.BNKDshbrdXferUsrEntlDgtt hh
+					,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE    
+					Instr.VFMCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="xferBulkPmtTypeCd != null"> 
+					And Instr.VFMINSTRTYPECDKY IN
+						<foreach collection="xferBulkPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>
+					<if test="xferstatusCodes != null"> 
+					AND Instr.VFMInstrStsCdKy IN
+						<foreach collection="xferstatusCodes" item="item1" open="(" close=")" separator=",">
+							#{item1}
+						</foreach> 
+					</if>
+					<if test="startDateStr != null and startDateStr != ''"> 
+					AND Instr.SCHDEXECUTIONDTTM <![CDATA[ >= ]]> #{startDateStr}
+					</if>
+					AND ((Instr.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' and Instr.updateuser = hh.USERID) 
+					or( Instr.BNKINSTRTMPLKY IS NOT NULL AND	hh.ISOWNREPEAPPROVE = '1' and Instr.updateuser = hh.USERID) or ( Instr.updateuser <![CDATA[ <> ]]> hh.USERID))
+					and msg1.fetchId = 'statusCodeEnum' and Instr.VFMINSTRSTSCDKY = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+					and msg2.fetchId = 'paymentTypesEnum' and Instr.VFMINSTRTYPECDKY = msg2.enumValue and msg2.ARCLocaleCdKy = #{localeOid} 
+
+				union 
+
+				SELECT 
+					Instr.INSTRUCTIONID,Instr.VFMCUSTOMERKY,Instr.VFMINSTRSTSCDKY,msg1.translation as paymentStatus,Instr.VFMINSTRTYPECDKY,'Single Transfer',
+					(case when Instr.VFMRCRGMODELKY is null then -1 else rcm.VfmRcrgFreqcdKy end)  as VfmRcrgFreqcdKy,
+					Instr.SCHDEXECUTIONDTTM,Instr.INSTRAMOUNT Amount, Xfnstr.LOANPRINCIPAL, Xfnstr.LOANINTEREST, Xfnstr.LOANESCROWAMT, 
+					Instr.ISOCURRENCYCDKY,ARCISOCURRENCYCD.MarkupText, ARCISOCURRENCYCD.Scale, Instr.AuthorizeMemo,ARCISOCURRENCYCD.TEXTCURRCD,
+					coalesce(VFMSRCACCTKY, VXFTPSRCACCTKY ) fromacct,
+					(case when  Xfnstr.VFMSRCACCTKY is not null then BA.ACCTID else VTA.ACCTID end) fromacctName,
+					coalesce(Xfnstr.VFMTGTACCTKY, Xfnstr.VXFTPTGACCTKY ) toacct,
+					(case when Xfnstr.VFMTGTACCTKY is not null then BAT.ACCTID else VTG.ACCTID end) toacctName,
+					Xfnstr.BULKXFERSEQID, Xfnstr.XFERSERVERID, Instr.updateUser,Instr.versionStamp 
+				FROM 
+					VFMINSTR Instr INNER JOIN VXFINSTR Xfnstr ON (Instr.VFMINSTRKY = Xfnstr.VFMINSTRKY ) 
+					INNER JOIN ARCISOCURRENCYCD ON (Instr.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY ) 
+					LEFT OUTER JOIN VFMRcrgModel rcm on (Instr.VFMRcrgModelKy = rcm.VFMRcrgModelKy ) 
+					LEFT OUTER JOIN BNKACCT BA ON ((Xfnstr.vfmsrcacctky = BA.bnkacctky) AND (Xfnstr.vfmsrcacctky is not null)) 
+					LEFT OUTER JOIN BNKACCT BAT ON (( Xfnstr.vfmtgtacctky = BAT.bnkacctky AND Xfnstr.vfmtgtacctky IS NOT NULL )) 
+					LEFT OUTER JOIN VXFTPACCT VTA ON Xfnstr.VXFTPSRCACCTKY=VTA.VXFTPACCTKY 
+					LEFT OUTER JOIN VXFTPACCT VTG ON Xfnstr.VXFTPTGACCTKY=VTG.VXFTPACCTKY 
+					LEFT OUTER JOIN  session.BNKDshbrdXferPmtDgtt ee on (( Xfnstr.VFMSRCACCTKY = ee.BNKACCTKY  
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMSRCACCTKY  in
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					)	
+					OR ( Xfnstr.vfmtgtacctky = ee.bnkacctky 
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMTGTACCTKY  in 
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					))
+					,session.BNKDshbrdXferUsrEntlDgtt hh
+					,BNKPmtStsMsgMQT msg1 
+				WHERE 
+					Instr.VFMCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="xferSinglePmtTypeCd != null"> 
+					And Instr.VFMINSTRTYPECDKY IN
+						<foreach collection="xferSinglePmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>
+					<if test="xferstatusCodes != null"> 
+					AND Instr.VFMInstrStsCdKy IN
+						<foreach collection="xferstatusCodes" item="item1" open="(" close=")" separator=",">
+							#{item1}
+						</foreach> 
+					</if>
+					<if test="startDateStr != null and startDateStr != ''"> 
+					AND Instr.SCHDEXECUTIONDTTM <![CDATA[ >= ]]> #{startDateStr}
+					</if>
+					AND ((Instr.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' and Instr.updateuser = hh.USERID) 
+					or( Instr.BNKINSTRTMPLKY IS NOT NULL AND	hh.ISOWNREPEAPPROVE = '1' and Instr.updateuser = hh.USERID) or ( Instr.updateuser <![CDATA[ <> ]]> hh.USERID))
+					and msg1.fetchId = 'statusCodeEnum' and Instr.VFMINSTRSTSCDKY = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+			) as tmp
+		) select b.cnt , a.* from a1 as a, (select count(*) as cnt from a1) as b 
+		<if test="noOfRows > 0">
+			where a.row_number between 1 and #{noOfRows} 
+		</if>
+	</select> 
+	<select id="getTransfersForMobileApprovals-Oracle" resultMap="BaseResultMap" parameterType="com.s1.app.mobileBanking.approvals.provider.MobileApprovalListCirteria" useCache="false" >
+		with a1 (row_number, 
+			INSTRUCTIONID, VFMCUSTOMERKY,VFMINSTRSTSCDKY, paymentStatus, VFMINSTRTYPECDKY, paymentType ,
+			VfmRcrgFreqcdKy, SCHDEXECUTIONDTTM, Amount, LOANPRINCIPAL, LOANINTEREST, LOANESCROWAMT, ISOCURRENCYCDKY,MarkupText,Scale,AuthorizeMemo,TEXTCURRCD,
+			fromacct,fromacctName,toacct,toacctName,BULKXFERSEQID, XFERSERVERID, updateUser,versionStamp ) 
+		as ( 
+			SELECT  row_number() over( order by SCHDEXECUTIONDTTM Asc ) as row_number, 
+				INSTRUCTIONID, VFMCUSTOMERKY,VFMINSTRSTSCDKY, paymentStatus, VFMINSTRTYPECDKY, paymentType ,
+				VfmRcrgFreqcdKy, SCHDEXECUTIONDTTM, Amount, LOANPRINCIPAL, LOANINTEREST, LOANESCROWAMT, ISOCURRENCYCDKY,MarkupText,Scale,AuthorizeMemo,TEXTCURRCD,
+				fromacct,fromacctName,toacct,toacctName,BULKXFERSEQID, XFERSERVERID, updateUser,versionStamp 
+			FROM (
+				SELECT   DISTINCT 
+					INSTRUCTIONID, VFMCUSTOMERKY,VFMINSTRSTSCDKY, msg1.translation as paymentStatus, VFMINSTRTYPECDKY, msg2.translation paymentType ,
+					(case when Instr.VFMRCRGMODELKY is null then -1 else rcm.VfmRcrgFreqcdKy end)  as VfmRcrgFreqcdKy, 
+					Instr.SCHDEXECUTIONDTTM,cast(null as integer) Amount, Xfnstr.LOANPRINCIPAL, Xfnstr.LOANINTEREST, Xfnstr.LOANESCROWAMT,  
+					Instr.ISOCURRENCYCDKY,ARCISOCURRENCYCD.MarkupText,ARCISOCURRENCYCD.Scale,Instr.AuthorizeMemo,ARCISOCURRENCYCD.TEXTCURRCD,
+					(case when Instr.VFMINSTRTYPECDKY = 62 then Xfnstr.VFMSRCACCTKY else cast(null as integer) end) fromacct,
+					(case when Instr.VFMINSTRTYPECDKY = 62 then BNKACCT.ACCTID else cast(null as varchar(13)) end) fromacctName,
+					(case when Instr.VFMINSTRTYPECDKY = 63 then Xfnstr.VFMTGTACCTKY else cast(null as integer) end) toacct,
+					(case when Instr.VFMINSTRTYPECDKY = 63 then BNKACCT_TARGET.ACCTID else cast(null as varchar(13)) end) toacctName,
+					Xfnstr.BULKXFERSEQID, Xfnstr.XFERSERVERID, Instr.updateUser,Instr.versionStamp 
+				FROM     
+					VFMINSTR Instr left outer join VFMRcrgModel rcm on (Instr.VFMRcrgModelKy = rcm.VFMRcrgModelKy )   
+					INNER JOIN ARCISOCURRENCYCD ON (Instr.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY )  
+					INNER JOIN VXFINSTR Xfnstr ON (Instr.VFMINSTRKY = Xfnstr.VFMINSTRKY )  
+					INNER JOIN BNKACCT ON (Xfnstr.VFMSRCACCTKY = BNKACCT.BNKACCTKY or Xfnstr.VXFTPSRCACCTKY = bnkacct.BNKAcctKy) 
+					INNER JOIN BNKACCT BNKACCT_TARGET ON (Xfnstr.VFMTGTACCTKY = BNKACCT_TARGET.BNKACCTKY or Xfnstr.VXFTPTGACCTKY = BNKACCT_TARGET.BNKAcctKy)
+					INNER JOIN  BNKDshbrdXferPmtDgtt ee on ( ( Xfnstr.VFMSRCACCTKY = ee.BNKACCTKY 
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMSRCACCTKY  in 
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					AND Xfnstr.vxftpsrcacctky IS NULL )
+					OR ( Xfnstr.vfmsrcacctky IS NULL	
+					AND Xfnstr.vxftpsrcacctky = ee.bnkacctky
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMTGTACCTKY  in 
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					))
+					,BNKDshbrdXferUsrEntlDgtt hh
+					,BNKPmtStsMsgMQT msg1, BNKPmtStsMsgMQT msg2
+				WHERE    
+					Instr.VFMCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="xferBulkPmtTypeCd != null"> 
+					And Instr.VFMINSTRTYPECDKY IN
+						<foreach collection="xferBulkPmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>
+					<if test="xferstatusCodes != null"> 
+					AND Instr.VFMInstrStsCdKy IN
+						<foreach collection="xferstatusCodes" item="item1" open="(" close=")" separator=",">
+							#{item1}
+						</foreach> 
+					</if>
+					<if test="startDateStr != null and startDateStr != ''"> 
+					AND Instr.SCHDEXECUTIONDTTM <![CDATA[ >= ]]> TO_TIMESTAMP(#{startDateStr}, 'YYYY-MM-DD HH24:MI:SS')
+					</if>
+					AND ((Instr.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' and Instr.updateuser = hh.USERID) 
+					or( Instr.BNKINSTRTMPLKY IS NOT NULL AND	hh.ISOWNREPEAPPROVE = '1' and Instr.updateuser = hh.USERID) or ( Instr.updateuser <![CDATA[ <> ]]> hh.USERID))
+					and msg1.fetchId = 'statusCodeEnum' and Instr.VFMINSTRSTSCDKY = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+					and msg2.fetchId = 'paymentTypesEnum' and Instr.VFMINSTRTYPECDKY = msg2.enumValue and msg2.ARCLocaleCdKy = #{localeOid} 
+
+				union 
+
+				SELECT 
+					Instr.INSTRUCTIONID,Instr.VFMCUSTOMERKY,Instr.VFMINSTRSTSCDKY,msg1.translation as paymentStatus,Instr.VFMINSTRTYPECDKY,'Single Transfer',
+					(case when Instr.VFMRCRGMODELKY is null then -1 else rcm.VfmRcrgFreqcdKy end)  as VfmRcrgFreqcdKy, 
+					Instr.SCHDEXECUTIONDTTM,Instr.INSTRAMOUNT Amount, Xfnstr.LOANPRINCIPAL, Xfnstr.LOANINTEREST, Xfnstr.LOANESCROWAMT, 
+					Instr.ISOCURRENCYCDKY,ARCISOCURRENCYCD.MarkupText,ARCISOCURRENCYCD.Scale,Instr.AuthorizeMemo,ARCISOCURRENCYCD.TEXTCURRCD,
+					coalesce(VFMSRCACCTKY, VXFTPSRCACCTKY ) fromacct,
+					(case when  Xfnstr.VFMSRCACCTKY is not null then BA.ACCTID else VTA.ACCTID end) fromacctName,
+					coalesce(Xfnstr.VFMTGTACCTKY, Xfnstr.VXFTPTGACCTKY ) toacct,
+					(case when Xfnstr.VFMTGTACCTKY is not null then BAT.ACCTID else VTG.ACCTID end) toacctName,
+					Xfnstr.BULKXFERSEQID, Xfnstr.XFERSERVERID, Instr.updateUser,Instr.versionStamp 
+				FROM 
+					VFMINSTR Instr INNER JOIN VXFINSTR Xfnstr ON (Instr.VFMINSTRKY = Xfnstr.VFMINSTRKY ) 
+					INNER JOIN ARCISOCURRENCYCD ON (Instr.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY ) 
+					LEFT OUTER JOIN VFMRcrgModel rcm on (Instr.VFMRcrgModelKy = rcm.VFMRcrgModelKy ) 
+					LEFT OUTER JOIN BNKACCT BA ON ((Xfnstr.vfmsrcacctky = BA.bnkacctky) AND (Xfnstr.vfmsrcacctky is not null)) 
+					LEFT OUTER JOIN BNKACCT BAT ON (( Xfnstr.vfmtgtacctky = BAT.bnkacctky AND Xfnstr.vfmtgtacctky IS NOT NULL )) 
+					LEFT OUTER JOIN VXFTPACCT VTA ON Xfnstr.VXFTPSRCACCTKY=VTA.VXFTPACCTKY 
+					LEFT OUTER JOIN VXFTPACCT VTG ON Xfnstr.VXFTPTGACCTKY=VTG.VXFTPACCTKY 
+					LEFT OUTER JOIN  BNKDshbrdXferPmtDgtt ee on (( Xfnstr.VFMSRCACCTKY = ee.BNKACCTKY  
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMSRCACCTKY  in
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					)
+					OR ( Xfnstr.vfmtgtacctky = ee.bnkacctky 
+							<if test="accountIds != null"> 
+								and Xfnstr.VFMTGTACCTKY  in 
+									<foreach collection="accountIds" item="acctId" open="(" close=")" separator=",">
+										#{acctId}
+									</foreach>
+							</if> 
+					))
+					,BNKDshbrdXferUsrEntlDgtt hh
+					,BNKPmtStsMsgMQT msg1 
+				WHERE 
+					Instr.VFMCUSTOMERKY = #{customerOid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler} 
+					<if test="xferSinglePmtTypeCd != null"> 
+					And Instr.VFMINSTRTYPECDKY IN
+						<foreach collection="xferSinglePmtTypeCd" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach> 
+					</if>
+					<if test="xferstatusCodes != null"> 
+					AND Instr.VFMInstrStsCdKy IN
+						<foreach collection="xferstatusCodes" item="item1" open="(" close=")" separator=",">
+							#{item1}
+						</foreach> 
+					</if>
+					<if test="startDateStr != null and startDateStr != ''">  
+					AND Instr.SCHDEXECUTIONDTTM <![CDATA[ >= ]]> TO_TIMESTAMP(#{startDateStr}, 'YYYY-MM-DD HH24:MI:SS')
+					</if>
+					AND ((Instr.BNKINSTRTMPLKY IS NULL AND hh.ISOWNNONREPAPPROVE = '1' and Instr.updateuser = hh.USERID) 
+					or( Instr.BNKINSTRTMPLKY IS NOT NULL AND	hh.ISOWNREPEAPPROVE = '1' and Instr.updateuser = hh.USERID) or ( Instr.updateuser <![CDATA[ <> ]]> hh.USERID))
+					and msg1.fetchId = 'statusCodeEnum' and Instr.VFMINSTRSTSCDKY = msg1.enumValue and msg1.ARCLocaleCdKy = #{localeOid} 
+			) tmp
+		) select b.cnt , a.* from a1 a, (select count(*) as cnt from a1)  b 
+		<if test="noOfRows > 0">
+			where a.row_number between 1 and #{noOfRows} 
+		</if>
+	</select>	
+</mapper>

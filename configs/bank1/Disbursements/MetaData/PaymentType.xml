@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paymentType xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PaymentType.xsd" identifier="InternationalPaymentMetaData" version="1.0.0">
+<dynamicAttributeType identifier="paymenttype" attributeType="Payment">
+	<fields widgetType="ContentBox" identifier="optContent">
+ 		<fieldLabel defaultText="Options" defaultToolTipText="Options"/>
+<!--		<fields widgetType="Checkbox" identifier="orderingCustomer" name="orderingCustomer" value="true" isRequired="false" isVisible="true">
+			<fieldLabel defaultText="Ordering Customer" defaultToolTipText="Ordering Customer"/>
+			<fieldInnerLabel defaultText="Add information" defaultToolTipText="Add information"/>
+			<events identifier="orderingCustomerEvent" beanName="com.aci.payments.metadata.events.ToggleEvent" eventType="onClick" instigatorID="orderingCustomer" receiverID="idType"/>
+		</fields>
+		<fields widgetType="Text" identifier="name" name="orderingForm.name" isRequired="true" isVisible="true">
+			<fieldLabel defaultText="Name" defaultToolTipText="Name"/>
+		</fields>
+		<fields widgetType="Select" identifier="idType" name="orderingForm.customerIdType" isRequired="false" isVisible="false">
+			<fieldLabel defaultText="ID Type" defaultToolTipText="ID Type"/>
+			<allowedValues identifier="idTypeValues" beanName="com.aci.payments.metadata.ui.PopulateIdType"/>
+			<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onChange" triggerValue="BNKINDPB" instigatorID="idType" receiverID="birthDate,provOfBirth,cityOfBirth,countryOfBirth"/>
+			<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onChange" triggerValue="BNKINDPB" instigatorID="idType" receiverID="idNumber"/>
+			<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.ShowEvent" eventType="onChange" triggerValue="BNKCOTH" instigatorID="idType" receiverID="idNumber"/>
+			<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onChange" triggerValue="BNKCOTH" instigatorID="idType" receiverID="birthDate,provOfBirth,cityOfBirth,countryOfBirth"/>
+			<events identifier="postingIndicatorEvent" beanName="com.aci.payments.metadata.events.HideEvent" eventType="onChange" triggerValue="-1" instigatorID="idType" receiverID="birthDate,provOfBirth,cityOfBirth,countryOfBirth,idNumber"/>
+		</fields>
+		<fields widgetType="Date" identifier="birthDate" name="orderingForm.dateOfBirth" isRequired="true" isVisible="false">
+			<fieldLabel defaultText="Birth Date" defaultToolTipText="Birth Date"/>
+		</fields>
+		<fields widgetType="Text" identifier="provOfBirth" name="orderingForm.provinceOfBirth" isRequired="false" isVisible="false">
+			<fieldLabel defaultText="Province of Birth" defaultToolTipText="Province of Birth"/>
+		</fields>
+		<fields widgetType="Text" identifier="cityOfBirth" name="orderingForm.cityOfBirth" isRequired="true" isVisible="false">
+			<fieldLabel defaultText="City of Birth" defaultToolTipText="City of Birth"/>
+		</fields>
+		<fields widgetType="Select" identifier="countryOfBirth" name="orderingForm.nationalityStatus.countryCode" isRequired="true" isVisible="false">
+			<fieldLabel defaultText="Country of Birth" defaultToolTipText="Country of Birth"/>
+			<allowedValues identifier="countryValues" beanName="com.aci.payments.metadata.ui.PopulateCountry"/>
+		</fields>
+		<fields widgetType="Text" identifier="idNumber" name="orderingForm.recipientId" isRequired="false" isVisible="false">
+			<fieldLabel defaultText="ID Number" defaultToolTipText="ID Number"/>
+		</fields>
+		<fields widgetType="Text" identifier="address" name="orderingForm.address1" isRequired="false" isVisible="false">
+			<fieldLabel defaultText="Address" defaultToolTipText="Address Line 1"/>
+		</fields>
+		<fields widgetType="Text" identifier="address2" name="orderingForm.address2" isRequired="false" isVisible="false">
+			<fieldLabel defaultText="Address Line 2" defaultToolTipText="Address Line 2"/>
+		</fields>
+		<fields widgetType="Text" identifier="address3" name="orderingForm.address3" isRequired="false" isVisible="false">
+			<fieldLabel defaultText="Address Line 3" defaultToolTipText="Address Line 3"/>
+		</fields>
+		<fields widgetType="Checkbox" identifier="saveAsTemplate" name="saveAsTemplate" isRequired="false" isVisible="true">
+			<fieldLabel defaultText="Workflow" defaultToolTipText="Workflow"/>
+			<fieldInnerLabel defaultText="Save as template" defaultToolTipText="Save as template"/>
+		</fields>
+		<fields widgetType="Checkbox" identifier="confidential" name="confidential" isRequired="false" isVisible="true">
+			<fieldInnerLabel defaultText="Confidential" defaultToolTipText="Confidential"/>
+		</fields>	
+	-->
+		<fields widgetType="BankWidget" identifier="bankWidget"/>
+	</fields>
+</dynamicAttributeType>
+</paymentType>

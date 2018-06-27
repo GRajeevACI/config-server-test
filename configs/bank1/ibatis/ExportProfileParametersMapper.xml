@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.export.dao.ExportProfileParametersMapper">
+	<resultMap id="selectSwiftAndBAITransactionCodeMappingsResult" type="com.s1.export.model.TransactionTypeAndCodeValue" >
+		<result property="tranCodeTranTypeKey"		column="VFMTrnCdTrnTpKy"		jdbcType="INTEGER" />
+		<result property="tranTypeKey"				column="VFMTrnTypeKy"			jdbcType="INTEGER" />
+		<result property="productSubTypeKey"		column="ProductSubTypeKy"		jdbcType="INTEGER" />
+		<result property="debitOrCredit"			column="DebitOrCredit"			jdbcType="VARCHAR" />
+		<result property="name"						column="Name"					jdbcType="VARCHAR" />
+		<result property="description"				column="Description"			jdbcType="VARCHAR" />
+		<result property="tranCode"					column="TranCode"				jdbcType="VARCHAR" />
+		<result property="externalSystemTypeCode"	column="ExternalSysTypeCode"	jdbcType="INTEGER" />
+	</resultMap>
+	
+	<resultMap id="selectFullExportFieldsForExportProfileResult" type="com.s1.export.model.JoinedExportFieldValue">
+		<result property="columnSeqNum" 		column="ColumnSeqNum"		jdbcType="INTEGER" />
+		<result property="sortOrder" 			column="SortOrder"			jdbcType="VARCHAR" />
+		<result property="exportFieldName"		column="ExportFieldName"	jdbcType="VARCHAR" />
+		<result property="isSummary"			column="IsSummary"			jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="isDetail"				column="IsDetail"			jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="isCurrentDay"			column="IsCurrentDay"		jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="isPriorDay"			column="IsPriorDay"			jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+		<result property="fieldDefCdMapId"		column="BNKFldDefCdMapKy"	jdbcType="INTEGER" />
+		<result property="sortBy"				column="SortBy"				jdbcType="INTEGER" />
+		<result property="exportFieldOid"		column="BNKExportFieldKy"	jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	</resultMap>
+
+	<resultMap id="selectTranTypeFilterTempTableResult" type="com.s1.export.model.TranTypeFilterValue">
+		<result property="tranTypeKey"			column="BNKTrnTypeKy" 		jdbcType="INTEGER" />
+		<result property="productSubTypeKey"	column="BNKProdSubTypeKy"	jdbcType="INTEGER" />
+	</resultMap>
+
+<!-- Filtering tables available to all ExportProviders -->
+
+	<!-- Syntax for declaring a temp table -->
+	<sql id="declareTempTable">
+		<if test="dbType == 'db2'">
+		DECLARE GLOBAL TEMPORARY TABLE
+		</if>
+		<if test="dbType == 'oracle'">
+         declare pragma autonomous_transaction; begin execute immediate 'CREATE GLOBAL TEMPORARY TABLE
+		</if>
+		<if test="dbType == 'hsql'">
+		CREATE GLOBAL TEMPORARY TABLE
+		</if>
+	</sql>
+	<sql id="tempTableOptions">
+		<if test="dbType == 'db2'">
+		ON COMMIT PRESERVE ROWS
+		NOT LOGGED
+		ON ROLLBACK DELETE ROWS
+		</if>
+		<if test="dbType == 'oracle'">
+		ON COMMIT PRESERVE ROWS'; end;
+		</if>
+		<if test="dbType == 'hsql'">
+		ON COMMIT PRESERVE ROWS
+		</if>
+	</sql>
+	
+	<!-- The name, as used in declaration, of the account temp table -->
+	<sql id="accountTempTableNameDecl">
+		<if test="dbType == 'db2'">
+		BNKExpAcctDgtt
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpAcctDgtt
+		</if>
+		<if test="dbType == 'hsql'">
+		BNKExpAcctDgtt
+		</if>		
+	</sql>
+
+	<!-- The name, as used in references, of the account temp table -->
+	<sql id="accountTempTableNameRef">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpAcctDgtt
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpAcctDgtt
+		</if>
+		<if test="dbType == 'hsql'">
+		BNKExpAcctDgtt
+		</if>		
+	</sql>
+
+	<!-- The name of the account temp table's BNKAcctKy column -->
+	<sql id="accountTempTableBNKAcctKyColumn">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpAcctDgtt.BNKAcctKy
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpAcctDgtt.BNKAcctKy
+		</if>
+		<if test="dbType == 'hsql'">
+		BNKExpAcctDgtt.BNKAcctKy
+		</if>
+	</sql>
+
+	<!-- The name of the account temp table's BNKAcctKy column index -->
+	<sql id="accountTempTable_BNKAcctKyIndexName">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpAcctDgtt_gi1
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpAcctDgtt_gi1
+		</if>
+		<if test="dbType == 'hsql'">
+		BNKExpAcctDgtt_gi1
+		</if>
+	</sql>
+
+	<!-- The name, as used in declaration, of the summaryFieldFilter temp table -->
+	<sql id="summaryFieldFilterTempTableNameDecl">
+		<if test="dbType == 'db2'">
+		BNKExpSumFldFltrDgtt
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpSumFldFltrDgtt
+		</if>
+		<if test="dbType == 'hsql'">
+		BNKExpSumFldFltrDgtt
+		</if>		
+	</sql>
+
+	<!-- The name, as used in references, of the summaryFieldFilter temp table -->
+	<sql id="summaryFieldFilterTempTableNameRef">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpSumFldFltrDgtt
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpSumFldFltrDgtt
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpSumFldFltrDgtt
+		</if>
+	</sql>
+
+	<!-- The name of the summaryFieldFilter temp table's BNKAppFldDefKy column -->
+	<sql id="summaryFieldFilterTempTableBNKAppFldDefKyColumn">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpSumFldFltrDgtt.BNKAppFldDefKy
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpSumFldFltrDgtt.BNKAppFldDefKy
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpSumFldFltrDgtt.BNKAppFldDefKy
+		</if>
+	</sql>
+
+	<!-- The name of the summaryFieldFilter temp table's BNKAppFldDefKy column index -->
+	<sql id="summaryFieldFilterTempTable_BNKAppFldDefKyIndexName">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpSumFldFltrDgtt_gi1
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpSumFldFltrDgtt_gi1
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpSumFldFltrDgtt_gi1
+		</if>
+	</sql>
+
+	<!-- The name, as used in declaration, of the tranTypeFilter temp table -->
+	<sql id="tranTypeFilterTempTableNameDecl">
+		<if test="dbType == 'db2'">
+		BNKExpTrnTpFltrDgtt
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpTrnTpFltrDgtt
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpTrnTpFltrDgtt
+		</if>
+	</sql>
+
+	<!-- The name, as used in references, of the tranTypeFilter temp table -->
+	<sql id="tranTypeFilterTempTableNameRef">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpTrnTpFltrDgtt
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpTrnTpFltrDgtt
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpTrnTpFltrDgtt
+		</if>		
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKProdSubTypeKy column -->
+	<sql id="tranTypeFilterTempTableBNKProdSubTypeKyColumn">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpTrnTpFltrDgtt.BNKProdSubTypeKy
+		</if>
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKTrnTypeKy column -->
+	<sql id="tranTypeFilterTempTableTypeCodeTypeColumn">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpTrnTpFltrDgtt.BNKTrnTypeKy
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpTrnTpFltrDgtt.BNKTrnTypeKy
+		</if>
+		<if test="dbType == 'hsql'">
+		BNKExpTrnTpFltrDgtt.BNKTrnTypeKy
+		</if>		
+	</sql>
+
+	<!-- The name of the tranTypeFilter temp table's BNKTrnTypeKy column index -->
+	<sql id="tranTypeFilterTempTable_BNKTrnTypeKyIndexName">
+		<if test="dbType == 'db2'">
+		SESSION.BNKExpTrnTpFltrDgtt_gi1
+		</if>
+		<if test="dbType == 'oracle'">
+		BNKExpTrnTpFltrDgtt_gi1
+		</if>		
+		<if test="dbType == 'hsql'">
+		BNKExpTrnTpFltrDgtt_gi1
+		</if>
+	</sql>
+
+	<!--
+	  Account temporary table.  This table stores the account keys and associated product sub-types
+	  for all accounts that will be involved in the export.
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="createAccountTempTable" parameterType="java.util.Map">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="accountTempTableNameDecl" />
+			(
+				BNKAcctKy		INTEGER		NOT NULL
+			)
+			<include refid="tempTableOptions" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+	</update>
+	<update id="createSummaryFieldFilterTempTable">
+	   <if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="summaryFieldFilterTempTableNameDecl" />
+			(
+				BNKAppFldDefKy	INTEGER NOT NULL
+			)
+			<include refid="tempTableOptions" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+			
+	</update>
+	<update id="createTranTypeFilterTempTable">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			<include refid="declareTempTable" /> <include refid="tranTypeFilterTempTableNameDecl" />
+			(
+				BNKTrnTypeKy		INTEGER NOT NULL,
+				BNKProdSubTypeKy	INTEGER NOT NULL
+			)
+			<include refid="tempTableOptions" />
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+		
+	</update>
+	
+	<!--
+	  Drop temporary tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="dropAccountTempTable" timeout="600" parameterType="java.util.Map">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="accountTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+			
+	</update>
+	<update id="dropSummaryFieldFilterTempTable" timeout="600" parameterType="java.util.Map">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="summaryFieldFilterTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+			
+	</update>
+	<update id="dropTranTypeFilterTempTable" timeout="600" parameterType="java.util.Map">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			DROP TABLE <include refid="tranTypeFilterTempTableNameRef" />
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+			
+	</update>
+
+	<!--
+	  Create necessary indices on temp tables
+
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			dbType					Yes			db2 or hsql
+	  -->
+	<update id="indexAccountTempTable_BNKAcctKy" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="accountTempTable_BNKAcctKyIndexName" />
+			ON <include refid="accountTempTableNameRef" /> 
+			(
+				BNKAcctKy ASC
+			)
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+		
+	</update>
+	
+	<update id="indexSummaryFieldFilterTempTable_BNKAppFldDefKy" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="summaryFieldFilterTempTable_BNKAppFldDefKyIndexName" />
+			ON <include refid="summaryFieldFilterTempTableNameRef" /> 
+			(
+				BNKAppFldDefKy ASC
+			)
+		</if>
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+		
+	</update>
+
+	<update id="indexTranTypeFilterTempTable_BNKTrnTypeKy" timeout="600">
+		<if test="dbType == 'db2' or dbType == 'hsql'">
+			CREATE INDEX <include refid="tranTypeFilterTempTable_BNKTrnTypeKyIndexName" />
+			ON <include refid="tranTypeFilterTempTableNameRef" /> 
+			(
+				BNKTrnTypeKy ASC
+			)
+		</if>	
+		<if test="dbType == 'oracle'">
+		   select 1 from dual
+		</if>	
+		
+	</update>
+
+	<update id="runstatsAccountTempTable" timeout="600">
+	 	<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="accountTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+		</if>
+		
+	 	<if test="dbType == 'oracle'">			
+			CALL ADMIN_run_stat('<include refid="accountTempTableNameRef"/>')						
+		</if>
+		
+		
+	</update>
+
+	<update id="runstatsSummaryFieldFilterTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="summaryFieldFilterTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+		</if>	
+		<if test="dbType == 'oracle'">
+			CALL ADMIN_run_stat('<include refid="summaryFieldFilterTempTableNameRef"/>')									
+		</if>
+	</update>
+
+	<update id="runstatsTranTypeFilterTempTable" timeout="600">
+		<if test="dbType == 'db2'">
+			 CALL SYSPROC.ADMIN_CMD('RUNSTATS ON TABLE <include refid="tranTypeFilterTempTableNameRef"/> WITH DISTRIBUTION AND DETAILED INDEXES ALL')
+		 </if>
+		<if test="dbType == 'oracle'">
+			CALL ADMIN_run_stat('<include refid="tranTypeFilterTempTableNameRef"/>')												
+		</if>
+
+	</update>
+
+	<!--
+	  Selects status bit from BNKExport that indicates whether or not summaries or transactions are to be ignored entirely
+	  -->
+	<select id="selectIgnoreStatus" parameterType="com.s1.export.model.ExportValue" resultType="java.lang.Integer" >
+		<!-- Select values explicitly defined for this export -->
+		SELECT
+			BNKExport.BNKCritCdStatusEnum
+		FROM
+			BNKExport
+		WHERE
+			BNKExport.BNKExportKy = #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}		
+	</select>
+
+	<!--
+	  Selects all summary field keys (BNKAppFldDef.BNKAppFldDefKy) associated with the given export profile
+	  -->
+	<select id="selectSummaryFieldKeys" parameterType="com.s1.export.model.ExportValue" resultType="java.lang.Integer" >
+		<!-- Select values explicitly defined for this export -->
+		SELECT
+			BNKExpFldDefCdMp.BNKAppFldDefKy		AS BNKAppFldDefKy
+		FROM
+			BNKExpFldDefCdMp
+		WHERE
+			BNKExpFldDefCdMp.BNKExportKy = #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		
+		UNION 
+		
+		<!-- Select values defined for BAI transaction groups associated with this export -->
+		SELECT 
+			BNKFldDefCdMap.BNKAppFldDefKy		AS BNKAppFldDefKy
+		FROM
+			BNKExpBaiTxnGrp,
+			BNKBaiTxnGrpExCd,
+			BNKFldDefCdMap
+		WHERE
+			BNKExpBaiTxnGrp.BNKExportKy = #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			AND BNKBaiTxnGrpExCd.BNKBaiTxnGrpKy = BNKExpBaiTxnGrp.BNKBaiTxnGrpKy
+			AND BNKFldDefCdMap.BNKFldDefCdMapKy = BNKBaiTxnGrpExCd.BNKFldDefCdMapKy
+	</select>
+	
+	<!--
+	  Selects all transaction type keys (VFMTRNCDTRNTP.VFMTRNCDTRNTPKY) associated with the given export
+	  -->
+	<select id="selectTransactionTypeKeys" parameterType="com.s1.export.model.ExportValue" resultType="java.lang.Integer" >
+		<!-- Select values explicitly defined for this export -->
+		SELECT
+			BNKExpTrnCdTrnTp.VFMTrnCdTrnTpKy	AS VFMTrnCdTrnTpKy
+		FROM
+			BNKExpTrnCdTrnTp
+		WHERE
+			BNKExpTrnCdTrnTp.BNKExportKy = #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+			
+		UNION 
+				
+		<!-- Select values defined for BAI transaction groups associated with this export -->
+		SELECT 
+			VFMTrnCdTrnTp.VFMTrnCdTrnTpKy		AS VFMTrnCdTrnTpKy
+		FROM
+			BNKBaiTxnGrpExCd
+				JOIN BNKExpBaiTxnGrp ON BNKExpBaiTxnGrp.BNKBaiTxnGrpKy = BNKBaiTxnGrpExCd.BNKBaiTxnGrpKy
+				JOIN VFMTrnCdTrnTp ON BNKBaiTxnGrpExCd.VFMTrnCdTrnTpKy = VFMTrnCdTrnTp.VFMTrnCdTrnTpKy
+		WHERE
+			BNKExpBaiTxnGrp.BNKExportKy = #{oid,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+	</select>
+
+	<!--
+	  Selects all transaction types and transaction codes defined for the given product sub types
+	  
+		Expected contents of the parameter Map:
+			Key						Required?	Expected Value
+			===						=========	==============
+			accountKeyList			Yes			List of account keys
+	  -->
+	<select id="selectSwiftAndBAITransactionCodeMappings" parameterType="java.util.Map" resultMap="selectSwiftAndBAITransactionCodeMappingsResult" >
+		SELECT
+			VFMTrnType.Name						AS Name,
+			VFMTrnType.Description				AS Description,
+			VFMTrnType.DebitCredit				AS DebitOrCredit,
+			VFMTrnCdTrnTp.VFMTrnCdTrnTpKy		AS VFMTrnCdTrnTpKy,
+			VFMTrnCdTrnTp.VFMTrnTypeKy			AS VFMTrnTypeKy,
+			VFMTrnCdTrnTp.VFMProdSubTypeKy		AS ProductSubTypeKy,
+			VFMTrnCdTrnTp.TrnCode				AS TranCode,
+			VFMTrnCdTrnTp.ExternalSysTypeCd		AS ExternalSysTypeCode
+		FROM
+			VFMTrnType 
+			JOIN VFMTrnCdTrnTp ON VFMTrnType.VFMTrnTypeKy = VFMTrnCdTrnTp.VFMTrnTypeKy
+		WHERE
+			VFMTrnCdTrnTp.ExternalSysTypeCd IN (1, 2)
+			AND VFMTrnCdTrnTp.VFMProdSubTypeKy IN (
+				SELECT 
+					DISTINCT BNKProdSubTypeKy 
+				FROM 
+					<include refid="accountTempTableNameRef"/>
+					JOIN BNKAcct
+						ON BNKAcct.BNKAcctKy = <include refid="accountTempTableBNKAcctKyColumn" />
+					JOIN BNKProduct 
+						ON BNKAcct.BNKProductKy = BNKProduct.BNKProductKy 
+				)
+		ORDER BY
+			VFMTrnCdTrnTp.VFMProdSubTypeKy,
+			VFMTrnType.VFMTrnTypeKy,
+			VFMTrnCdTrnTp.ExternalSysTypeCd
+	</select>
+	
+	<!--
+	  Selects all of the configured summary fields for the given Export
+	  -->
+	<select id="selectFullExportFieldsForExportProfile" parameterType="com.s1.export.model.ExportRequestValue" resultMap="selectFullExportFieldsForExportProfileResult" >
+		SELECT
+			BNKExportField.ExportFieldName	AS ExportFieldName,
+			BNKExportField.IsDetail			AS IsDetail,
+			BNKExportField.IsSummary		AS IsSummary,
+			BNKExportField.IsPriorDay		AS IsPriorDay,
+			BNKExportField.IsCurrentDay		AS IsCurrentDay,
+			BNKExportField.BNKFldDefCdMapKy	AS BNKFldDefCdMapKy,
+			BNKExpExpField.ColumnSeqNum		AS ColumnSeqNum,
+			BNKExpExpField.SortOrder		AS SortOrder,
+			BNKExpExpField.SortBy			AS SortBy,
+			BNKExpExpField.BNKExportFieldKy	AS BNKExportFieldKy
+		FROM
+			BNKExportField JOIN BNKExpExpField
+				ON BNKExportField.BNKExportFieldKy = BNKExpExpField.BNKExportFieldKy
+		WHERE
+			BNKExpExpField.BNKExportKy = #{exportId,jdbcType=INTEGER,handler=com.s1.arch.ibatis.ObjectIdTypeHandler}
+		ORDER BY
+			BNKExpExpField.ColumnSeqNum
+	</select>
+	
+<!-- Accounts table -->	
+
+	<insert id="insertAccountTempTable" parameterType="java.util.Map">
+	INSERT INTO <include refid="accountTempTableNameRef" />
+	(
+		BNKAcctKy
+	)
+	VALUES
+	(
+		#{accountKey}
+	)
+	</insert>
+	
+	<select id="selectAccountTempTable" resultType="java.lang.Integer">
+		SELECT
+			BNKAcctKy
+		FROM 
+			<include refid="accountTempTableNameRef"/>
+		ORDER BY
+			BNKAcctKy ASC
+	</select>
+	
+<!-- SummaryFieldFilter table -->
+
+	<insert id="insertSummaryFieldFilterTempTable" parameterType="java.util.Map">
+	INSERT INTO <include refid="summaryFieldFilterTempTableNameRef" />
+	(
+		BNKAppFldDefKy
+	)
+	VALUES
+	(
+		#{summaryFieldKey}
+	)
+	</insert>
+
+	<select id="selectSummaryFieldFilterTempTable" resultType="java.lang.Integer">
+		SELECT
+			BNKAppFldDefKy
+		FROM 
+			<include refid="summaryFieldFilterTempTableNameRef"/>
+		ORDER BY
+			BNKAppFldDefKy ASC
+	</select>
+	
+<!-- TranTypeFilter table -->
+
+	<insert id="insertTranTypeFilterTempTable" parameterType="java.util.Map">
+	INSERT INTO <include refid="tranTypeFilterTempTableNameRef" />
+	(
+		BNKTrnTypeKy,
+		BNKProdSubTypeKy
+	)
+	VALUES
+	(
+		#{tranTypeKey},
+		#{productSubTypeKey}
+	)
+	</insert>
+
+	<select id="selectTranTypeFilterTempTable" resultMap="selectTranTypeFilterTempTableResult">
+		SELECT
+			BNKTrnTypeKy,
+			BNKProdSubTypeKy
+		FROM 
+			<include refid="tranTypeFilterTempTableNameRef"/>
+		ORDER BY
+			BNKProdSubTypeKy ASC,
+			BNKTrnTypeKy ASC
+	</select>
+	
+	 <!-- GBS-34977:  Selects few fields from BNKAPPFLDDEF -->
+	<resultMap id="selectExportProfileSummaryCodeTempTableResult" type="com.s1.export.model.ExportProfileSummaryCodeValue">
+		<result property="appFieldDefKey" column="BNKAPPFLDDEFKY" jdbcType="INTEGER" />
+		<result property="fieldName"      column="FIELDNAME"      jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="selectExportProfileFields" resultMap="selectExportProfileSummaryCodeTempTableResult">
+		SELECT 
+			BNKAPPFLDDEFKY, 
+			FIELDNAME
+		FROM 
+			BNKAPPFLDDEF
+		WHERE 
+			FIELDNAME IN ('ledgerBalance', 'availableBalance', 'closingLedger', 'closingAvailable') 
+	</select>
+	
+</mapper>

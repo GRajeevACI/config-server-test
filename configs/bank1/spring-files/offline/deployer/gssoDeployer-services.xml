@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<bean id="SSODeploymentService" class="com.s1.bnk.sso.deployer.SSODeploymentServiceBean">
+		<property name="grndsDomain" value="deployer" />
+		<property name="grndsSubDomain" value="{}" />
+		<property name="ssoSpecificationProcessor" ref="ssoSpecificationProcessor" />
+		<property name="specificationBuilder" ref="specificationBuilder"/>
+	</bean>
+	
+   <bean id="ssoSpecificationProcessor"
+		class="com.s1.bnk.sso.deployer.SSOSpecificationProcessorServiceBean">
+		<property name="protoTypeFactory" ref="protoTypeFactory" />
+		<property name="gssoProviderAffiliateService" ref="gssoProviderAffiliateService"/>
+		<property name="billingSvcCdMapper" ref="billingSvcCdMapper"/>
+	</bean>
+	
+	<bean id="specificationBuilder" 
+		class="com.s1.bnk.sso.deployer.SSOSpecificationBuilder">
+		<property name="featureMapper" ref="featureMapper" />
+		<property name="affiliateService" ref="affiliateFIService" />
+		<property name="dynamicOperationMessages" ref="DynamicOperationMessages" />
+	</bean>
+	
+	<bean id="protoTypeFactory" 
+		class="com.s1.bnk.sso.deployer.SSOPrototypeFactoryImpl">
+		<property name="functionalOperationMapper" ref="functionalOperationMapper" />
+	</bean>
+
+</beans>

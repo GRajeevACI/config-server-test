@@ -1,0 +1,25 @@
+<beanio xmlns="http://www.beanio.org/2012/03" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.beanio.org/2012/03 http://www.beanio.org/2012/03/mapping.xsd">
+
+  <stream name="mappings" format="xml">
+    <typeHandler name="classTypeHandler" class="com.aciworldwide.arch.service.transformation.ClassTypeHandler" />
+    <record name="mapping" class="com.aciworldwide.arch.service.transformation.ClassMapping">
+      <field name="typeA" xmlType="element" minOccurs="1" maxOccurs="1" typeHandler="classTypeHandler" required="true"/>
+      <field name="typeB" xmlType="element" minOccurs="1" maxOccurs="1" typeHandler="classTypeHandler" required="true"/>      
+      <field name="mapNull" xmlType="attribute"/>
+      <field name="enableDefaultMapping" xmlType="attribute"/>
+      <segment name="fields" minOccurs="0" maxOccurs="1">
+        <segment name="fields" xmlName="field" minOccurs="1" maxOccurs="unbounded" class="com.aciworldwide.arch.service.transformation.FieldMapping" collection="list">
+          <field name="fieldA" xmlType="element" minOccurs="1" maxOccurs="1" required="true" />
+     	  <field name="fieldB" xmlType="element" minOccurs="1" maxOccurs="1" required="true"/>
+     	  <field name="oneWay" xmlType="attribute"/>
+      	  <field name="reverse" xmlType="attribute"/>
+      	  <field name="customConverter" xmlType="attribute" typeHandler="classTypeHandler"/>
+      	  <field name="customConverterBean" xmlType="attribute"/>
+      	</segment>
+      </segment>
+    </record>
+  </stream> 
+   
+</beanio>

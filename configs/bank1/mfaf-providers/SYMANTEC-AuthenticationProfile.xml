@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:AuthenticationProfile
+	xmlns:tns="http://www.aciworldwide.com/authenticationProfileSchema"
+	xmlns:dynamicAttributes="http://www.aciworldwide.com/dynamicAttributes"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.aciworldwide.com/authenticationProfileSchema authenticationProfileSchema.xsd ">
+
+	<tns:Identifier>
+		<tns:Id>SYMANTEC</tns:Id>
+		<tns:Version>0.1</tns:Version>
+	</tns:Identifier>
+	<tns:Actions>
+		<tns:AuthenticationAction mode="OTP">
+		
+ 			<tns:Fields identifier="signing_form" widgetType="Form" columns="1">
+				<dynamicAttributes:fields identifier="signature"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass=""  maxLength="14">
+					<dynamicAttributes:FieldLabel defaultText="Passcode" messageCode="AthTknPsCode"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:FieldInnerLabel defaultText="Default Inner Label for Passcode" messageCode="signing.rsa.tickler.normal"></dynamicAttributes:FieldInnerLabel>
+					<dynamicAttributes:availabilityRules identifier="otpAvailabilityRuleId" beanName="OTPFieldAvailabilityRule"/>
+					<dynamicAttributes:validationRule id="signature">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="signing.rsa.message.signature.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="6" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="14" messageKey="signing.rsa.message.field.maxlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="regex" value="WHOLENUMBERS" messageKey="activation.symantec.message.passCode.invalidcharacters"></dynamicAttributes:fieldValidationAttributes> 						
+					</dynamicAttributes:validationRule>			
+				</dynamicAttributes:fields>
+			</tns:Fields>
+			
+			<tns:ActionMappings>
+				<tns:ActionMapping mode="TRANSACTION">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.TokenRequest"
+						destinationClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRq_Type" >
+						<tns:FieldMapping sourceField="passcode" destinationField="userTokenValidateInfo.passcode" />
+						<tns:FieldMapping sourceField="externalAuthId" destinationField="userTokenValidateInfo.loginIdent" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" />
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.TokenResponse">
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" />
+					</tns:InboundFieldMappings>
+						<tns:Recipient bean="tokenAuthenticationImpl" beanType="Spring" method="UserTokenValidate"/>  						
+					<!-- <tns:Recipient bean="dummyAuthenticationProvider" beanType="Spring" method="UserTokenValidate"/>  --><!-- this is for testing purpose, the above commented proxy should be used instead -->
+				</tns:ActionMapping>
+				
+				
+				<tns:ActionMapping mode="LOGIN">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.TokenRequest"
+						destinationClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRq_Type" >
+						<tns:FieldMapping sourceField="passcode" destinationField="userTokenValidateInfo.passcode" />
+						<tns:FieldMapping sourceField="externalAuthId" destinationField="userTokenValidateInfo.loginIdent" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" />
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.security.authentication.services.UserTokenValidateRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.TokenResponse">
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="additionalAttributes" destinationField="additionalAttributes" />
+					</tns:InboundFieldMappings>
+						<tns:Recipient bean="tokenAuthenticationImpl" beanType="Spring" method="UserTokenValidate"/>  						
+<!-- 					<tns:Recipient bean="dummyAuthenticationProvider" beanType="Spring" method="UserTokenValidate"/>  --> <!-- this is for testing purpose, the above commented proxy should be used instead -->
+				</tns:ActionMapping>
+			</tns:ActionMappings>
+			
+			<tns:AppToMFAFFieldMappings sourceClass="com.s1.app.signing.SigningValue"
+				destinationClass="com.aciworldwide.mfaf.request.TokenRequest">
+				<tns:FieldMapping sourceField="response" destinationField="passcode" />
+			</tns:AppToMFAFFieldMappings>
+						
+			<tns:StatusCodeMappings>
+				<tns:StatusCodeMapping name="SUCCESS" statusCode="0" nextStateMode="None" statusDisplayMode="INFO">
+					 <tns:ResourceBundleKey resourceBundleKey="rsa.success.key" defaultStatusMessage="Authentication is successful"></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:StatusCodeMapping name="FAIL" statusCode="-2" isSigningCountCheckRequired="true" signingStatus="0" nextStateMode="OTP" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="authentication.symantec.message.authenticationCode.failed" defaultStatusMessage="Authentication has failed."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:FallbackMapping name="UNKNOWN_STATUS" statusCode="UNKNOWN" nextStateMode="OTP" signingStatus="0" statusDisplayMode="ERROR">
+                                 <tns:ResourceBundleKey resourceBundleKey="signing.token.message.genericSystemError" defaultStatusMessage="General Error"></tns:ResourceBundleKey>
+                </tns:FallbackMapping>        
+				<tns:fallBackResourceBundleKey resourceBundleKey="signing.token.message.genericSystemError"></tns:fallBackResourceBundleKey>																
+			</tns:StatusCodeMappings>
+
+		</tns:AuthenticationAction>
+		
+		<tns:AuthenticationAction mode="Activate">
+		
+ 			<tns:Fields identifier="signing_form" widgetType="Form" columns="1">
+				<dynamicAttributes:fields identifier="activationCode"  widgetType="TextInput" type="text" isRequired="true" validate="true" isVisible="true" customClass=""  maxLength="64">
+					<dynamicAttributes:FieldLabel defaultText="Activation Code" messageCode="AthTknActCode"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:availabilityRules identifier="tokenActiveAvailability" beanName="tokenActiveAvailabilityRule"/>					
+					<dynamicAttributes:validationRule id="activationCode">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="activation.symantec.message.activationCode.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="1" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="64" messageKey="signing.rsa.message.field.maxlength"/>
+ 						<dynamicAttributes:fieldValidationAttributes name="regex" value="SAFESTRING" messageKey="activation.symantec.message.activationCode.invalidcharacters"></dynamicAttributes:fieldValidationAttributes>  
+					</dynamicAttributes:validationRule>
+				</dynamicAttributes:fields>
+				<dynamicAttributes:fields identifier="tokenNumber"  widgetType="TextInput" type="text" isRequired="true" validate="true" isVisible="true" customClass="" maxLength="64">
+					<dynamicAttributes:FieldLabel defaultText="Token Number" messageCode="AthTknNumber"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:availabilityRules identifier="tokenActiveAvailability" beanName="tokenActiveAvailabilityRule"/>					
+					<dynamicAttributes:validationRule id="tokenNumber">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="activation.symantec.message.serialNumber.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="1" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="64" messageKey="signing.rsa.message.field.maxlength"/>
+ 						<dynamicAttributes:fieldValidationAttributes name="regex" value="SAFESTRING" messageKey="activation.symantec.message.serialNumber.invalidcharacters"></dynamicAttributes:fieldValidationAttributes> 
+					</dynamicAttributes:validationRule>
+				</dynamicAttributes:fields>
+				<dynamicAttributes:fields identifier="signature"  widgetType="TextInput" type="password" isRequired="true" validate="true" isVisible="true" customClass=""  maxLength="14">
+					<dynamicAttributes:FieldLabel defaultText="Passcode" messageCode="AthTknPsCode"></dynamicAttributes:FieldLabel>
+					<dynamicAttributes:availabilityRules identifier="tokenActiveAvailability" beanName="tokenActiveAvailabilityRule"/>					
+					<dynamicAttributes:validationRule id="signature">
+						<dynamicAttributes:fieldValidationAttributes name="required"  messageKey="signing.rsa.message.signature.required" />
+						<dynamicAttributes:fieldValidationAttributes name="minLength" value="6" messageKey="signing.rsa.message.field.minlength"/>
+						<dynamicAttributes:fieldValidationAttributes name="maxLength" value="14" messageKey="signing.rsa.message.field.maxlength"/>
+ 						<dynamicAttributes:fieldValidationAttributes name="regex" value="WHOLENUMBERS" messageKey="activation.symantec.message.passCode.invalidcharacters"></dynamicAttributes:fieldValidationAttributes>  						
+					</dynamicAttributes:validationRule>			
+				</dynamicAttributes:fields>
+			</tns:Fields>
+			
+			<tns:ActionMappings>
+				<tns:ActionMapping mode="TRANSACTION">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.ActivationRequest"
+						destinationClass="com.aciworldwide.pim.messages.uob.tokenactivation.services.TokenActivateRq_Type">							
+						<tns:FieldMapping sourceField="externalAuthId" destinationField="tokenActivateDetails.loginIdent.loginIdent" />
+						<tns:FieldMapping sourceField="tokenNumber" destinationField="tokenActivateDetails.tokenSerialNumber" />
+						<tns:FieldMapping sourceField="passcode" destinationField="tokenActivateDetails.tokenPasscode" /> 
+						<tns:FieldMapping sourceField="customerId" destinationField="tokenActivateDetails.loginIdent.orgIdent" />						
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.uob.tokenactivation.services.TokenActivateRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.ActivationResponse">
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="tokenActivateResponseDetails.tokenActivationCode" destinationField="activationCode" />						
+					</tns:InboundFieldMappings>
+					<tns:Recipient bean="tokenActivationImpl" beanType="Spring" method="TokenActivate"/>					
+ 				</tns:ActionMapping>
+				<tns:ActionMapping mode="LOGIN">
+					<tns:OutboundFieldMappings sourceClass="com.aciworldwide.mfaf.request.ActivationRequest"
+						destinationClass="com.aciworldwide.pim.messages.uob.tokenactivation.services.TokenActivateRq_Type">
+						<tns:FieldMapping sourceField="externalAuthId" destinationField="tokenActivateDetails.loginIdent.loginIdent" />
+						<tns:FieldMapping sourceField="tokenNumber" destinationField="tokenActivateDetails.tokenSerialNumber" />
+						<tns:FieldMapping sourceField="passcode" destinationField="tokenActivateDetails.tokenPasscode" />
+						<tns:FieldMapping sourceField="customerId" destinationField="tokenActivateDetails.loginIdent.orgIdent" />						
+					</tns:OutboundFieldMappings>
+					<tns:InboundFieldMappings sourceClass="com.aciworldwide.pim.messages.uob.tokenactivation.services.TokenActivateRs_Type"
+						destinationClass="com.aciworldwide.mfaf.response.ActivationResponse">
+						<tns:FieldMapping sourceField="status.code" destinationField="status.code" />
+						<tns:FieldMapping sourceField="tokenActivateResponseDetails.tokenActivationCode" destinationField="activationCode" />												
+					</tns:InboundFieldMappings>
+					<tns:Recipient bean="tokenActivationImpl" beanType="Spring" method="TokenActivate"/>					
+				</tns:ActionMapping>				
+			</tns:ActionMappings>
+						
+			<tns:AppToMFAFFieldMappings sourceClass="com.s1.app.signing.SigningValue"
+				destinationClass="com.aciworldwide.mfaf.request.ActivationRequest">
+				<tns:FieldMapping sourceField="response" destinationField="passcode" />
+				<tns:FieldMapping sourceField="tokenNumber" destinationField="tokenNumber" />				
+			</tns:AppToMFAFFieldMappings>
+									
+			<tns:StatusCodeMappings>
+				<tns:StatusCodeMapping name="SUCCESS" statusCode="0" statusDisplayMode="INFO" signingStatus="0" nextStateMode="OTP">
+					 <tns:ResourceBundleKey resourceBundleKey="signing.token.message.activation.successful" defaultStatusMessage="Activation is successful"></tns:ResourceBundleKey> 				
+				</tns:StatusCodeMapping>
+				<tns:StatusCodeMapping name="FAIL" statusCode="-2" isSigningCountCheckRequired="true" signingStatus="3" nextStateMode="Activate" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="activation.symantec.message.activationCode.failed" defaultStatusMessage="Activation has failed."></tns:ResourceBundleKey>
+				</tns:StatusCodeMapping>
+				<tns:FallbackMapping name="UNKNOWN_STATUS" statusCode="UNKNOWN" nextStateMode="Activate" signingStatus="3" statusDisplayMode="ERROR">
+					 <tns:ResourceBundleKey resourceBundleKey="signing.token.message.genericSystemError" defaultStatusMessage="General Error"></tns:ResourceBundleKey>
+				</tns:FallbackMapping>				
+				<tns:fallBackResourceBundleKey resourceBundleKey="signing.token.message.genericSystemError"></tns:fallBackResourceBundleKey>																
+			</tns:StatusCodeMappings>
+									
+		</tns:AuthenticationAction>
+		
+	</tns:Actions>
+
+</tns:AuthenticationProfile>

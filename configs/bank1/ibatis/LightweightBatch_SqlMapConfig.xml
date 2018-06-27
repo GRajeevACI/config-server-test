@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//ibatis.apache.org//DTD Config 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.s1.arch.utilities.ObjectId" alias="ObjectId" />
+	</typeAliases>
+    <typeHandlers>
+        <typeHandler handler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" javaType="java.lang.Boolean" />
+        <typeHandler handler="com.s1.arch.ibatis.ObjectIdTypeHandler" javaType="com.s1.arch.utilities.ObjectId" />
+    </typeHandlers>
+    <mappers>
+		<mapper resource="config/ibatis/LightweightBatchAffiliateUtilMapper.xml"/>
+		<mapper resource="config/ibatis/DeferredAlertMapper.xml"/>
+		<mapper resource="config/ibatis/DeferredAlertSegmentMapper.xml" />
+		<mapper resource="config/ibatis/AlertReminderMapper.xml"/>
+		<mapper resource="config/ibatis/DailyAlertReminderMapper.xml" />
+		<mapper resource="config/ibatis/BatchAuditMapper.xml"/>
+		<mapper resource="config/ibatis/BatchErrorMapper.xml"/>
+		<mapper resource="config/ibatis/BatchFailureReportMapper.xml"/>
+		<mapper resource="config/ibatis/BatchFiCodeMapper.xml"/>
+		<mapper resource="config/ibatis/BatchProductCodeMapper.xml"/>
+		<mapper resource="config/ibatis/BatchProgramCodeMapper.xml"/>
+		<mapper resource="config/ibatis/BatchRunMapper.xml"/>
+		<mapper resource="config/ibatis/BatchSkipRecordMapper.xml"/>
+		<mapper resource="config/ibatis/BatchThreadMapper.xml"/>
+		<mapper resource="config/ibatis/ParsedCDStatementDetailMapper.xml" />
+		<mapper resource="config/ibatis/ParsedCDStatementMapper.xml" />
+		<mapper resource="config/ibatis/ParsedCDTransactionMapper.xml" />
+		<mapper resource="config/ibatis/ParsedCDTransactionMemoMapper.xml" />
+		<mapper resource="config/ibatis/ParsedPDStatementDetailMapper.xml" />
+		<mapper resource="config/ibatis/ParsedPDStatementMapper.xml" />
+		<mapper resource="config/ibatis/ParsedPDTransactionMapper.xml" />
+		<mapper resource="config/ibatis/ParsedPDTransactionMemoMapper.xml" />
+		<mapper resource="config/ibatis/AlertParameterValueMapper.xml"/>
+		<mapper resource="config/ibatis/CurrentDayStatementMapper.xml"/>
+		<mapper resource="config/ibatis/LoanAccountTransactionMapper.xml"/>
+		<mapper resource="config/ibatis/CustomerUnloadMapper.xml"/>
+		<mapper resource="config/ibatis/CustomerUnloadHistoryMapper.xml"/>
+    </mappers>
+</configuration>

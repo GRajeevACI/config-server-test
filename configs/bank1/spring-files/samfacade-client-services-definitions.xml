@@ -1,0 +1,65 @@
+<!--  This file is used by com.s1.arch.batch.BatchClient to configure Services that will be called via RMI.  
+	This file should be the only Spring Config file needed by Batch. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"
+	default-lazy-init="true">
+
+	<bean id="springGrndsBootstrap" class="com.s1.arch.common.bootstrap.SpringGrndsBootstrap" />
+
+	<bean id="propertyConfigurer" class="com.s1.arch.spring.beans.factory.config.GrndsPropertyPlaceHolderConfigurer" depends-on="springGrndsBootstrap" lazy-init="false"/>
+	
+	<bean id="samFacadeService" class="com.s1.app.sam.samfacade.SamFacadeBean" />
+	
+	<bean id="urlContainer" class="com.s1.arch.spring.remote.RoundRobinUrlContainer">
+	     <property name="hostsPortsString" value="${batch.client.rmi_hosts_ports}" />
+	     <property name="waitTimeToAttemptRetry" value="300" />
+	</bean>
+
+
+	<bean id="samFacadeServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="samFacadeService" />
+		<property name="serviceInterface" value="com.s1.app.sam.samfacade.SamFacade" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>	
+		
+	
+    <bean id="hcsamFacadeServiceRemote" class="com.s1.arch.spring.remote.RoundRobinRmiProxyFactoryBean">
+		<property name="remoteServiceName" value="hcsamFacadeService" />
+		<property name="serviceInterface" value="com.s1.app.sam.hcsamfacade.HoldingCompanyServiceFacade" />
+		<property name="lookupStubOnStartup" value="false" />
+		<property name="cacheStub" value="false" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+		<property name="roundRobinUrlContainer" ref="urlContainer" />
+	</bean>
+	
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+       <property name="providerClass" value="org.apache.bval.jsr303.ApacheValidationProvider" />
+       <property name="messageInterpolator">
+         <bean class="org.apache.bval.jsr303.DefaultMessageInterpolator">
+           <constructor-arg>
+             <bean id="resourceBundle" class="java.util.ResourceBundle" factory-method="getBundle">
+		  		<constructor-arg type="java.lang.String">
+		  			<value>config/samfacade/ValidationMessages</value>
+		  		</constructor-arg>
+			 </bean>	        
+			</constructor-arg> 
+		 </bean>
+       </property>
+    </bean>
+    
+    <bean id="holdingCompanyProcessor" class="com.s1.app.sam.hcsamfacade.HoldingCompanyProcessor" scope="prototype">
+      <property name="service" ref="hcsamFacadeServiceRemote"/>
+      <property name="validator" ref="validator"/>
+      <property name="extCtx">
+        <bean class="com.s1.app.sam.samfacade.data.ExternalContext">
+          <constructor-arg type="java.lang.String" value="Admin"/>
+        </bean>
+      </property>
+    </bean>
+		 
+</beans>

@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       					   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+	  <property name="scopes">
+	    <map>
+	      <entry key="execution">
+	        <bean class="com.s1.frameworks.payments.batch.scope.ExecutionScope"/>
+	      </entry>
+	    </map>
+	  </property>
+	</bean>
+	<!-- JOB Repository Start-->
+	<bean id="customJobInstanceDao" class="com.s1.frameworks.payments.batch.repository.support.CustomJobInstanceDao">
+		<property name="jobInstanceValueMapper" ref="jobInstanceValue" />
+	 </bean>
+	
+    <bean id="jobInstanceValue" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.batch.repository.support.dao.JobInstanceValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+
+	<bean id="customJobExecutionDao" class="com.s1.frameworks.payments.batch.repository.support.CustomJobExecutionDao">
+		<property name="jobExecutionValueMapper" ref="jobExecutionValue" />
+		<property name="jobParameterValueMapper" ref="jobParameterValue" />
+	 </bean>
+	
+    <bean id="jobExecutionValue" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.batch.repository.support.dao.JobExecutionValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+    <bean id="jobParameterValue" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.batch.repository.support.dao.JobParameterValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>
+	
+	 <bean id="customStepExecutionDao" class="com.s1.frameworks.payments.batch.repository.support.CustomStepExecutionDao"	>
+		<property name="stepExecutionValueMapper" ref="stepExecutionValue" />
+		<property name="stepInstanceValueMapper" ref="stepInstanceValue" />
+		<property name="exceptionLogValueMapper" ref="exceptionLogValue" /> 
+	</bean>
+	
+    <bean id="stepExecutionValue" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.batch.repository.support.dao.StepExecutionValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+    <bean id="stepInstanceValue" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.batch.repository.support.dao.StepInstanceValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	
+    <bean id="exceptionLogValue" class="com.s1.arch.mybatis.CustomMapperFactoryBean">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate" />
+		<property name="mapperInterface" value="com.s1.frameworks.payments.batch.repository.support.dao.ExceptionLogValueMapper" />
+		<property name="sequenceService" ref="sequenceService" />
+	</bean>	
+	<!-- DB Job Repository -->
+	<bean id="dbJobRepository" class="com.s1.frameworks.payments.batch.repository.support.CustomJobRepositoryFactoryBean">
+		<property name="validateTransactionState" value="false"/>
+		<property name="transactionManager" ref="txManager"/>
+		<property name="isolationLevelForCreate" value="ISOLATION_READ_COMMITTED"/>
+	</bean>
+	
+	<!-- Map job repository -->
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+		<property name="validateTransactionState" value="false"/>
+	</bean>
+	
+	<!-- JOB Repository END -->
+  	<bean id="importRequest" class="com.s1.frameworks.payments.imports.ImportRequestData" scope="execution"/>
+  
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="${jobRepository.bean}" />
+	</bean>
+			  
+	<bean id="jobBuilderFactory" 
+		  class="org.springframework.batch.core.configuration.annotation.JobBuilderFactory">
+		  <constructor-arg ref="${jobRepository.bean}"/>
+	</bean>
+	
+	<bean id="stepBuilderFactory" 
+		  class="org.springframework.batch.core.configuration.annotation.StepBuilderFactory">
+		  <constructor-arg ref="${jobRepository.bean}"/>
+		  <constructor-arg ref="importExportTXManager"/>
+	</bean>
+	
+	<bean id="defaultJobProcessor" class="com.s1.frameworks.payments.parser.defaults.DefaultJobProcessor" >
+		<property name="jobLauncher" ref="jobLauncher"/>
+		<property name="jobRepository" ref="${jobRepository.bean}"/>
+	</bean>
+	
+	<bean id="abstractImportJobProcessor" class="com.s1.frameworks.payments.imports.delegate.AbstractImportJobDelegate" abstract="true">
+		<property name="jobBuilders" ref="jobBuilderFactory"/>
+		<property name="stepBuilders" ref="stepBuilderFactory"/>
+	</bean>
+
+	<bean id="userDefinedImportJobProcessor" class="com.s1.frameworks.payments.imports.delegate.UserDefinedImportJobDelegate" parent="abstractImportJobProcessor"/>
+		
+	<bean id="standardImportJobProcessor" class="com.s1.frameworks.payments.imports.delegate.StandardImportJobDelegate" parent="abstractImportJobProcessor"/>
+	<bean id="callerValidator" class="com.s1.frameworks.payments.imports.CallerValidator" scope="prototype"/>
+	<bean id="recipientReaderBuilder" class="com.s1.frameworks.payments.imports.builders.FlatFileItemReaderBuilder" scope="prototype"/>
+	<bean id="instructionReaderBuilder" class="com.s1.frameworks.payments.imports.builders.FlatFileMultiTypeItemReaderBuilder" scope="prototype"/>
+	<bean id="lineItemFieldSetMapper" class="com.s1.frameworks.payments.imports.mappers.LineItemFieldSetMapper" scope="prototype"/>
+	<bean id="itemProcessorBuilder" class="com.s1.frameworks.payments.imports.builders.ValidatingItemProcessorBuilder" scope="prototype"/>
+	<bean id="commonsValidationStrategy" class="com.s1.frameworks.payments.imports.strategies.CommonsValidationStrategy" scope="prototype"/>
+	<bean id="lineItemWriter" class="com.s1.frameworks.payments.imports.writers.RecipientItemWriter" scope="prototype"/>
+	<bean id="instructionsItemWriter" class="com.s1.frameworks.payments.imports.writers.InstructionsItemWriter"/>
+	<bean id="validationChainStategy" class="com.s1.frameworks.payments.imports.strategies.ValidationChainValidationStategy" scope="prototype"/>
+
+	<bean id="defaultRecipientHolder" class="com.s1.frameworks.payments.imports.mappers.DefaultImportRecipientHolder" scope="prototype"/>
+	<bean id="defaultRecipientConvertor" class="com.s1.frameworks.payments.imports.mappers.DefaultLineItemImpDataConvertor" scope="prototype"/>
+	
+	<bean id="sampleRecipientConvertor" class="com.s1.frameworks.payments.imports.mappers.SampleLineItemImpDataConvertor" scope="prototype"/>
+	<bean id="ilvReaderBuilder" class="com.s1.intl.imprt.ilv.LowValueItemReaderBuilder" scope="prototype"/>
+
+	<bean id="commonValueHolder" class="com.s1.frameworks.payments.imports.mappers.ImportCommonValueHolder" scope="prototype"/>
+	
+	<bean id="importExportTXManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager">
+		<property name="nestedTransactionAllowed" value="false" />
+	</bean>
+	<bean id="parserFieldFactory" class="com.s1.emea.common.parser.ParserFieldPrototypeFactoryImpl" />
+	
+	<bean id="caaftPaymentReaderBuilder" class="com.s1.intl.imprt.caaft.builders.CanadaFlatFileMultiItemReaderBuilder" scope="prototype"/>
+	<bean id="pmtProcessorBuilder" class="com.s1.frameworks.payments.imports.builders.ValidatingItemProcessorBuilder" scope="prototype"/>
+	<bean id="passThroughItemWriter" class="com.s1.frameworks.payments.imports.writers.PassThroughItemWriter"/>
+	<bean id="instructionLineMapper" class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper" scope="prototype">
+		<property name="fieldSetMappers">
+			<util:map>
+				<entry key="P*" value-ref="instructionFieldSetMapper"/>
+				<entry key="R*" value-ref="lineItemFieldSetMapper"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="customInstructionLineMapper" class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper" scope="prototype">
+		<property name="fieldSetMappers">
+			<util:map>
+				<entry key="P*" value-ref="passThroughMapper"/>
+				<entry key="R*" value-ref="passThroughMapper"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean name="customFieldSetFactory" class="com.s1.frameworks.payments.imports.CustomDefaultFieldSetFactory" scope="prototype"/>
+	<bean id="passThroughMapper" class="org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper" scope="prototype"/>
+	<bean id="customFieldSetMapper" class="com.s1.frameworks.payments.imports.mappers.CustomInstructionFieldSetMapper" scope="prototype"/>
+	<bean id="instructionFieldSetMapper" class="com.s1.frameworks.payments.imports.mappers.InstructionFieldSetMapper" scope="prototype"/>
+	<bean id="defaultInstructionHolder" class="com.s1.frameworks.payments.imports.mappers.DefaultImportInstructionValueHolder" scope="prototype"/>
+	<bean id="defaultInstructionConvertor" class="com.s1.frameworks.payments.imports.mappers.DefaultInstructionImpDataConvertor" scope="prototype"/>
+	<bean id="defaultInstructionConvertorValidator" class="com.s1.frameworks.payments.validator.DefaultInstructionImpDataValidator" scope="execution"/>
+	<bean id="caaftInstructionConvertorValidator" class="com.s1.frameworks.payments.validator.CanadaInstructionImpDataValidator" parent="defaultInstructionConvertorValidator" scope="execution"/>
+	<bean id="caaftInstructionConvertor" class="com.s1.frameworks.payments.imports.mappers.CanadaInstructionImpDataConvertor" parent="defaultInstructionConvertor" scope="prototype"/>
+	<bean id="caaftRecipientConvertor" class="com.s1.frameworks.payments.imports.mappers.CanadaLineItemImpDataConvertor" parent="defaultRecipientConvertor" scope="prototype"/>
+	<bean id="caaftInstructionHolder" class="com.s1.frameworks.payments.imports.mappers.CanadaImportInstructionValueHolder" scope="prototype"/>
+	<bean id="caaftRecipientHolder" class="com.s1.intl.imprt.caaft.CanadaImportRecipientHolder" scope="prototype"/>
+	
+	<bean id="cpa005ImportJobProcessor" class="com.s1.intl.imprt.caaft.mappers.CPA005ImportJobDelegate" parent="abstractImportJobProcessor"/>
+	<bean id="cpa005ItemReaderBuilder" class="com.s1.intl.imprt.caaft.builders.CPA005ItemReaderBuilder" scope="prototype"/>
+	<bean id="cpa005ProcessorBuilder" class="com.s1.frameworks.payments.imports.builders.ValidatingItemProcessorBuilder" scope="prototype"/>
+	<bean id="cpa005ItemWriter" class="com.s1.frameworks.payments.imports.writers.InstructionsItemWriter" />
+	<bean id="cpa005RecipientItemWriter" class="com.s1.intl.imprt.caaft.writer.CPA005RecipientItemWriter" />
+	<bean id="cpa005LineMapper" class="com.s1.intl.imprt.caaft.mappers.CPA005PatternLineMapper" scope="prototype">
+		<property name="fieldSetMappers">
+			<util:map>
+				<entry key="C*" value-ref="cpa005CrDrInstructionFieldSetMapper"/>
+				<entry key="D*" value-ref="cpa005CrDrInstructionFieldSetMapper"/>
+				<entry key="A*" value-ref="cpa005FileHeaderFieldSetMapper"/>
+				<entry key="Z*" value-ref="cpa005FileTrailerFieldSetMapper"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="cpa005RecipientLineMapper" class="com.s1.intl.imprt.caaft.mappers.CPA005PatternLineMapper" scope="prototype">
+		<property name="fieldSetMappers">
+			<util:map>
+				<entry key="C*" value-ref="cpa005RecipientFieldSetMapper"/>
+				<entry key="D*" value-ref="cpa005RecipientFieldSetMapper"/>
+				<entry key="A*" value-ref="cpa005FileHeaderFieldSetMapper"/>
+				<entry key="Z*" value-ref="cpa005FileTrailerFieldSetMapper"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="cpa005RecipientFieldSetMapper" class="com.s1.intl.imprt.caaft.mappers.CPA005RecipientFieldSetMapper" scope="prototype"/>
+	<bean id="cpa005CrDrInstructionFieldSetMapper" class="com.s1.intl.imprt.caaft.mappers.CPA005CrDrInstructionFieldSetMapper" scope="prototype"/>
+	<bean id="cpa005FileHeaderFieldSetMapper" class="com.s1.intl.imprt.caaft.mappers.CPA005FileHeaderFieldSetMapper" scope="prototype"/>
+	<bean id="cpa005FileTrailerFieldSetMapper" class="com.s1.intl.imprt.caaft.mappers.CPA005FileTrailerFieldSetMapper" scope="prototype"/>
+	
+  	<bean id="cpa005TransactionTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+		<property name="names" value="LINE_ID,transactionCode0,amount0,paymentDate0,rcpntBnkId0,rcpntAccNumber0,orgShortName0,rcpntName0,orgLongName0,transactionCrossRef0,transactionRef0,transactionCode1,amount1,paymentDate1,rcpntBnkId1,rcpntAccNumber1,orgShortName1,rcpntName1,orgLongName1,transactionCrossRef1,transactionRef1,transactionCode2,amount2,paymentDate2,rcpntBnkId2,rcpntAccNumber2,orgShortName2,rcpntName2,orgLongName2,transactionCrossRef2,transactionRef2,transactionCode3,amount3,paymentDate3,rcpntBnkId3,rcpntAccNumber3,orgShortName3,rcpntName3,orgLongName3,transactionCrossRef3,transactionRef3,transactionCode4,amount4,paymentDate4,rcpntBnkId4,rcpntAccNumber4,orgShortName4,rcpntName4,orgLongName4,transactionCrossRef4,transactionRef4,transactionCode5,amount5,paymentDate5,rcpntBnkId5,rcpntAccNumber5,orgShortName5,rcpntName5,orgLongName5,transactionCrossRef5,transactionRef5" />
+		<property name="columns" value="1-1,25-27,28-37,38-43,44-52,53-64,90-104,105-134,135-164,175-193,215-229,265-267,268-277,278-283,284-292,293-304,330-344,345-374,375-404,415-433,455-469,505-507,508-517,518-523,524-532,533-544,570-584,585-614,615-644,655-673,695-709,745-747,748-757,758-763,764-772,773-784,810-824,825-854,855-884,895-913,935-949,985-987,988-997,998-1003,1004-1012,1013-1024,1050-1064,1065-1094,1095-1124,1135-1153,1175-1189,1225-1227,1228-1237,1238-1243,1244-1252,1253-1264,1290-1304,1305-1334,1335-1364,1375-1393,1415-1429" />
+		<property name="strict" value="false" />
+	</bean>
+  	<bean id="cpa005HeaderTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+		<property name="names" value="LINE_ID,originatorId,fileCreationNo,creationDate,paymentCurrency" />
+		<property name="columns" value="1-1,11-20,21-24,25-30,56-58" />
+		<property name="strict" value="false" />
+	</bean>
+  	<bean id="cpa005TrailerTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+		<property name="names" value="LINE_ID,totalDebitAmount,totalDebitCount,totalCreditAmount,totalCreditCount" />
+		<property name="columns" value="1-1,25-38,39-46,47-60,61-68" />
+		<property name="strict" value="false" />
+	</bean>
+  	<bean id="cpa005FileHeaderHolder" class="com.s1.intl.imprt.caaft.mappers.CPA005FileHeaderHolder" scope="prototype"/>
+  	<bean id="cpa005InstructionHolder" class="com.s1.intl.imprt.caaft.mappers.CPA005InstructionHolder" scope="prototype"/>
+  	<bean id="cpa005FileTrailerHolder" class="com.s1.intl.imprt.caaft.mappers.CPA005FileTrailerHolder" scope="prototype"/>
+  	<bean id="cpa005InstructionConvertor" class="com.s1.intl.imprt.caaft.mappers.CPA005InstructionConvertor" scope="prototype"/>
+  	<bean id="cpa005InstructionValidator" class="com.s1.intl.imprt.caaft.validator.CPA005InstructionValidator" scope="prototype"/>
+	<bean id="customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="org.springframework.batch.item.file.transform.Range[]" value="org.springframework.batch.item.file.transform.RangeArrayPropertyEditor" />
+			</map>
+		</property>
+	</bean>
+	
+
+<!-- ACH Payments Start -->
+	<bean id="achInstructionLineMapper" class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper" scope="prototype">
+		<property name="fieldSetMappers">
+			<util:map>
+				<entry key="P*" value-ref="achInstructionFieldSetMapper"/>
+				<entry key="R*" value-ref="achRecipientFieldSetMapper"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="ctxInstructionLineMapper" class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper" scope="prototype">
+		<property name="fieldSetMappers">
+			<util:map>
+				<entry key="P*" value-ref="achInstructionFieldSetMapper"/>
+				<entry key="R*" value-ref="achRecipientFieldSetMapper"/>
+				<entry key="A*" value-ref="achAddendaFieldSetMapper"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="achInstructionFieldSetMapper" class="com.s1.frameworks.payments.imports.ach.mappers.ACHInstructionFieldSetMapper" scope="prototype"/>
+	<bean id="achRecipientFieldSetMapper" class="com.s1.frameworks.payments.imports.ach.mappers.ACHRecipientFieldSetMapper" scope="prototype"/>
+	<bean id="achAddendaFieldSetMapper" class="com.s1.frameworks.payments.imports.ach.mappers.ACHAddendaFieldSetMapper" scope="prototype"/>
+	<bean id="achInstructionValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.ACHImportInstructionConvertor" scope="prototype"/>
+	<bean id="achRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.ACHImportRecipientConvertor" scope="prototype"/>
+	
+	<bean id="achInstructionReaderBuilder" class="com.s1.frameworks.payments.imports.ach.builders.ACHFlatFileMultiTypeItemReaderBuilder" scope="prototype" parent="instructionReaderBuilder"/>
+	<bean id="achInstructionsItemWriter" class="com.s1.frameworks.payments.imports.ach.writers.ACHInstructionsItemWriter"/>
+
+	<bean id="achListener" class="com.s1.frameworks.payments.imports.ach.listeners.ACHItemListenerSupport" scope="execution" parent="defaultListener"/>
+	
+	<!-- For Child Support -->
+	<bean id="childSupportRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.ChildSupportRecipientConvertor" scope="prototype"/>
+	
+	<!-- For CCD -->
+	<bean id="ccdRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.CCDRecipientConvertor" scope="prototype"/>
+	
+	<!-- For CTX -->
+	<bean id="ctxListener" class="com.s1.frameworks.payments.imports.ach.listeners.CTXItemListenerSupport" parent="achListener"/>
+	<bean id="ctxRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.CTXRecipientConvertor" scope="prototype"/>
+	<bean id="ctxAddendaConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.CTXAddendaConvertor" scope="prototype"/>
+	<!-- For RCK -->
+    <bean id="rckRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.RCKRecipientConvertor" scope="prototype"/>
+	
+	<!-- For WEB  -->
+	
+	<bean id="webRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.WEBRecipientConvertor" scope="prototype"/>
+	
+	
+	<!-- For PPD -->
+	<bean id="ppdRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.PPDRecipientConvertor" scope="prototype"/>
+	
+	<!-- For IAT -->
+	<bean id="achIatInstructionValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.ACHIATImportInstructionConvertor" scope="prototype"/>
+	<bean id="iatDomRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.IATDomRecipientConvertor" scope="prototype"/>
+	
+    <!-- For IAT International-->
+	<bean id="iatIntlRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.IATIntlRecipientConvertor" scope="prototype"/>
+	
+	<bean id="achIatItnlInstructionValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.ACHIATIntlImportInstructionConvertor" scope="prototype"/>
+	
+	<!-- For TAX -->
+	<bean id="taxRecipientValueConvertor" class="com.s1.frameworks.payments.imports.ach.mappers.TaxRecipientConvertor" scope="prototype"/>
+
+<!--ACH NACHA Format Start-->
+<bean id="nachaLineMapper"
+	class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper"
+	scope="prototype">
+	<property name="tokenizers">
+		<map>
+		 <entry key="1*" value-ref="nachaRecord1Tokenizer" />
+		 <entry key="5*" value-ref="nachaRecord5Tokenizer" />
+		 <entry key="6*" value-ref="nachaRecord6Tokenizer" />
+		 <entry key="7*" value-ref="nachaRecord7Tokenizer" />
+		 <entry key="8*" value-ref="nachaRecord8Tokenizer" />
+		 <entry key="9*" value-ref="nachaRecord9Tokenizer" />
+		</map>
+	</property>
+	<property name="fieldSetMappers">
+		<map>
+		 <entry key="1*" value-ref="nachaRecord1FieldMapper" />
+		 <entry key="5*" value-ref="achInstructionFieldSetMapper" />
+		 <entry key="6*" value-ref="achRecipientFieldSetMapper" />
+		 <entry key="7*" value-ref="nachaRecord7FieldMapper" />
+		 <entry key="8*" value-ref="nachaRecord8FieldMapper" />
+		 <entry key="9*" value-ref="nachaRecord9FieldMapper" />
+		</map>
+	</property>
+</bean>
+
+<bean id="nachaIATLineMapper"
+	class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper"
+	scope="prototype" >
+	<property name="tokenizers">
+		<map>
+		 <entry key="1*" value-ref="nachaRecord1Tokenizer" />
+		 <entry key="5*" value-ref="nachaIatRecord5Tokenizer" />
+		 <entry key="6*" value-ref="nachaIatRecord6Tokenizer" />
+		 <entry key="710*" value-ref="nachaIatRecord71Tokenizer" />
+		 <entry key="711*" value-ref="nachaIatRecord72Tokenizer" />
+		 <entry key="712*" value-ref="nachaIatRecord73Tokenizer" />
+		 <entry key="713*" value-ref="nachaIatRecord74Tokenizer" />
+		 <entry key="714*" value-ref="nachaIatRecord75Tokenizer" />
+		 <entry key="715*" value-ref="nachaIatRecord76Tokenizer" />
+		 <entry key="716*" value-ref="nachaIatRecord77Tokenizer" />
+		 <entry key="717*" value-ref="nachaIatRecord78Tokenizer" />
+		 <entry key="8*" value-ref="nachaRecord8Tokenizer" />
+		 <entry key="9*" value-ref="nachaRecord9Tokenizer" />
+		</map>
+	</property>
+	<property name="fieldSetMappers">
+		<map>
+		 <entry key="1*" value-ref="nachaRecord1FieldMapper" />
+		 <entry key="5*" value-ref="achInstructionFieldSetMapper" />
+		 <entry key="6*" value-ref="achRecipientFieldSetMapper" />
+		 <entry key="710*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="711*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="712*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="713*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="714*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="715*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="716*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="717*" value-ref="nachaCustomRecord7FieldMapper" />
+		 <entry key="8*" value-ref="nachaRecord8IatFieldMapper" />
+		 <entry key="9*" value-ref="nachaRecord9FieldMapper" />
+		</map>
+	</property>
+</bean>
+
+<bean id="nachaCTXLineMapper"
+	class="com.s1.frameworks.payments.imports.mappers.CustomPatternMatchingCompositeLineMapper"
+	scope="prototype" >
+	<property name="tokenizers">
+		<map>
+		 <entry key="1*" value-ref="nachaRecord1Tokenizer" />
+		 <entry key="5*" value-ref="nachaRecord5Tokenizer" />
+		 <entry key="6*" value-ref="nachaCtxRecord6Tokenizer" />
+		 <entry key="7*" value-ref="nachaRecord7Tokenizer" />
+		 <entry key="8*" value-ref="nachaRecord8Tokenizer" />
+		 <entry key="9*" value-ref="nachaRecord9Tokenizer" />
+		</map>
+	</property>
+	<property name="fieldSetMappers">
+		<map>
+		 <entry key="1*" value-ref="nachaRecord1FieldMapper" />
+		 <entry key="5*" value-ref="achInstructionFieldSetMapper" />
+		 <entry key="6*" value-ref="achRecipientFieldSetMapper" />
+		 <entry key="7*" value-ref="nachaCtxRecord7FieldMapper" />
+		 <entry key="8*" value-ref="nachaRecord8FieldMapper" />
+		 <entry key="9*" value-ref="nachaRecord9FieldMapper" />
+		</map>
+	</property>
+</bean>
+
+<!-- Tokenizers -->
+<bean id="nachaRecord1Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype" >
+		<property name="names" value="LINE_ID,priorityCode,immediateDestination,immediateOrigin,fileCreationDate,fileCreationTime,fileIdModifier,recordSize,blockingFactor,formatCode,immediateDestinationName,immediateOriginName,referenceCode" />
+		<property name="columns" value="1-1,2-3,4-13,14-23,24-29,30-33,34-34,35-37,38-39,40-40,41-63,64-86,87-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaRecord5Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,serviceClassCode,companyName,compDiscrData,originatingAchCompId,secCode,compEntryDesc,companyDescriptiveDate,effectiveDate,settlementDate,originatorStatusCode,odfiID,batchNumber" />
+		<property name="columns" value="1-1,2-4,5-20,21-40,41-50,51-53,54-63,64-69,70-75,76-78,79-79,80-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord5Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,serviceClassCode,iatIndicator,foreignExIndicator,foreignExchangeRefIndicator,foreignExchangeRef,destCountry,companyTaxId,secCode,compEntryDesc,isoOriginCurrencyCode,destCurr,effectiveDate,settlementDate,originatorStatusCode,odfiID,batchNumber" />
+		<property name="columns" value="1-1,2-4,5-20,21-22,23-23,24-38,39-40,41-50,51-53,54-63,64-66,67-69,70-75,76-78,79-79,80-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaRecord6Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,transactionCode,recpBankId,checkDigit,recpAcctNumber,recpAmount,recpId,recpName,recpDiscrData,addendaIndicator,traceNumber" />
+		<property name="columns" value="1-1,2-3,4-11,12-12,13-29,30-39,40-54,55-76,77-78,79-79,80-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord6Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,transactionCode,recpBankId,checkDigit,numOfAddendaRecords,reserved1,recpAmount,recpAcctNumber,reserved2,ofacScreenInd,ofacScreenSecInd,addendaIndicator,traceNumber" />
+		<property name="columns" value="1-1,2-3,4-11,12-12,13-16,17-29,30-39,40-74,75-76,77-77,78-78,79-79,80-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaRecord7Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,addendaInfo,addendaSequenceNumber,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-83,84-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord71Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,recpTransType,forgnPaymentAmount,forgnTrcNumb,recpName,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-6,7-24,25-46,47-81,82-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord72Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,companyName,orignStreetAdd,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-38,39-73,74-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord73Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,originatorCityState,originatorCountyZipCode,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-38,39-73,74-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord74Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,orignForeignBank,orignForeignBankIdType,orignForeignBankId,orignForeignBankCountry,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-38,39-40,41-74,75-77,78-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord75Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,recpBankName,recpIdQualifier,recpBankId,recpBankCountry,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-38,39-40,41-74,75-77,78-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord76Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,recpId,recpStreetAddress,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-18,19-53,54-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord77Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,recpCityState,recpCountryZipCode,reserved,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-38,39-73,74-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaIatRecord78Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,addendaTypeCode,recpFreeformAddenda,addendaSequenceNumber,entryDetailSequenceNumber" />
+		<property name="columns" value="1-1,2-3,4-83,84-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+
+<bean id="nachaRecord8Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,serviceClassCode,entryAddendaCount,entryHash,totalDebitEntryDollarAmountInBatch,totalCreditEntryDollarAmountInBatch,originatingAchCompId,messageAuthenticationCode,reserved,originatingDFIID,batchNumber" />
+		<property name="columns" value="1-1,2-4,5-10,11-20,21-32,33-44,45-54,55-73,74-79,80-87,88-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<bean id="nachaRecord9Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,batchCount,blockCount,fileEntryAddendaCount,fileEntryHash,totalDebitEntryDollarAmountInFile,totalCreditEntryDollarAmountInFile,reserved" />
+		<property name="columns" value="1-1,2-7,8-13,14-21,22-31,32-43,44-55,56-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+
+<!-- CTX Line Tokenizers -->
+<bean id="nachaCtxRecord6Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer" scope="prototype">
+		<property name="names" value="LINE_ID,transactionCode,recpBankId,checkDigit,recpAcctNumber,recpAmount,recpId,numOfAddendaRecords,recpName,reserved,recpDiscrData,addendaIndicator,traceNumber" />
+		<property name="columns" value="1-1,2-3,4-11,12-12,13-29,30-39,40-54,55-58,59-74,75-76,77-78,79-79,80-94" />
+		<property name="strict" value="true" />
+		<property name="fieldSetFactory" ref="customFieldSetFactory" />
+</bean>
+<!-- Field Set mappers -->
+<bean id="nachaRecord1FieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NACHARecord1FieldSetMapper" scope="prototype"/>
+<bean id="nachaRecord7FieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NACHARecord7FieldSetMapper" scope="prototype"/>
+<bean id="nachaRecord8FieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NACHARecord8FieldSetMapper" scope="prototype"/>
+<bean id="nachaRecord9FieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NACHARecord9FieldSetMapper" scope="prototype"/>
+
+<bean id="nachaCtxRecord7FieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NachaCtxRecord7FieldSetMapper" scope="prototype"/>
+
+<!-- IAT Record 8 feild set mapper -->
+<bean id="nachaRecord8IatFieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NACHARecord8IatFieldSetMapper" scope="prototype"/>
+
+<bean id="nachaCustomRecord7FieldMapper" class="com.s1.frameworks.payments.imports.ach.mappers.nacha.NACHACustomRecord7FieldSetMapper" scope="prototype"/>
+
+<bean id="nachaImportJobProcessor" class="com.s1.frameworks.payments.imports.delegate.NACHAImportJobDelegate" scope="prototype" parent="standardImportJobProcessor" lazy-init="true"/>
+<bean id="nachaInstructionReaderBuilder" class="com.s1.frameworks.payments.imports.ach.builders.NACHAFlatFileMultiTypeItemReaderBuilder" scope="prototype" parent="achInstructionReaderBuilder" lazy-init="true"/>
+<bean id="nachaImportItemReader" class="com.s1.frameworks.payments.imports.ach.reader.NachaFlatFileItemReader" scope="prototype" lazy-init="true"/>
+
+<bean id="nachaMultiRecordReader" class="com.s1.frameworks.payments.imports.ach.reader.NACHAMultiRecordItemReader" scope="prototype" lazy-init="true"/>
+
+<bean id="childSupportAddendaBuilder" class="com.s1.frameworks.payments.imports.ach.mappers.ChildSupportAddendaBuilder" scope="prototype" lazy-init="true"/>
+<bean id="ccdAddendaBuilder" class="com.s1.frameworks.payments.imports.ach.mappers.CCDAddendaBuilder" scope="prototype" lazy-init="true"/>
+<bean id="ctxAddendaBuilder" class="com.s1.frameworks.payments.imports.ach.mappers.CTXAddendaBuilder" scope="prototype" lazy-init="true"/>
+
+<bean id="taxAddendaBuilder" class="com.s1.frameworks.payments.imports.ach.mappers.TaxAddendaBuilder" scope="prototype" lazy-init="true"/>
+<!-- Used for recipient Import -->
+<bean id="nachaRecpMultiRecordReader" class="com.s1.frameworks.payments.imports.ach.reader.NachaRecipientMultiRecordItemReader" scope="prototype" lazy-init="true"/>
+
+<!--ACH NACHA Format End-->
+
+
+<!-- ACH Ends -->
+	<!-- START: SEPA Credit Transfer Payment/Template/Repetitive/Recipient import Configurations -->
+
+	<bean id="spcrRecipientHolder" class="com.s1.intl.imprt.sepacr.mappers.SEPACRImportRecipientHolder" scope="prototype"/>
+	<bean id="spcrLineItemConvertorValidator" class="com.s1.intl.imprt.sepacr.validator.SEPACRLineItemImpDataValidator" scope="execution"/>
+	<bean id="spcrRecipientConvertor" class="com.s1.intl.imprt.sepacr.mappers.SEPACRLineItemImpDataConvertor" scope="prototype"/>
+	
+	<bean id="spcrPaymentReaderBuilder" class="com.s1.intl.imprt.sepacr.builder.SEPACRFlatFileMultiTypeItemReaderBuilder" scope="prototype"/>
+	<bean id="spcrInstructionConvertorValidator" class="com.s1.intl.imprt.sepacr.validator.SEPACRInstructionImpDataValidator" scope="execution"/>
+	<bean id="spcrInstructionConvertor" class="com.s1.intl.imprt.sepacr.mappers.SEPACRInstructionImpDataConvertor" scope="prototype"/>
+	<bean id="spcrInstructionHolder" class="com.s1.intl.imprt.sepacr.mappers.SEPACRImportInstructionValueHolder" scope="prototype"/>
+
+	<!-- END: SEPA Credit Transfer Payment/Template/Repetitive/Recipient import Configurations -->
+	
+	<!-- START: SEPA Debit Transfer Payment/Template/Repetitive/Recipient import Configurations -->
+
+	<bean id="spddRecipientHolder" class="com.s1.intl.imprt.sepadd.mappers.SEPADDImportRecipientHolder" scope="prototype"/>
+	<bean id="spddLineItemConvertorValidator" class="com.s1.intl.imprt.sepadd.validator.SEPADDLineItemImpDataValidator" scope="execution"/>
+	<bean id="spddRecipientConvertor" class="com.s1.intl.imprt.sepadd.mappers.SEPADDLineItemImpDataConvertor" scope="prototype"/>
+	
+	<bean id="spddPaymentReaderBuilder" class="com.s1.intl.imprt.sepadd.builder.SEPADDFlatFileMultiTypeItemReaderBuilder" scope="prototype"/>
+	<bean id="spddInstructionConvertorValidator" class="com.s1.intl.imprt.sepadd.validator.SEPADDInstructionImpDataValidator" scope="execution"/>
+	<bean id="spddInstructionConvertor" class="com.s1.intl.imprt.sepadd.mappers.SEPADDInstructionImpDataConvertor" scope="prototype"/>
+	<bean id="spddInstructionHolder" class="com.s1.intl.imprt.sepadd.mappers.SEPADDImportInstructionValueHolder" scope="prototype"/>
+
+	<!-- END: SEPA Debit Transfer Payment/Template/Repetitive/Recipient import Configurations -->
+	
+	<bean id="ilvRecipientHolder" class="com.s1.intl.imprt.ilv.ILVImportRecipientHolder" scope="prototype"/>
+	<bean id="ilvRecipientConvertor" class="com.s1.intl.imprt.ilv.ILVLineItemImpDataConvertor" scope="prototype"/>
+
+	<!-- START: Colombia Giro Payment/Template import Configurations -->
+	<bean id="colgiroPaymentReaderBuilder" class="com.s1.intl.imprt.colgiro.ColGiroFlatFileMultiTypeItemReaderBuilder" scope="prototype" /> 
+	<bean id="colGiroInstructionHolder" class="com.s1.intl.imprt.colgiro.ColGiroImportInstructionValueHolder" scope="prototype"/>
+	<bean id="colGiroInstructionConvertor" class="com.s1.intl.imprt.colgiro.ColGiroInstructionImpDataConvertor" scope="prototype"/>
+	<bean id="colGiroInstructionConvertorValidator" class="com.s1.intl.imprt.colgiro.ColGiroInstructionImpDataValidator" scope="execution"/>
+	<bean id="colGiroRecipientHolder" class="com.s1.intl.imprt.colgiro.ColGiroImportRecipientHolder" scope="prototype"/>
+	<bean id="colGiroRecipientConvertor" class="com.s1.intl.imprt.colgiro.ColGiroLineItemImpDataConvertor" scope="prototype"/>
+	<bean id="colGiroRecipientConvertorValidator" class="com.s1.intl.imprt.colgiro.ColGiroLineItemImpDataValidator" scope="prototype"/>
+	<bean id="passThruItemProcessorBuilder" class="com.s1.frameworks.payments.parser.builders.PassThroughItemProcessorBuilder" scope="prototype"/>
+	<bean id="colGiroRecipientImportValidator" class="com.s1.intl.imprt.colgiro.ColGiroRecipImpDataValidator" scope="prototype" parent="colGiroRecipientConvertorValidator"/>
+	
+	<bean id="itemReader-instruction" class="com.s1.intl.imprt.colgiro.ColGiroBeanIOFlatFileItemReader" scope="prototype" lazy-init="true">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/colGiro-payment-config.xml" />
+	    <property name="streamName" value="instructionStream" />
+	    <property name="encoding" value="UTF-8" />
+	    <!-- <property name="locale" value="en_US_1_ignored" /> -->
+	</bean>
+	<bean id="recipient-instruction" class="org.beanio.spring.BeanIOFlatFileItemReader" scope="prototype" lazy-init="true">
+           <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/colGiro-recipient-config.xml" />
+           <property name="streamName" value="instructionStream" />
+           <property name="encoding" value="UTF-8" />
+    </bean>
+	<bean id="colGiroPmtListener"
+		class="com.s1.intl.imprt.colgiro.ColGiroItemListenerSupport" scope="execution" parent="defaultListener"/>
+	<bean id="colGiroRecpListener"
+        class="com.s1.intl.imprt.colgiro.ColGiroRecpListenerSupport" scope="execution" parent="colGiroPmtListener"/>
+    <bean id="colGiroStdLineItemWriter" class="com.s1.intl.imprt.colgiro.ColGiroStdLineItemWriter" scope="execution" parent="passThroughItemWriter" />
+	<!-- END: Colombia Giro Payment/Template import Configurations -->
+
+	<bean id="defaultListener"
+		class="com.s1.frameworks.payments.imports.listeners.DefaultItemListenerSupport" scope="execution">
+		<property name="handler" ref="exceptionHandler" />
+		<property name="dependentHandler" ref="#{parameters['dependent.handler']}"/>
+	</bean>
+	<bean id="exceptionHandler" class="com.s1.emea.common.parser.ItemProcessorExceptionHandler" scope="execution">
+		<property name="factoryResolver" ref="exceptionResolver" />
+	</bean>
+	<bean id="importsSkipPolicy" class="com.s1.frameworks.payments.imports.ImportsSkipPolicy" scope="execution">
+		<property name="request" ref="#{parameters['request.identifier']}"/>
+	</bean>
+	<bean id="instructionHandler" class="com.s1.frameworks.payments.imports.handlers.InstructionDependentHandler" scope="execution"/>
+	<bean id="passThroughHandler" class="com.s1.frameworks.payments.imports.handlers.PassThroughDependenthandler" scope="execution"/>
+	<bean id="exceptionResolver"
+		class="com.s1.emea.common.parser.DefaultExceptionBuilderFactoryResolver" scope="execution">
+		<property name="importFileKey" value="#{parameters['fileKey']}"/>
+		<property name="skipPolicy" value="#{parameters['faultTolerant.skip.policy']}"/>
+		<property name="request" ref="#{parameters['request.identifier']}"/>
+	</bean>
+	<bean id="lowValueInstructionConvertor" class="com.s1.intl.imprt.ilv.LowValueInstructionConvertor" scope="execution">
+		<property name="request" ref="#{parameters['request.identifier']}"/>
+	</bean>
+	
+	<bean id="defaultInstructionReaderBuilder" class="com.s1.frameworks.payments.imports.builders.DefaultFlatFileMultiTypeItemReaderBuilder" scope="prototype" parent="instructionReaderBuilder"/>
+	<bean id="instructionValueHolder" class="com.s1.frameworks.payments.imports.mappers.ImportInstructionValueHolder" scope="prototype"/>
+	<bean id="instructionValueConvertor" class="com.s1.frameworks.payments.imports.mappers.ImportInstructionConvertor" scope="prototype"/>
+	<bean id="lineItemValueHolder" class="com.s1.frameworks.payments.imports.mappers.ImportLineItemHolder" scope="prototype"/>
+	<bean id="lineItemValueConvertor" class="com.s1.frameworks.payments.imports.mappers.ImportLineItemConvertor" scope="prototype"/>
+	
+	<!-- Sepa Credit Standard import - Start-->
+		<bean id="sepa-itemReader-instruction" class="com.s1.intl.imprt.sepacr.reader.SepaCrBeanIOFlatFileItemReader" scope="prototype" lazy-init="true">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/SepaCr-payment-config.xml" />
+	    <property name="streamName" value="Document" />
+	    <property name="encoding" value="UTF-8" />
+	</bean>
+	
+	<bean id="sepaCrItemListener"
+		class="com.s1.intl.imprt.sepacr.SepaStdItemListenerSupport" scope="execution" parent="defaultListener">
+		<property name="handler" ref="sepaStdexceptionHandler" />
+		</bean>
+		
+		<bean id="sepaStdexceptionHandler"
+	class="com.s1.emea.common.parser.SepaStdItemProcessorExceptionHandler"
+	scope="execution" parent="exceptionHandler" />
+	
+	<bean id="sepaStdInstructionsItemWriter" class="com.s1.frameworks.payments.imports.writers.sepacr.SepaStdInstructionsItemWriter" parent="instructionsItemWriter"/>
+	
+	<bean id="sepa-recipient-instruction" class="org.beanio.spring.BeanIOFlatFileItemReader" scope="prototype" lazy-init="true">
+           <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/sepa-recipient-config.xml" />
+           <property name="streamName" value="sepa-recipient-stream" />
+           <property name="encoding" value="UTF-8" />           
+    </bean>
+    
+    <bean name="spcrStdLineItemWriter" class="com.s1.intl.imprt.sepacr.lineitem.SpcrStdLineItemWriter"/> 
+    
+    <bean name="spcrStdLineItemListenerSupport" class="com.s1.intl.imprt.sepacr.lineitem.SpcrRecpListenerSupport">
+      <property name="lineItemFieldValidator" ref="lineItemFieldValidator"/>
+    </bean>  
+   
+    <bean id="spcrStdLineItemProcessorBuilder" class="com.s1.intl.imprt.sepacr.lineitem.SpcrStdImportLineItemProcessorBuilder" scope="prototype">      
+    </bean>  
+    
+    <bean name="lineItemTransformer" class="com.s1.intl.imprt.sepacr.lineitem.SpcrStdImportLineItemTransformer">
+      <property name="dateFormat" value="yyyy-MM-dd"/>
+    </bean>
+    
+    <bean name="lineItemFieldValidator" class="com.s1.intl.imprt.sepacr.lineitem.SpcrStdLineItemFieldValidator">
+      <property name="dateFormat" value="yyyy-MM-dd"/>
+    </bean>
+	<!-- Sepa Credit Standard import - End -->
+	
+	<!-- Sepa Debit Standard import - Start-->
+		<bean id="sepadd-itemReader-instruction" class="com.s1.intl.imprt.sepadd.reader.SepaDDBeanIOFlatFileItemReader" scope="prototype" lazy-init="true">
+	    <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/SepaDD-payment-config.xml" />
+	    <property name="streamName" value="Document" />
+	    <property name="encoding" value="UTF-8" />
+	</bean>
+	
+	<bean id="sepaDDItemListener"
+		class="com.s1.intl.imprt.sepadd.SepaDDStdItemListenerSupport" scope="execution" parent="defaultListener">
+		<property name="handler" ref="sepaStdexceptionHandler" />
+		</bean>
+	
+	<bean id="sepaDDStdInstructionsItemWriter" class="com.s1.frameworks.payments.imports.writers.sepadd.SepaStdInstructionsItemWriter" 
+		  parent="instructionsItemWriter" scope="prototype" lazy-init="true"/>
+	
+	<bean id="sepadd-recipient-instruction" class="org.beanio.spring.BeanIOFlatFileItemReader" scope="prototype">
+           <property name="streamMapping" value="classpath:/config/Disbursements/standardImportConfig/sepadd-recipient-config.xml" />
+           <property name="streamName" value="sepadd-recipient-stream" />
+           <property name="encoding" value="UTF-8" />           
+    </bean>
+    
+    <bean name="spddStdLineItemWriter" class="com.s1.intl.imprt.sepadd.lineitem.SpddStdLineItemWriter"/> 
+    
+    <bean name="spddStdLineItemListenerSupport" class="com.s1.intl.imprt.sepadd.lineitem.SpddRecpListenerSupport">
+      <property name="lineItemFieldValidator" ref="spddLineItemFieldValidator"/>
+    </bean>  
+   
+    <bean id="spddStdLineItemProcessorBuilder" class="com.s1.intl.imprt.sepadd.lineitem.SpddStdImportLineItemProcessorBuilder" scope="prototype">      
+    </bean>  
+    
+    <!-- <bean name="lineItemTransformer" class="com.s1.intl.imprt.sepacr.lineitem.SpcrStdImportLineItemTransformer">
+      <property name="dateFormat" value="yyyy-MM-dd"/>
+    </bean> -->
+    
+    <bean name="SpddStdImportLineItemTransformer" class="com.s1.intl.imprt.sepadd.lineitem.SpddStdImportLineItemTransformer">
+      <property name="dateFormat" value="yyyy-MM-dd"/>
+    </bean>
+    
+    <bean name="spddLineItemFieldValidator" class="com.s1.intl.imprt.sepadd.lineitem.SpddStdLineItemFieldValidator">
+      <property name="dateFormat" value="yyyy-MM-dd"/>
+    </bean>
+	<!-- Sepa Debit Standard import - End -->
+
+	<!-- Start: Saudi Payroll User defined configuration -->
+	
+	<bean id="sapyrInstructionConvertor" class="com.s1.frameworks.payments.imports.mappers.SAPyrImportInstructionConvertor" parent="instructionValueConvertor" scope="prototype"/>	
+	<bean id="sapyrRecipientConvertor" class="com.s1.frameworks.payments.imports.mappers.SAPyrImportLineItemConvertor" parent="lineItemValueConvertor" scope="prototype"/>
+	
+	<!-- End: Saudi Payroll User defined configuration -->
+	
+<!-- 	<bean id="enumImportProfileDropDownValues" class="com.s1.banking.common.imprt.user.EnumImportProfileDropDownValues" scope="prototype"/>
+	<bean id="enumImportProfileDropDownValuesAch" class="com.s1.banking.common.imprt.user.EnumImportProfileDropDownValuesACH" scope="prototype"/>
+	<bean id="enumImportProfileDropDownValuesAchIat" class="com.s1.banking.common.imprt.user.EnumImportProfileDropDownValuesACHIAT" scope="prototype"/>
+	
+	<bean id="achImportProfileValueProcessor" class="com.s1.banking.common.imprt.ACHImportProfileValueProcessor" scope="prototype"/> -->
+</beans>

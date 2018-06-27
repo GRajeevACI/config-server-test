@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mappings>
+	<mapping>
+		<typeA>com.aciworldwide.uob.pim.iso20022.components.CurrencyAndAmount</typeA>
+		<typeB>com.s1.arch.i18n.currency.Money</typeB>
+		<fields>
+			<field
+				customConverter="com.aciworldwide.arch.service.transformation.converter.CurrencyCodeConverter">
+				<fieldA>currency</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field>
+				<fieldA>amount</fieldA>
+				<fieldB>value</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping>
+		<typeA>com.s1.app.disbursements.common.AccountInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.account.DepositAccountType</typeB>
+		<fields>
+			<field>
+				<fieldA>holder.accountValue.isoCurrency</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field>
+				<fieldA>holder.nickname</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.AccountIdentificationListConverter">
+				<fieldA>holder.accountValue.maskedAccountId</fieldA>
+				<fieldB>ident</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.FiIdListConverter">
+				<fieldA>holder.accountValue.fiId</fieldA>
+				<fieldB>servicingInstitution.ident</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.AccountTypeListConverter">
+				<fieldA>holder.accountValue.productCode</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.BalanceListConverter">
+				<fieldA>balance</fieldA>
+				<fieldB>balances</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	<mapping>
+		<typeA>com.s1.app.disbursements.common.AccountInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.account.CardAccountType</typeB>
+		<fields>
+			<field>
+				<fieldA>holder.accountValue.isoCurrency</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field>
+				<fieldA>holder.nickname</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.AccountIdentificationListConverter">
+				<fieldA>holder.accountValue.maskedAccountId</fieldA>
+				<fieldB>ident</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.FiIdListConverter">
+				<fieldA>holder.accountValue.fiId</fieldA>
+				<fieldB>servicingInstitution.ident</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.AccountTypeListConverter">
+				<fieldA>holder.accountValue.productCode</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.BalanceListConverter">
+				<fieldA>balance</fieldA>
+				<fieldB>balances</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	<mapping>
+		<typeA>com.s1.app.disbursements.common.AccountInfo</typeA>
+		<typeB>com.aciworldwide.pim.messages.account.LoanAccountType</typeB>
+		<fields>
+			<field>
+				<fieldA>holder.accountValue.isoCurrency</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field>
+				<fieldA>holder.nickname</fieldA>
+				<fieldB>name</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.AccountIdentificationListConverter">
+				<fieldA>holder.accountValue.maskedAccountId</fieldA>
+				<fieldB>ident</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.FiIdListConverter">
+				<fieldA>holder.accountValue.fiId</fieldA>
+				<fieldB>servicingInstitution.ident</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.AccountTypeListConverter">
+				<fieldA>holder.accountValue.productCode</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field customConverter="com.aciworldwide.common.account.BalanceListConverter">
+				<fieldA>balance</fieldA>
+				<fieldB>balances</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping>
+		<typeA>com.s1.common.accounts.AccountData</typeA>
+		<typeB>com.aciworldwide.pim.messages.payments.component.AccountInfoType</typeB>
+		<fields>
+			<field>
+				<fieldA>accountName</fieldA>
+				<fieldB>accountName</fieldB>
+			</field>
+			<field>
+				<fieldA>productCode</fieldA>
+				<fieldB>hostProductCode</fieldB>
+			</field>
+			<field reverse="true" oneWay="true" customConverter="com.aciworldwide.pim.messages.service.mapper.HostProductCodeToProductOidConverter">
+				<fieldA>productOid</fieldA>
+				<fieldB>hostProductCode</fieldB>
+			</field>
+			<field reverse="true" oneWay="true" customConverter="com.aciworldwide.pim.messages.service.mapper.HostProductCodeToProductValueConverter">
+				<fieldA>productData</fieldA>
+				<fieldB>hostProductCode</fieldB>
+			</field>
+			<field>
+				<fieldA>isoCurrency</fieldA>
+				<fieldB>currency</fieldB>
+			</field>
+			<field>
+				<fieldA>fiId</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field reverse="true" oneWay="true">
+				<fieldA>dsplycdirfiid</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field reverse="true" oneWay="true">
+				<fieldA>dsplypdirfiid</fieldA>
+				<fieldB>financialInstitution.ident</fieldB>
+			</field>
+			<field>
+				<fieldA>fiIdType</fieldA>
+				<fieldB>financialInstitution.identType</fieldB>
+			</field>
+			<field reverse="true" oneWay="true" customConverter="com.aciworldwide.pim.messages.service.mapper.BankIdTypeToEnumValueConverter">
+				<fieldA>fiidTypeEnum</fieldA>
+				<fieldB>financialInstitution.identType</fieldB>
+			</field>
+			<field>
+				<fieldA>accountId</fieldA>
+				<fieldB>accountIdent.primaryIdent</fieldB>
+			</field>
+			<field oneWay="true">
+				<fieldA>soaInstrId</fieldA>
+				<fieldB>accountIdent.accountUid</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+	  <typeA>com.aciworldwide.arch.service.pagination.Pagination</typeA>
+	  <typeB>com.aciworldwide.pim_domain_types.pim.common.PaginationRsType</typeB>
+	    <fields>
+			<field>
+				<fieldA>rowSetSize</fieldA>
+				<fieldB>actualRowSetSize</fieldB>
+			</field>
+			<field>
+				<fieldA>sortQuery</fieldA>
+				<fieldB>actualSortOrder</fieldB>
+			</field>
+			<field>
+				<fieldA>maxRowsAvailable</fieldA>
+				<fieldB>maxRowsAvailable</fieldB>
+			</field>
+			<field>
+				<fieldA>moreRowsAvailable</fieldA>
+				<fieldB>moreRowsAvailable</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+</mappings>

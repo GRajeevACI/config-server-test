@@ -1,0 +1,104 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<bean id="asyncProcessService" class="com.s1.payments.process.async.service.AsyncProcessServiceBean">
+		<property name="searchOrder" ref="searchOrder" />
+		<property name="processMap" ref="processHandlers" />
+		<property name="exitCodeMap" ref="exitCodes" />
+	</bean>
+	
+	<bean id="asyncProcessReplyService" class="com.s1.payments.process.async.service.AsyncProcessServiceBean">
+		<property name="searchOrder" ref="searchOrder" />
+		<property name="processMap" ref="processReplyHandlers" />
+	</bean>
+
+	<util:list id="searchOrder" value-type="java.lang.String">
+		<value>process.context</value>
+		<value>action.context</value>
+		<value>context</value>
+		<value>process.domain</value>
+		<value>action.domain</value>
+		<value>domain</value>
+		<value>process</value>
+		<value>action</value>
+	</util:list>
+
+	<util:map id="coreProcessHandlers">
+		<entry key="maintainPaymentStream">
+			<ref bean="maintainPaymentStream" />
+		</entry>
+	</util:map>
+
+	<util:map id="processReplyHandlers">
+		<entry key="transmitComplete">
+			<util:list value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+				<ref bean="runDisbursementProcess" />
+			</util:list>
+		</entry>
+	</util:map>
+
+	<util:list id="maintainPaymentStream" value-type="com.s1.payments.process.async.handler.AbstractProcessHandler">
+		<ref bean="paymentMaintenanceHandler" />
+	</util:list>
+
+	<bean id="paymentMaintenanceHandler" class="com.s1.payments.process.async.handler.PaymentMaintenance">
+		<property name="expectedTypes" value="DELEGATE" />
+	</bean>
+
+	<bean id="runDisbursementProcess" class="com.s1.payments.process.async.handler.ExecuteProcess">
+		<property name="expectedTypes" value="DELEGATE" />
+	</bean>
+
+	<bean id="sendAsyncReply" class="com.s1.payments.process.async.handler.SendAsyncReply">
+		<property name="expectedTypes" value="DELEGATE" />
+	</bean>
+
+	<bean id="mapPaymentXML" class="com.s1.payments.process.async.handler.TransformPaymentXml">
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+		<property name="transforms">
+				<util:list value-type="java.lang.String">
+					<value>insert-XSL-pathname-here</value>
+				</util:list>
+		</property>
+	</bean>
+
+	<bean id="logDelegateMethod" class="com.s1.payments.process.async.handler.LogDelegateMethod">
+		<property name="directory" value="C:/tmp/xml/delegate" />
+		<property name="expectedTypes" value="DELEGATE" />
+	</bean>
+
+	<bean id="logInstructionNode" class="com.s1.payments.process.async.handler.LogPaymentXml">
+		<property name="directory" value="C:/tmp/xml/instruction" />
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+	</bean>
+
+	<bean id="prepareOperationComplete" class="com.s1.payments.process.async.handler.PrepareOperationComplete">
+		<property name="exitCodeMap" ref="exitCodes" />
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+		<property name="operationName" value="transmitComplete" />
+	</bean>
+	
+	<bean id="executeComplete" class="com.s1.payments.process.async.handler.MultiExecuteProcess">
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+		<property name="processType" value="batch_execute" />
+		<property name="exitStatus" value="12"/>
+	</bean>
+	
+	<bean id="wsSendWithReply" class="com.s1.payments.process.async.handler.WebServiceCallWithReply">
+		<property name="expectedTypes" value="XMLSTRING NODE" />
+		<property name="targetEndpointAddress" value="${disbursements.adapter.payments.proxy.URL}"/>
+		<property name="timeout" value="${Adapter.Payment.TimeoutMilliSeconds}"/>
+		<property name="targetObjectURI" value="${disbursements.adapter.payments.proxy.ISOTargetObject}"/>
+	</bean>
+
+	<util:map id="coreExitCodes">
+		<entry key="FATAL" value="transmitFail" />
+		<entry key="RETRYFAIL" value="transmitFail" />
+		<entry key="SUCCESS" value="SENT" />
+	</util:map>
+
+	<import resource="payments-async-process-custom.xml" />
+</beans>

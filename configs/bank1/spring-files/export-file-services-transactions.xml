@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<aop:config>
+		<!-- Pointcut configuration -->
+		<aop:pointcut id="exportFileMessagingOps"
+			expression="execution(public * com.s1.export.message.ExportFileCreatorService.*(..))" />
+		<aop:pointcut id="exportFileMessagingBeanOps"
+			expression="execution(public * com.s1.export.message.ExportFileRequestMDB.*(..))" />
+		<aop:pointcut id="exportFileBaiOps"
+			expression="execution(public * com.s1.export.provider.bai.BAIExportProvider.generateExport(..))" />
+		<aop:pointcut id="exportFileRequestMaintOps"
+			expression="execution(public * com.s1.export.message.ExportFileRequestMaintenanceService.*(..))" />
+		<aop:pointcut id="exportFileRequestCleanupServiceOps"
+			expression="execution(public * com.s1.export.message.ExportFileRequestCleanupService.*(..))" />
+		<aop:pointcut id="affiliateSubdomainProviderOps"
+			expression="execution(public * com.s1.common.download.AffiliateSubdomainProvider.getEnvironment(..))" />
+		<aop:pointcut id="exportBinaryValueDAO" expression="execution(public * com.s1.export.dao.ExportBinaryValueMapper.*(..))" />
+
+		<!-- Advisor configuration -->
+		<aop:advisor id="exportFileMessagingAdvisor" pointcut-ref="exportFileMessagingOps"
+			advice-ref="txExportMessagingAdvice" />
+		<aop:advisor id="exportFileMessagingBeanAdvisor" pointcut-ref="exportFileMessagingBeanOps"
+			advice-ref="txExportMessagingBeanAdvice" />
+		<aop:advisor id="exportFileCleanupServiceAdvisor" pointcut-ref="exportFileRequestCleanupServiceOps"
+			advice-ref="txExportFileRequestCleanupServiceAdvice" />
+		<aop:advisor pointcut-ref="exportFileBaiOps" advice-ref="txExportFileBaiAdvice" />
+		<aop:advisor pointcut-ref="exportFileRequestMaintOps" advice-ref="txExportFileMaintAdvice" />
+		<aop:advisor pointcut-ref="exportBinaryValueDAO" advice-ref="txExportBinaryValueDAOAdvice" />
+		<aop:advisor pointcut-ref="affiliateSubdomainProviderOps" advice-ref="txAffiliateSubdomainProviderAdvice" />
+	</aop:config>
+
+	<!-- Transaction Advice configurations -->
+	<tx:advice id="txExportBinaryValueDAOAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="insertSelective" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="*" propagation="SUPPORTS"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" /> 
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txExportMessagingAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="submitRequestForProcessing" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="generateExportContext" propagation="REQUIRES_NEW"
+                isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="processRequest" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txExportMessagingBeanAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="onMessage" propagation="REQUIRES_NEW"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txExportFileRequestCleanupServiceAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="cleanupFailedProcessing" propagation="REQUIRES_NEW" 
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+			<tx:method name="*" propagation="SUPPORTS"
+				isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txExportFileBaiAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="generateExport" propagation="REQUIRES_NEW" isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txExportFileMaintAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<tx:advice id="txAffiliateSubdomainProviderAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="getEnvironment" propagation="REQUIRES_NEW" isolation="READ_COMMITTED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+    <!-- we need below import to support Websphere and JBOSS.In case of websphere it is blank -->
+	<import resource="export-file-services-transactions-appserver-specific.xml" />
+	
+</beans>

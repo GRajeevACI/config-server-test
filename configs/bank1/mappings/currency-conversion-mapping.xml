@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.payments.services.CurrencyConversionRqType
+		</typeA>
+		<typeB>com.s1.arch.i18n.currency.Money</typeB>
+		<fields>
+			<field>
+				<fieldA>fromAmount.currency</fieldA>
+				<fieldB>type</fieldB>
+			</field>
+			<field>
+				<fieldA>fromAmount.amount</fieldA>
+				<fieldB>value</fieldB>
+			</field>
+		</fields>
+	</mapping>
+	<mapping mapNull="false">
+		<typeA>com.aciworldwide.pim.messages.payments.services.CurrencyConversionRqType
+		</typeA>
+		<typeB>com.s1.arch.i18n.currency.CurrencyValue</typeB>
+		<fields>
+			<field>
+				<fieldA>toCurrency</fieldA>
+				<fieldB>alpha3Code</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+	<mapping mapNull="false">
+		<typeA>com.s1.common.currencyconversion.value.CurrencyConversionInfo
+		</typeA>
+		<typeB>com.aciworldwide.pim.messages.payments.services.CurrencyConversionRsType
+		</typeB>
+		<fields>
+			<field>
+				<fieldA>fromCurrency.alpha3Code</fieldA>
+				<fieldB>fromCurrency</fieldB>
+			</field>
+			<field>
+				<fieldA>fromAmount</fieldA>
+				<fieldB>fromAmount</fieldB>
+			</field>
+			<field>
+				<fieldA>toCurrency.alpha3Code</fieldA>
+				<fieldB>toCurrency</fieldB>
+			</field>
+			<field>
+				<fieldA>toAmount</fieldA>
+				<fieldB>toAmount</fieldB>
+			</field>
+		</fields>
+	</mapping>
+
+</mappings>

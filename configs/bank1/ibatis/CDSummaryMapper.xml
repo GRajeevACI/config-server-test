@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.app.bank.reports.CDSummaryDataMapper">
+
+	<resultMap id="BaseResultMap" type="com.s1.app.bank.reports.CDSummaryData">
+		<result column="FIID" property="fiid" jdbcType="VARCHAR" />
+		<result column="textcurrcd" property="textCurrCd" jdbcType="VARCHAR" />
+		<result column="acctid" property="acctId" jdbcType="VARCHAR" />
+		<result column="nickname" property="nickName" jdbcType="VARCHAR" />
+		<result column="bnkacctky" property="acctOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="prodname" property="prodName" jdbcType="VARCHAR" />
+		<result column="customerid" property="customerId" jdbcType="VARCHAR" />
+		<result column="ProductType" property="productType" jdbcType="VARCHAR" />
+		<result column="UPDATEDTTM__" property="updateDttmStr" jdbcType="VARCHAR" />
+		<result column="BNKCDYSTMTKY" property="bnkcdystmtOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="stmtdttm" property="stmtDateTimestamp" jdbcType="TIMESTAMP" />
+		<result column="CODE23" property="code23" jdbcType="INTEGER" />
+		<result column="CODE21" property="code21" jdbcType="INTEGER" />
+		<result column="CLOSINGLEDGER" property="closingLedger" jdbcType="INTEGER" />
+		<result column="OPENINGAVAILABLE" property="openingAvailable" jdbcType="INTEGER" />
+		<result column="CODE580" property="code580" jdbcType="INTEGER" />
+		<result column="LoanCurrentBalance" property="loanCurrentBalance" jdbcType="INTEGER" />
+		<result column="InterestRate" property="interestRate" jdbcType="INTEGER" />
+		<result column="NextPaymentAmt" property="nextPaymentAmount" jdbcType="INTEGER" />
+		<result column="PayoffAmount" property="payOffAmount" jdbcType="INTEGER" />
+
+		<result column="LastPaymentAmount" property="lastPaymentAmount" jdbcType="INTEGER" />
+		<result column="TotalYTDInterest" property="totalYTDInterest" jdbcType="INTEGER" />
+		<result column="TotalInterestPaidLastYear" property="totalInterestPaidLastYear" jdbcType="INTEGER" />
+
+<result column="NextPaymentDate" property="nextPaymentDate" jdbcType="TIMESTAMP" />
+<result column="LastPaymentDate" property="lastPaymentDate" jdbcType="TIMESTAMP" />
+<result column="LastUpdated" property="lastUpdated" jdbcType="TIMESTAMP" />
+<result column="UPDATEDTTM" property="updateDttm" jdbcType="TIMESTAMP" />
+<result column="EFFECTIVEDTTM" property="effectiveDttm" jdbcType="TIMESTAMP" />
+
+		<result column="istrnpresent" property="isTrnPresent" jdbcType="INTEGER" />
+		<result column="entitledDetacctKy" property="entitledDetacctKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="entitledSummacctKy" property="entitledSummacctKy" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="ACCTNUMDSPLYMASK" property="acctNumDsplyMask" jdbcType="VARCHAR" />
+		<result column="ISNONDSPLYREPLACE" property="isNonDsplyReplace" jdbcType="VARCHAR" />
+		<result column="MASKREPLACECHAR" property="maskReplaceChar" jdbcType="VARCHAR" />
+		<result column="CNT" property="recordCount" jdbcType="INTEGER" />
+	</resultMap>
+
+	<resultMap id="TransactionsResultMap" type="com.s1.app.bank.reports.CDTransactionsData">
+		<result column="FIID" property="fiid" jdbcType="VARCHAR" />
+		<result column="ARCISOcurrencycdky" property="currencyCdOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="textcurrcd" property="textCurrCd" jdbcType="VARCHAR" />
+		<result column="acctid" property="acctId" jdbcType="VARCHAR" />
+		<result column="nickname" property="nickName" jdbcType="VARCHAR" />
+		<result column="bnkacctky" property="acctOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="customerid" property="customerId" jdbcType="VARCHAR" />
+		<result column="name" property="productname" jdbcType="VARCHAR" />
+		<result column="memo" property="memo" jdbcType="VARCHAR" />
+		<result column="bnkcdystmtky" property="bnkcdystmtOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="bnkcdytrnky" property="bnkCdyTrnOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="posteddttm" property="postedDateTimestamp" jdbcType="TIMESTAMP" />
+		<result column="amount" property="amount" jdbcType="INTEGER" />
+		<result column="SUPPORTEDIMAGETYPE" property="supportedImageType" jdbcType="INTEGER" />
+		<result column="BAITRNCODE" property="baiTrnCode" jdbcType="VARCHAR" />
+		<result column="SWIFTTRNCODE" property="swiftTrnCode" jdbcType="VARCHAR" />
+		<result column="TRANSLATION" property="trnDescription" jdbcType="VARCHAR" />
+		<result column="FITRNREFERENCE" property="bankRef" jdbcType="VARCHAR" />
+		<result column="CUSTTRNREF" property="custRef" jdbcType="VARCHAR" />
+		<result column="DEBITCREDIT" property="drCr" jdbcType="VARCHAR" />
+		<result column="ACCTNUMDSPLYMASK" property="acctNumDsplyMask" jdbcType="VARCHAR" />
+		<result column="ISNONDSPLYREPLACE" property="isNonDsplyReplace" jdbcType="VARCHAR" />
+		<result column="MASKREPLACECHAR" property="maskReplaceChar" jdbcType="VARCHAR" />
+		<result column="CNT" property="recordCount" jdbcType="INTEGER" />
+	</resultMap>
+
+	<sql id="Wrapper_Top_Pagination_SQL">
+		select pg.* from ( select temp.*, SUM(1) over() cnt, row_number() 
+		over(ORDER BY 
+		<if test="sortBy == 'acctid'">
+			acctid
+		</if>
+		<if test="sortBy == 'stmtdttm'">
+			stmtdttm
+		</if>
+		<if test="sortBy == 'nickname'">
+			nickname
+		</if>
+		<if test="sortBy == 'posteddttm'">
+			posteddttm
+		</if>
+		<if test="sortBy == 'baitrncode'">
+			baitrncode
+		</if>
+		<if test="sortBy == 'swifttrncode'">
+			swifttrncode
+		</if>
+		<if test="sortBy == 'translation'">
+			translation
+		</if>
+		<if test="sortBy == 'amount'">
+			amount
+		</if>
+		<if test="sortBy == 'debitcredit'">
+			debitcredit
+		</if>
+		<if test="sortBy == 'fitrnreference'">
+			fitrnreference
+		</if>
+		<if test="sortBy == 'custtrnref'">
+			custtrnref
+		</if>
+		<if test="sortOrder == 'ASC'">
+			ASC
+		</if>
+		<if test="sortOrder == 'DESC'">
+			DESC
+		</if>
+		) rownumber_ from
+		(
+	</sql>
+	<sql id="Wrapper_Bottom_Pagination_SQL">
+		)temp )pg
+		where pg.rownumber_ <![CDATA[ >= ]]> #{fromRowNum} and pg.rownumber_ <![CDATA[ <= ]]> #{toRowNum}
+	</sql>
+
+	<sql id="Wrapper_Top_SQL">
+		SELECT * FROM (SELECT ab.*, ROW_NUMBER()
+		OVER(PARTITION BY ab.acctky ORDER BY ab.stmtdttm desc) rnbr FROM
+		(
+	</sql>
+	<sql id="Wrapper_Bottom_SQL">
+		) ab
+	</sql>
+
+	<sql id="Prod_Desc_SQL">
+		<if test="prodDesc == 'Deposit'">
+			AND bnkuserandgrpentl.proddescription = 'Deposit'
+		</if>
+		<if test="prodDesc == 'Credit'">
+			AND bnkuserandgrpentl.proddescription = 'Credit'
+		</if>
+		<if test="prodDesc == 'Loan'">
+			AND bnkuserandgrpentl.proddescription = 'Loan'
+		</if>
+	</sql>
+
+	<select id="selectCDSummaryDataForPageLoad" resultMap="BaseResultMap"
+		parameterType="com.s1.app.bank.reports.CDSummaryDataCriteria">
+		<include refid="Wrapper_Top_Pagination_SQL" />
+SELECT BNKCDYSTMTKY,ACCTID, 
+       cast(Sum(CODE23) AS Decimal(30,3)) CODE23,cast(Sum(CODE21) AS Decimal(30,3)) CODE21,cast(Sum(CLOSINGLEDGER) AS Decimal(30,3)) CLOSINGLEDGER,cast(Sum(OPENINGAVAILABLE) AS Decimal(30,3)) OPENINGAVAILABLE,
+       cast(Sum(CODE580) AS Decimal(30,3)) CODE580,
+       CASE
+           WHEN CAST(date(EFFECTIVEDTTM) AS Date) = CURRENT DATE
+                OR CAST(date(UPDATEDTTM) AS Date) = CURRENT DATE THEN CAST(date(UPDATEDTTM) AS Date)
+           ELSE NULL
+       END UPDATEDTTM__,
+       cast(Sum(LoanCurrentBalance) AS Decimal(30,3)) LoanCurrentBalance,cast(Sum(InterestRate) AS Decimal(30,3)) InterestRate,cast(Sum(NextPaymentAmt) AS Decimal(30,3)) NextPaymentAmt,
+       cast(Sum(PayoffAmount) AS Decimal(30,3)) PayoffAmount,cast(Sum(LastPaymentAmount) AS Decimal(30,3)) LastPaymentAmount,cast(Sum(TotalYTDInterest) AS Decimal(30,3)) TotalYTDInterest,
+       cast(Sum(TotalInterestPaidLastYear) AS Decimal(30,3)) TotalInterestPaidLastYear,Max(NextPaymentDate) NextPaymentDate,Max(LastPaymentDate) LastPaymentDate,Max(UpDt) LastUpdated,
+       CUSTOMERID,BNKACCTKY,Max(STMTDTTM) stmtdttm,FIID,UPDATEDTTM,EFFECTIVEDTTM,NICKNAME,PRODUCTTYPE,TEXTCURRCD,entitledDetacctKy,entitledSummacctKy,BATAUDITKY,ISTRNPRESENT,
+       COALESCE(ACCTNUMDSPLYMASK,'') ACCTNUMDSPLYMASK,ISNONDSPLYREPLACE,COALESCE(MASKREPLACECHAR,'') MASKREPLACECHAR,ISCURRENTDAY
+FROM
+  (SELECT DISTINCT CASE
+                       WHEN (FIELDNAME = 'availableBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CODE23,
+                   CASE
+                       WHEN (FIELDNAME = 'ledgerBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CODE21,
+                   CASE
+                       WHEN (FIELDNAME = 'closingLedger') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CLOSINGLEDGER,
+                   CASE
+                       WHEN (FIELDNAME = 'openingAvailable') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END OPENINGAVAILABLE,
+                   CASE
+                       WHEN (FIELDNAME = 'totalControlledDisbursingDebits') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CODE580,
+                   CASE
+                       WHEN (FIELDNAME = 'currentBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END LoanCurrentBalance,
+                   CASE
+                       WHEN (FIELDNAME = 'interestRate') THEN CAST(APPFLDDEFVALUE AS Decimal)
+                   END InterestRate,
+                   CASE
+                       WHEN (FIELDNAME = 'NextPmtCurAmt') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END NextPaymentAmt,
+                   CASE
+                       WHEN (FIELDNAME = 'DueDate') THEN TIMESTAMP_FORMAT(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')
+                   END NextPaymentDate,
+                   CASE
+                       WHEN (FIELDNAME = 'payoffBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END PayoffAmount,
+                   CASE
+                       WHEN (FIELDNAME = 'LastPmtCurAmt') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END LastPaymentAmount,
+                   CASE
+                       WHEN (FIELDNAME = 'lastPaymentDate') THEN TIMESTAMP_FORMAT(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')
+                   END LastPaymentDate,
+                   CASE
+                       WHEN (FIELDNAME = 'ytdInterest') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END TotalYTDInterest,
+                   CASE
+                       WHEN (FIELDNAME = 'LastYrInt') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END TotalInterestPaidLastYear,
+                   CASE
+                       WHEN (FIELDNAME = 'UpDt') THEN TIMESTAMP_FORMAT(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')
+                   END UpDt,
+                   c.ISTRNPRESENT,C.BATAUDITKY,BNKUserANDGrpEntl.ARCISOCURRENCYCDKY,BNKUserANDGrpEntl.ACCTID,F.BNKAPPFLDDEFKY,F.APPFLDDEFVALUE,BNKUserANDGrpEntl.nickname NICKNAME,BNKUserANDGrpEntl.TEXTCURRCD,
+                   BNKUserANDGrpEntl.FIID FIID,c.BNKCdyStmtky,F.ITEMCOUNT,f.EFFECTIVEDTTM__ AS EFFECTIVEDTTM,F.BNKCDYSTMTDETAILKY,BNKUserANDGrpEntl.BNKACCTKY,BNKUserANDGrpEntl.PRODNAME NAME,
+                   BNKUserANDGrpEntl.PRODACCTNUMDSPLYMASK ACCTNUMDSPLYMASK,BNKUserANDGrpEntl.PRODISNONDSPLYREPLACE ISNONDSPLYREPLACE,BNKUserANDGrpEntl.PRODMASKREPLACECHAR MASKREPLACECHAR,
+                   BNKUserANDGrpEntl.CUSTOMERID,C.UPDATEDTTM,C.STMTDTTM,BNKUserANDGrpEntl.PRODDESCRIPTION ProductType,M.FIELDNAME,
+                   CASE
+                       WHEN BNKUserANDGrpEntl.detail = 'DET' THEN bnkuserandgrpentl.BNKAcctKy
+                       ELSE NULL
+                   END entitledDetacctKy,
+                   CASE
+                       WHEN BNKUserANDGrpEntl.Summary = 'SUM' THEN bnkuserandgrpentl.BNKAcctKy
+                       ELSE NULL
+                   END entitledSummacctKy,
+                   CASE
+                       WHEN trunc(cast(C.UPDATEDTTM AS date)) = CURRENT DATE THEN 1
+                       ELSE NULL
+                   END ISCURRENTDAY
+   FROM bnkuserandgrpentl
+   INNER JOIN BNKCdyStmt c ON (c.bnkacctky = bnkuserandgrpentl.bnkacctky)
+   Left Outer join BNKCdyStmtDetail f  on c.BNKCdyStmtKy = f.BNKCdyStmtKy AND f.effectiveDttm__=  CURRENT DATE
+   LEFT OUTER JOIN BNKAppFldDef m ON f.BNKAppFldDefKy = m.BNKAppFldDefKy
+   AND m.fieldname IN ('availableBalance','ledgerBalance','closingLedger','openingAvailable','totalControlledDisbursingDebits','currentBalance',
+                       'interestRate','NextPmtCurAmt','DueDate','payoffBalance','LastPmtCurAmt','lastPaymentDate','ytdInterest','LastYrInt','UpDt')
+   LEFT OUTER JOIN BNKFLDDEFCDMAP n ON (m.BNKAPPFLDDEFKY = n.BNKAPPFLDDEFKY)
+   LEFT OUTER JOIN BNKAPPFLDTYPE o ON ((n.BNKAPPFLDDEFKY = o.BNKAPPFLDDEFKY)
+                                       AND o.BNKAPPFLDTYPEENUM IN ('BNKCurrentDay','Both'))
+   WHERE bnkuserandgrpentl.tokenid = #{tokenId}
+     AND 
+     bnkuserandgrpentl.arcprincipalky = #{principalKy}
+     <include refid="Prod_Desc_SQL" />
+     AND ((bnkuserandgrpentl.summary='SUM')
+          OR (bnkuserandgrpentl.detail='DET')) )
+          GROUP BY BNKCDYSTMTKY,ACCTID,CUSTOMERID,BNKACCTKY,FIID,UPDATEDTTM,EFFECTIVEDTTM,NICKNAME,PRODUCTTYPE,TEXTCURRCD,ENTITLEDDETACCTKY,ENTITLEDSUMMACCTKY,
+          BATAUDITKY,ISTRNPRESENT,ACCTNUMDSPLYMASK,ISNONDSPLYREPLACE,MASKREPLACECHAR,ISCURRENTDAY
+		<include refid="Wrapper_Bottom_Pagination_SQL" />
+	</select>
+	
+	<select id="selectCDSummaryElrLoanDataForPageLoad" resultMap="BaseResultMap"
+		parameterType="com.s1.app.bank.reports.CDSummaryDataCriteria">
+		<include refid="Wrapper_Top_Pagination_SQL" />
+		SELECT 
+	BNKCDYSTMTKY, ACCTID,
+	cast(Sum(CODE23) as Decimal(30, 3)) CODE23,
+	cast(Sum(CODE21) as Decimal(30, 3)) CODE21,
+	cast(Sum(InterestRate) as Decimal(30,3)) InterestRate, 
+	cast(Sum(NextPaymentAmt) as Decimal(30,3)) nextPaymentAmt, 
+	cast(Sum(PayoffAmount) as Decimal(30,3)) PayoffAmount, 
+	cast(Sum(LastPaymentAmount) as Decimal(30,3)) LastPaymentAmount,
+	cast(Sum(TotalYTDInterest) as Decimal(30,3)) TotalYTDInterest,
+	cast(Sum(TotalInterestPaidLastYear) as Decimal(30,3)) TotalInterestPaidLastYear, 
+	Max(NextPaymentDate) NextPaymentDate,
+	Max(LastPaymentDate) LastPaymentDate,
+	Max(UpDt) LastUpdated,  
+	CUSTOMERID, BNKACCTKY, Max(STMTDTTM) stmtdttm, FIID ,
+	UPDATEDTTM, EFFECTIVEDTTM,
+	NICKNAME, PRODUCTTYPE, TEXTCURRCD,	
+	entitledDetacctKy,
+	entitledSummacctKy,
+	BATAUDITKY, ISTRNPRESENT, COALESCE(ACCTNUMDSPLYMASK,'') ACCTNUMDSPLYMASK,
+	ISNONDSPLYREPLACE, COALESCE(MASKREPLACECHAR,'') MASKREPLACECHAR
+FROM (
+	SELECT DISTINCT
+		Case when (FIELDNAME = 'availableBalance') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) End CODE23,
+		Case when (FIELDNAME = 'ledgerBalance') Then CAST(APPFLDDEFVALUE as Decimal(30,3)) End CODE21,
+		Case when (FIELDNAME = 'interestRate') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) END InterestRate, 
+		Case when (FIELDNAME = 'NextPmtCurAmt') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) END NextPaymentAmt, 
+		Case when (FIELDNAME = 'DueDate') Then TIMESTAMP_FORMAT(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3') END NextPaymentDate, 
+		Case when (FIELDNAME = 'payoffBalance') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) END PayoffAmount, 
+		Case when (FIELDNAME = 'LastPmtCurAmt') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) END LastPaymentAmount, 
+		Case when (FIELDNAME = 'lastPaymentDate') Then TIMESTAMP_FORMAT(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3') END LastPaymentDate,
+		Case when (FIELDNAME = 'ytdInterest') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) END TotalYTDInterest, 
+		Case when (FIELDNAME = 'lastYearInterest') Then CAST(APPFLDDEFVALUE as Decimal(30, 3)) END TotalInterestPaidLastYear,
+		Case when (FIELDNAME = 'UpDt') Then TIMESTAMP_FORMAT(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')  END UpDt,
+		c.ISTRNPRESENT, C.BATAUDITKY, BNKUserANDGrpEntl.ARCISOCURRENCYCDKY, BNKUserANDGrpEntl.ACCTID, F.BNKAPPFLDDEFKY, F.APPFLDDEFVALUE,
+		BNKUserANDGrpEntl.nickname NICKNAME, BNKUserANDGrpEntl.TEXTCURRCD, BNKUserANDGrpEntl.FIID FIID, c.BNKCdyStmtky, F.ITEMCOUNT,
+		Timestamp_iso(f.EFFECTIVEDTTM__) EFFECTIVEDTTM,
+		F.BNKCDYSTMTDETAILKY, BNKUserANDGrpEntl.BNKACCTKY,
+		BNKUserANDGrpEntl.PRODNAME NAME, BNKUserANDGrpEntl.PRODACCTNUMDSPLYMASK ACCTNUMDSPLYMASK, BNKUserANDGrpEntl.PRODISNONDSPLYREPLACE ISNONDSPLYREPLACE,
+		BNKUserANDGrpEntl.PRODMASKREPLACECHAR MASKREPLACECHAR, BNKUserANDGrpEntl.CUSTOMERID,
+		C.UPDATEDTTM, C.STMTDTTM, BNKUserANDGrpEntl.PRODDESCRIPTION ProductType, M.FIELDNAME,
+		case when BNKUserANDGrpEntl.detail = 'DET' then bnkuserandgrpentl.BNKAcctKy else null end entitledDetacctKy,
+		case when BNKUserANDGrpEntl.Summary = 'SUM' then bnkuserandgrpentl.BNKAcctKy else null end entitledSummacctKy
+	FROM
+		bnkuserandgrpentl
+		Inner join BNKCdyStmt c on (c.bnkacctky = bnkuserandgrpentl.bnkacctky )
+		Left Outer join BNKCdyStmtDetail f on c.BNKCdyStmtKy = f.BNKCdyStmtKy AND f.effectiveDttm__ = CURRENT DATE
+		Left Outer join BNKAppFldDef m on f.BNKAppFldDefKy = m.BNKAppFldDefKy AND
+			m.fieldname IN ('closingLedger','openingAvailable','interestRate','NextPmtCurAmt','DueDate','payoffBalance','LastPmtCurAmt','lastPaymentDate','ytdInterest','lastYearInterest','UpDt')
+		Left Outer JOIN BNKFLDDEFCDMAP n ON (m.BNKAPPFLDDEFKY = n.BNKAPPFLDDEFKY)
+		Left Outer join BNKAPPFLDTYPE o on ((n.BNKAPPFLDDEFKY = o.BNKAPPFLDDEFKY) AND o.BNKAPPFLDTYPEENUM IN ('BNKPriorDay', 'BNKCdyPdyBoth'))
+	WHERE
+		bnkuserandgrpentl.tokenid = #{tokenId}
+		<include refid="Prod_Desc_SQL" /> 
+		AND 
+		bnkuserandgrpentl.arcprincipalky = #{principalKy} 
+		And   
+		((bnkuserandgrpentl.summary='SUM' ) or (bnkuserandgrpentl.detail='DET') ) 
+	)
+    GROUP BY
+	BNKCDYSTMTKY, ACCTID, CUSTOMERID, BNKACCTKY, FIID, UPDATEDTTM, EFFECTIVEDTTM,
+	NICKNAME, PRODUCTTYPE, TEXTCURRCD, ENTITLEDDETACCTKY, ENTITLEDSUMMACCTKY,
+	BATAUDITKY, ISTRNPRESENT, ACCTNUMDSPLYMASK, ISNONDSPLYREPLACE, MASKREPLACECHAR 
+	<include refid="Wrapper_Bottom_Pagination_SQL" />
+	</select>
+	
+	<select id="selectCDSummaryDataForPageLoadOracle" resultMap="BaseResultMap"
+		parameterType="com.s1.app.bank.reports.CDSummaryDataCriteria">
+		<include refid="Wrapper_Top_Pagination_SQL" />
+		SELECT BNKCDYSTMTKY,ACCTID, 
+       cast(Sum(CODE23) AS Decimal(30,3)) CODE23,cast(Sum(CODE21) AS Decimal(30,3)) CODE21,cast(Sum(CLOSINGLEDGER) AS Decimal(30,3)) CLOSINGLEDGER,cast(Sum(OPENINGAVAILABLE) AS Decimal(30,3)) OPENINGAVAILABLE,
+       cast(Sum(CODE580) AS Decimal(30,3)) CODE580,
+       CASE
+           WHEN trunc(EFFECTIVEDTTM)  = trunc(sysdate + 1 )
+                OR trunc(EFFECTIVEDTTM)  = trunc(sysdate )
+                OR trunc(UPDATEDTTM)  = trunc(sysdate ) THEN trunc(UPDATEDTTM) 
+           ELSE NULL
+       END UPDATEDTTM__,
+       cast(Sum(LoanCurrentBalance) AS Decimal(30,3)) LoanCurrentBalance,cast(Sum(InterestRate) AS Decimal(30,3)) InterestRate,cast(Sum(NextPaymentAmt) AS Decimal(30,3)) NextPaymentAmt,
+       cast(Sum(PayoffAmount) AS Decimal(30,3)) PayoffAmount,cast(Sum(LastPaymentAmount) AS Decimal(30,3)) LastPaymentAmount,cast(Sum(TotalYTDInterest) AS Decimal(30,3)) TotalYTDInterest,
+       cast(Sum(TotalInterestPaidLastYear) AS Decimal(30,3)) TotalInterestPaidLastYear,Max(NextPaymentDate) NextPaymentDate,Max(LastPaymentDate) LastPaymentDate,Max(UpDt) LastUpdated,
+       CUSTOMERID,BNKACCTKY,Max(STMTDTTM) stmtdttm,FIID,UPDATEDTTM,EFFECTIVEDTTM,NICKNAME,PRODUCTTYPE,TEXTCURRCD,entitledDetacctKy,entitledSummacctKy,BATAUDITKY,ISTRNPRESENT,
+       COALESCE(ACCTNUMDSPLYMASK,'') ACCTNUMDSPLYMASK,ISNONDSPLYREPLACE,COALESCE(MASKREPLACECHAR,'') MASKREPLACECHAR,ISCURRENTDAY
+		FROM
+  		(SELECT DISTINCT CASE
+                       WHEN (FIELDNAME = 'availableBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CODE23,
+                   CASE
+                       WHEN (FIELDNAME = 'ledgerBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CODE21,
+                   CASE
+                       WHEN (FIELDNAME = 'closingLedger') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CLOSINGLEDGER,
+                   CASE
+                       WHEN (FIELDNAME = 'openingAvailable') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END OPENINGAVAILABLE,
+                   CASE
+                       WHEN (FIELDNAME = 'totalControlledDisbursingDebits') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END CODE580,
+                   CASE
+                       WHEN (FIELDNAME = 'currentBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END LoanCurrentBalance,
+                   CASE
+                       WHEN (FIELDNAME = 'interestRate') THEN CAST(APPFLDDEFVALUE AS Decimal)
+                   END InterestRate,
+                   CASE
+                       WHEN (FIELDNAME = 'NextPmtCurAmt') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END NextPaymentAmt,
+                   CASE
+                       WHEN (FIELDNAME = 'DueDate') THEN to_timestamp(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')
+                   END NextPaymentDate,
+                   CASE
+                       WHEN (FIELDNAME = 'payoffBalance') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END PayoffAmount,
+                   CASE
+                       WHEN (FIELDNAME = 'LastPmtCurAmt') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END LastPaymentAmount,
+                   CASE
+                       WHEN (FIELDNAME = 'lastPaymentDate') THEN to_timestamp(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')
+                   END LastPaymentDate,
+                   CASE
+                       WHEN (FIELDNAME = 'ytdInterest') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END TotalYTDInterest,
+                   CASE
+                       WHEN (FIELDNAME = 'LastYrInt') THEN CAST(APPFLDDEFVALUE AS Decimal(30,3))
+                   END TotalInterestPaidLastYear,
+                   CASE
+                       WHEN (FIELDNAME = 'UpDt') THEN to_timestamp(APPFLDDEFVALUE,'YYYY-MM-DD HH24:MI:SS.FF3')
+                   END UpDt,
+                   c.ISTRNPRESENT,C.BATAUDITKY,BNKUserANDGrpEntl.ARCISOCURRENCYCDKY,BNKUserANDGrpEntl.ACCTID,F.BNKAPPFLDDEFKY,F.APPFLDDEFVALUE,BNKUserANDGrpEntl.nickname NICKNAME,BNKUserANDGrpEntl.TEXTCURRCD,
+                   BNKUserANDGrpEntl.FIID FIID,c.BNKCdyStmtky,F.ITEMCOUNT,f.EFFECTIVEDTTM__ AS EFFECTIVEDTTM,F.BNKCDYSTMTDETAILKY,BNKUserANDGrpEntl.BNKACCTKY,BNKUserANDGrpEntl.PRODNAME NAME,
+                   BNKUserANDGrpEntl.PRODACCTNUMDSPLYMASK ACCTNUMDSPLYMASK,BNKUserANDGrpEntl.PRODISNONDSPLYREPLACE ISNONDSPLYREPLACE,BNKUserANDGrpEntl.PRODMASKREPLACECHAR MASKREPLACECHAR,
+                   BNKUserANDGrpEntl.CUSTOMERID,C.UPDATEDTTM,C.STMTDTTM,BNKUserANDGrpEntl.PRODDESCRIPTION ProductType,M.FIELDNAME,
+                   CASE
+                       WHEN BNKUserANDGrpEntl.detail = 'DET' THEN bnkuserandgrpentl.BNKAcctKy
+                       ELSE NULL
+                   END entitledDetacctKy,
+                   CASE
+                       WHEN BNKUserANDGrpEntl.Summary = 'SUM' THEN bnkuserandgrpentl.BNKAcctKy
+                       ELSE NULL
+                   END entitledSummacctKy,
+                   CASE
+                       WHEN trunc(cast(C.UPDATEDTTM AS date)) = trunc(sysdate) THEN 1
+                       ELSE NULL
+                   END ISCURRENTDAY
+   FROM bnkuserandgrpentl
+   INNER JOIN BNKCdyStmt c ON (c.bnkacctky = bnkuserandgrpentl.bnkacctky)
+   Left Outer join BNKCdyStmtDetail f  on c.BNKCdyStmtKy = f.BNKCdyStmtKy AND f.effectiveDttm__=  trunc(sysdate) 
+   LEFT OUTER JOIN BNKAppFldDef m ON f.BNKAppFldDefKy = m.BNKAppFldDefKy
+   AND m.fieldname IN ('availableBalance','ledgerBalance','closingLedger','openingAvailable','totalControlledDisbursingDebits','currentBalance',
+                       'interestRate','NextPmtCurAmt','DueDate','payoffBalance','LastPmtCurAmt','lastPaymentDate','ytdInterest','LastYrInt','UpDt')
+   LEFT OUTER JOIN BNKFLDDEFCDMAP n ON (m.BNKAPPFLDDEFKY = n.BNKAPPFLDDEFKY)
+   LEFT OUTER JOIN BNKAPPFLDTYPE o ON ((n.BNKAPPFLDDEFKY = o.BNKAPPFLDDEFKY)
+                                       AND o.BNKAPPFLDTYPEENUM IN ('BNKCurrentDay','Both'))
+   WHERE bnkuserandgrpentl.tokenid = #{tokenId}
+     AND 
+     bnkuserandgrpentl.arcprincipalky = #{principalKy}
+     <include refid="Prod_Desc_SQL" />
+     AND ((bnkuserandgrpentl.summary='SUM')
+          OR (bnkuserandgrpentl.detail='DET')) )
+          GROUP BY BNKCDYSTMTKY,ACCTID,CUSTOMERID,BNKACCTKY,FIID,UPDATEDTTM,EFFECTIVEDTTM,NICKNAME,PRODUCTTYPE,TEXTCURRCD,ENTITLEDDETACCTKY,ENTITLEDSUMMACCTKY,
+          BATAUDITKY,ISTRNPRESENT,ACCTNUMDSPLYMASK,ISNONDSPLYREPLACE,MASKREPLACECHAR,ISCURRENTDAY
+		<include refid="Wrapper_Bottom_Pagination_SQL" />
+	</select>
+
+	<select id="selectCDDetailDataForAccount" resultMap="BaseResultMap"
+		parameterType="com.s1.app.bank.reports.CDSummaryDataCriteria">
+		<include refid="Wrapper_Top_SQL" />
+		SELECT DISTINCT bnkuserandgrpentl.FIID,
+		bnkuserandgrpentl.ARCISOcurrencycdky, bnkuserandgrpentl.acctid,
+		bnkuserandgrpentl.nickname, bnkuserandgrpentl.textcurrcd,
+		bnkuserandgrpentl.bnkacctky, bnkuserandgrpentl.prodname name,
+		bnkuserandgrpentl.customerid,
+		bnkuserandgrpentl.prodDescription ProductType, a.bnkpdystmtky, a.stmtdttm, a.code58, a.code59,
+		a.code66, a.code87, a.code89, a.code102, a.code181,
+		a.code257, a.code256,
+		a.istrnpresent, ROW_NUMBER, q.maxrownumber,
+		q.bnkacctky MrgAcctKy, a.bnkacctky mqtAcctKy,
+		CASE WHEN bnkuserandgrpentl.detail = 'DET' THEN
+		bnkuserandgrpentl.bnkacctky ELSE NULL END entitledDetacctKy,
+		CASE WHEN bnkuserandgrpentl.SUMMARY = 'SUM' THEN
+		bnkuserandgrpentl.bnkacctky ELSE NULL END entitledSummacctKy,
+		bnkuserandgrpentl.bnkacctky AcctKy,
+		Coalesce(bnkuserandgrpentl.PRODACCTNUMDSPLYMASK,'') ACCTNUMDSPLYMASK,
+		bnkuserandgrpentl.PRODISNONDSPLYREPLACE ISNONDSPLYREPLACE,
+		Coalesce(bnkuserandgrpentl.PRODMASKREPLACECHAR,'') MASKREPLACECHAR
+		FROM bnkuserandgrpentl
+		JOIN bnkpdystmtiirmqt a ON (( a.bnkcustomerky =
+		#{customerKy}
+		) AND ( bnkuserandgrpentl.bnkacctky = a.bnkacctky ))
+		JOIN bnkacctmrgrollup q ON (bnkuserandgrpentl.bnkacctky = q.bnkacctky)
+		WHERE
+		bnkuserandgrpentl.arcprincipalky =
+		#{principalKy}
+		AND bnkuserandgrpentl.tokenid =
+		#{tokenId}
+		<include refid="Prod_Desc_SQL" />
+		AND bnkuserandgrpentl.bnkacctky = #{acctKy}
+		AND (( bnkuserandgrpentl.SUMMARY = 'SUM'
+		OR bnkuserandgrpentl.detail = 'DET' ) )
+		<include refid="Wrapper_Bottom_SQL" />
+		WHERE ab.mqtacctky IS NULL OR ( ab.ROW_NUMBER <![CDATA[ >= ]]>
+		( ( ab.maxrownumber -
+		<if test="numOfItems != null">
+			#{numOfItems}
+		</if>
+		) + 1 ) )) am
+		WHERE am.rnbr <![CDATA[ <= ]]>
+		<if test="numOfItems != null">
+			#{numOfItems}
+		</if>
+
+	</select>
+
+	<select id="selectCDTransactionsDataForStmt" resultMap="TransactionsResultMap"
+		parameterType="com.s1.app.bank.reports.CDTransactionsDataCriteria">
+		<include refid="Wrapper_Top_Pagination_SQL" />
+SELECT DISTINCT BNKACCT.DSPLYCDIRFIID FIID,BNKACCT.ACCTID,BNKACCT.ISOCURRENCYCDKY,ARCISOCURRENCYCD.TEXTCURRCD,BNKCUSTACCT.NICKNAME,BNKCDYTRN.AMOUNT,
+                BNKCDYTRN.MEMO,BNKCDYTRN.DAYFLOATAMT0,BNKCDYTRN.DAYFLOATAMT1,BNKCDYTRN.DAYFLOATAMT2,BNKCDYTRN.VALUEDT,BNKCDYTRN.CUSTTRNREF,
+                BNKCDYTRN.FITRNREFERENCE,VFMTRNTYPE.DEBITCREDIT,ARCMessage.translation,BNKCDYTRN.POSTEDDTTM,BNKCDYSTMT.BNKCDYSTMTKY,BNKCDYTRN.BNKCDYTRNKY,
+                BNKACCT.BNKACCTKY,BNKPRODUCT.NAME,BNKCUSTOMER.CUSTOMERID,VFMTRNTYPE.DSPLYVAL,VFMTRNTYPE.SUPPORTEDIMAGETYPE,
+                max(CASE
+                        WHEN VFMTRNCDTRNTP.EXTERNALSYSTYPECD = 1 THEN VFMTRNCDTRNTP.TRNCODE
+                    END) BAITRNCODE,
+                max(CASE
+                        WHEN VFMTRNCDTRNTP.EXTERNALSYSTYPECD = 2 THEN VFMTRNCDTRNTP.TRNCODE
+                    END) SWIFTTRNCODE,
+                BNKPRODUCT.ACCTNUMDSPLYMASK,BNKPRODUCT.ISNONDSPLYREPLACE,BNKPRODUCT.MASKREPLACECHAR
+FROM BNKACCT
+INNER JOIN BNKCDYSTMT BNKCDYSTMT ON ((BNKACCT.BNKACCTKY = BNKCDYSTMT.BNKACCTKY)
+                                     AND (BNKCDYSTMT.BNKACCTKY=#{acctKy})
+                                     AND (BNKCDYSTMT.BNKCDYSTMTKY =#{stmtKy}))
+INNER JOIN ARCISOCURRENCYCD ARCISOCURRENCYCD ON (BNKACCT.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY)
+INNER JOIN BNKPRODUCT BNKPRODUCT ON (BNKACCT.BNKPRODUCTKY = BNKPRODUCT.BNKPRODUCTKY)
+INNER JOIN VFMPRODSUBTYPE VFMPRODSUBTYPE ON (BNKPRODUCT.BNKPRODSUBTYPEKY = VFMPRODSUBTYPE.VFMPRODSUBTYPEKY)
+INNER JOIN BNKCDYTRN BNKCDYTRN ON ((BNKCDYSTMT.BNKCDYSTMTKY = BNKCDYTRN.BNKCDYSTMTKY)
+                                   AND (BNKCDYTRN.POSTEDDTTM <![CDATA[ >= ]]> #{fromDate}
+                                        AND BNKCDYTRN.POSTEDDTTM <![CDATA[ <= ]]> #{toDate}))
+INNER JOIN VFMTRNTYPE VFMTRNTYPE ON (BNKCDYTRN.BNKTRNTYPEKY = VFMTRNTYPE.VFMTRNTYPEKY)
+INNER JOIN VFMTRNCDTRNTP VFMTRNCDTRNTP ON ((VFMTRNTYPE.VFMTRNTYPEKY = VFMTRNCDTRNTP.VFMTRNTYPEKY)
+                                           AND (BNKPRODUCT.BNKPRODSUBTYPEKY = VFMTRNCDTRNTP.VFMPRODSUBTYPEKY))
+INNER JOIN BNKCUSTACCT BNKCUSTACCT ON (BNKACCT.BNKACCTKY = BNKCUSTACCT.BNKACCTKY)
+INNER JOIN BNKCUSTOMER BNKCUSTOMER ON ((BNKCUSTOMER.CUSTOMERID=#{customerId})
+                                       AND (BNKCUSTACCT.CORCUSTOMERKY = BNKCUSTOMER.BNKCUSTOMERKY))
+INNER JOIN ARCMessage ARCMessage ON (BNKFmtEnum = msgCode)
+INNER JOIN ARCLocaleCd ARCLocaleCd ON ((ARCLocaleCd.ARCLocaleCdKy = ARCMessage.ARCLocaleCdKy)
+                                       AND (ARCLocaleCd.NAME = #{locale}))
+GROUP BY BNKACCT.ACCTID,BNKACCT.DSPLYCDIRFIID,BNKACCT.ISOCURRENCYCDKY,ARCISOCURRENCYCD.TEXTCURRCD,BNKCUSTACCT.NICKNAME,BNKCDYTRN.AMOUNT,
+         BNKCDYTRN.MEMO,BNKCDYTRN.DAYFLOATAMT0,BNKCDYTRN.DAYFLOATAMT1,BNKCDYTRN.DAYFLOATAMT2,BNKCDYTRN.CUSTTRNREF,BNKCDYTRN.FITRNREFERENCE,
+         VFMTRNTYPE.DEBITCREDIT,ARCMessage.translation,BNKCDYTRN.POSTEDDTTM,BNKCDYSTMT.BNKCDYSTMTKY,BNKCDYTRN.BNKCDYTRNKY,BNKACCT.BNKACCTKY,
+         BNKPRODUCT.NAME,BNKCUSTOMER.CUSTOMERID,VFMTRNTYPE.DSPLYVAL,VFMTRNTYPE.SUPPORTEDIMAGETYPE,BNKCDYTRN.VALUEDT,BNKPRODUCT.ACCTNUMDSPLYMASK,
+         BNKPRODUCT.ISNONDSPLYREPLACE,BNKPRODUCT.MASKREPLACECHAR
+		<include refid="Wrapper_Bottom_Pagination_SQL" />
+	</select>
+
+	<select id="selectCDTransactionsDataForStmtOracle" resultMap="TransactionsResultMap"
+		parameterType="com.s1.app.bank.reports.CDTransactionsDataCriteria">
+		<include refid="Wrapper_Top_Pagination_SQL" />
+SELECT DISTINCT BNKACCT.DSPLYCDIRFIID FIID,BNKACCT.ACCTID,BNKACCT.ISOCURRENCYCDKY,ARCISOCURRENCYCD.TEXTCURRCD,BNKCUSTACCT.NICKNAME,BNKCDYTRN.AMOUNT,
+                BNKCDYTRN.MEMO,BNKCDYTRN.DAYFLOATAMT0,BNKCDYTRN.DAYFLOATAMT1,BNKCDYTRN.DAYFLOATAMT2,BNKCDYTRN.VALUEDT,BNKCDYTRN.CUSTTRNREF,
+                BNKCDYTRN.FITRNREFERENCE,VFMTRNTYPE.DEBITCREDIT,ARCMessage.translation,BNKCDYTRN.POSTEDDTTM,BNKCDYSTMT.BNKCDYSTMTKY,BNKCDYTRN.BNKCDYTRNKY,
+                BNKACCT.BNKACCTKY,BNKPRODUCT.NAME,BNKCUSTOMER.CUSTOMERID,VFMTRNTYPE.DSPLYVAL,VFMTRNTYPE.SUPPORTEDIMAGETYPE,
+                max(CASE
+                        WHEN VFMTRNCDTRNTP.EXTERNALSYSTYPECD = 1 THEN VFMTRNCDTRNTP.TRNCODE
+                    END) BAITRNCODE,
+                max(CASE
+                        WHEN VFMTRNCDTRNTP.EXTERNALSYSTYPECD = 2 THEN VFMTRNCDTRNTP.TRNCODE
+                    END) SWIFTTRNCODE,
+                BNKPRODUCT.ACCTNUMDSPLYMASK,BNKPRODUCT.ISNONDSPLYREPLACE,BNKPRODUCT.MASKREPLACECHAR
+FROM BNKACCT
+INNER JOIN BNKCDYSTMT BNKCDYSTMT ON ((BNKACCT.BNKACCTKY = BNKCDYSTMT.BNKACCTKY)
+                                     AND (BNKCDYSTMT.BNKACCTKY=#{acctKy})
+                                     AND (BNKCDYSTMT.BNKCDYSTMTKY =#{stmtKy}))
+INNER JOIN ARCISOCURRENCYCD ARCISOCURRENCYCD ON (BNKACCT.ISOCURRENCYCDKY = ARCISOCURRENCYCD.ARCISOCURRENCYCDKY)
+INNER JOIN BNKPRODUCT BNKPRODUCT ON (BNKACCT.BNKPRODUCTKY = BNKPRODUCT.BNKPRODUCTKY)
+INNER JOIN VFMPRODSUBTYPE VFMPRODSUBTYPE ON (BNKPRODUCT.BNKPRODSUBTYPEKY = VFMPRODSUBTYPE.VFMPRODSUBTYPEKY)
+INNER JOIN BNKCDYTRN BNKCDYTRN ON ((BNKCDYSTMT.BNKCDYSTMTKY = BNKCDYTRN.BNKCDYSTMTKY)
+                                   AND (BNKCDYTRN.POSTEDDTTM <![CDATA[ >= ]]> to_timestamp(#{fromDate},'YYYY-MM-DD HH24:MI:SS.FF3')
+                                        AND BNKCDYTRN.POSTEDDTTM <![CDATA[ <= ]]> to_timestamp(#{toDate},'YYYY-MM-DD HH24:MI:SS.FF3')))
+INNER JOIN VFMTRNTYPE VFMTRNTYPE ON (BNKCDYTRN.BNKTRNTYPEKY = VFMTRNTYPE.VFMTRNTYPEKY)
+INNER JOIN VFMTRNCDTRNTP VFMTRNCDTRNTP ON ((VFMTRNTYPE.VFMTRNTYPEKY = VFMTRNCDTRNTP.VFMTRNTYPEKY)
+                                           AND (BNKPRODUCT.BNKPRODSUBTYPEKY = VFMTRNCDTRNTP.VFMPRODSUBTYPEKY))
+INNER JOIN BNKCUSTACCT BNKCUSTACCT ON (BNKACCT.BNKACCTKY = BNKCUSTACCT.BNKACCTKY)
+INNER JOIN BNKCUSTOMER BNKCUSTOMER ON ((BNKCUSTOMER.CUSTOMERID=#{customerId})
+                                       AND (BNKCUSTACCT.CORCUSTOMERKY = BNKCUSTOMER.BNKCUSTOMERKY))
+INNER JOIN ARCMessage ARCMessage ON (BNKFmtEnum = msgCode)
+INNER JOIN ARCLocaleCd ARCLocaleCd ON ((ARCLocaleCd.ARCLocaleCdKy = ARCMessage.ARCLocaleCdKy)
+                                       AND (ARCLocaleCd.NAME = #{locale}))
+GROUP BY BNKACCT.ACCTID,BNKACCT.DSPLYCDIRFIID,BNKACCT.ISOCURRENCYCDKY,ARCISOCURRENCYCD.TEXTCURRCD,BNKCUSTACCT.NICKNAME,BNKCDYTRN.AMOUNT,
+         BNKCDYTRN.MEMO,BNKCDYTRN.DAYFLOATAMT0,BNKCDYTRN.DAYFLOATAMT1,BNKCDYTRN.DAYFLOATAMT2,BNKCDYTRN.CUSTTRNREF,BNKCDYTRN.FITRNREFERENCE,
+         VFMTRNTYPE.DEBITCREDIT,ARCMessage.translation,BNKCDYTRN.POSTEDDTTM,BNKCDYSTMT.BNKCDYSTMTKY,BNKCDYTRN.BNKCDYTRNKY,BNKACCT.BNKACCTKY,
+         BNKPRODUCT.NAME,BNKCUSTOMER.CUSTOMERID,VFMTRNTYPE.DSPLYVAL,VFMTRNTYPE.SUPPORTEDIMAGETYPE,BNKCDYTRN.VALUEDT,BNKPRODUCT.ACCTNUMDSPLYMASK,
+         BNKPRODUCT.ISNONDSPLYREPLACE,BNKPRODUCT.MASKREPLACECHAR
+		<include refid="Wrapper_Bottom_Pagination_SQL" />
+	</select>
+	
+	<update id="deleteUsrGrpEntl" statementType="CALLABLE" parameterType="map">
+	    {call BNKUsrEntlDelSp(#{v_tokenId})}
+    </update>
+</mapper>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.TransactionAlertEvaluatorMapper">
+
+
+	<select id="getTransactionInformation" parameterType="map" resultType="com.s1.alerts.model.AccountTransactionCodes">
+		select 
+			a.VFMTRNCDTRNTPKY as "oid",
+			a.VFMTRNTYPEKY as "transactionOid",
+			b.DESCRIPTION as "description",
+			a.TRNCODE as "txnCode",
+			a.VFMPRODSUBTYPEKY as "prodSubTypeOid",
+			a.EXTERNALSYSTYPECD as "txnContext"
+		from 
+			VFMTrnCdTrnTp a, VFMTRNTYPE b 
+		where 
+			a.VFMTRNTYPEKY=b.VFMTRNTYPEKY
+			<if test="txnCodes != null">
+				and a.trncode in
+				<foreach collection="txnCodes" item="txnCode" open="(" close=")" separator=",">
+	            	 #{txnCode}
+	        	</foreach>
+			 </if>
+	</select>
+
+	<!--
+	  Note that this query uses literals ( ${...} ) instead of replaceable parameters ( #{...} ) because
+	  DB2, for some reason, does a remarkably better job picking an execution strategy with the literals
+	  in place. 
+	  -->
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="AlertSubscriptionMap">
+		 SELECT bas.*
+	   	   FROM bnkalrtsbscrptn bas, bnkalrttype bat
+	   	  WHERE bas.bnkalrttypeky = bat.bnkalrttypeky
+       		AND bat.alertname = 'transAlert'
+       		AND bas.bnkalrtsbscrptnky IN (SELECT bapvAcct.bnkalrtsbscrptnky
+                                     		FROM bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                     	   WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+							                 AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+							                 AND batp.parmname = 'account'
+							                 AND bapvAcct.integervalue = ${accountOid}
+							              )
+       AND bas.bnkalrtsbscrptnky IN (SELECT bapvAcct.bnkalrtsbscrptnky
+                                       FROM   bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                      WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+						                AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+						                AND batp.parmname = 'transaction'
+						                AND bapvAcct.integervalue = ${txnCodeOid}
+						             )
+       AND bas.bnkalrtsbscrptnky IN (
+       								 (SELECT bapvAcct.bnkalrtsbscrptnky
+                                        FROM bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                       WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+							             AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+							             AND batp.parmname = 'amtType'
+               							 AND bapvAcct.textvalue = 'ND')
+                                       UNION
+                                     (
+                                     (SELECT bapvAcct.bnkalrtsbscrptnky
+                                        FROM bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                       WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+						                 AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+						                 AND batp.parmname = 'amtType'
+						                 AND bapvAcct.textvalue = 'O')
+                                   INTERSECT
+                                     (SELECT bapvAcct.bnkalrtsbscrptnky
+                                        FROM bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                       WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+							             AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+							             AND batp.parmname = 'threshold'
+							             AND bapvAcct.decimalvalue <![CDATA[ < ]]> ${maxValue})
+							          )
+                                       UNION
+                                     (
+                                     (SELECT bapvAcct.bnkalrtsbscrptnky
+                                        FROM bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                       WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+						                 AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+						                 AND batp.parmname = 'amtType'
+						                 AND bapvAcct.textvalue = 'U')
+                                   INTERSECT
+                                     (SELECT bapvAcct.bnkalrtsbscrptnky
+                                        FROM bnkalrttypeparm batp, bnkalrtparmvalue bapvAcct
+                                       WHERE bas.bnkalrtsbscrptnky = bapvAcct.bnkalrtsbscrptnky
+							             AND bapvAcct.bnkalrttypeparmky = batp.bnkalrttypeparmky
+							             AND batp.parmname = 'threshold'
+							             AND bapvAcct.decimalvalue <![CDATA[ > ]]> ${minValue})
+							          )
+               					 )
+	</select>
+	
+	<resultMap id="AlertSubscriptionMap" type="com.s1.alerts.model.AlertSubscription" >
+	    <id column="BNKALRTSBSCRPTNKY" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="BNKALRTTYPEKY" property="alertTypeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="BNKUSERKY" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="ISTRIGGERABLE" property="isTriggerable" jdbcType="CHAR" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	    <result column="LASTTRIGGEREDDTTM" property="lastTriggered" jdbcType="TIMESTAMP" />
+	    <result column="UPDATEDTTM" property="updateDateTime" jdbcType="TIMESTAMP" />
+	    <result column="UPDATEUSER" property="updateUser" jdbcType="VARCHAR" />
+	    <result column="VERSIONSTAMP" property="versionStamp" jdbcType="SMALLINT" />
+	    <result column="ISDISABLED" property="isDisabled" jdbcType="CHAR" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	    <result column="DISABLEDREASONCD" property="disabledReasonCode" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap id="txnAlrtmap" type="com.s1.bnk.alerts.model.TransactionAlertValue">
+		<id column="BNKALRTSBSCRPTNKY" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+		<result column="amtType" property="amountType" jdbcType="VARCHAR"/>
+		<result column="threshold" property="threshold" jdbcType="DECIMAL"/>
+		<association property="subscription" javaType="com.s1.alerts.model.AlertSubscription" resultMap="AlertSubscriptionMap" column="BNKALRTSBSCRPTNKY"/>
+	</resultMap>
+	
+	<select id="getMatchingTransactionValues" parameterType="map" resultMap="txnAlrtmap">
+		 SELECT bas.BNKALRTSBSCRPTNKY, bas.*, amtType, threshold
+  		   FROM BnkAlrtSbscrptn bas, BnkAlrtType bat,
+		  (SELECT bapvAcct.textValue as amtType, bapvAcct.BnkAlrtSbscrptnKy as amtSubKy
+		                   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+		                  WHERE bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+		                    AND batp.ParmName = 'amtType'
+		  ),
+		  (SELECT bapvAcct.decimalValue as threshold, bapvAcct.BnkAlrtSbscrptnKy as balSubKy
+		                   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+		                  WHERE bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+		                    AND batp.ParmName = 'threshold'
+		  )
+		 WHERE bas.BnkAlrtTypeKy = bat.BnkAlrtTypeKy
+		   AND bat.AlertName = 'transAlert'
+		   AND bas.BnkAlrtSbscrptnKy in 
+		                (SELECT bapvAcct.BnkAlrtSbscrptnKy
+		                   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+		                  WHERE bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+		                    AND batp.ParmName = 'account'
+		                    AND bapvAcct.IntegerValue = #{accountOid}
+		                )
+		   AND bas.BnkAlrtSbscrptnKy in 
+		                (SELECT bapvAcct.BnkAlrtSbscrptnKy
+		                   FROM BnkAlrtTypeParm batp, BnkAlrtParmValue bapvAcct
+		                  WHERE bapvAcct.BNKAlrtTypeParmKy = batp.BNKAlrtTypeParmKy
+		                    AND batp.ParmName = 'transaction'
+		                    AND bapvAcct.IntegerValue = #{txnCodeOid}
+		                )
+			AND amtSubKy = bas.BnkAlrtSbscrptnKy
+			AND balSubKy = bas.BnkAlrtSbscrptnKy
+	</select>
+
+</mapper>

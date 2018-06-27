@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.s1.bnk.alerts.evaluation.dao.TransactionAlertsBulkEvaluatorMapper">
+
+
+	<!--
+	  Note that this query uses literals ( ${...} ) instead of replaceable parameters ( #{...} ) because
+	  DB2, for some reason, does a remarkably better job picking an execution strategy with the literals
+	  in place. 
+	  -->
+	<select id="getMatchingSubscriptions" parameterType="map" resultMap="AlertSubscriptionMap">
+			select a.BNKALRTSBSCRPTNKY, a.BNKALRTTYPEKY, a.BNKUserKy,  a.ISTRIGGERABLE, a.LASTTRIGGEREDDTTM,
+			a.ISDISABLED, a.DISABLEDREASONCD
+			from BNKAlrtTrnParmValue a, BNKAlrtTrnBatch b
+			where b.BNKAcctKy = a.BNKAcctKy
+			and b.trnCode = a.trnCode
+			and b.alertBatchId = ${alertBatchId}
+			and ((a.thresholdTypeCode = 'U' and b.amount  <![CDATA[ <= ]]>
+			a.thresholdAmount ) or
+			(a.thresholdTypeCode = 'O' and b.amount  <![CDATA[ >= ]]>
+			a.thresholdAmount ) or
+			(a.thresholdTypeCode = 'ND' ))
+	</select>
+	
+	<resultMap id="AlertSubscriptionMap" type="com.s1.alerts.model.AlertSubscription" >
+	    <id column="BNKALRTSBSCRPTNKY" property="oid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="BNKALRTTYPEKY" property="alertTypeOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="BNKUSERKY" property="userOid" jdbcType="INTEGER" typeHandler="com.s1.arch.ibatis.ObjectIdTypeHandler" />
+	    <result column="ISTRIGGERABLE" property="isTriggerable" jdbcType="CHAR" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	    <result column="LASTTRIGGEREDDTTM" property="lastTriggered" jdbcType="TIMESTAMP" />
+	    <result column="UPDATEDTTM" property="updateDateTime" jdbcType="TIMESTAMP" />
+	    <result column="UPDATEUSER" property="updateUser" jdbcType="VARCHAR" />
+	    <result column="VERSIONSTAMP" property="versionStamp" jdbcType="SMALLINT" />
+	    <result column="ISDISABLED" property="isDisabled" jdbcType="CHAR" typeHandler="com.s1.arch.ibatis.ZeroOneBooleanTypeHandler" />
+	    <result column="DISABLEDREASONCD" property="disabledReasonCode" jdbcType="VARCHAR" />
+	</resultMap>
+
+	
+
+
+</mapper>
